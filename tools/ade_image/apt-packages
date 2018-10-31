@@ -27,3 +27,7 @@ libasound2
 libgtk-3.0
 libxkbfile1
 libxss1
+
+# Cross-compile tools
+g++-aarch64-linux-gnu
+gcc-aarch64-linux-gnu

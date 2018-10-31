@@ -39,6 +39,43 @@ ade:
     - docker push $CI_REGISTRY_IMAGE/ade:$CI_COMMIT_REF_SLUG
 
 
+build/aarch64:
+  stage: build
+  image: $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
+  script:
+    - git lfs pull -I tools/aarch64-rootfs.tar.gz
+    - tar xfz tools/aarch64-rootfs.tar.gz
+    - ROOTFS_PATH=$PWD/rootfs
+    - TOOLCHAIN_FILE=$PWD/tools/aarch64_toolchainfile.cmake
+    - export CROSS_COMPILE=aarch64-linux-gnu-
+    - 'colcon build
+           --merge-install
+           --install-base /opt/AutowareAuto
+           --cmake-force-configure
+           --cmake-args
+               --no-warn-unused-cli
+               -DCMAKE_BUILD_TYPE=RelWithDebInfo
+               -DCMAKE_TOOLCHAIN_FILE="$TOOLCHAIN_FILE"
+               -DTHIRDPARTY=ON
+               -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+               -DPYTHON_INCLUDE_DIR="$PWD/rootfs/usr/include/;$PWD/rootfs/usr/include/python3.5m/"
+               -DPYTHON_LIBRARY="$PWD/rootfs/usr/lib/aarch64-linux-gnu/libpython3.5m.so"
+               -DSECURITY=ON
+               -DOPENSSL_INCLUDE_DIR="$PWD/rootfs/usr/include;$PWD/rootfs/usr/include/aarch64-linux-gnu"
+               -DOPENSSL_SSL_LIBRARY="$PWD/rootfs/usr/lib/aarch64-linux-gnu/libssl.so"
+               -DOPENSSL_CRYPTO_LIBRARY="$PWD/rootfs/usr/lib/aarch64-linux-gnu/libcrypto.so"
+      '
+    - mkdir /opt/AutowareAuto/src
+    - '(cd src && git archive --format=tar HEAD | (cd /opt/AutowareAuto/src && tar xf -))'
+    - cp -a LICENSE /opt/AutowareAuto
+    - chmod -R og-w /opt/AutowareAuto
+    - tar cfz opt.tar.gz /opt/AutowareAuto
+  artifacts:
+    paths:
+      - log
+      - opt.tar.gz
+
+
 build/x86_64:
   stage: build
   image: $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
