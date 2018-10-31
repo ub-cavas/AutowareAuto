@@ -1,3 +1,7 @@
+variables:
+  GIT_LFS_SKIP_SMUDGE: 1
+
+
 stages:
   - ade
   - build
