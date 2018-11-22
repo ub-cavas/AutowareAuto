@@ -51,6 +51,7 @@ build/aarch64:
     - tar xfz tools/aarch64-rootfs.tar.gz
     - ROOTFS_PATH=$PWD/rootfs
     - TOOLCHAIN_FILE=$PWD/tools/aarch64_toolchainfile.cmake
+    - export LD_LIBRARY_PATH="$ROOTFS_PATH/opt/ros/bouncy/lib:$LD_LIBRARY_PATH"
     - export CROSS_COMPILE=aarch64-linux-gnu-
     - 'colcon build
            --merge-install
