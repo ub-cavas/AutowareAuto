@@ -55,6 +55,7 @@ build/aarch64:
     - export CROSS_COMPILE=aarch64-linux-gnu-
     - 'colcon build
            --merge-install
+           --base-path src
            --install-base /opt/AutowareAuto
            --cmake-force-configure
            --cmake-args
