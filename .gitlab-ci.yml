@@ -39,12 +39,29 @@ ade:
     - docker push $CI_REGISTRY_IMAGE/ade:$CI_COMMIT_REF_SLUG
 
 
+build_arm:
+  stage: build
+  image: docker
+  services:
+    - docker:dind
+  script:
+    - apk add --update-cache git
+    # build and test
+    - 'docker run -i --rm -v ${PWD}:/root/AutowareAuto
+          -w /root/AutowareAuto jwhitleyastuff/personal:armhf-dashing
+          sh -c "colcon build --cmake-args -DCMAKE_TOOLCHAIN_FILE=/root/cross_toolchain.cmake
+                  -DCMAKE_PREFIX_PATH=/root/AutowareAuto/install
+                  -DCMAKE_FIND_ROOT_PATH=/root/AutowareAuto/install
+                "
+      '
+
 build_barebones:
   stage: build
   image: ubuntu:bionic
   script:
     - 'apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends
           tzdata
+          git
           gnupg
       '
     - 'apt-get update && apt-get -y --no-install-recommends install
