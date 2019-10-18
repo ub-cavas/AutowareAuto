@@ -17,7 +17,17 @@
 #define POINT_CLOUD_FUSION__POINT_CLOUD_TRANSFORM_HPP_
 #include <tf2/convert.h>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuseless-cast"
+# ifdef __clang__
+#  pragma clang diagnostic ignored "-Wuseless-cast"
+# endif
+#endif
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 #include <Eigen/Core>
 #include <Eigen/Geometry>
 #include <string>

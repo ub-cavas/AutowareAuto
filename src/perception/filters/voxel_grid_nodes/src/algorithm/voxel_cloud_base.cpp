@@ -14,7 +14,17 @@
 // limitations under the License.
 
 #include <voxel_grid_nodes/algorithm/voxel_cloud_base.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuseless-cast"
+# ifdef __clang__
+#  pragma clang diagnostic ignored "-Wuseless-cast"
+# endif
+#endif
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 #include <string>
 
 namespace autoware

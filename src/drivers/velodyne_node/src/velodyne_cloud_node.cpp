@@ -19,7 +19,17 @@
 
 #include "lidar_utils/lidar_types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuseless-cast"
+# ifdef __clang__
+#  pragma clang diagnostic ignored "-Wuseless-cast"
+# endif
+#endif
 #include "sensor_msgs/point_cloud2_iterator.hpp"
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 #include "velodyne_node/velodyne_cloud_node.hpp"
 
 namespace autoware

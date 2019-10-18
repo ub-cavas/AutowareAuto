@@ -8,7 +8,18 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
+
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuseless-cast"
+# ifdef __clang__
+#  pragma clang diagnostic ignored "-Wuseless-cast"
+# endif
+#endif
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 
 #include <lidar_utils/lidar_types.hpp>
 #include <lidar_utils/visibility_control.hpp>

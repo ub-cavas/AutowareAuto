@@ -18,7 +18,17 @@
 
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic push
+# pragma GCC diagnostic ignored "-Wuseless-cast"
+# ifdef __clang__
+#  pragma clang diagnostic ignored "-Wuseless-cast"
+# endif
+#endif
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#ifndef _WIN32
+# pragma GCC diagnostic pop
+#endif
 #include <memory>
 
 using autoware::perception::filters::voxel_grid::PointXYZ;
