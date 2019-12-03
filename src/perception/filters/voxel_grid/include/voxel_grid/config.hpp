@@ -59,7 +59,7 @@ public:
     const PointXYZ & min_point,
     const PointXYZ & max_point,
     const PointXYZ & voxel_size,
-    const uint64_t capacity);
+    const std::size_t capacity);
   /// \brief Gets the minimum corner of the voxel grid
   /// \return Fixed value
   const PointXYZ & get_min_point() const;
@@ -71,7 +71,7 @@ public:
   const PointXYZ & get_voxel_size() const;
   /// \brief Gets the capacity of the voxel grid
   /// \return Fixed value
-  uint64_t get_capacity() const;
+  std::size_t get_capacity() const;
   /// \brief Computes index for a given point given the voxelgrid configuration parameters
   /// \param[in] pt The point for which the voxel index will be computed
   /// \return The index of the voxel for which this point will fall into
@@ -128,7 +128,7 @@ private:
   PointXYZ m_voxel_size_inv;
   uint64_t m_y_stride;
   uint64_t m_z_stride;
-  uint64_t m_capacity;
+  std::size_t m_capacity;
 };  // class Config
 }  // namespace voxel_grid
 }  // namespace filters

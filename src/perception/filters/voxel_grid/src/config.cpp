@@ -56,7 +56,7 @@ Config::Config(
   const PointXYZ & min_point,
   const PointXYZ & max_point,
   const PointXYZ & voxel_size,
-  const uint64_t capacity)
+  const std::size_t capacity)
 : m_min_point(min_point),
   m_max_point(max_point),
   m_voxel_size(voxel_size),
@@ -112,7 +112,7 @@ const PointXYZ & Config::get_voxel_size() const
   return m_voxel_size;
 }
 ////////////////////////////////////////////////////////////////////////////////
-uint64_t Config::get_capacity() const
+std::size_t Config::get_capacity() const
 {
   return m_capacity;
 }

@@ -164,13 +164,13 @@ public:
     m_map.clear();
   }
   /// \brief Returns the current size of the voxel grid
-  std::size_t size() const
+  uint64_t size() const
   {
     return m_map.size();
   }
   /// \brief Returns the preallocated capacity of the voxel grid
   /// \return The preallocated capacity
-  std::size_t capacity() const
+  uint64_t capacity() const
   {
     return m_config.get_capacity();
   }
