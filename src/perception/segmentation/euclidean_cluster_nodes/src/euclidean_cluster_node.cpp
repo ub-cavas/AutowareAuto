@@ -158,9 +158,14 @@ void EuclideanClusterNode::insert_plain(const PointCloud2 & cloud)
 {
   using euclidean_cluster::PointXYZI;
   //lint -e{826, 9176} NOLINT I claim this is ok and tested
-  const auto begin = reinterpret_cast<const PointXYZI *>(&cloud.data[0U]);
+  const auto * tmpbegin = &cloud.data[0U];
+  const PointXYZI * begin;
+  std::memcpy(&begin, &tmpbegin, sizeof begin);
+
   //lint -e{826, 9176} NOLINT I claim this is ok and tested
-  const auto end = reinterpret_cast<const PointXYZI *>(&cloud.data[cloud.row_step]);
+  const auto tmpend = &cloud.data[cloud.row_step];
+  const PointXYZI * end;
+  std::memcpy(&end, &tmpend, sizeof end);
   m_cluster_alg.insert(begin, end);
 }
 ////////////////////////////////////////////////////////////////////////////////

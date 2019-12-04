@@ -257,9 +257,8 @@ void EuclideanCluster::add_point(Cluster & cls, const PointXYZII & pt)
 {
   // Clustering cannot overrun cluster capacity since each cluster is preallocated with the
   // max capacity of the hash, so the data structure would throw before you overrun the cluster
-  using Size = decltype(Cluster::data)::size_type;
-  const auto idx = static_cast<Size>(cls.width) * static_cast<Size>(cls.point_step);
-  cls.data.resize(idx + static_cast<Size>(cls.point_step));
+  const auto idx = cls.width * cls.point_step;
+  cls.data.resize(idx + cls.point_step);
   // Placement new to ensure dynamic type is accurate (allowing for reinterpret_cast to not be UB)
   (void)new(&cls.data[idx]) PointXYZI(pt.get_point());
   ++cls.width;
