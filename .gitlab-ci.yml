@@ -47,7 +47,6 @@ build_arm:
   script:
     - apk add --update-cache git
     # build and test
-    - 'git clone -b dashing-alignment-fixes https://github.com/esteve/common_interfaces.git src/common_interfaces'
     - 'docker run -i --rm -v ${PWD}:/root/AutowareAuto
           -w /root/AutowareAuto jwhitleyastuff/personal:armhf-dashing
           sh -c "colcon build --cmake-args -DCMAKE_TOOLCHAIN_FILE=/root/cross_toolchain.cmake
@@ -83,7 +82,6 @@ build_barebones:
     - 'rosdep init && rosdep update'
     - 'rosdep install -y --from . --ignore-src --rosdistro dashing'
     - 'source /opt/ros/dashing/setup.bash'
-    - 'git clone -b dashing-alignment-fixes https://github.com/esteve/common_interfaces.git src/common_interfaces'
     - 'colcon build
            --merge-install
            --install-base /opt/AutowareAuto
@@ -96,10 +94,6 @@ build:
   image: $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
   script:
     # build and test
-    - 'apt-get update && apt-get -y --no-install-recommends install
-          git
-      '
-    - 'git clone -b dashing-alignment-fixes https://github.com/esteve/common_interfaces.git src/common_interfaces'
     - 'colcon build
            --merge-install
            --install-base /opt/AutowareAuto
@@ -148,10 +142,6 @@ coverage:
   stage: build
   image: $CI_REGISTRY_IMAGE/ade:commit-$CI_COMMIT_SHA
   script:
-    - 'apt-get update && apt-get -y --no-install-recommends install
-          git
-      '
-    - 'git clone -b dashing-alignment-fixes https://github.com/esteve/common_interfaces.git src/common_interfaces'
     - 'colcon build
            --cmake-args
              -DCMAKE_BUILD_TYPE=Debug
