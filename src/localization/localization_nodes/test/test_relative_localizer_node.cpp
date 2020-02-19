@@ -202,6 +202,18 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
 
   set_msg_id(m_observation_msg, TEST_ERROR_ID);
   observation_pub->publish(m_observation_msg);
+  // run until observation is attempted to be registered when no valid map exists.
+  spin_until_condition(localizer_node, [](auto loc_nd_ptr) {
+      return loc_nd_ptr->register_on_invalid_map();
+    }, max_poll_iters);
+  // no exception will be thrown despite the registration is bad because no map is set yet.
+  EXPECT_FALSE(localizer_node->register_exception());
+  // Confirm that a registration was received with no valid map.
+  EXPECT_TRUE(localizer_node->register_on_invalid_map());
+
+  // Now we will set the node to a state where it has a valid map and try again.
+  localizer_node->set_map_valid__(true);  // Shortcut rather than actually sending a valid map.
+  observation_pub->publish(m_observation_msg);
   spin_until_condition(localizer_node, [](auto loc_nd_ptr) {
       return loc_nd_ptr->register_exception();
     }, max_poll_iters);
@@ -286,6 +298,22 @@ bool TestRelativeLocalizerNode::register_exception()
 bool TestRelativeLocalizerNode::map_exception()
 {
   return m_map_exception;
+}
+
+bool TestRelativeLocalizerNode::register_on_invalid_map()
+{
+  return m_register_on_invalid_map;
+}
+
+void TestRelativeLocalizerNode::set_map_valid__(bool validity)
+{
+  set_map_validity(validity);
+}
+
+void TestRelativeLocalizerNode::on_observation_with_invalid_map(
+  TestObservation::ConstSharedPtr)
+{
+  m_register_on_invalid_map = true;
 }
 
 // Return a transform that contains information regarding two frame ids.

@@ -81,6 +81,9 @@ public:
 
   bool register_exception();
   bool map_exception();
+  bool register_on_invalid_map();
+
+  void set_map_valid__(bool validity);
 
 protected:
   void on_bad_registration(std::exception_ptr eptr) override;
@@ -88,9 +91,12 @@ protected:
   /// Handle the exceptions during map setting.
   void on_bad_map(std::exception_ptr eptr) override;
 
+  void on_observation_with_invalid_map(TestObservation::ConstSharedPtr msg) override;
+
 private:
   bool m_map_exception{false};
   bool m_register_exception{false};
+  bool m_register_on_invalid_map{false};
 };
 
 /// Wait until publisher reaches desired num. of subscriptions.
