@@ -81,11 +81,10 @@ public:
   void run();
 
 private:
-  /// Initialzie and allocate memory for the point clouds that are used as intermediate
+  /// Initialize and allocate memory for the point clouds that are used as intermediate
   /// representations during  conversions.
-  /// \param map_frame Frame of the
-  /// \param map_capacity
-  void init(const MapConfig & map_config, const std::string & map_frame);
+  /// \param map_frame Frame ID of the map.
+  void init(const std::string & map_frame);
 
   /// Read the pcd file with filename into a PointCloud2 message, transform it into an NDT
   /// representation and then serialize the ndt representation back into a PointCloud2 message
@@ -121,6 +120,7 @@ private:
   const std::string m_file_name;
   const uint32_t m_num_subs;
   const std::chrono::milliseconds m_timeout_ms;
+  std::unique_ptr<MapConfig> m_map_config_ptr;
 };
 
 }  // namespace ndt_nodes
