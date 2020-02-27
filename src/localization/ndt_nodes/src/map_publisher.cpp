@@ -77,7 +77,9 @@ NDTMapPublisherNode::NDTMapPublisherNode(
   m_timeout_ms(std::chrono::milliseconds(
       static_cast<uint32_t>(declare_parameter("init_timeout_ms").get<uint32_t>())))
 {
-  using PointXYZ = perception::filters::voxel_grid::PointXYZ;
+  m_viz_pub = create_publisher<sensor_msgs::msg::PointCloud2>("viztopic", rclcpp::QoS(rclcpp::KeepLast(5U)));
+
+    using PointXYZ = perception::filters::voxel_grid::PointXYZ;
   PointXYZ min_point;
   min_point.x = static_cast<float>(declare_parameter("map_config.min_point.x").get<float>());
   min_point.y = static_cast<float>(declare_parameter("map_config.min_point.y").get<float>());
@@ -94,7 +96,6 @@ NDTMapPublisherNode::NDTMapPublisherNode(
     static_cast<std::size_t>(declare_parameter("map_config.capacity").get<std::size_t>());
   const std::string map_frame = declare_parameter("map_frame").get<std::string>();
   m_map_config_ptr = std::make_unique<MapConfig>(min_point, max_point, voxel_size, capacity);
-
   init(map_frame);
 }
 
@@ -122,6 +123,10 @@ void NDTMapPublisherNode::run()
   wait_for_matched(m_num_subs, m_timeout_ms);
   load_pcd_file();
   publish();
+  auto timer_callback = [this]() -> void {
+      m_viz_pub->publish(m_source_pc);
+  };
+    timer_callback();
 }
 
 void NDTMapPublisherNode::load_pcd_file()

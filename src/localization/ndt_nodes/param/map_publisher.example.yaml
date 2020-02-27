@@ -9,16 +9,16 @@ ndt_map_publisher_node:
     num_expected_subs: 1
     init_timeout_ms: 10000  # 10 seconds until publisher finds a subscriber
     map_config:
-      capacity: 55000
+      capacity: 550000
       min_point:
-        x: -130.0
-        y: -130.0
+        x: -850.0
+        y: -850.0
         z: -3.0
       max_point:
-        x: 130.0
-        y: 130.0
+        x: 850.0
+        y: 850.0
         z: 3.0
       voxel_size:
-        x: 2.0
-        y: 2.0
-        z: 2.0
+        x: 1.0
+        y: 1.0
+        z: 1.0

@@ -113,7 +113,8 @@ private:
   /// Can be removed when #102 is merged in.
   void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg);
 
-  rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr m_pub;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr m_pub;
+    rclcpp::Publisher<sensor_msgs::msg::PointCloud2>::SharedPtr m_viz_pub;
   std::unique_ptr<ndt::DynamicNDTMap> m_ndt_map_ptr;
   sensor_msgs::msg::PointCloud2 m_map_pc;
   sensor_msgs::msg::PointCloud2 m_source_pc;

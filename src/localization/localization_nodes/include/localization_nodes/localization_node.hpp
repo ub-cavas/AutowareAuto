@@ -85,7 +85,8 @@ public:
     m_map_sub(create_subscription<MapMsgT>(map_sub_config.topic, map_sub_config.qos,
       [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
     m_pose_publisher(create_publisher<PoseWithCovarianceStamped>(pose_pub_config.topic,
-      pose_pub_config.qos)) {
+      pose_pub_config.qos)),
+    m_tf_publisher(create_publisher<tf2_msgs::msg::TFMessage>("tf", pose_pub_config.qos)){
   }
 
   /// Constructor using ros parameters
@@ -114,8 +115,10 @@ public:
         declare_parameter("pose_pub.topic").template get<std::string>(),
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}}))
-  {}
+              "pose_pub.history_depth").template get<size_t>())}})),
+    m_tf_publisher(create_publisher<tf2_msgs::msg::TFMessage>("tf", rclcpp::QoS{rclcpp::KeepLast{
+            static_cast<size_t>(get_parameter("pose_pub.history_depth").as_int())}}))
+      {}
 
   /// Get a const pointer of the output publisher. Can be used for matching against subscriptions.
   const typename rclcpp::Publisher<PoseWithCovarianceStamped>::ConstSharedPtr get_publisher()
@@ -185,6 +188,21 @@ private:
           m_pose_initializer.guess(m_tf_buffer, observation_time, observation_frame, map_frame);
         const auto pose_out = m_localizer_ptr->register_measurement(*msg_ptr, initial_guess);
         m_pose_publisher->publish(pose_out);
+
+        ////////////// demo code
+        tf2_msgs::msg::TFMessage tfmessage;
+        geometry_msgs::msg::TransformStamped tfstamped;
+
+        tfstamped.header = pose_out.header;
+        tfstamped.header.frame_id = "map";
+        tfstamped.child_frame_id = "base_link";
+        const auto & pose_trans = pose_out.pose.pose.position;
+        const auto & pose_rot = pose_out.pose.pose.orientation;
+        tfstamped.transform.translation.set__x(pose_trans.x).set__y(pose_trans.y).set__z(pose_trans.z);
+        tfstamped.transform.rotation.set__x(pose_rot.x).set__y(pose_rot.y).set__z(pose_rot.z).set__w(pose_rot.w);
+        tfmessage.transforms.push_back(tfstamped);
+        m_tf_publisher->publish(tfmessage);
+        ///////////////////
       } catch (...) {
         on_bad_registration(std::current_exception());
       }
@@ -222,7 +240,8 @@ private:
   tf2_ros::TransformListener m_tf_listener;
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
   typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
-  typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
+    typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
+    typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher;
   bool m_map_valid{false};
 };
 }  // namespace localization_nodes

@@ -95,6 +95,14 @@ public:
     const auto summary = m_optimizer.solve(problem, eig_pose_initial, eig_pose_result,
         m_optimizer_options);
 
+//      if (summary.termination_type() == common::optimization::TerminationType::CONVERGENCE) {
+//          std::cout<<"converged!"<<std::endl;
+//      }
+//
+//      if (summary.termination_type() == common::optimization::TerminationType::NO_CONVERGENCE) {
+//          std::cerr<<"FAILED!"<<std::endl;
+//      }
+
     if (summary.termination_type() == common::optimization::TerminationType::FAILURE) {
       throw std::runtime_error("NDT localizer has likely encountered a numerical "
               "error during optimization.");
@@ -207,6 +215,7 @@ protected:
       count()) >
       std::abs(stamp_tol.count()))
     {
+        std::cout<<"time diff: "<<std::chrono::duration_cast<std::chrono::milliseconds>(guess_scan_diff).count()<<std::endl;
       throw std::domain_error("Initial guess is not within: " + std::to_string(stamp_tol.count()) +
               "ns range of the scan's time stamp. Either increase the tolerance range or"
               "make sure the localizer takes in timely initial pose guesses.");

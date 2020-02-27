@@ -39,8 +39,8 @@
 		"params": {
 			"Frequency": 12.5,
 			"Topic": "/lgsvl_odom",
-			"Frame": "gps",
-			"IgnoreMapOrigin": true
+			"Frame": "map",
+			"IgnoreMapOrigin": false
 		},
 		"transform": {
 			"x": 0,
@@ -81,7 +81,7 @@
 			"Compensated": true,
 			"PointColor": "#ff000000",
 			"Topic": "/points_raw",
-			"Frame": "velodyne_front"
+			"Frame": "lidar_front"
 		},
 		"transform": {
 			"x": 0,
@@ -106,7 +106,7 @@
 			"Compensated": true,
 			"PointColor": "#ff000000",
 			"Topic": "/points_raw_rear",
-			"Frame": "velodyne_rear"
+			"Frame": "lidar_back"
 		},
 		"transform": {
 			"x": 0,

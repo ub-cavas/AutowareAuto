@@ -203,7 +203,7 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
   {
     geometry_msgs::msg::TransformStamped tf{};
     tf.header = msg.header;
-    tf.child_frame_id = msg.child_frame_id;
+    tf.child_frame_id = "base_link";
     tf.transform.translation.x = px;
     tf.transform.translation.y = py;
     tf.transform.translation.z = pz;

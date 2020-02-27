@@ -5,8 +5,8 @@ p2d_ndt_localizer_node:
   ros__parameters:
     ##### Define input and outputs:
     observation_sub:  # Config of the input point cloud subscription
-      topic: "points_nonground"
-      history_depth: 10
+      topic: "points_raw"
+      history_depth: 20
     # Config of the maps point cloud subscription
     map_sub:
       topic: "ndt_map"
@@ -19,30 +19,32 @@ p2d_ndt_localizer_node:
     localizer:
       #underlying voxel grid configuration of the map
       map:
-        capacity: 55000
+        capacity: 550000
         min_point:
-          x: -130.0
-          y: -130.0
+          x: -850.0
+          y: -850.0
           z: -3.0
         max_point:
-          x: 130.0
-          y: 130.0
+          x: 850.0
+          y: 850.0
           z: 3.0
         voxel_size:
-          x: 2.0
-          y: 2.0
-          z: 2.0
+          x: 1.0
+          y: 1.0
+          z: 1.0
       # ndt scan representation config
       scan:
         capacity: 55000
       # ndt optimization problem configuration
       optimization:
-        outlier_ratio: 0.55 # default value from PCL
+        outlier_ratio: 0.2 # default value from PCL
       # newton optimizer configuration
       optimizer:
         max_iterations: 50
-        score_tolerance: 0.001
-        parameter_tolerance: 0.001
-        gradient_tolerance: 0.001
+        score_tolerance: 0.00001
+        parameter_tolerance: 0.00001
+        gradient_tolerance: 0.00001
+        line_search:
+          step_size: 0.001
       # Maximum accepted duration between a scan and an initial pose guess
-      guess_time_tolerance_ms: 5
+      guess_time_tolerance_ms: 5000
