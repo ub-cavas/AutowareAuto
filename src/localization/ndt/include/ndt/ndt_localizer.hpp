@@ -94,14 +94,18 @@ public:
     NDTOptimizationProblemT problem(m_scan, m_map, m_config.optimization_config());
     const auto summary = m_optimizer.solve(problem, eig_pose_initial, eig_pose_result,
         m_optimizer_options);
+//      const auto trans = transform_initial.transform.translation;
+//      std::cout<<"/tf init pose:"<<trans.x<<", "<<trans.y<<", "<<trans.z<<" stamp: "<<transform_initial.header.stamp.sec<<std::endl;
+//      std::cout<<" Eig pose init: " << eig_pose_initial.transpose()<<std::endl;
+//      std::cout<<" Eig pose result: " << eig_pose_result.transpose()<<std::endl;
 
-//      if (summary.termination_type() == common::optimization::TerminationType::CONVERGENCE) {
-//          std::cout<<"converged!"<<std::endl;
-//      }
-//
-//      if (summary.termination_type() == common::optimization::TerminationType::NO_CONVERGENCE) {
-//          std::cerr<<"FAILED!"<<std::endl;
-//      }
+      if (summary.termination_type() == common::optimization::TerminationType::CONVERGENCE) {
+          std::cout<<"========================================================converged!================== "<<summary.number_of_iterations_made()<<std::endl;
+      }
+
+      if (summary.termination_type() == common::optimization::TerminationType::NO_CONVERGENCE) {
+          std::cerr<<"~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~FAILED!~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`"<<summary.number_of_iterations_made()<<std::endl;
+      }
 
     if (summary.termination_type() == common::optimization::TerminationType::FAILURE) {
       throw std::runtime_error("NDT localizer has likely encountered a numerical "

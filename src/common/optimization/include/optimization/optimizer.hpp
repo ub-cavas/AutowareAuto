@@ -24,6 +24,8 @@
 #include <memory>
 #include <cmath>
 
+#include <iostream>
+
 namespace autoware
 {
 namespace common
@@ -123,6 +125,19 @@ public:
         break;
       }
 
+        // Check change in parameter relative to the parameter value
+        // tolerance added to the norm for stability when the norm is close to 0
+        // (Inspired from https://github.com/ceres-solver/ceres-solver/blob/4362a2169966e08394252098
+        // c80d1f26764becd0/include/ceres/tiny_solver.h#L244)
+        const auto parameter_tolerance =
+                options.parameter_tolerance() * (x_out.norm() + options.parameter_tolerance());
+        if (x_delta_norm < parameter_tolerance) {
+                termination_type = TerminationType::CONVERGENCE;
+//            std::cout<<"cond 1"<<std::endl;
+            break;
+        }
+//        std::cout<<"param tol: "<<parameter_tolerance<<" delta: "<<x_delta_norm<<std::endl;
+
       // TODO(yunus.caliskan): Probably copy CERES gradient check.
       // // Check if converged
       // if (x_delta_norm <= options.gradient_tolerance()) {
@@ -141,30 +156,21 @@ public:
       x_delta *= step;  // TODO(zozen): fabs(step)?
       x_out += x_delta;
 
-      // Check change in parameter relative to the parameter value
-      // tolerance added to the norm for stability when the norm is close to 0
-      // (Inspired from https://github.com/ceres-solver/ceres-solver/blob/4362a2169966e08394252098
-      // c80d1f26764becd0/include/ceres/tiny_solver.h#L244)
-      const auto parameter_tolerance =
-        options.parameter_tolerance() * (x_out.norm() + options.parameter_tolerance());
-      if (x_delta.norm() < parameter_tolerance) {
-        termination_type = TerminationType::CONVERGENCE;
-        break;
-      }
-
       // Update value, Jacobian and Hessian (pre-computed using evaluate)
-      optimization_problem.evaluate(x0, ComputeMode{}.set_score().set_jacobian().set_hessian());
+      optimization_problem.evaluate(x_out, ComputeMode{}.set_score().set_jacobian().set_hessian());
       const auto score = optimization_problem(x_out);
       optimization_problem.jacobian(x_out, jacobian);
       optimization_problem.hessian(x_out, hessian);
 
-      // Check change in cost function
+      // Check change in cost funct tol: "<<parameter_tolerance<<"ion
       if (fabs(score - score_previous) / std::fabs(score_previous) <=
         options.function_tolerance())
       {
         termination_type = TerminationType::CONVERGENCE;
-        break;
+//          std::cout<<"cond 2"<<std::endl;
+          break;
       }
+//        std::cout<<"score delta: "<<(fabs(score - score_previous) / std::fabs(score_previous))<<std::endl;
 
       score_previous = score;
     }

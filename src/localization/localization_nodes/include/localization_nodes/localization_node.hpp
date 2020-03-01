@@ -185,11 +185,14 @@ private:
         const auto & observation_frame = get_frame_id(*msg_ptr);
         const auto & map_frame = m_localizer_ptr->map_frame_id();
         const auto initial_guess =
-          m_pose_initializer.guess(m_tf_buffer, observation_time, observation_frame, map_frame);
+          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
         const auto pose_out = m_localizer_ptr->register_measurement(*msg_ptr, initial_guess);
         m_pose_publisher->publish(pose_out);
 
         ////////////// demo code
+
+//        const auto base_2_lidar = m_tf_buffer.lookupTransform("base_link", "lidar_front", time_utils::from_message(pose_out.header.stamp));
+
         tf2_msgs::msg::TFMessage tfmessage;
         geometry_msgs::msg::TransformStamped tfstamped;
 
@@ -198,6 +201,7 @@ private:
         tfstamped.child_frame_id = "base_link";
         const auto & pose_trans = pose_out.pose.pose.position;
         const auto & pose_rot = pose_out.pose.pose.orientation;
+
         tfstamped.transform.translation.set__x(pose_trans.x).set__y(pose_trans.y).set__z(pose_trans.z);
         tfstamped.transform.rotation.set__x(pose_rot.x).set__y(pose_rot.y).set__z(pose_rot.z).set__w(pose_rot.w);
         tfmessage.transforms.push_back(tfstamped);
