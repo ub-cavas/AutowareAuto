@@ -40,7 +40,7 @@
 			"Frequency": 12.5,
 			"Topic": "/lgsvl_odom",
 			"Frame": "map",
-			"IgnoreMapOrigin": false
+			"IgnoreMapOrigin": true
 		},
 		"transform": {
 			"x": 0,
@@ -81,7 +81,7 @@
 			"Compensated": true,
 			"PointColor": "#ff000000",
 			"Topic": "/points_raw",
-			"Frame": "lidar_front"
+			"Frame": "base_link"
 		},
 		"transform": {
 			"x": 0,
@@ -152,4 +152,3 @@
 		"name": "Keyboard Car Control"
 	}
 ]
-

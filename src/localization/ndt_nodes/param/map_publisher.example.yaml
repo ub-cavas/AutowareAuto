@@ -11,14 +11,14 @@ ndt_map_publisher_node:
     map_config:
       capacity: 550000
       min_point:
-        x: -1850.0
-        y: -1850.0
+        x: -850.0
+        y: -850.0
         z: -3.0
       max_point:
-        x: 1850.0
-        y: 1850.0
+        x: 850.0
+        y: 850.0
         z: 3.0
       voxel_size:
-        x: 1.0
-        y: 1.0
-        z: 1.0
+        x: 3.5
+        y: 3.5
+        z: 3.5

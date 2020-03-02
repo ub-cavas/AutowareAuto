@@ -21,30 +21,30 @@ p2d_ndt_localizer_node:
       map:
         capacity: 550000
         min_point:
-          x: -1850.0
-          y: -1850.0
+          x: -850.0
+          y: -850.0
           z: -3.0
         max_point:
-          x: 1850.0
-          y: 1850.0
+          x: 850.0
+          y: 850.0
           z: 3.0
         voxel_size:
-          x: 1.0
-          y: 1.0
-          z: 1.0
+          x: 3.5
+          y: 3.5
+          z: 3.5
       # ndt scan representation config
       scan:
         capacity: 55000
       # ndt optimization problem configuration
       optimization:
-        outlier_ratio: 0.55 # default value from PCL
+        outlier_ratio: 0.75 # default value from PCL
       # newton optimizer configuration
       optimizer:
-        max_iterations: 50
-        score_tolerance: 0.001
-        parameter_tolerance: 0.0001
-        gradient_tolerance: 0.0005
+        max_iterations: 30
+        score_tolerance: 0.005
+        parameter_tolerance: 0.005
+        gradient_tolerance: 0.05
         line_search:
-          step_size: 0.01
+          step_size: 0.12
       # Maximum accepted duration between a scan and an initial pose guess
-      guess_time_tolerance_ms: 2000
+      guess_time_tolerance_ms: 650

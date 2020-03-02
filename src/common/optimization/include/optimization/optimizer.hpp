@@ -152,7 +152,7 @@ public:
       // computeStepLengthMT (x0, x_delta, x_delta_norm, transformation_epsilon_/2, ...
       // and would pre-compute score/jacobian/hessian as during init in evaluate!
       // also needs the sign to know the direction of optimization?
-      const auto step = m_line_searcher.compute_step_length(optimization_problem);
+      const auto step = mt_searcher.compute_step_length_(optimization_problem, x_out, x_delta, parameter_tolerance, m_line_searcher.compute_step_length(optimization_problem));
       x_delta *= step;  // TODO(zozen): fabs(step)?
       x_out += x_delta;
 
@@ -183,6 +183,7 @@ public:
 private:
   // initialize on construction
   LineSearchT m_line_searcher;
+  MT mt_searcher;
 };
 }  // namespace optimization
 }  // namespace common
