@@ -126,6 +126,11 @@ public:
     return m_pose_publisher;
   }
 
+  ~RelativeLocalizerNode(){
+      std::cout<<"Average runtime: "<<m_avg_duration<<"ms."<<std::endl;
+      std::cout<<"Max runtime: "<<m_max_duration<<"ms."<<std::endl;
+  }
+
 protected:
   /// Set the localizer.
   /// \param localizer_ptr rvalue to the localizer to set.
@@ -178,6 +183,7 @@ private:
   /// \param msg_ptr Pointer to the observation message.
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
+    const auto start = std::chrono::steady_clock::now();
     check_localizer();
     if (m_map_valid) {
       try {
@@ -213,6 +219,15 @@ private:
     } else {
       on_observation_with_invalid_map(msg_ptr);
     }
+
+    // Measure time.
+    const auto dur = static_cast<uint64_t>(std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::steady_clock::now() - start).count());
+    const auto prev_count = m_callback_counter;
+    ++m_callback_counter;
+     m_avg_duration = static_cast<double>(m_avg_duration * prev_count + dur) / m_callback_counter;
+    if(dur > m_max_duration){
+        m_max_duration = dur;
+    }
   }
 
   /// Callback that updates the map.
@@ -247,6 +262,9 @@ private:
     typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
     typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher;
   bool m_map_valid{false};
+  double m_avg_duration{0.0};
+  uint64_t m_max_duration{0UL};
+  uint64_t m_callback_counter;
 };
 }  // namespace localization_nodes
 }  // namespace localization

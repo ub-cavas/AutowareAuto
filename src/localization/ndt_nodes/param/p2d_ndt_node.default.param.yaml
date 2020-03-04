@@ -5,8 +5,8 @@ p2d_ndt_localizer_node:
   ros__parameters:
     ##### Define input and outputs:
     observation_sub:  # Config of the input point cloud subscription
-      topic: "points_raw"
-      history_depth: 20
+      topic: "points_downsampled"
+      history_depth: 30
     # Config of the maps point cloud subscription
     map_sub:
       topic: "ndt_map"
@@ -37,12 +37,12 @@ p2d_ndt_localizer_node:
         capacity: 55000
       # ndt optimization problem configuration
       optimization:
-        outlier_ratio: 0.75 # default value from PCL
+        outlier_ratio: 0.45 # default value from PCL
       # newton optimizer configuration
       optimizer:
         max_iterations: 30
-        score_tolerance: 0.005
-        parameter_tolerance: 0.005
+        score_tolerance: 0.0002
+        parameter_tolerance: 0.0002
         gradient_tolerance: 0.05
         line_search:
           step_size: 0.12
