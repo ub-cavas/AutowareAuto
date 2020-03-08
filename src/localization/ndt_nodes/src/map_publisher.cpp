@@ -228,6 +228,15 @@ void NDTMapPublisherNode::wait_for_matched(
               " initialization time budget.");
     }
   }
+
+    while (m_viz_pub->get_subscription_count() < 1U) {
+        rclcpp::sleep_for(std::chrono::milliseconds(100));
+        if (std::chrono::steady_clock::now() - match_start > match_timeout) {
+            throw std::runtime_error("Map visualizer couldn't match any subscriptions within the"
+                                     " initialization time budget.");
+        }
+    }
+
 }
 
 void NDTMapPublisherNode::reset()
