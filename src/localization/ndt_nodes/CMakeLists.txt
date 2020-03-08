@@ -65,4 +65,4 @@ target_compile_options(${MAP_PUBLISHER_EXE} PRIVATE -Wno-sign-conversion -Wno-co
 
 target_compile_options(${P2D_NDT_NODE} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
         -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
-ament_auto_package(INSTALL_TO_SHARE param/)
+ament_auto_package(INSTALL_TO_SHARE param/ demo/ launch/)
