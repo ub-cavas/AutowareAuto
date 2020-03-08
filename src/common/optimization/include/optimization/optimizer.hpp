@@ -100,7 +100,7 @@ public:
     x_out = x0;
 
     // Get value, Jacobian and Hessian (pre-computed using evaluate)
-    optimization_problem.evaluate(x0, ComputeMode{}.set_score().set_jacobian().set_hessian());
+    optimization_problem.evaluate(x_out, ComputeMode{}.set_score().set_jacobian().set_hessian());
     auto score_previous = optimization_problem(x_out);
     Jacobian jacobian;
     optimization_problem.jacobian(x_out, jacobian);
@@ -125,6 +125,7 @@ public:
         break;
       }
 
+      // TODO(yunus.caliskan): Move the param. tol. check to after scaling by the step length.
         // Check change in parameter relative to the parameter value
         // tolerance added to the norm for stability when the norm is close to 0
         // (Inspired from https://github.com/ceres-solver/ceres-solver/blob/4362a2169966e08394252098

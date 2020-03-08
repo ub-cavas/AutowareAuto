@@ -132,7 +132,7 @@ public:
 
         bool interval_converged = (step_max - step_min) > 0, open_interval = true;
 
-        double a_t = curr_x.norm();
+        double a_t = step_dir.norm();
         a_t = std::min(a_t, step_max);
         a_t = std::max(a_t, step_min);
 
