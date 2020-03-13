@@ -23,6 +23,7 @@
 #include <vector>
 #include <limits>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <string>
 
@@ -32,6 +33,29 @@ namespace localization
 {
 namespace ndt
 {
+
+////////// DEMO CODE //////////////////
+
+class NDT_LOCAL GridLookupPattern
+{
+public:
+  using GridConfig = perception::filters::voxel_grid::Config;
+  using Point = Eigen::Vector3d;
+  using Indexes = std::unordered_set<uint64_t>;
+
+  GridLookupPattern(const GridConfig & grid_config, float32_t radius);
+
+  const Indexes & lookup_indices(const Point & pt);
+
+private:
+  Indexes m_base_pattern;
+  Indexes m_output_pattern;
+  const GridConfig & m_config;
+};
+
+///////////////////////////////////////
+
+
 /// Function that checks if the pcl message format is valid as an ndt map. The point cloud should
 /// have the following fields: x, y, z, cov_xx, cov_xy, cov_xz, cov_yy, cov_yz, cov_zz. The data
 /// type for the fields should be double.

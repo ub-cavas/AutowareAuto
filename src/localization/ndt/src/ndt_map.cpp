@@ -88,6 +88,51 @@ uint32_t validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg)
 
   return ret;
 }
+
+GridLookupPattern::GridLookupPattern(const GridConfig & grid_config, float32_t radius)
+: m_config{grid_config}
+{
+  const auto min_point =
+    grid_config.centroid<Point>(grid_config.index(Point{-radius, -radius, -radius}));
+  const auto max_point =
+    grid_config.centroid<Point>(grid_config.index(Point{radius, radius, radius}));
+
+  const auto diff_pt = max_point - min_point;
+  const auto volume = diff_pt(0) * diff_pt(1) * diff_pt(2);
+
+  m_base_pattern.reserve(volume);
+  m_output_pattern.reserve(volume);
+
+  constexpr auto tol = std::numeric_limits<Real>::epsilon();
+  for (auto curr_x = min_point(0);
+    (max_point(0) - curr_x) >= tol;
+    curr_x += grid_config.get_voxel_size().x)
+  {
+    for (auto curr_y = min_point(1);
+      (max_point(1) - curr_y) >= tol;
+      curr_y += grid_config.get_voxel_size().y)
+    {
+      for (auto curr_z = min_point(2);
+        (max_point(2) - curr_z) >= tol;
+        curr_z += grid_config.get_voxel_size().z)
+      {
+        if ((std::sqrt(curr_x * curr_x + curr_y * curr_y + curr_z * curr_z) - radius) < tol) {
+          m_base_pattern.insert(grid_config.index(Point{curr_x, curr_y, curr_z}));
+        }
+      }
+    }
+  }
+}
+
+const GridLookupPattern::Indexes & GridLookupPattern::lookup_indices(const Point & pt)
+{
+  m_output_pattern.clear();
+  for (const auto idx : m_base_pattern) {
+    m_output_pattern.insert(m_config.index(pt + m_config.centroid<Point>(idx)));
+  }
+  return m_output_pattern;
+}
+
 }  // namespace ndt
 }  // namespace localization
 }  // namespace autoware
