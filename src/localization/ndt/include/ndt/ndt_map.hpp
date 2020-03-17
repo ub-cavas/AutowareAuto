@@ -109,7 +109,6 @@ public:
     for(const auto & n_idx : neighbour_indices){
         const auto vx_it = m_map.find(n_idx);
         if (vx_it != m_map.end() && vx_it->second.usable()) {
-            std::cout<<vx_it->second.centroid()<<std::endl;
             m_output_vector.push_back(vx_it->second);
         }
     }

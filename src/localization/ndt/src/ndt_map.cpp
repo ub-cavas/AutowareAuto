@@ -105,8 +105,6 @@ GridLookupPattern::GridLookupPattern(const GridConfig & grid_config, float32_t r
 
   m_base_pattern.reserve(volume);
   m_output_pattern.reserve(volume);
-    std::cout<<"origin: "<<grid_origin.transpose()<<std::endl<<
-    grid_min_pt.transpose()<<" --- "<<grid_max_pt.transpose()<<std::endl;
   constexpr auto tol = std::numeric_limits<Real>::epsilon();
   for (auto curr_x = grid_min_pt(0);
     (grid_max_pt(0) - curr_x) > -tol;
@@ -120,9 +118,7 @@ GridLookupPattern::GridLookupPattern(const GridConfig & grid_config, float32_t r
         (grid_max_pt(2) - curr_z) > -tol;
         curr_z += grid_config.get_voxel_size().z)
       {
-          std::cout<<"pt: "<< Point{curr_x, curr_y, curr_z}.transpose();
           const Point from_origin = Point{curr_x, curr_y, curr_z} - grid_origin;
-          std::cout<<" | from origin "<<from_origin.transpose()<<std::endl;
         if ((from_origin.norm() - radius) < tol) {
             m_base_pattern.insert(grid_config.index(Point{curr_x, curr_y, curr_z}));
         }
