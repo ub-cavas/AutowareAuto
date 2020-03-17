@@ -92,45 +92,59 @@ uint32_t validate_pcl_map(const sensor_msgs::msg::PointCloud2 & msg)
 GridLookupPattern::GridLookupPattern(const GridConfig & grid_config, float32_t radius)
 : m_config{grid_config}
 {
-  const auto min_point =
-    grid_config.centroid<Point>(grid_config.index(Point{-radius, -radius, -radius}));
-  const auto max_point =
-    grid_config.centroid<Point>(grid_config.index(Point{radius, radius, radius}));
+  const Point grid_origin = grid_config.centroid<Point>(grid_config.index(Point{0.0, 0.0, 0.0}));
+  const Point offset = Point{radius, radius, radius};
+  const Point min_pt = grid_origin - offset;
+  const Point max_pt = grid_origin + offset;
 
-  const auto diff_pt = max_point - min_point;
+  const Point grid_min_pt = grid_config.centroid<Point>(grid_config.index(min_pt));
+  const Point grid_max_pt = grid_config.centroid<Point>(grid_config.index(max_pt));
+
+  const Point diff_pt = grid_max_pt - grid_min_pt;
   const auto volume = diff_pt(0) * diff_pt(1) * diff_pt(2);
 
   m_base_pattern.reserve(volume);
   m_output_pattern.reserve(volume);
-
+    std::cout<<"origin: "<<grid_origin.transpose()<<std::endl<<
+    grid_min_pt.transpose()<<" --- "<<grid_max_pt.transpose()<<std::endl;
   constexpr auto tol = std::numeric_limits<Real>::epsilon();
-  for (auto curr_x = min_point(0);
-    (max_point(0) - curr_x) >= tol;
+  for (auto curr_x = grid_min_pt(0);
+    (grid_max_pt(0) - curr_x) > -tol;
     curr_x += grid_config.get_voxel_size().x)
   {
-    for (auto curr_y = min_point(1);
-      (max_point(1) - curr_y) >= tol;
+    for (auto curr_y = grid_min_pt(1);
+      (grid_max_pt(1) - curr_y) > -tol;
       curr_y += grid_config.get_voxel_size().y)
     {
-      for (auto curr_z = min_point(2);
-        (max_point(2) - curr_z) >= tol;
+      for (auto curr_z = grid_min_pt(2);
+        (grid_max_pt(2) - curr_z) > -tol;
         curr_z += grid_config.get_voxel_size().z)
       {
-        if ((std::sqrt(curr_x * curr_x + curr_y * curr_y + curr_z * curr_z) - radius) < tol) {
-          m_base_pattern.insert(grid_config.index(Point{curr_x, curr_y, curr_z}));
+          std::cout<<"pt: "<< Point{curr_x, curr_y, curr_z}.transpose();
+          const Point from_origin = Point{curr_x, curr_y, curr_z} - grid_origin;
+          std::cout<<" | from origin "<<from_origin.transpose()<<std::endl;
+        if ((from_origin.norm() - radius) < tol) {
+            m_base_pattern.insert(grid_config.index(Point{curr_x, curr_y, curr_z}));
         }
       }
     }
   }
 }
 
-const GridLookupPattern::Indexes & GridLookupPattern::lookup_indices(const Point & pt)
+const GridLookupPattern::Indexes & GridLookupPattern::lookup_indices(const Point & pt) const
 {
   m_output_pattern.clear();
+  const Point grid_origin = m_config.centroid<Point>(m_config.index(Point{0.0, 0.0, 0.0}));
+  const Point loc = m_config.centroid<Point>(m_config.index(pt)) - grid_origin;
   for (const auto idx : m_base_pattern) {
-    m_output_pattern.insert(m_config.index(pt + m_config.centroid<Point>(idx)));
+  const Point res = loc + m_config.centroid<Point>(idx);
+    m_output_pattern.insert(m_config.index(res));
   }
-  return m_output_pattern;
+    return m_output_pattern;
+}
+
+size_t GridLookupPattern::size() {
+    return m_base_pattern.size();
 }
 
 }  // namespace ndt

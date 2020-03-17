@@ -36,7 +36,7 @@ namespace ndt
 
 ////////// DEMO CODE //////////////////
 
-class NDT_LOCAL GridLookupPattern
+class NDT_PUBLIC GridLookupPattern
 {
 public:
   using GridConfig = perception::filters::voxel_grid::Config;
@@ -45,12 +45,14 @@ public:
 
   GridLookupPattern(const GridConfig & grid_config, float32_t radius);
 
-  const Indexes & lookup_indices(const Point & pt);
+  const Indexes & lookup_indices(const Point & pt) const;
+
+  size_t size();
 
 private:
   Indexes m_base_pattern;
-  Indexes m_output_pattern;
-  const GridConfig & m_config;
+  mutable Indexes m_output_pattern;
+  GridConfig m_config;
 };
 
 ///////////////////////////////////////
@@ -79,7 +81,9 @@ public:
   /// Constructor
   /// \param voxel_grid_config Voxel grid config to configure the underlying voxel grid.
   explicit NDTMapBase(const Config & voxel_grid_config)
-  : m_output_vector(1U), m_config(voxel_grid_config), m_map(m_config.get_capacity()) {}
+  : m_config(voxel_grid_config), m_map(m_config.get_capacity()),
+  m_lookup_pattern{m_config, 1.0}, m_output_vector(m_lookup_pattern.size()){
+  }
 
   /// Lookup the cell at location.
   /// \param x x coordinate
@@ -100,10 +104,14 @@ public:
   {
     // TODO(yunus.caliskan): revisit after multi-cell lookup support.
     m_output_vector.clear();
-    const auto vx_it = m_map.find(m_config.index(pt));
-    // Only return a voxel if it's occupied (i.e. has enough points to compute covariance.)
-    if (vx_it != m_map.end() && vx_it->second.usable()) {
-      m_output_vector.push_back(vx_it->second);
+      const auto & neighbour_indices = m_lookup_pattern.lookup_indices(pt);
+
+    for(const auto & n_idx : neighbour_indices){
+        const auto vx_it = m_map.find(n_idx);
+        if (vx_it != m_map.end() && vx_it->second.usable()) {
+            std::cout<<vx_it->second.centroid()<<std::endl;
+            m_output_vector.push_back(vx_it->second);
+        }
     }
     return m_output_vector;
   }
@@ -201,11 +209,12 @@ protected:
   }
 
 private:
-  mutable std::vector<VoxelT> m_output_vector;
   const Config m_config;
   Grid m_map;
   TimePoint m_stamp{};
   std::string m_frame_id{};
+  GridLookupPattern m_lookup_pattern;
+  mutable std::vector<VoxelT> m_output_vector;
 };
 
 
@@ -369,19 +378,19 @@ inline NDT_PUBLIC auto z_(const Eigen::Vector3d & pt)
 }
 
 template<>
-inline NDT_PUBLIC auto & xr_(const Eigen::Vector3d & pt)
+inline NDT_PUBLIC auto & xr_(Eigen::Vector3d & pt)
 {
   return pt(0);
 }
 
 template<>
-inline NDT_PUBLIC auto & yr_(const Eigen::Vector3d & pt)
+inline NDT_PUBLIC auto & yr_(Eigen::Vector3d & pt)
 {
   return pt(1);
 }
 
 template<>
-inline NDT_PUBLIC auto & zr_(const Eigen::Vector3d & pt)
+inline NDT_PUBLIC auto & zr_(Eigen::Vector3d & pt)
 {
   return pt(2);
 }
