@@ -130,7 +130,7 @@ public:
         double f_u = auxilaryFunction_PsiMT(a_u, phi_0, phi_0, d_phi_0, mu);
         double g_u = auxilaryFunction_dPsiMT(d_phi_0, d_phi_0, mu);
 
-        bool interval_converged = (step_max - step_min) > 0, open_interval = true;
+        bool interval_converged = false, open_interval = true;
 
         double a_t = step_dir.norm();
         a_t = std::min(a_t, step_max);
