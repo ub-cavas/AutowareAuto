@@ -56,7 +56,7 @@ if(NOT APPLE)
   ament_target_dependencies(${PROJECT_NAME} "udp_driver" "apex_auto_msgs" "sensor_msgs"
       "lidar_utils" "logging")
   target_link_libraries(${PROJECT_NAME} ${CEPTON_LIB})
-  apex_set_compile_options(${PROJECT_NAME})
+  autoware_set_compile_options(${PROJECT_NAME})
   # Disable warnings due to dirty cepton headers
   target_compile_options(${PROJECT_NAME} PRIVATE ${DISABLED_WARNINGS})
 
@@ -66,7 +66,7 @@ if(NOT APPLE)
   add_executable(${CEPTON_BLOCK_NODE_EXE} ${BLOCK_MAIN_FILES})
   target_link_libraries(${CEPTON_BLOCK_NODE_EXE} ${PROJECT_NAME})
   ament_target_dependencies(${CEPTON_BLOCK_NODE_EXE} ${PROJECT_NAME} apex_init)
-  apex_set_compile_options(${CEPTON_BLOCK_NODE_EXE})
+  autoware_set_compile_options(${CEPTON_BLOCK_NODE_EXE})
   target_compile_options(${CEPTON_BLOCK_NODE_EXE} PRIVATE ${DISABLED_WARNINGS})
   # generate executable for ros1-style standalone nodes
   set(CLOUD_MAIN_FILES src/cepton_cloud_main.cpp)
@@ -74,7 +74,7 @@ if(NOT APPLE)
   add_executable(${CEPTON_CLOUD_NODE_EXE} ${CLOUD_MAIN_FILES})
   target_link_libraries(${CEPTON_CLOUD_NODE_EXE} ${PROJECT_NAME})
   ament_target_dependencies(${CEPTON_CLOUD_NODE_EXE} ${PROJECT_NAME} apex_init)
-  apex_set_compile_options(${CEPTON_CLOUD_NODE_EXE})
+  autoware_set_compile_options(${CEPTON_CLOUD_NODE_EXE})
   target_compile_options(${CEPTON_CLOUD_NODE_EXE} PRIVATE ${DISABLED_WARNINGS})
 
   # Testing
@@ -125,7 +125,7 @@ if(NOT APPLE)
     ament_target_dependencies(${REPLAYER} "apex_init" "apexcpp" "argparse" "logging")
     target_link_libraries(${REPLAYER} ${CEPTON_LIB})
     target_include_directories(${REPLAYER} PRIVATE lib/cepton_sdk_redist/source test/)
-    apex_set_compile_options(${REPLAYER})
+    autoware_set_compile_options(${REPLAYER})
     target_compile_options(${REPLAYER} PRIVATE ${DISABLED_WARNINGS})
     list(APPEND ${PROJECT_NAME}_EXECUTABLES "${REPLAYER}")
 

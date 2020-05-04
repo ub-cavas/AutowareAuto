@@ -9,15 +9,16 @@
 
     <buildtool_depend>ament_cmake_auto</buildtool_depend>
     <buildtool_depend>ament_cmake</buildtool_depend>
-    <buildtool_depend>apex_cmake</buildtool_depend>
+    <buildtool_depend>autoware_auto_cmake</buildtool_depend>
+    <!-- <buildtool_depend>apex_cmake</buildtool_depend> -->
 
-    <depend>apexcpp</depend>
-    <depend>apex_init</depend>
-    <depend>apex_auto_msgs</depend>
+    <!-- <depend>apexcpp</depend> -->
+    <!-- <depend>apex_init</depend> -->
+    <!-- <depend>apex_auto_msgs</depend> -->
     <depend>lidar_utils</depend>
     <depend>sensor_msgs</depend>
     <depend>udp_driver</depend>
-    <depend>logging</depend>
+    <!-- <depend>logging</depend> -->
 
     <test_depend>ament_lint_common</test_depend>
     <test_depend>ament_lint_auto</test_depend>
