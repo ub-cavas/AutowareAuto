@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format2.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+    <name>cepton_node</name>
+    <version>0.0.0</version>
+    <description>A package which encapsulates the Cepton LiDAR drivers in ROS 2</description>
+    <maintainer email="christopher.ho@apex.ai">Christopher Ho</maintainer>
+    <license>Apex.AI License</license>
+
+    <buildtool_depend>ament_cmake_auto</buildtool_depend>
+    <buildtool_depend>ament_cmake</buildtool_depend>
+    <buildtool_depend>apex_cmake</buildtool_depend>
+
+    <depend>apexcpp</depend>
+    <depend>apex_init</depend>
+    <depend>apex_auto_msgs</depend>
+    <depend>lidar_utils</depend>
+    <depend>sensor_msgs</depend>
+    <depend>udp_driver</depend>
+    <depend>logging</depend>
+
+    <test_depend>ament_lint_common</test_depend>
+    <test_depend>ament_lint_auto</test_depend>
+    <test_depend>ament_cmake_gtest</test_depend>
+    <test_depend>ament_cmake_pclint</test_depend>
+    <test_depend>lidar_integration</test_depend>
+    <test_depend>launch_ros</test_depend>
+    <test_depend>ros_testing</test_depend>
+    <test_depend>ament_index_python</test_depend>
+
+    <export><build_type>ament_cmake</build_type></export>
+</package>

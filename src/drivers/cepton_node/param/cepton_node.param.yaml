@@ -1,0 +1,38 @@
+# config/cepton_node.param.yaml
+---
+
+cepton_cloud_node:
+  ros__parameters:
+    ip: "192.168.65.22"
+    port: 8808
+    topic: "cepton_cloud"
+    cloud_size:  55000
+    frame_id: "base_link"
+    timeout_ms: 10
+    init_timeout_ms: 5000
+    expected_num_subscribers: 1
+    transform:
+      dx_m: 1.42849
+      dy_m: -0.017811
+      dz_m: 1.4802
+      qw: 1.0000000
+      qx: 0.0000000
+      qy: 0.0000000
+      qz: 0.0000000
+cepton_block_node:
+  ros__parameters:
+    ip: "192.168.65.22"
+    port: 8808
+    topic: "cepton_cloud"
+    timeout_ms: 10
+    init_timeout_ms: 5000
+    expected_num_subscribers: 1
+    transform:
+      dx_m: 1.42849
+      dy_m: -0.017811
+      dz_m: 1.4802
+      qw: 1.0000000
+      qx: 0.0000000
+      qy: 0.0000000
+      qz: 0.0000000
+
