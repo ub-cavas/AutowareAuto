@@ -133,7 +133,7 @@ class SimpleTrajectory(Node):
 
         # Fill header
         trajectory_msg.header.stamp = self.get_clock().now().to_msg()
-        trajectory_msg.header.frame_id = self.vehicle_kinematic_state_msg_.header.frame_id
+        trajectory_msg.header.frame_id = "odom_different"  # self.vehicle_kinematic_state_msg_.header.frame_id
         return trajectory_msg
 
 
