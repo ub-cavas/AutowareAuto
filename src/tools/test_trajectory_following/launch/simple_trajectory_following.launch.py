@@ -82,6 +82,7 @@ def generate_launch_description():
         node_namespace='control',
         parameters=[LaunchConfiguration('mpc_controller_param_file')],
         output='screen',
+        prefix=['xterm -e'],
     )
 
     lgsvl_interface_node = Node(
@@ -105,6 +106,13 @@ def generate_launch_description():
         arguments=['-d', str(rviz_cfg_path)]
     )
 
+    tf_odom_different_node = Node(
+        package='tf2_ros',
+        node_executable='static_transform_publisher',
+        node_name='static_transform_publisher_odom_different',
+        arguments=['0','0','0','0','0','0','odom','odom_different']
+    )
+
     return LaunchDescription([
         simple_trajectory_param,
         simple_trajectory_node,
@@ -113,5 +121,6 @@ def generate_launch_description():
         lgsvl_interface_param,
         lgsvl_interface_node,
         lexus_rx_450h_description,
-        rviz2
+        rviz2,
+        tf_odom_different_node
     ])
