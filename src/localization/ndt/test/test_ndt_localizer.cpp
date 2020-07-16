@@ -31,6 +31,7 @@ using autoware::localization::ndt::P2DNDTLocalizer;
 using autoware::localization::ndt::P2DNDTLocalizerConfig;
 using autoware::localization::ndt::transform_adapters::pose_to_transform;
 using autoware::localization::ndt::transform_adapters::transform_to_pose;
+using autoware::localization::ndt::StaticNDTMap;
 
 using autoware::common::optimization::FixedLineSearch;
 using NewtonOptimizer = autoware::common::optimization::NewtonsMethodOptimizer<FixedLineSearch>;
@@ -67,6 +68,7 @@ protected:
   float32_t m_step_size{0.12};
   P2DNDTLocalizerConfig m_localizer_config{
     m_grid_config, m_downsampled_cloud.width, m_guess_time_tol};
+  StaticNDTMap temp_static_map{m_grid_config};
 };
 
 class P2DLocalizerParameterTest : public P2DLocalizerTest,
@@ -75,7 +77,6 @@ class P2DLocalizerParameterTest : public P2DLocalizerTest,
 
 TEST_P(P2DLocalizerParameterTest, sanity_test) {
   /////////////// Initialization
-  const auto map_time = std::chrono::system_clock::now();
   const auto scan_time = std::chrono::system_clock::now() + std::chrono::seconds(10);
 
   constexpr auto translation_tol = 1e-2;
@@ -108,17 +109,13 @@ TEST_P(P2DLocalizerParameterTest, sanity_test) {
   translated_cloud.header.stamp = ::time_utils::to_message(scan_time);
 
   // Prepare the map cloud.
-  auto map_cloud = dynamic_map_to_cloud(m_dynamic_map);
-  map_cloud.header.stamp = ::time_utils::to_message(map_time);
-
   P2DTestLocalizer localizer{
     m_localizer_config,
     NewtonOptimizer{FixedLineSearch{m_step_size}, m_optimizer_options},
     m_outlier_ratio};
 
-  localizer.set_map(dynamic_map_to_cloud(m_dynamic_map));
-  decltype(localizer)::PoseWithCovarianceStamped ros_pose_out{};
-  localizer.register_measurement(translated_cloud, transform_initial, ros_pose_out);
+  const auto ros_pose_out{localizer.register_measurement(
+      translated_cloud, m_static_map, transform_initial)};
 
   transform_to_pose(ros_pose_out.pose.pose, pose_out);
 
@@ -155,10 +152,14 @@ TEST_F(P2DLocalizerParameterTest, delayed_scan) {
   auto map_cloud = dynamic_map_to_cloud(m_dynamic_map);
   map_cloud.header.stamp = ::time_utils::to_message(now + dt);
 
-  localizer.set_map(map_cloud);
+  // Make the map timestamp later than one of our measurement.
+  temp_static_map.clear();
+  temp_static_map.insert(map_cloud);
+
   P2DTestLocalizer::PoseWithCovarianceStamped dummy_pose;
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, transform_initial, dummy_pose),
+    dummy_pose = localizer.register_measurement(
+      m_downsampled_cloud, temp_static_map, transform_initial),
     std::logic_error
   );
 }
@@ -192,30 +193,31 @@ TEST_F(P2DLocalizerParameterTest, async_initial_guess) {
   // set map time:
   auto map_cloud = dynamic_map_to_cloud(m_dynamic_map);
   map_cloud.header.stamp = ::time_utils::to_message(map_time);
-
-  localizer.set_map(map_cloud);
+  temp_static_map.clear();
+  temp_static_map.insert(map_cloud);
 
   auto set_and_get = [&transform_initial](auto time_point) {
       transform_initial.header.stamp = ::time_utils::to_message(time_point);
       return transform_initial;
     };
-  P2DTestLocalizer::PoseWithCovarianceStamped dummy_pose;
   EXPECT_NO_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(scan_time), dummy_pose)
+    localizer.register_measurement(m_downsampled_cloud, temp_static_map, set_and_get(scan_time))
   );
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated1), dummy_pose));
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_tolerated1)));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated2), dummy_pose));
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_tolerated2)));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated3), dummy_pose));
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_tolerated3)));
   EXPECT_NO_THROW(localizer.register_measurement(
-      m_downsampled_cloud, set_and_get(guess_time_tolerated4), dummy_pose));
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_tolerated4)));
 
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(guess_time_late), dummy_pose),
+    localizer.register_measurement(
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_late)),
     std::domain_error);
   EXPECT_THROW(
-    localizer.register_measurement(m_downsampled_cloud, set_and_get(guess_time_early), dummy_pose),
+    localizer.register_measurement(
+      m_downsampled_cloud, temp_static_map, set_and_get(guess_time_early)),
     std::domain_error);
 }

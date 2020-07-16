@@ -69,7 +69,7 @@ public:
   }
   autoware::perception::filters::voxel_grid::Config m_grid_config;
   sensor_msgs::msg::PointCloud2 m_downsampled_cloud;
-  DynamicNDTMap m_dynamic_map;
+  autoware::localization::ndt::DynamicNDTMap m_dynamic_map;
   autoware::localization::ndt::StaticNDTMap m_static_map;
 };
 
