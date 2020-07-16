@@ -19,7 +19,6 @@ ament_auto_find_build_dependencies()
 
 set(LOCALIZATION_COMMON_LIB_SRC
     src/initialization.cpp
-    src/localizer_base.cpp
 )
 
 ament_auto_add_library(

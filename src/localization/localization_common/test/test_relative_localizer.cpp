@@ -18,20 +18,15 @@
 #include <localization_common/localizer_base.hpp>
 #include "test_relative_localizer.hpp"
 
+using Transform = geometry_msgs::msg::TransformStamped;
+using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
+
 class TestRelativeLocalizerBase : public ::testing::Test
 {
 protected:
   void SetUp()
   {
     set_id(m_init, std::to_string(m_init_id));
-
-    ASSERT_NE(m_pose_id, ERR_CODE);
-    ASSERT_NE(m_init_id, ERR_CODE);
-    ASSERT_NE(m_map_id, ERR_CODE);
-
-    ASSERT_NE(m_pose_id, INVALID_ID);
-    ASSERT_NE(m_init_id, INVALID_ID);
-    ASSERT_NE(m_map_id, INVALID_ID);
   }
 
   Transform m_init;
@@ -42,46 +37,10 @@ protected:
 
 TEST_F(TestRelativeLocalizerBase, basic_io) {
   TestLocalizer localizer;
-  TestLocalizer::PoseWithCovarianceStamped dummy_pose;
-  ASSERT_EQ(localizer.map_frame_id(), "");
+  PoseWithCovarianceStamped dummy_pose;
 
-  // no map is set yet.
-  EXPECT_FALSE(localizer.map_valid());
-  // Can't register without a map set.
-  EXPECT_THROW(localizer.register_measurement(0, m_init, dummy_pose), std::logic_error);
-
-  EXPECT_NO_THROW(localizer.set_map(m_map_id));
-  EXPECT_TRUE(localizer.map_valid());
-  EXPECT_EQ(localizer.map_frame_id(), std::to_string(m_map_id));
-
-  PoseWithCovarianceStamped pose_out;
-  EXPECT_NO_THROW(localizer.register_measurement(m_pose_id, m_init, pose_out));
+  PoseWithCovarianceStamped pose_out{};
+  EXPECT_NO_THROW(pose_out = localizer.register_measurement(m_pose_id, m_map_id, m_init, nullptr));
 
   EXPECT_EQ(get_id(pose_out), merge_ids(m_pose_id, m_init_id, m_map_id));
-}
-
-TEST_F(TestRelativeLocalizerBase, bad_map) {
-  TestLocalizer localizer;
-  ASSERT_EQ(localizer.map_frame_id(), "");
-  TestLocalizer::PoseWithCovarianceStamped dummy_pose;
-
-  // no map is set yet.
-  EXPECT_FALSE(localizer.map_valid());
-  EXPECT_THROW(localizer.register_measurement(0, m_init, dummy_pose),
-    std::logic_error);
-
-  // Emulate setting a bad map.
-  ASSERT_THROW(localizer.set_map(ERR_CODE), std::runtime_error);
-  EXPECT_FALSE(localizer.map_valid());
-  EXPECT_THROW(localizer.register_measurement(0, m_init, dummy_pose), std::logic_error);
-
-  // now set a valid map.
-  EXPECT_NO_THROW(localizer.set_map(m_map_id));
-  EXPECT_TRUE(localizer.map_valid());
-  EXPECT_NO_THROW(localizer.register_measurement(0, m_init, dummy_pose));
-
-  // Set an invalid map again.
-  ASSERT_THROW(localizer.set_map(ERR_CODE), std::runtime_error);
-  EXPECT_FALSE(localizer.map_valid());
-  EXPECT_THROW(localizer.register_measurement(0, m_init, dummy_pose), std::logic_error);
 }

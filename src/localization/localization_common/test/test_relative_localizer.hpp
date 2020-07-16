@@ -22,12 +22,7 @@
 
 #include <string>
 
-constexpr int ERR_CODE = -99;
-constexpr int INVALID_ID = -1;
-
-using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
-using Transform = geometry_msgs::msg::TransformStamped;
-using autoware::localization::localization_common::RelativeLocalizerBase;
+using autoware::localization::localization_common::LocalizerBase;
 
 std::string merge_ids(int pose, int init, int map)
 {
@@ -47,41 +42,19 @@ void set_id(MsgT & msg, const std::string & id)
 
 class MockSummary {};
 
-class TestLocalizer : public RelativeLocalizerBase<int, int, MockSummary>
+class TestLocalizer : public LocalizerBase<TestLocalizer>
 {
 public:
-  MockSummary register_measurement_impl(
-    const int & msg, const Transform & transform_initial,
-    PoseWithCovarianceStamped & pose_out) override
+  geometry_msgs::msg::PoseWithCovarianceStamped register_measurement(
+    const int & msg,
+    const int & map,
+    const geometry_msgs::msg::TransformStamped & transform_initial,
+    MockSummary *)
   {
-    set_id(pose_out, merge_ids(msg, std::stoi(get_id(transform_initial)), m_map_id));
-    return MockSummary{};
+    geometry_msgs::msg::PoseWithCovarianceStamped pose_out{};
+    set_id(pose_out, merge_ids(msg, std::stoi(get_id(transform_initial)), map));
+    return pose_out;
   }
-  const std::string & map_frame_id() const noexcept override
-  {
-    return m_map_frame;
-  }
-
-  /// Get the timestamp of the current map.
-  std::chrono::system_clock::time_point map_stamp() const noexcept override
-  {
-    return std::chrono::system_clock::time_point::min();
-  }
-
-  void set_map_impl(const int & map) override
-  {
-    if (map == ERR_CODE) {
-      throw std::runtime_error("");
-    }
-    m_map_id = map;
-    m_map_frame = std::to_string(m_map_id);
-  }
-
-  void insert_to_map_impl(const int &) override
-  {}
-
-  int m_map_id{INVALID_ID};
-  std::string m_map_frame{""};
 };
 
 #endif  // TEST_RELATIVE_LOCALIZER_HPP_
