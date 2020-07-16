@@ -77,6 +77,7 @@ private:
 class OPTIMIZATION_PUBLIC OptimizationSummary
 {
 public:
+  OptimizationSummary() = default;
   /// Constructor to initialize const members
   /// \param dist estimated distance to the optimum
   /// \param termination_type Type of termination. Check the enum definition for possible outcomes.
@@ -91,9 +92,9 @@ public:
   uint64_t number_of_iterations_made() const noexcept;
 
 private:
-  float64_t m_estimated_distance_to_optimum;
-  uint64_t m_number_of_iterations_made;
-  TerminationType m_termination_type;
+  float64_t m_estimated_distance_to_optimum{};
+  uint64_t m_number_of_iterations_made{};
+  TerminationType m_termination_type{};
 };
 
 }  // namespace optimization

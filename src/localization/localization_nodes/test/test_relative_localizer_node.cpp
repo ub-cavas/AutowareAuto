@@ -90,18 +90,12 @@ TEST_F(RelativeLocalizationNodeTest, basic) {
   set_msg_id(*observation_tracker_ptr, initial_ID);
   set_msg_id(*map_tracker_ptr, initial_ID);
 
-  // Initialize localizer node
-  auto localizer_ptr = std::make_unique<MockRelativeLocalizer>(observation_tracker_ptr,
-      map_tracker_ptr);
-
   auto localizer_node = std::make_shared<TestRelativeLocalizerNode>("TestNode", "",
       TopicQoS{m_observation_topic, rclcpp::SystemDefaultsQoS{}},
       TopicQoS{m_map_topic, rclcpp::SystemDefaultsQoS{}},
       TopicQoS{m_out_topic, rclcpp::SystemDefaultsQoS{}},
-      MockInitializer{});
-
-  localizer_node->set_localizer_(std::move(localizer_ptr));
-
+      MockInitializer{},
+      MockRelativeLocalizer{observation_tracker_ptr, map_tracker_ptr});
 
   // Create mock observation and map publishers.
   const auto observation_pub = localizer_node->create_publisher<TestObservation>(
@@ -197,14 +191,12 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
   ASSERT_NE(valid_map_id, TEST_ERROR_ID);
 
   // Initialize localizer node
-  auto localizer_ptr = std::make_unique<MockRelativeLocalizer>(nullptr, map_tracker_ptr);
   auto localizer_node = std::make_shared<TestRelativeLocalizerNode>("TestNode", "",
       TopicQoS{m_observation_topic, rclcpp::SystemDefaultsQoS{}},
       TopicQoS{m_map_topic, rclcpp::SystemDefaultsQoS{}},
       TopicQoS{m_out_topic, rclcpp::SystemDefaultsQoS{}},
-      MockInitializer{});
-
-  localizer_node->set_localizer_(std::move(localizer_ptr));
+      MockInitializer{},
+      MockRelativeLocalizer{nullptr, map_tracker_ptr});
 
   // Create mock observation and map publishers.
   const auto observation_pub = localizer_node->create_publisher<TestObservation>(
@@ -249,25 +241,23 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
 
 //////////////////////////////////////////////////////////////////////// Implementations
 
-void TestRelativeLocalizerNode::set_localizer_(std::unique_ptr<MockRelativeLocalizer> && localizer)
-{
-  set_localizer(std::forward<std::unique_ptr<MockRelativeLocalizer>>(localizer));
-}
-
 MockRelativeLocalizer::MockRelativeLocalizer(
   std::shared_ptr<TestMap> obs_ptr,
   std::shared_ptr<TestObservation> map_ptr)
 : m_map_tracking_ptr{map_ptr}, m_observation_tracking_ptr{obs_ptr} {}
 
-MockRelativeLocalizer::RegistrationSummary MockRelativeLocalizer::register_measurement_impl(
-  const TestObservation & msg, const Transform & transform_initial,
-  PoseWithCovarianceStamped & pose_out)
+geometry_msgs::msg::PoseWithCovarianceStamped MockRelativeLocalizer::register_measurement(
+  const MsgWithHeader & msg,
+  const MockMap &,
+  const geometry_msgs::msg::TransformStamped & transform_initial,
+  RegistrationSummary *)
 {
   if (get_msg_id(msg) == TEST_ERROR_ID) {
     throw TestRegistrationException{};
   }
   // The resulting frame id should contain observation's frame + initial guess' frame ID
   // So the result should be: obs_frame + obs_frame + map_frame
+  geometry_msgs::msg::PoseWithCovarianceStamped pose_out;
   pose_out.header.frame_id = msg.header.frame_id + transform_initial.header.frame_id;
   set_msg_id(pose_out, get_msg_id(msg));
 
@@ -275,31 +265,7 @@ MockRelativeLocalizer::RegistrationSummary MockRelativeLocalizer::register_measu
   if (m_observation_tracking_ptr) {
     *m_observation_tracking_ptr = msg;
   }
-  return RegistrationSummary{};
-}
-
-void MockRelativeLocalizer::set_map_impl(const TestMap & msg)
-{
-  if (get_msg_id(msg) == TEST_ERROR_ID) {
-    throw TestMapException{};
-  }
-  m_map = msg;
-  // Update the tracking pointer for notifying the test.
-  if (m_map_tracking_ptr) {
-    *m_map_tracking_ptr = msg;
-  }
-}
-
-void MockRelativeLocalizer::insert_to_map_impl(const TestMap &) {}
-
-const std::string & MockRelativeLocalizer::map_frame_id() const noexcept
-{
-  return m_map.header.frame_id;
-}
-
-std::chrono::system_clock::time_point MockRelativeLocalizer::map_stamp() const noexcept
-{
-  return ::time_utils::from_message(m_map.header.stamp);
+  return pose_out;
 }
 
 void TestRelativeLocalizerNode::on_bad_registration(std::exception_ptr eptr)

@@ -26,7 +26,7 @@
 #include "common/types.hpp"
 
 using autoware::common::types::bool8_t;
-using autoware::localization::localization_common::RelativeLocalizerBase;
+using autoware::localization::localization_common::LocalizerBase;
 using autoware::localization::localization_nodes::RelativeLocalizerNode;
 using autoware::localization::localization_nodes::TopicQoS;
 
@@ -39,29 +39,31 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
-class MockRelativeLocalizer : public RelativeLocalizerBase<TestObservation, TestMap, int>
+class MockMap
 {
 public:
+  void clear() {}
+  void insert(const sensor_msgs::msg::PointCloud2 &) {}
+  std::string frame_id() {return "";}
+};
+
+class MockRelativeLocalizer : public LocalizerBase<MockRelativeLocalizer>
+{
+public:
+  using RegistrationSummary = autoware::common::optimization::OptimizationSummary;
   MockRelativeLocalizer(
     std::shared_ptr<TestMap> obs_ptr,
     std::shared_ptr<TestObservation> map_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;
 
-  RegistrationSummary register_measurement_impl(
-    const TestObservation & msg,
-    const Transform & transform_initial, PoseWithCovarianceStamped & pose_out) override;
-
-  void set_map_impl(const TestMap & msg) override;
-
-  void insert_to_map_impl(const TestMap & msg) override;
-
-  const std::string & map_frame_id() const noexcept override;
-
-  std::chrono::system_clock::time_point map_stamp() const noexcept override;
+  geometry_msgs::msg::PoseWithCovarianceStamped register_measurement(
+    const MsgWithHeader & msg,
+    const MockMap &,
+    const geometry_msgs::msg::TransformStamped & transform_initial,
+    RegistrationSummary *);
 
 private:
-  TestMap m_map;
   std::shared_ptr<TestMap> m_map_tracking_ptr;
   std::shared_ptr<TestObservation> m_observation_tracking_ptr;
 };
@@ -74,8 +76,8 @@ public:
     const std::string & id1, const std::string & id2);
 };
 
-class TestRelativeLocalizerNode : public RelativeLocalizerNode<TestObservation, TestMap,
-    MockRelativeLocalizer, MockInitializer>
+class TestRelativeLocalizerNode : public RelativeLocalizerNode<
+    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer>
 {
 public:
   using RelativeLocalizerNode::RelativeLocalizerNode;

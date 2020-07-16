@@ -56,20 +56,14 @@ enum class LocalizerPublishMode
 /// Base relative localizer node that publishes map->base_link relative
 /// transform messages for a given observation source and map.
 /// \tparam ObservationMsgT Message type to register against a map.
-/// \tparam MapMsgT Map type
 /// \tparam LocalizerT Localizer type.
 /// \tparam PoseInitializerT Pose initializer type.
-template<typename ObservationMsgT, typename MapMsgT, typename LocalizerT,
+template<typename ObservationMsgT, typename MapT, typename LocalizerT,
   typename PoseInitializerT>
 class LOCALIZATION_NODES_PUBLIC RelativeLocalizerNode : public rclcpp::Node
 {
 public:
-  using LocalizerBase = localization_common::RelativeLocalizerBase<ObservationMsgT, MapMsgT,
-      typename LocalizerT::RegistrationSummary>;
-  using LocalizerBasePtr = std::unique_ptr<LocalizerBase>;
   using Cloud = sensor_msgs::msg::PointCloud2;
-  using PoseWithCovarianceStamped = typename LocalizerBase::PoseWithCovarianceStamped;
-  using TransformStamped = typename LocalizerBase::Transform;
   using RegistrationSummary = typename LocalizerT::RegistrationSummary;
 
   /// Constructor
@@ -82,22 +76,30 @@ public:
   /// \param publish_tf Whether to publish to the `tf` topic. This can be used to publish transform
   /// messages when the relative localizer is the only source of localization.
   RelativeLocalizerNode(
-    const std::string & node_name, const std::string & name_space,
+    const std::string & node_name,
+    const std::string & name_space,
     const TopicQoS & observation_sub_config,
     const TopicQoS & map_sub_config,
     const TopicQoS & pose_pub_config,
     const PoseInitializerT & pose_initializer,
+    LocalizerT && localizer,
     LocalizerPublishMode publish_tf = LocalizerPublishMode::NO_PUBLISH_TF)
-  : Node(node_name, name_space),
-    m_pose_initializer(pose_initializer),
-    m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
-    m_observation_sub(create_subscription<ObservationMsgT>(observation_sub_config.topic,
-      observation_sub_config.qos,
-      [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
-    m_map_sub(create_subscription<MapMsgT>(map_sub_config.topic, map_sub_config.qos,
-      [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
-    m_pose_publisher(create_publisher<PoseWithCovarianceStamped>(pose_pub_config.topic,
-      pose_pub_config.qos)) {
+  : Node{node_name, name_space},
+    m_localizer{std::move(localizer)},
+    m_pose_initializer{pose_initializer},
+    m_tf_listener{m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false},
+    m_observation_sub{
+      create_subscription<ObservationMsgT>(
+        observation_sub_config.topic,
+        observation_sub_config.qos,
+        [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})},
+    m_map_sub{create_subscription<sensor_msgs::msg::PointCloud2>(
+      map_sub_config.topic,
+      map_sub_config.qos,
+      [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})},
+  m_pose_publisher{create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      pose_pub_config.topic, pose_pub_config.qos)}
+  {
     if (publish_tf == LocalizerPublishMode::PUBLISH_TF) {
       m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("/tf", pose_pub_config.qos);
     }
@@ -118,13 +120,13 @@ public:
             static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
             get<size_t>())}},
         [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
-    m_map_sub(create_subscription<MapMsgT>(
+    m_map_sub(create_subscription<sensor_msgs::msg::PointCloud2>(
         "ndt_map",
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter("map_sub.history_depth").
             template get<size_t>())}}.transient_local(),
-        [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
-    m_pose_publisher(create_publisher<PoseWithCovarianceStamped>(
+        [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})),
+    m_pose_publisher(create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
         "ndt_pose",
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter(
@@ -149,13 +151,13 @@ public:
             static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
             get<size_t>())}},
         [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
-    m_map_sub(create_subscription<MapMsgT>(
+    m_map_sub(create_subscription<sensor_msgs::msg::PointCloud2>(
         "ndt_map",
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter("map_sub.history_depth").
             template get<size_t>())}}.transient_local(),
-        [this](typename MapMsgT::ConstSharedPtr msg) {map_callback(msg);})),
-    m_pose_publisher(create_publisher<PoseWithCovarianceStamped>(
+        [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})),
+    m_pose_publisher(create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
         "ndt_pose",
         rclcpp::QoS{rclcpp::KeepLast{
             static_cast<size_t>(declare_parameter(
@@ -165,19 +167,13 @@ public:
   }
 
   /// Get a const pointer of the output publisher. Can be used for matching against subscriptions.
-  const typename rclcpp::Publisher<PoseWithCovarianceStamped>::ConstSharedPtr get_publisher()
+  const typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::ConstSharedPtr
+  get_publisher()
   {
     return m_pose_publisher;
   }
 
 protected:
-  /// Set the localizer.
-  /// \param localizer_ptr rvalue to the localizer to set.
-  void set_localizer(LocalizerBasePtr && localizer_ptr)
-  {
-    m_localizer_ptr = std::forward<LocalizerBasePtr>(localizer_ptr);
-  }
-
   /// Handle the exceptions during registration.
   virtual void on_bad_registration(std::exception_ptr eptr) // NOLINT
   {
@@ -212,7 +208,7 @@ protected:
 
   /// Default behavior when hte pose output is evaluated to be invalid.
   /// \param pose Pose output.
-  virtual void on_invalid_output(PoseWithCovarianceStamped & pose)
+  virtual void on_invalid_output(geometry_msgs::msg::PoseWithCovarianceStamped & pose)
   {
     (void) pose;
     RCLCPP_WARN(get_logger(), "Relative localizer has an invalid pose estimate. "
@@ -228,7 +224,8 @@ protected:
   /// \return True if the estimate is valid and can be published.
   virtual bool validate_output(
     const RegistrationSummary & summary,
-    const PoseWithCovarianceStamped & pose, const TransformStamped & guess)
+    const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
+    const geometry_msgs::msg::TransformStamped & guess)
   {
     (void) summary;
     (void) pose;
@@ -269,65 +266,62 @@ private:
   /// \param msg_ptr Pointer to the observation message.
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
-    check_localizer();
-    if (m_localizer_ptr->map_valid()) {
-      try {
-        const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
-        const auto & observation_frame = get_frame_id(*msg_ptr);
-        const auto & map_frame = m_localizer_ptr->map_frame_id();
+    try {
+      const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
+      const auto & observation_frame = get_frame_id(*msg_ptr);
+      const auto & map_frame = m_map.frame_id();
 
-        ////////////////////////////////////////////////////////
-        // TODO(yunus.caliskan): remove in #425
-        if (m_use_hack && !m_hack_initialized) {
-          check_and_execute_hack(get_stamp(*msg_ptr));
+      ////////////////////////////////////////////////////////
+      // TODO(yunus.caliskan): remove in #425
+      if (m_use_hack && !m_hack_initialized) {
+        check_and_execute_hack(get_stamp(*msg_ptr));
+      }
+      /////////////////////////////////////////////////////////
+
+      const auto initial_guess =
+        m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
+
+      m_hack_initialized = true;    // Only after a successful lookup, disable the hack.
+
+      RegistrationSummary summary;
+      auto pose_out = m_localizer.register_measurement(
+        *msg_ptr, m_map, initial_guess, &summary);
+      if (validate_output(summary, pose_out, initial_guess)) {
+        m_pose_publisher->publish(pose_out);
+        // This is to be used when no state estimator or alternative source of
+        // localization is available.
+        if (m_tf_publisher) {
+          publish_tf(pose_out);
         }
-        /////////////////////////////////////////////////////////
-
-        const auto initial_guess =
-          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
-
-        m_hack_initialized = true;  // Only after a successful lookup, disable the hack.
-
-        PoseWithCovarianceStamped pose_out;
-        const auto summary =
-          m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, pose_out);
-        if (validate_output(summary, pose_out, initial_guess)) {
-          m_pose_publisher->publish(pose_out);
-          // This is to be used when no state estimator or alternative source of
-          // localization is available.
-          if (m_tf_publisher) {
-            publish_tf(pose_out);
-          }
-          handle_registration_summary(summary);
-        } else {
-          on_invalid_output(pose_out);
-        }
+        handle_registration_summary(summary);
       } catch (...) {
         // TODO(mitsudome-r) remove this hack in #458
         if (m_tf_publisher) {
           republish_tf(get_stamp(*msg_ptr));
         }
         on_bad_registration(std::current_exception());
+      } else {
+        on_invalid_output(pose_out);
       }
-    } else {
-      on_observation_with_invalid_map(msg_ptr);
+    } catch (...) {
+      on_bad_registration(std::current_exception());
     }
   }
 
   /// Callback that updates the map.
   /// \param msg_ptr Pointer to the map message.
-  void map_callback(typename MapMsgT::ConstSharedPtr msg_ptr)
+  void map_callback(typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg_ptr)
   {
-    check_localizer();
     try {
-      m_localizer_ptr->set_map(*msg_ptr);
+      m_map.clear();
+      m_map.insert(*msg_ptr);
     } catch (...) {
       on_bad_map(std::current_exception());
     }
   }
 
   /// Publish the pose message as a transform.
-  void publish_tf(const PoseWithCovarianceStamped & pose_msg)
+  void publish_tf(const geometry_msgs::msg::PoseWithCovarianceStamped & pose_msg)
   {
     const auto & pose = pose_msg.pose.pose;
     tf2::Quaternion rotation{pose.orientation.x, pose.orientation.y, pose.orientation.z,
@@ -353,7 +347,7 @@ private:
     tf2_msgs::msg::TFMessage tf_message;
     geometry_msgs::msg::TransformStamped tf_stamped;
     tf_stamped.header.stamp = pose_msg.header.stamp;
-    tf_stamped.header.frame_id = m_localizer_ptr->map_frame_id();
+    tf_stamped.header.frame_id = m_map.frame_id();
     tf_stamped.child_frame_id = "odom";
     const auto & tf_trans = map_odom_tf.getOrigin();
     const auto & tf_rot = map_odom_tf.getRotation();
@@ -377,15 +371,6 @@ private:
     m_tf_publisher->publish(tf_message);
   }
 
-  /// Check if localizer exist, throw otherwise.
-  void check_localizer() const
-  {
-    if (!m_localizer_ptr) {
-      throw std::runtime_error("Localizer node needs a valid localizer to be set before it "
-              "can register measurements. Call `set_localizer(...)` first.");
-    }
-  }
-
   // TODO(yunus.caliskan): Remove this method in #425
   void check_and_execute_hack(builtin_interfaces::msg::Time stamp)
   {
@@ -396,13 +381,15 @@ private:
     }
   }
 
-  LocalizerBasePtr m_localizer_ptr;
+  LocalizerT m_localizer;
+  MapT m_map;
   PoseInitializerT m_pose_initializer;
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
-  typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
-  typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
+  typename rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr m_map_sub;
+  typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
+    m_pose_publisher;
   typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher{nullptr};
   // TODO(yunus.caliskan): Remove hack variables below in #425
   bool m_use_hack{false};
