@@ -150,7 +150,6 @@ TEST_F(RelativeLocalizationNodeTest, basic) {
     // Wait until correct map is received by the localizer.
     ASSERT_NE(last_map_msg_ptr, nullptr);
     spin_until_tracker_match(localizer_node, last_map_msg_ptr, cur_map_id, max_poll_iters);
-
     // Confirm map is correct.
     EXPECT_EQ(get_msg_id(*last_map_msg_ptr), cur_map_id);
 
@@ -338,6 +337,7 @@ Transform MockInitializer::guess(
   return transform;
 }
 
+MockMap::MockMap() {set_msg_id(m_last_msg, TEST_ERROR_ID);}
 void MockMap::clear() {}
 void MockMap::insert(const MsgT & msg)
 {

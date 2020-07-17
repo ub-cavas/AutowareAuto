@@ -45,6 +45,8 @@ class MockMap
 {
 public:
   using MsgT = TestMapMsg;
+
+  MockMap();
   void clear();
   void insert(const TestMapMsg & msg);
   std::string frame_id();

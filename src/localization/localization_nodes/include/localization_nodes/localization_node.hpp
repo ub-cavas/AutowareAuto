@@ -199,6 +199,7 @@ private:
     const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
     if (m_map.size() < 1UL || m_map.stamp() > observation_time) {
       on_observation_with_invalid_map(msg_ptr);
+      return;
     }
 
     try {
