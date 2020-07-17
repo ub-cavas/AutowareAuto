@@ -22,7 +22,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include <tf2/buffer_core.h>
 #include <tf2_ros/transform_listener.h>
-#include <sensor_msgs/msg/point_cloud2.hpp>
 #include <time_utils/time_utils.hpp>
 #include <helper_functions/message_adapters.hpp>
 #include <localization_nodes/visibility_control.hpp>
@@ -58,113 +57,12 @@ enum class LocalizerPublishMode
 /// \tparam ObservationMsgT Message type to register against a map.
 /// \tparam LocalizerT Localizer type.
 /// \tparam PoseInitializerT Pose initializer type.
-template<typename ObservationMsgT, typename MapT, typename LocalizerT,
-  typename PoseInitializerT>
+template<typename ObservationMsgT, typename MapT, typename LocalizerT, typename PoseInitializerT>
 class LOCALIZATION_NODES_PUBLIC RelativeLocalizerNode : public rclcpp::Node
 {
 public:
-  using Cloud = sensor_msgs::msg::PointCloud2;
+  using MsgT = typename MapT::MsgT;
   using RegistrationSummary = typename LocalizerT::RegistrationSummary;
-
-  /// Constructor
-  /// \param node_name Name of node
-  /// \param name_space Namespace of node
-  /// \param observation_sub_config topic and QoS setting for the observation subscription.
-  /// \param map_sub_config topic and QoS setting for the map subscription.
-  /// \param pose_pub_config topic and QoS setting for the output pose publisher.
-  /// \param pose_initializer Pose initializer.
-  /// \param publish_tf Whether to publish to the `tf` topic. This can be used to publish transform
-  /// messages when the relative localizer is the only source of localization.
-  RelativeLocalizerNode(
-    const std::string & node_name,
-    const std::string & name_space,
-    const TopicQoS & observation_sub_config,
-    const TopicQoS & map_sub_config,
-    const TopicQoS & pose_pub_config,
-    const PoseInitializerT & pose_initializer,
-    LocalizerT && localizer,
-    LocalizerPublishMode publish_tf = LocalizerPublishMode::NO_PUBLISH_TF)
-  : Node{node_name, name_space},
-    m_localizer{std::move(localizer)},
-    m_pose_initializer{pose_initializer},
-    m_tf_listener{m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false},
-    m_observation_sub{
-      create_subscription<ObservationMsgT>(
-        observation_sub_config.topic,
-        observation_sub_config.qos,
-        [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})},
-    m_map_sub{create_subscription<sensor_msgs::msg::PointCloud2>(
-      map_sub_config.topic,
-      map_sub_config.qos,
-      [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})},
-  m_pose_publisher{create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-      pose_pub_config.topic, pose_pub_config.qos)}
-  {
-    if (publish_tf == LocalizerPublishMode::PUBLISH_TF) {
-      m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("/tf", pose_pub_config.qos);
-    }
-  }
-
-  // Constructor for ros2 components
-  // TODO(yunus.caliskan): refactor constructors together reduce the repeated code.
-  RelativeLocalizerNode(
-    const std::string & node_name,
-    const rclcpp::NodeOptions & options,
-    const PoseInitializerT & pose_initializer)
-  : Node(node_name, options),
-    m_pose_initializer(pose_initializer),
-    m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
-    m_observation_sub(create_subscription<ObservationMsgT>(
-        "points_in",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
-            get<size_t>())}},
-        [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
-    m_map_sub(create_subscription<sensor_msgs::msg::PointCloud2>(
-        "ndt_map",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("map_sub.history_depth").
-            template get<size_t>())}}.transient_local(),
-        [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})),
-    m_pose_publisher(create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-        "ndt_pose",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}}))
-  {
-    init();
-  }
-
-  /// Constructor using ros parameters
-  /// \param node_name Node name
-  /// \param name_space Node namespace
-  /// \param pose_initializer Pose initializer
-  RelativeLocalizerNode(
-    const std::string & node_name, const std::string & name_space,
-    const PoseInitializerT & pose_initializer)
-  : Node(node_name, name_space),
-    m_pose_initializer(pose_initializer),
-    m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false),
-    m_observation_sub(create_subscription<ObservationMsgT>(
-        "points_in",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
-            get<size_t>())}},
-        [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})),
-    m_map_sub(create_subscription<sensor_msgs::msg::PointCloud2>(
-        "ndt_map",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("map_sub.history_depth").
-            template get<size_t>())}}.transient_local(),
-        [this](typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg) {map_callback(msg);})),
-    m_pose_publisher(create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
-        "ndt_pose",
-        rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}}))
-  {
-    init();
-  }
 
   /// Get a const pointer of the output publisher. Can be used for matching against subscriptions.
   const typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::ConstSharedPtr
@@ -173,7 +71,39 @@ public:
     return m_pose_publisher;
   }
 
+  const MapT & map() const noexcept {return m_map;}
+
 protected:
+  // Constructor for ros2 components
+  RelativeLocalizerNode(
+    const std::string & node_name,
+    const rclcpp::NodeOptions & options,
+    LocalizerT && localizer,
+    MapT && map,
+    PoseInitializerT && pose_initializer)
+  : Node{node_name, options},
+    m_localizer{std::move(localizer)},
+    m_map{std::move(map)},
+    m_pose_initializer{std::move(pose_initializer)},
+    m_tf_listener{m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false},
+    m_observation_sub{create_subscription<ObservationMsgT>("points_in",
+        rclcpp::QoS{rclcpp::KeepLast{static_cast<size_t>(
+              declare_parameter("observation_sub.history_depth").template get<size_t>())}},
+        [this](typename ObservationMsgT::ConstSharedPtr msg) {observation_callback(msg);})},
+    m_map_sub{create_subscription<MsgT>("ndt_map",
+      rclcpp::QoS{rclcpp::KeepLast{static_cast<size_t>(
+            declare_parameter("map_sub.history_depth").template get<size_t>())}},
+      [this](typename MsgT::ConstSharedPtr msg) {map_callback(msg);})},
+  m_pose_publisher{create_publisher<geometry_msgs::msg::PoseWithCovarianceStamped>(
+      "ndt_pose",
+      rclcpp::QoS{rclcpp::KeepLast{
+          static_cast<size_t>(
+            declare_parameter("pose_pub.history_depth").template get<size_t>())}})}
+  {
+    init();
+  }
+
+
   /// Handle the exceptions during registration.
   virtual void on_bad_registration(std::exception_ptr eptr) // NOLINT
   {
@@ -266,8 +196,12 @@ private:
   /// \param msg_ptr Pointer to the observation message.
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
+    const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
+    if (m_map.size() < 1UL || m_map.stamp() > observation_time) {
+      on_observation_with_invalid_map(msg_ptr);
+    }
+
     try {
-      const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
       const auto & observation_frame = get_frame_id(*msg_ptr);
       const auto & map_frame = m_map.frame_id();
 
@@ -294,23 +228,21 @@ private:
           publish_tf(pose_out);
         }
         handle_registration_summary(summary);
-      } catch (...) {
-        // TODO(mitsudome-r) remove this hack in #458
-        if (m_tf_publisher) {
-          republish_tf(get_stamp(*msg_ptr));
-        }
-        on_bad_registration(std::current_exception());
       } else {
         on_invalid_output(pose_out);
       }
     } catch (...) {
+      // TODO(mitsudome-r) remove this hack in #458
+      if (m_tf_publisher) {
+        republish_tf(get_stamp(*msg_ptr));
+      }
       on_bad_registration(std::current_exception());
     }
   }
 
   /// Callback that updates the map.
   /// \param msg_ptr Pointer to the map message.
-  void map_callback(typename sensor_msgs::msg::PointCloud2::ConstSharedPtr msg_ptr)
+  void map_callback(typename MsgT::ConstSharedPtr msg_ptr)
   {
     try {
       m_map.clear();
@@ -363,8 +295,7 @@ private:
   /// Publish the pose message as a transform.
   void republish_tf(builtin_interfaces::msg::Time stamp)
   {
-    auto map_odom_tf = m_tf_buffer.lookupTransform(m_localizer_ptr->map_frame_id(), "odom",
-        tf2::TimePointZero);
+    auto map_odom_tf = m_tf_buffer.lookupTransform(m_map.frame_id(), "odom", tf2::TimePointZero);
     map_odom_tf.header.stamp = stamp;
     tf2_msgs::msg::TFMessage tf_message;
     tf_message.transforms.push_back(map_odom_tf);
@@ -387,7 +318,7 @@ private:
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
-  typename rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr m_map_sub;
+  typename rclcpp::Subscription<MsgT>::SharedPtr m_map_sub;
   typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr
     m_pose_publisher;
   typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher{nullptr};

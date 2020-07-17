@@ -18,21 +18,23 @@
 #define TEST_RELATIVE_LOCALIZER_NODE_HPP_
 
 #include <localization_common/localizer_base.hpp>
+#include <localization_nodes/localization_node.hpp>
 #include <std_msgs/msg/u_int8.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "common/types.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::localization::localization_common::LocalizerBase;
 using autoware::localization::localization_nodes::RelativeLocalizerNode;
-using autoware::localization::localization_nodes::TopicQoS;
 
 using MsgWithHeader = geometry_msgs::msg::TransformStamped;
 using TestObservation = MsgWithHeader;
-using TestMap = MsgWithHeader;
+using TestMapMsg = MsgWithHeader;
 
 using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
 using Transform = geometry_msgs::msg::TransformStamped;
@@ -42,18 +44,25 @@ constexpr int TEST_ERROR_ID = -9999;
 class MockMap
 {
 public:
-  void clear() {}
-  void insert(const sensor_msgs::msg::PointCloud2 &) {}
-  std::string frame_id() {return "";}
+  using MsgT = TestMapMsg;
+  void clear();
+  void insert(const TestMapMsg & msg);
+  std::string frame_id();
+  size_t size() const noexcept;
+  std::chrono::system_clock::time_point stamp() const noexcept;
+  const TestMapMsg & last_msg() const noexcept {return m_last_msg;}
+
+private:
+  std::size_t m_inserted_counter{};
+  TestMapMsg m_last_msg{};
 };
 
 class MockRelativeLocalizer : public LocalizerBase<MockRelativeLocalizer>
 {
 public:
   using RegistrationSummary = autoware::common::optimization::OptimizationSummary;
-  MockRelativeLocalizer(
-    std::shared_ptr<TestMap> obs_ptr,
-    std::shared_ptr<TestObservation> map_ptr);
+
+  explicit MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;
 
@@ -64,8 +73,7 @@ public:
     RegistrationSummary *);
 
 private:
-  std::shared_ptr<TestMap> m_map_tracking_ptr;
-  std::shared_ptr<TestObservation> m_observation_tracking_ptr;
+  std::shared_ptr<TestObservation> m_observation_tracking_ptr{};
 };
 
 class MockInitializer
@@ -79,11 +87,16 @@ public:
 class TestRelativeLocalizerNode : public RelativeLocalizerNode<
     TestObservation, MockMap, MockRelativeLocalizer, MockInitializer>
 {
-public:
-  using RelativeLocalizerNode::RelativeLocalizerNode;
+  using Base = RelativeLocalizerNode<
+    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer>;
 
-  // Expose protected method for convenience
-  void set_localizer_(std::unique_ptr<MockRelativeLocalizer> && localizer);
+public:
+  TestRelativeLocalizerNode(
+    const rclcpp::NodeOptions & options,
+    MockRelativeLocalizer && localizer,
+    MockMap && map,
+    MockInitializer && pose_initializer)
+  : Base{"TestNode", options, std::move(localizer), std::move(map), std::move(pose_initializer)} {}
 
   bool8_t register_exception();
   bool8_t map_exception();

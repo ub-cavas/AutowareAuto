@@ -57,6 +57,7 @@ public:
   using Config = autoware::perception::filters::voxel_grid::Config;
   using TimePoint = std::chrono::system_clock::time_point;
   using VoxelViewVector = std::vector<VoxelView<VoxelT>>;
+  using MsgT = sensor_msgs::msg::PointCloud2;
 
   /// Constructor
   /// \param voxel_grid_config Voxel grid config to configure the underlying voxel grid.
@@ -103,7 +104,7 @@ public:
 
   /// Insert a point cloud to the map.
   /// \param msg PointCloud2 message to add.
-  void insert(const sensor_msgs::msg::PointCloud2 & msg)
+  void insert(const MsgT & msg)
   {
     m_stamp = ::time_utils::from_message(msg.header.stamp);
     m_frame_id = msg.header.frame_id;
@@ -230,7 +231,7 @@ public:
   /// Insert the dense point cloud to the map. This is intended for converting a dense
   /// point cloud into the ndt representation. Ideal for reading dense pcd files.
   /// \param msg PointCloud2 message to add.
-  void insert_(const sensor_msgs::msg::PointCloud2 & msg)
+  void insert_(const MsgT & msg)
   {
     sensor_msgs::PointCloud2ConstIterator<float32_t> x_it(msg, "x");
     sensor_msgs::PointCloud2ConstIterator<float32_t> y_it(msg, "y");
@@ -274,7 +275,7 @@ public:
   /// message which is expected to be equal to the voxel grid ID in the map's voxel grid. Since
   /// the grid's index will be a long value to avoid overflows, `cell_id` field should be an array
   /// of 2 unsigned integers. That is because there is no direct long support as a PointField.
-  void insert_(const sensor_msgs::msg::PointCloud2 & msg)
+  void insert_(const MsgT & msg)
   {
     if (validate_pcl_map(msg) == 0U) {
       // throwing rather than silently failing since ndt matching cannot be done with an

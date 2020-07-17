@@ -52,15 +52,15 @@ public:
   }
 
 protected:
-  const std::string m_observation_topic{"test_obs"};
-  const std::string m_map_topic{"test_map"};
-  const std::string m_out_topic{"test_pose_out"};
-  const uint32_t m_history_depth{10U};
+  const std::string m_observation_topic{"points_in"};
+  const std::string m_map_topic{"ndt_map"};
+  const std::string m_out_topic{"ndt_pose"};
+  const std::int64_t m_history_depth{10};
   const std::string m_map_frame{"map"};
   const std::string m_obs_frame{"obs"};
   std::string m_expected_aggregated_frame;
   TestObservation m_observation_msg;
-  TestMap m_map_msg;
+  TestMapMsg m_map_msg;
 };
 
 
@@ -85,29 +85,38 @@ TEST_F(RelativeLocalizationNodeTest, basic) {
 
   // Create pointers to inject into the node to track its state.
   auto observation_tracker_ptr = std::make_shared<TestObservation>();
-  auto map_tracker_ptr = std::make_shared<TestMap>();
   // Tag the pointers with the initial id
   set_msg_id(*observation_tracker_ptr, initial_ID);
-  set_msg_id(*map_tracker_ptr, initial_ID);
 
-  auto localizer_node = std::make_shared<TestRelativeLocalizerNode>("TestNode", "",
-      TopicQoS{m_observation_topic, rclcpp::SystemDefaultsQoS{}},
-      TopicQoS{m_map_topic, rclcpp::SystemDefaultsQoS{}},
-      TopicQoS{m_out_topic, rclcpp::SystemDefaultsQoS{}},
-      MockInitializer{},
-      MockRelativeLocalizer{observation_tracker_ptr, map_tracker_ptr});
+  rclcpp::NodeOptions options;
+  options.append_parameter_override("publish_tf", false);
+  options.append_parameter_override("observation_sub.history_depth", m_history_depth);
+  options.append_parameter_override("map_sub.history_depth", m_history_depth);
+  options.append_parameter_override("pose_pub.history_depth", m_history_depth);
+  options.append_parameter_override("init_hack.quaternion.x", 0.0);
+  options.append_parameter_override("init_hack.quaternion.y", 0.0);
+  options.append_parameter_override("init_hack.quaternion.z", 0.0);
+  options.append_parameter_override("init_hack.quaternion.w", 1.0);
+  options.append_parameter_override("init_hack.translation.x", 0.0);
+  options.append_parameter_override("init_hack.translation.y", 0.0);
+  options.append_parameter_override("init_hack.translation.z", 0.0);
+  auto localizer_node = std::make_shared<TestRelativeLocalizerNode>(
+    options,
+    MockRelativeLocalizer{observation_tracker_ptr},
+    MockMap{},
+    MockInitializer{});
 
   // Create mock observation and map publishers.
   const auto observation_pub = localizer_node->create_publisher<TestObservation>(
     m_observation_topic,
     m_history_depth);
-  const auto map_pub = localizer_node->create_publisher<TestMap>(m_map_topic, m_history_depth);
+  const auto map_pub = localizer_node->create_publisher<TestMapMsg>(m_map_topic, m_history_depth);
 
   // Create a subscription to get the output from the localizer node. The callback compares the
   // ID of the output to the last published
   const auto pose_out_sub = localizer_node->create_subscription<PoseWithCovarianceStamped>(
     m_out_topic,
-    rclcpp::QoS{rclcpp::KeepLast{m_history_depth}},
+    rclcpp::QoS{rclcpp::KeepLast{static_cast<std::size_t>(m_history_depth)}},
     [this, &callback_called, &cur_obs_id](PoseWithCovarianceStamped::ConstSharedPtr pose) {
       // Check that the result has the expected frame ID.
       // See the initiallization of m_expected_aggregated_frame for an explanation.
@@ -137,11 +146,13 @@ TEST_F(RelativeLocalizationNodeTest, basic) {
       set_msg_id(m_map_msg, cur_map_id);
       map_pub->publish(m_map_msg);
     }
+    auto last_map_msg_ptr = &localizer_node->map().last_msg();
     // Wait until correct map is received by the localizer.
-    spin_until_tracker_match(localizer_node, map_tracker_ptr, cur_map_id, max_poll_iters);
+    ASSERT_NE(last_map_msg_ptr, nullptr);
+    spin_until_tracker_match(localizer_node, last_map_msg_ptr, cur_map_id, max_poll_iters);
 
     // Confirm map is correct.
-    EXPECT_EQ(get_msg_id(*map_tracker_ptr), cur_map_id);
+    EXPECT_EQ(get_msg_id(*last_map_msg_ptr), cur_map_id);
 
     // Publish a new observation with a new ID
     cur_obs_id = i;
@@ -183,7 +194,7 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
   const auto max_poll_iters = 50U;
 
   // Create pointers to inject into the node to track its state.
-  auto map_tracker_ptr = std::make_shared<TestMap>();
+  auto map_tracker_ptr = std::make_shared<TestMapMsg>();
   set_msg_id(*map_tracker_ptr, initial_id);
 
   ASSERT_NE(initial_id, valid_map_id);
@@ -191,17 +202,28 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
   ASSERT_NE(valid_map_id, TEST_ERROR_ID);
 
   // Initialize localizer node
-  auto localizer_node = std::make_shared<TestRelativeLocalizerNode>("TestNode", "",
-      TopicQoS{m_observation_topic, rclcpp::SystemDefaultsQoS{}},
-      TopicQoS{m_map_topic, rclcpp::SystemDefaultsQoS{}},
-      TopicQoS{m_out_topic, rclcpp::SystemDefaultsQoS{}},
-      MockInitializer{},
-      MockRelativeLocalizer{nullptr, map_tracker_ptr});
+  rclcpp::NodeOptions options;
+  options.append_parameter_override("publish_tf", false);
+  options.append_parameter_override("observation_sub.history_depth", m_history_depth);
+  options.append_parameter_override("map_sub.history_depth", m_history_depth);
+  options.append_parameter_override("pose_pub.history_depth", m_history_depth);
+  options.append_parameter_override("init_hack.quaternion.x", 0.0);
+  options.append_parameter_override("init_hack.quaternion.y", 0.0);
+  options.append_parameter_override("init_hack.quaternion.z", 0.0);
+  options.append_parameter_override("init_hack.quaternion.w", 1.0);
+  options.append_parameter_override("init_hack.translation.x", 0.0);
+  options.append_parameter_override("init_hack.translation.y", 0.0);
+  options.append_parameter_override("init_hack.translation.z", 0.0);
+  auto localizer_node = std::make_shared<TestRelativeLocalizerNode>(
+    options,
+    MockRelativeLocalizer{},
+    MockMap{},
+    MockInitializer{});
 
   // Create mock observation and map publishers.
   const auto observation_pub = localizer_node->create_publisher<TestObservation>(
     m_observation_topic, m_history_depth);
-  const auto map_pub = localizer_node->create_publisher<TestMap>(m_map_topic, m_history_depth);
+  const auto map_pub = localizer_node->create_publisher<TestMapMsg>(m_map_topic, m_history_depth);
 
   // Wait until publishers have a subscription available.
   wait_for_matched(map_pub);
@@ -241,10 +263,8 @@ TEST_F(RelativeLocalizationNodeTest, exception_handling) {
 
 //////////////////////////////////////////////////////////////////////// Implementations
 
-MockRelativeLocalizer::MockRelativeLocalizer(
-  std::shared_ptr<TestMap> obs_ptr,
-  std::shared_ptr<TestObservation> map_ptr)
-: m_map_tracking_ptr{map_ptr}, m_observation_tracking_ptr{obs_ptr} {}
+MockRelativeLocalizer::MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr)
+: m_observation_tracking_ptr{obs_ptr} {}
 
 geometry_msgs::msg::PoseWithCovarianceStamped MockRelativeLocalizer::register_measurement(
   const MsgWithHeader & msg,
@@ -316,4 +336,18 @@ Transform MockInitializer::guess(
   transform.header.stamp = ::time_utils::to_message(stamp);
   transform.header.frame_id = obs_frame + map_frame;
   return transform;
+}
+
+void MockMap::clear() {}
+void MockMap::insert(const MsgT & msg)
+{
+  if (get_msg_id(msg) == TEST_ERROR_ID) {throw TestMapException{};}
+  m_last_msg = msg;
+  m_inserted_counter++;
+}
+std::string MockMap::frame_id() {return m_last_msg.header.frame_id;}
+size_t MockMap::size() const noexcept {return m_inserted_counter;}
+std::chrono::system_clock::time_point MockMap::stamp() const noexcept
+{
+  return ::time_utils::from_message(m_last_msg.header.stamp);
 }
