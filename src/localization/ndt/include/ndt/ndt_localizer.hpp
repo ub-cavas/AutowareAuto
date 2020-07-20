@@ -56,12 +56,11 @@ void set_summary(std::nullptr_t *, const SummaryRealT &)
 /// \tparam ConfigT Type of localization configuration.
 template<
   typename ScanT,
-  typename MapT,
   typename NDTOptimizationProblemT,
   typename OptimizationProblemConfigT,
   typename OptimizerT>
 class NDT_PUBLIC NDTLocalizer : public localization_common::LocalizerBase<
-    NDTLocalizer<CloudT, MapT, NDTOptimizationProblemT, OptimizationProblemConfigT, OptimizerT>>
+    NDTLocalizer<CloudT, NDTOptimizationProblemT, OptimizationProblemConfigT, OptimizerT>>
 {
 public:
   using Transform = geometry_msgs::msg::TransformStamped;
@@ -83,13 +82,11 @@ public:
     const NDTLocalizerConfigBase & config,
     const OptimizationProblemConfigT & optimization_problem_config,
     const OptimizerT & optimizer,
-    ScanT && scan,
-    MapT && map)
+    ScanT && scan)
   : m_config{config},
     m_optimization_problem_config{optimization_problem_config},
     m_optimizer{optimizer},
-    m_scan{std::forward<ScanT>(scan)},
-    m_map{std::forward<MapT>(map)} {}
+    m_scan{std::forward<ScanT>(scan)} {}
 
   /// Register a measurement to the current map and return the transformation from map to the
   /// measurement.
@@ -97,7 +94,7 @@ public:
   /// \throws std::domain_error on pose estimates that are not within the configured duration
   /// range from the measurement.
   /// \throws std::runtime_error on numerical errors in the optimizer.
-  template<typename RegistrationSummaryT = std::nullptr_t>
+  template<typename MapT, typename RegistrationSummaryT = std::nullptr_t>
   geometry_msgs::msg::PoseWithCovarianceStamped register_measurement(
     const CloudT & msg,
     const MapT & map,
@@ -119,7 +116,7 @@ public:
     m_scan.insert(msg);
 
     // Define and solve the problem.
-    NDTOptimizationProblemT problem(m_scan, m_map, m_optimization_problem_config);
+    NDTOptimizationProblemT problem(m_scan, map, m_optimization_problem_config);
 
     const auto opt_summary = m_optimizer.solve(problem, eig_pose_initial, eig_pose_result);
 
@@ -141,30 +138,10 @@ public:
     return pose_out;
   }
 
-  /// Replace the map with a given message
-  /// \param msg Message containing the map
-  void set_map_impl(const CloudT & msg) override
-  {
-    m_map.clear();
-    m_map.insert(msg);
-  }
-
-  /// Insert the given message to the existing map.
-  /// \param msg Message containing the map addition.
-  void insert_to_map_impl(const CloudT & msg) override
-  {
-    m_map.insert(msg);
-  }
-
   /// Get the last used scan.
   const ScanT & scan() const noexcept
   {
     return m_scan;
-  }
-  /// Get the current map.
-  const MapT & map() const noexcept
-  {
-    return m_map;
   }
   /// Get the optimizer.
   const OptimizerT & optimizer() const noexcept
@@ -180,17 +157,6 @@ public:
   const OptimizationProblemConfigT & optimization_problem_config() const noexcept
   {
     return m_optimization_problem_config;
-  }
-  /// Get the frame id of the current map.(Required for base interface)
-  const std::string & map_frame_id() const noexcept override
-  {
-    return m_map.frame_id();
-  }
-
-  /// Get the timestamp of the current map. (Required for base interface)
-  std::chrono::system_clock::time_point map_stamp() const noexcept override
-  {
-    return m_map.stamp();
   }
 
 protected:
@@ -213,26 +179,13 @@ protected:
     // For now, do nothing.
   }
 
-  /// Check if the received message is valid to be registered. Following checks are made:
-  /// * Message timestamp is not older than the map timestamp.
-  /// \param msg Message to register.
-  /// \throws std::logic_error on old data.
-  virtual void validate_msg(const CloudT & msg, const MapT & map) const
-  {
-    const auto message_time = ::time_utils::from_message(msg.header.stamp);
-    // Map shouldn't be newer than a measurement.
-    if (message_time < map.stamp()) {
-      throw std::logic_error("Lidar scan should not have a timestamp older than the timestamp of"
-              "the current map.");
-    }
-  }
-
+private:
   /// Check if the initial guess is valid. Following checks are made:
   /// * pose guess timestamp is within a tolerated range from the scan timestamp.
   /// \param msg Message to register
   /// \param transform_initial Initial pose estimate
   /// \throws std::domain_error on untimely initial pose.
-  virtual void validate_guess(const CloudT & msg, const Transform & transform_initial) const
+  void validate_guess(const CloudT & msg, const Transform & transform_initial) const
   {
     const auto message_time = ::time_utils::from_message(msg.header.stamp);
 
@@ -250,12 +203,26 @@ protected:
     }
   }
 
-private:
+  /// Check if the received message is valid to be registered. Following checks are made:
+  /// * Message timestamp is not older than the map timestamp.
+  /// \param msg Message to register.
+  /// \throws std::logic_error on old data.
+  template<typename MapT>
+  void validate_msg(const CloudT & msg, const MapT & map) const
+  {
+    const auto message_time = ::time_utils::from_message(msg.header.stamp);
+    // Map shouldn't be newer than a measurement.
+    if (message_time < map.stamp()) {
+      throw std::logic_error("Lidar scan should not have a timestamp older than the timestamp of"
+              "the current map.");
+    }
+  }
+
+
   NDTLocalizerConfigBase m_config;
   OptimizationProblemConfigT m_optimization_problem_config;
   OptimizerT m_optimizer;
   ScanT m_scan;
-  MapT m_map;
 };
 
 /// P2D localizer implementation.
@@ -265,11 +232,11 @@ private:
 /// \tparam MapT Type of map to be used. By default it is StaticNDTMap.
 template<typename OptimizerT, typename MapT = StaticNDTMap>
 class NDT_PUBLIC P2DNDTLocalizer : public NDTLocalizer<
-    P2DNDTScan, MapT, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>
+    P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>
 {
 public:
   using ParentT = NDTLocalizer<
-    P2DNDTScan, MapT, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>;
+    P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>;
 
   explicit P2DNDTLocalizer(
     const P2DNDTLocalizerConfig & config,
@@ -279,8 +246,7 @@ public:
       config,
       P2DNDTOptimizationConfig{outlier_ratio},
       optimizer,
-      P2DNDTScan{config.scan_capacity()},
-      MapT{config.map_config()}} {}
+      P2DNDTScan{config.scan_capacity()}} {}
 
 protected:
   void set_covariance(

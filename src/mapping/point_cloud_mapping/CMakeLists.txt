@@ -34,8 +34,7 @@ ament_auto_find_build_dependencies()
 include_directories(include ${PCL_INCLUDE_DIRS})
 
 set(PC_MAPPING_SRC
-    src/map.cpp
-    src/point_cloud_mapper.cpp)
+    src/map.cpp)
 
 set(PC_MAPPING_HEADERS
     include/point_cloud_mapping/visibility_control.hpp
