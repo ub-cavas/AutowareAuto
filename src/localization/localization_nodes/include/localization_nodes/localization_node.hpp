@@ -57,12 +57,16 @@ enum class LocalizerPublishMode
 /// \tparam ObservationMsgT Message type to register against a map.
 /// \tparam LocalizerT Localizer type.
 /// \tparam PoseInitializerT Pose initializer type.
-template<typename ObservationMsgT, typename MapT, typename LocalizerT, typename PoseInitializerT>
+template<
+  typename ObservationMsgT,
+  typename MapT,
+  typename LocalizerT,
+  typename PoseInitializerT,
+  typename RegistrationSummaryT>
 class LOCALIZATION_NODES_PUBLIC RelativeLocalizerNode : public rclcpp::Node
 {
 public:
   using MsgT = typename MapT::MsgT;
-  using RegistrationSummary = typename LocalizerT::RegistrationSummary;
 
   /// Get a const pointer of the output publisher. Can be used for matching against subscriptions.
   const typename rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::ConstSharedPtr
@@ -153,7 +157,7 @@ protected:
   /// \param guess Initial guess.
   /// \return True if the estimate is valid and can be published.
   virtual bool validate_output(
-    const RegistrationSummary & summary,
+    const RegistrationSummaryT & summary,
     const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
     const geometry_msgs::msg::TransformStamped & guess)
   {
@@ -190,7 +194,7 @@ private:
   }
 
   /// Process the registration summary. By default does nothing.
-  virtual void handle_registration_summary(const RegistrationSummary &) {}
+  virtual void handle_registration_summary(const RegistrationSummaryT &) {}
 
   /// Callback that registers each received observation and outputs the result.
   /// \param msg_ptr Pointer to the observation message.
@@ -218,7 +222,7 @@ private:
 
       m_hack_initialized = true;    // Only after a successful lookup, disable the hack.
 
-      RegistrationSummary summary;
+      RegistrationSummaryT summary;
       auto pose_out = m_localizer.register_measurement(
         *msg_ptr, m_map, initial_guess, &summary);
       if (validate_output(summary, pose_out, initial_guess)) {

@@ -66,8 +66,7 @@ protected:
   OptimizerOptions m_optimizer_options{5U, 0.0002, 0.0002, 1e-4};
   float64_t m_outlier_ratio{0.45};
   float32_t m_step_size{0.12};
-  P2DNDTLocalizerConfig m_localizer_config{
-    m_grid_config, m_downsampled_cloud.width, m_guess_time_tol};
+  P2DNDTLocalizerConfig m_localizer_config{m_downsampled_cloud.width, m_guess_time_tol};
   StaticNDTMap temp_static_map{m_grid_config};
 };
 

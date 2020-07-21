@@ -39,103 +39,64 @@ namespace localization
 {
 namespace ndt_nodes
 {
-// Alias common types.
 
-// TODO(yunus.caliskan) remove the hard-coded optimizer set up and make it fully configurable
-using Optimizer_ =
+// TODO(igor): make configurable from ROS parameters.
+using Optimizer =
   common::optimization::NewtonsMethodOptimizer<common::optimization::MoreThuenteLineSearch>;
-using PoseInitializer_ = localization_common::BestEffortInitializer;
+using Localizer = ndt::P2DNDTLocalizer<Optimizer>;
+using PoseInitializer = localization_common::BestEffortInitializer;
+using Summary = common::optimization::OptimizationSummary;
 
 /// P2D NDT localizer node. Currently uses the hard coded optimizer and pose initializers.
 /// \tparam OptimizerT Hard coded for Newton optimizer. TODO(yunus.caliskan): Make Configurable
 /// \tparam PoseInitializerT Hard coded for Best effort. TODO(yunus.caliskan): Make Configurable
-template<typename LocalizerT, typename MapT, typename PoseInitializerT>
 class NDT_NODES_PUBLIC P2DNDTLocalizerNode
   : public localization_nodes::RelativeLocalizerNode<
     sensor_msgs::msg::PointCloud2,
-    MapT,
-    LocalizerT,
-    PoseInitializerT>
+    Localizer::Map,
+    Localizer,
+    PoseInitializer,
+    Summary>
 {
 public:
   using ParentT = localization_nodes::RelativeLocalizerNode<
     sensor_msgs::msg::PointCloud2,
-    MapT,
-    LocalizerT,
-    PoseInitializerT>;
-  using RegistrationSummary = typename ParentT::RegistrationSummary;
+    Localizer::Map,
+    Localizer,
+    PoseInitializer,
+    Summary>;
 
   using EigTranslation = Eigen::Vector3d;
   using EigRotation = Eigen::Quaterniond;
   static constexpr auto EPS = std::numeric_limits<ndt::Real>::epsilon();
 
-protected:
+  // TODO(igor): make this class configurable from ROS parameters.
   /// Constructor
   /// \param node_name node name
   /// \param name_space node namespace
   /// \param pose_initializer pose initializer to use.
   P2DNDTLocalizerNode(
-    const std::string & node_name,
-    const rclcpp::NodeOptions & options,
-    LocalizerT && localizer,
-    PoseInitializerT && pose_initializer)
+    const rclcpp::NodeOptions & options)
   : ParentT{
-      node_name,
+      "p2d_ndt_localizer_node",
       options,
-      std::move(localizer),
-      MapT{get_map_config()},
-      std::move(pose_initializer)},
+      create_localizer(),
+      Localizer::Map{get_map_config()},
+      localization_common::BestEffortInitializer{}},
     m_predict_translation_threshold{
       this->declare_parameter("predict_pose_threshold.translation").template get<double>()},
     m_predict_rotation_threshold{
       this->declare_parameter("predict_pose_threshold.rotation").template get<double>()}
-  {
-    // Fetch localizer configuration
-    ndt::P2DNDTLocalizerConfig localizer_config{
-      static_cast<uint32_t>(this->declare_parameter("localizer.scan.capacity").
-      template get<uint32_t>()),
-      std::chrono::milliseconds(static_cast<uint64_t>(
-          this->declare_parameter("localizer.guess_time_tolerance_ms").template get<uint64_t>()))
-    };
+  {}
 
-    const auto outlier_ratio{this->declare_parameter(
-        "localizer.optimization.outlier_ratio").template get<float64_t>()};
-
-    // common::optimization::OptimizationOptions optimizer_options{
-    //   static_cast<uint64_t>(
-    //     this->declare_parameter("localizer.optimizer.max_iterations").template get<uint64_t>()),
-    //   this->declare_parameter("localizer.optimizer.score_tolerance").template get<float64_t>(),
-    //   this->declare_parameter(
-    //     "localizer.optimizer.parameter_tolerance").template get<float64_t>(),
-    //   this->declare_parameter("localizer.optimizer.gradient_tolerance").template get<float64_t>()
-    // };
-
-    // Construct and set the localizer.
-    // const float32_t step_max{static_cast<float32_t>(this->declare_parameter(
-    //     "localizer.optimizer.line_search.step_max").
-    //   template get<float64_t>())};
-    // const float32_t step_min{static_cast<float32_t>(this->declare_parameter(
-    //     "localizer.optimizer.line_search.step_min").
-    //   template get<float64_t>())};
-    // TODO(igor): make the line search configurable.
-    // LocalizerBasePtr localizer_ptr = std::make_unique<LocalizerT>(
-    //   localizer_config,
-    //   OptimizerT{
-    //         common::optimization::MoreThuenteLineSearch{
-    //           step_max, step_min,
-    //           common::optimization::MoreThuenteLineSearch::OptimizationDirection::kMaximization},
-    //         optimizer_options
-    //       },
-    //   outlier_ratio);
-  }
-
+protected:
   bool validate_output(
-    const RegistrationSummary & summary,
+    const Summary & summary,
     const geometry_msgs::msg::PoseWithCovarianceStamped & pose,
     const geometry_msgs::msg::TransformStamped & guess) override
   {
     bool ret = true;
-    switch (summary.optimization_summary().termination_type()) {
+    switch (summary.termination_type()) {
       case common::optimization::TerminationType::FAILURE:
         // Numerical failure, result is unusable.
         ret = false;
@@ -158,6 +119,43 @@ protected:
   }
 
 private:
+  Localizer create_localizer()
+  {
+    ndt::P2DNDTLocalizerConfig localizer_config{
+      static_cast<uint32_t>(
+        this->declare_parameter("localizer.scan.capacity").template get<uint32_t>()),
+      std::chrono::milliseconds(static_cast<uint64_t>(
+          this->declare_parameter("localizer.guess_time_tolerance_ms").template get<uint64_t>()))
+    };
+    common::optimization::OptimizationOptions optimizer_options{
+      static_cast<uint64_t>(
+        this->declare_parameter("localizer.optimizer.max_iterations").template get<uint64_t>()),
+      this->declare_parameter("localizer.optimizer.score_tolerance").template get<float64_t>(),
+      this->declare_parameter(
+        "localizer.optimizer.parameter_tolerance").template get<float64_t>(),
+      this->declare_parameter("localizer.optimizer.gradient_tolerance").template get<float64_t>()
+    };
+
+
+    const auto outlier_ratio{this->declare_parameter(
+        "localizer.optimization.outlier_ratio").template get<float64_t>()};
+
+    const float32_t step_max{static_cast<float32_t>(this->declare_parameter(
+        "localizer.optimizer.line_search.step_max").
+      template get<float64_t>())};
+    const float32_t step_min{static_cast<float32_t>(this->declare_parameter(
+        "localizer.optimizer.line_search.step_min").
+      template get<float64_t>())};
+
+    return Localizer{localizer_config, Optimizer{
+        common::optimization::MoreThuenteLineSearch{
+          step_max, step_min,
+          common::optimization::MoreThuenteLineSearch::OptimizationDirection::kMaximization},
+        optimizer_options
+      }, outlier_ratio};
+  }
+
+
   perception::filters::voxel_grid::Config get_map_config()
   {
     auto get_point_param = [this](const std::string & config_name_prefix) {
@@ -179,9 +177,8 @@ private:
         this->declare_parameter("localizer.map.capacity").template get<std::size_t>())};
   }
 
-
-  virtual bool on_non_convergence(
-    const RegistrationSummary &,
+  bool on_non_convergence(
+    const Summary &,
     const geometry_msgs::msg::PoseWithCovarianceStamped &,
     const geometry_msgs::msg::TransformStamped &)
   {

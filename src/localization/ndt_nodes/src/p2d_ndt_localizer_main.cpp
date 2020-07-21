@@ -22,10 +22,8 @@ int32_t main(const int32_t argc, char ** const argv)
   int32_t ret = 0;
   try {
     rclcpp::init(argc, argv);
-    using P2DNDTLocalizerNode = autoware::localization::ndt_nodes::P2DNDTLocalizerNode<>;
-    using PoseInitializer = autoware::localization::ndt_nodes::PoseInitializer_;
-    const auto nd_ptr = std::make_shared<P2DNDTLocalizerNode>("p2d_ndt_localizer_node", "",
-        PoseInitializer{});
+    using P2DNDTLocalizerNode = autoware::localization::ndt_nodes::P2DNDTLocalizerNode;
+    const auto nd_ptr = std::make_shared<P2DNDTLocalizerNode>(rclcpp::NodeOptions{});
 
     rclcpp::spin(nd_ptr);
 

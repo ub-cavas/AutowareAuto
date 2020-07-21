@@ -41,6 +41,8 @@ using Transform = geometry_msgs::msg::TransformStamped;
 
 constexpr int TEST_ERROR_ID = -9999;
 
+using Summary = autoware::common::optimization::OptimizationSummary;
+
 class MockMap
 {
 public:
@@ -62,8 +64,6 @@ private:
 class MockRelativeLocalizer : public LocalizerBase<MockRelativeLocalizer>
 {
 public:
-  using RegistrationSummary = autoware::common::optimization::OptimizationSummary;
-
   explicit MockRelativeLocalizer(std::shared_ptr<TestObservation> obs_ptr);
   // constructor when the tracking is not needed.
   MockRelativeLocalizer() = default;
@@ -72,7 +72,7 @@ public:
     const MsgWithHeader & msg,
     const MockMap &,
     const geometry_msgs::msg::TransformStamped & transform_initial,
-    RegistrationSummary *);
+    Summary *);
 
 private:
   std::shared_ptr<TestObservation> m_observation_tracking_ptr{};
@@ -87,10 +87,10 @@ public:
 };
 
 class TestRelativeLocalizerNode : public RelativeLocalizerNode<
-    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer>
+    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer, Summary>
 {
   using Base = RelativeLocalizerNode<
-    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer>;
+    TestObservation, MockMap, MockRelativeLocalizer, MockInitializer, Summary>;
 
 public:
   TestRelativeLocalizerNode(

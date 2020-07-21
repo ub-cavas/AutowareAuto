@@ -269,7 +269,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped MockRelativeLocalizer::register_me
   const MsgWithHeader & msg,
   const MockMap &,
   const geometry_msgs::msg::TransformStamped & transform_initial,
-  RegistrationSummary *)
+  Summary *)
 {
   if (get_msg_id(msg) == TEST_ERROR_ID) {
     throw TestRegistrationException{};

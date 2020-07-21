@@ -235,6 +235,8 @@ class NDT_PUBLIC P2DNDTLocalizer : public NDTLocalizer<
     P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>
 {
 public:
+  using Optimizer = OptimizerT;
+  using Map = MapT;
   using ParentT = NDTLocalizer<
     P2DNDTScan, P2DNDTOptimizationProblem<MapT>, P2DNDTOptimizationConfig, OptimizerT>;
 
