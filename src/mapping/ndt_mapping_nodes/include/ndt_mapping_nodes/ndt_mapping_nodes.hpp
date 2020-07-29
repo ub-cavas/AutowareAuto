@@ -48,10 +48,16 @@ using Localizer = localization::ndt::P2DNDTLocalizer<Optimizer, localization::nd
 using P2DNDTConfig = localization::ndt::P2DNDTLocalizerConfig;
 using PoseInitializer = localization::localization_common::BestEffortInitializer;
 using VoxelMap = point_cloud_mapping::VoxelMap;
-using Mapper = point_cloud_mapping::PointCloudMapper<Localizer, VoxelMap,
-    point_cloud_mapping::CapacityTrigger, point_cloud_mapping::TimeStampPrefixGenerator>;
+using Mapper = point_cloud_mapping::PointCloudMapper<
+  VoxelMap,
+  Localizer::RegistrationSummary,
+  point_cloud_mapping::CapacityTrigger,
+  point_cloud_mapping::TimeStampPrefixGenerator>;
 using RelativeLocalizerNode = localization::localization_nodes::RelativeLocalizerNode<
-  sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2, Mapper, PoseInitializer>;
+  sensor_msgs::msg::PointCloud2,
+  sensor_msgs::msg::PointCloud2,
+  Mapper,
+  PoseInitializer>;
 
 
 class NDT_MAPPING_NODES_PUBLIC P2DNDTVoxelMapperNode : public RelativeLocalizerNode

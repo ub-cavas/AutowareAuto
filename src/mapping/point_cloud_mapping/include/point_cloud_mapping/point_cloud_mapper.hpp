@@ -81,29 +81,25 @@ using common::helper_functions::message_field_adapters::get_stamp;
 /// \tparam RegistrationSummaryT Summary class to report the result of mapper registration.
 /// \tparam WriteTriggerPolicyT Policy specifying in what condition to write to a file.
 /// \tparam PrefixGeneratorT Functor that generates filename prefixes for a given base prefix.
-template<typename LocalizerT, typename MapRepresentationT,
-  typename ObservationMsgT, typename MapIncrementT, typename RegistrationSummaryT,
-  class WriteTriggerPolicyT, class PrefixGeneratorT>
+template<
+  typename MapRepresentationT,
+  typename ObservationMsgT,
+  typename MapIncrementT,
+  typename MapperRegistrationSummaryT,
+  typename LocalizerRegistrationSummaryT,
+  typename WriteTriggerPolicyT,
+  typename PrefixGeneratorT>
 class POINT_CLOUD_MAPPING_PUBLIC MapperBase
-  : public localization::localization_common::RelativeLocalizerBase<
-    ObservationMsgT, MapIncrementT, RegistrationSummaryT>
 {
 public:
-  static_assert(std::is_same<MapIncrementT, typename LocalizerT::MapMsg>::value,
-    "MapperBase and the utilized Relative Localizer must use the same map increment type");
-  static_assert(std::is_same<ObservationMsgT, typename LocalizerT::InputMsg>::value,
-    "MapperBase and the utilized Relative Localizer must use the same observation type");
-
   using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
   using TransformStamped = geometry_msgs::msg::TransformStamped;
-  using MaybeLocalizerSummary =
-    std::experimental::optional<typename LocalizerT::RegistrationSummary>;
   using MapIncrementPtrT = std::shared_ptr<MapIncrementT>;
   using ConstMapIncrementPtrT = std::shared_ptr<const MapIncrementT>;
-  using RegistrationSummary = RegistrationSummaryT;
-  using LocalizerBase = localization::localization_common::
-    RelativeLocalizerBase<ObservationMsgT, MapIncrementT, typename LocalizerT::RegistrationSummary>;
-  using LocalizerBasePtr = std::unique_ptr<LocalizerBase>;
+  using RegistrationSummary = MapperRegistrationSummaryT;
+  using LocalizerBasePtr = std::unique_ptr<
+    localization::localization_common::RelativeLocalizerBase<
+      ObservationMsgT, MapIncrementT, LocalizerRegistrationSummaryT>>;
 
   /// Constructor.
   /// \param map_filename_prefix Base filename prefix that will be used to
@@ -119,28 +115,26 @@ public:
   : m_base_fn_prefix{map_filename_prefix},
     m_map{std::forward<MapRepresentationT>(map)},
     m_localizer_ptr{std::forward<LocalizerBasePtr>(localizer_ptr)},
-    m_frame_id{map_frame_id}
-  {
-    this->set_map_valid();
-  }
+    m_frame_id{map_frame_id} {}
 
   /// Insert an observation to the mapper. This observation gets registered to the existing map
   /// of the localizer. The increment is computed using the registration result and the observation
   /// and finally the increment is passed to the map representation.
-  RegistrationSummaryT  register_measurement_impl(
-    const ObservationMsgT & msg, const TransformStamped & transform_initial,
-    PoseWithCovarianceStamped & pose_out) override
+  RegistrationSummary on_new_measurement(
+    const ObservationMsgT & msg,
+    const TransformStamped & transform_initial,
+    PoseWithCovarianceStamped & pose_out)
   {
     PoseWithCovarianceStamped registered_pose;
 
-    MaybeLocalizerSummary localization_summary{std::experimental::nullopt};
+    RegistrationSummary registration_summary{};
 
     if (m_map.size() > 0U) {
       if (!m_localizer_ptr->map_valid()) {
         throw std::runtime_error("MapperBase: Map representation has data but "
                 "the localizer's map is at an invalid state.");
       }
-      localization_summary =
+      registration_summary.localizer_summary =
         m_localizer_ptr->register_measurement(msg, transform_initial, pose_out);
     } else {
       // If the map is empty, there's nothing to register to. We can place the cloud at the
@@ -148,34 +142,35 @@ public:
       pose_out = get_identity(get_stamp(msg), m_frame_id);
     }
 
-    const auto & increment_ptr = get_map_increment(msg, pose_out);
+    registration_summary.map_increment = get_map_increment(msg, pose_out);
 
-    const auto & update_summary = update_map(*increment_ptr, registered_pose);
+    registration_summary.map_update_summary = update_map(
+      *registration_summary.map_increment, registered_pose);
 
     if (m_trigger_policy.ready(m_map)) {
       write_to_file();
     }
 
-    return make_summary(increment_ptr, update_summary, localization_summary);
+    return registration_summary;
   }
 
-  const std::string & map_frame_id() const noexcept override
+  const std::string & map_frame_id() const noexcept
   {
     return m_frame_id;
   }
 
-  void set_map_impl(const MapIncrementT & msg) override
+  void set_map(const MapIncrementT & msg)
   {
     m_map.clear();
-    insert_to_map_impl(msg);
+    insert_to_map(msg);
   }
 
-  std::chrono::system_clock::time_point map_stamp() const noexcept override
+  const std::chrono::system_clock::time_point & map_stamp() const noexcept
   {
     return m_current_stamp;
   }
 
-  void insert_to_map_impl(const MapIncrementT & msg) override
+  void insert_to_map(const MapIncrementT & msg)
   {
     const auto & msg_frame = get_frame_id(msg);
     if (msg_frame != m_frame_id) {
@@ -220,19 +215,12 @@ protected:
   }
 
 private:
-  virtual RegistrationSummaryT make_summary(
-    const ConstMapIncrementPtrT & increment,
-    const MapUpdateSummary & map_update_summary,
-    const MaybeLocalizerSummary & localization_summary) const noexcept = 0;
-
   /// Pass the increment to the map. The default behavior is to expect that the map
   /// and the localizer have independent representations and push the increment to both
   /// the underlying map representation and the localizer.
   /// \param increment Increment to pass to the maps.
   /// \param pose Pose to be inserted with the increment.
-  auto update_map(
-    const MapIncrementT & increment,
-    PoseWithCovarianceStamped pose)
+  auto update_map(const MapIncrementT & increment, PoseWithCovarianceStamped pose)
   {
     const auto insert_summary = m_map.try_add_observation(increment, pose);
 
@@ -284,21 +272,23 @@ using ConstCloudPtr = std::shared_ptr<const Cloud>;
 /// \tparam LocalizerT Localizer type used for registration.
 /// \tparam WriteTriggerPolicyT Policy specifying in what condition to write to a file.
 /// \tparam PrefixGeneratorT Functor that generates filename prefixes for a given base prefix.
-template<typename LocalizerT, typename MapRepresentationT,
-  class WriteTriggerPolicyT, class FileNamePrefixGeneratorT>
-class PointCloudMapper : public MapperBase<LocalizerT, MapRepresentationT,
+template<
+  typename MapRepresentationT,
+  typename LocalizerRegistrationSummaryT,
+  typename WriteTriggerPolicyT,
+  typename FileNamePrefixGeneratorT>
+class PointCloudMapper : public MapperBase<MapRepresentationT,
     sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2,
-    MapperRegistrationSummaryBase<typename LocalizerT::RegistrationSummary,
-    ConstCloudPtr>,
-    WriteTriggerPolicyT, FileNamePrefixGeneratorT>
+    MapperRegistrationSummaryBase<LocalizerRegistrationSummaryT, ConstCloudPtr>,
+    LocalizerRegistrationSummaryT, WriteTriggerPolicyT, FileNamePrefixGeneratorT>
 {
 public:
   using RegistrationSummary =
-    MapperRegistrationSummaryBase<typename LocalizerT::RegistrationSummary,
-      ConstCloudPtr>;
-  using Base = MapperBase<LocalizerT, MapRepresentationT,
+    MapperRegistrationSummaryBase<LocalizerRegistrationSummaryT, ConstCloudPtr>;
+  using Base = MapperBase<MapRepresentationT,
       sensor_msgs::msg::PointCloud2, sensor_msgs::msg::PointCloud2,
-      RegistrationSummary, WriteTriggerPolicyT, FileNamePrefixGeneratorT>;
+      RegistrationSummary, LocalizerRegistrationSummaryT,
+      WriteTriggerPolicyT, FileNamePrefixGeneratorT>;
   using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
   using LocalizerBasePtr = typename Base::LocalizerBasePtr;
 
@@ -344,7 +334,6 @@ private:
     return m_cached_increment_ptr;
   }
 
-private:
   void reset_cached_msg(std::size_t size)
   {
     sensor_msgs::PointCloud2Modifier inc_modifier{*m_cached_increment_ptr};
@@ -357,14 +346,6 @@ private:
     // Only do the division when necessary.
     return (safe_indices.data_length == msg.data.size()) ?
            msg.width : (safe_indices.data_length / safe_indices.point_step);
-  }
-
-  RegistrationSummary make_summary(
-    const ConstCloudPtr & increment,
-    const MapUpdateSummary & map_update_summary,
-    const typename Base::MaybeLocalizerSummary & localization_summary) const noexcept override
-  {
-    return RegistrationSummary{increment, map_update_summary, localization_summary};
   }
 
   CloudPtr m_cached_increment_ptr;

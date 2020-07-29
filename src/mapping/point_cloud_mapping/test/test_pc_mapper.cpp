@@ -55,8 +55,8 @@ TEST_F(PCMapperTest, core) {
 
   auto register_and_check = [](const auto & pc, const auto & tf, auto update, auto & mapper) {
       geometry_msgs::msg::PoseWithCovarianceStamped pose_out;
-      const auto sum = mapper.register_measurement(pc, geometry_msgs::msg::TransformStamped{},
-          pose_out);
+      const auto sum = mapper.on_new_measurement(
+        pc, geometry_msgs::msg::TransformStamped{}, pose_out);
       EXPECT_EQ(sum.map_update_summary.update_type, update);
       EXPECT_EQ(sum.map_update_summary.num_added_pts, pc.width);
       EXPECT_EQ(sum.map_increment->width, pc.width);
@@ -72,10 +72,11 @@ TEST_F(PCMapperTest, core) {
     auto localizer = std::make_unique<MockLocalizer>(m_tf1, m_tf2);
     PlainPointCloudMap pc_map(m_pc1.width + m_pc2.width + 10U, map_frame);
     geometry_msgs::msg::PoseWithCovarianceStamped dummy;
-    PointCloudMapper<MockLocalizer, PlainPointCloudMap,
-      CapacityTrigger, MockPrefixGenerator>
-    mapper{fn_prefix,
-      std::move(pc_map), std::move(localizer), map_frame};
+    PointCloudMapper<
+      PlainPointCloudMap,
+      MockLocalizerSummary,
+      CapacityTrigger,
+      MockPrefixGenerator> mapper{fn_prefix, std::move(pc_map), std::move(localizer), map_frame};
     geometry_msgs::msg::TransformStamped identity{};
     identity.transform.rotation.w = 1.0;
     // First pc is centered on the map.
