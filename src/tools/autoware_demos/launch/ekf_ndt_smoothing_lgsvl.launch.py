@@ -130,7 +130,9 @@ def generate_launch_description():
         node_executable='p2d_ndt_localizer_exe',
         node_namespace='localization',
         node_name='p2d_ndt_localizer_node',
-        parameters=[LaunchConfiguration('ndt_localizer_param_file')],
+        parameters=[
+            LaunchConfiguration('ndt_localizer_param_file'),
+            {"publish_tf": False}],
         remappings=[
             ("points_in", "/lidar_front/points_filtered_downsampled")
         ]
@@ -155,7 +157,9 @@ def generate_launch_description():
         node_namespace='localization',
         output="screen",
         node_name='state_estimation_node',
-        parameters=[LaunchConfiguration('ndt_ekf_filtering_param_file')],
+        parameters=[
+            LaunchConfiguration('ndt_ekf_filtering_param_file'),
+            {"publish_tf": True}],
         remappings=[
             ("filtered_state", "/localization/ndt_pose_filtered"),
         ]
