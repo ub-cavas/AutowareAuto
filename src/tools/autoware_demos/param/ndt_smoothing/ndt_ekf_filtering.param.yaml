@@ -8,7 +8,9 @@
     publish_tf: true
     frame_id: "map"
     child_frame_id: "base_link"
-    mahalanobis_threshold: 2.0
+    mahalanobis_threshold: 1.0
+
+    min_speed_to_use_speed_orientation: 1.0
 
     process_noise_variances:
       acceleration: [2.0, 2.0]
