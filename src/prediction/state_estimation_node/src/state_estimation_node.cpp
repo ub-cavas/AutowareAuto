@@ -264,7 +264,8 @@ StateEstimationNode::StateEstimationNode(
 
   const auto publish_ft = declare_parameter("publish_tf", false);
   if (publish_ft) {
-    m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("/tf", kDefaultHistory);
+    m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>(
+      "/tf", rclcpp::QoS{rclcpp::KeepLast{1000}});
   }
 
   m_min_speed_to_use_speed_orientation = declare_parameter(
