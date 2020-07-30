@@ -130,6 +130,7 @@ def generate_launch_description():
         node_executable='p2d_ndt_localizer_exe',
         node_namespace='localization',
         node_name='p2d_ndt_localizer_node',
+        output="screen",
         parameters=[
             LaunchConfiguration('ndt_localizer_param_file'),
             {"publish_tf": False}],
@@ -159,7 +160,7 @@ def generate_launch_description():
         node_name='state_estimation_node',
         parameters=[
             LaunchConfiguration('ndt_ekf_filtering_param_file'),
-            {"publish_tf": True}],
+            {"publish_tf": True, "child_frame_id": "base_link"}],
         remappings=[
             ("filtered_state", "/localization/ndt_pose_filtered"),
         ]

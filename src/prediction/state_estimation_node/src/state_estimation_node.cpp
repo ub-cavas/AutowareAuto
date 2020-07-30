@@ -22,6 +22,7 @@
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_eigen/tf2_eigen.h>
+#include <time_utils/time_utils.hpp>
 
 #include <string>
 #include <vector>
@@ -148,6 +149,55 @@ autoware::common::types::float64_t get_speed(const geometry_msgs::msg::Twist & t
   const auto x = twist.linear.x;
   const auto y = twist.linear.y;
   return std::sqrt(x * x + y * y);
+}
+
+tf2_msgs::msg::TFMessage change_origin_frame(
+  const tf2::BufferCore & tf_buffer,
+  const nav_msgs::msg::Odometry & pose_msg,
+  const std::string & new_origin_frame_id,
+  const std::string & child_frame_id,
+  const std::string & map_frame_id)
+{
+  const auto & pose = pose_msg.pose.pose;
+  tf2::Quaternion rotation{pose.orientation.x, pose.orientation.y, pose.orientation.z,
+    pose.orientation.w};
+  tf2::Vector3 translation{pose.position.x, pose.position.y, pose.position.z};
+  const tf2::Transform map_base_link_transform{rotation, translation};
+
+  geometry_msgs::msg::TransformStamped tf;
+  try {
+    tf = tf_buffer.lookupTransform(
+      new_origin_frame_id,
+      child_frame_id,
+      time_utils::from_message(pose_msg.header.stamp));
+  } catch (const tf2::ExtrapolationException &) {
+    tf = tf_buffer.lookupTransform(new_origin_frame_id, child_frame_id, tf2::TimePointZero);
+  }
+  tf2::Quaternion odom_rotation{
+    tf.transform.rotation.x,
+    tf.transform.rotation.y,
+    tf.transform.rotation.z,
+    tf.transform.rotation.w};
+  tf2::Vector3 odom_translation{
+    tf.transform.translation.x,
+    tf.transform.translation.y,
+    tf.transform.translation.z};
+  const tf2::Transform odom_base_link_transform{odom_rotation, odom_translation};
+
+  const auto map_odom_tf = map_base_link_transform * odom_base_link_transform.inverse();
+
+  tf2_msgs::msg::TFMessage tf_message;
+  geometry_msgs::msg::TransformStamped tf_stamped;
+  tf_stamped.header.stamp = pose_msg.header.stamp;
+  tf_stamped.header.frame_id = map_frame_id;
+  tf_stamped.child_frame_id = new_origin_frame_id;
+  const auto & tf_trans = map_odom_tf.getOrigin();
+  const auto & tf_rot = map_odom_tf.getRotation();
+  tf_stamped.transform.translation.set__x(tf_trans.x()).set__y(tf_trans.y()).set__z(tf_trans.z());
+  tf_stamped.transform.rotation.set__x(tf_rot.x()).set__y(tf_rot.y()).set__z(tf_rot.z()).set__w(
+    tf_rot.w());
+  tf_message.transforms.push_back(tf_stamped);
+  return tf_message;
 }
 
 
@@ -297,20 +347,19 @@ void StateEstimationNode::publish_current_state()
 {
   if (m_ekf->is_initialized() && m_publisher) {
     auto state = m_ekf->get_state();
+    state.child_frame_id = m_child_frame_id;
+    std::cerr << "state.header.frame_id: " << state.header.frame_id << std::endl;
+    std::cerr << "state.child_frame_id: " << state.child_frame_id << std::endl;
     if (get_speed(state.twist.twist) < m_min_speed_to_use_speed_orientation) {
       state.pose.pose.orientation = m_latest_orientation.quaternion;
     }
     m_publisher->publish(state);
     if (m_tf_publisher) {
-      TfMsgT tf_msg{};
-      tf_msg.transforms.emplace_back();
-      auto & tf = tf_msg.transforms.back();
-      tf.header = state.header;
-      tf.child_frame_id = m_child_frame_id;
-      tf.transform.translation.x = state.pose.pose.position.x;
-      tf.transform.translation.y = state.pose.pose.position.y;
-      tf.transform.translation.z = state.pose.pose.position.z;
-      tf.transform.rotation = state.pose.pose.orientation;
+      const auto tf_msg = change_origin_frame(m_tf_buffer, state, "odom", "base_link", m_frame_id);
+      std::cerr << "tf_msg frame_id: " <<
+        tf_msg.transforms.front().header.frame_id << std::endl;
+      std::cerr << "tf_msg child_frame_id: " <<
+        tf_msg.transforms.front().child_frame_id << std::endl;
       m_tf_publisher->publish(tf_msg);
     }
   }

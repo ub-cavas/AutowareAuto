@@ -61,9 +61,11 @@ public:
     try {
       // attempt to get transform at a given point.
       ret = tf_graph.lookupTransform(target_frame, source_frame, time_point);
+      std::cerr << "Transform lookup from " << source_frame << " to " << target_frame << std::endl;
       // TODO(yunus.caliskan): Consider detecting too large interpolations and issuing a
       //  warning/error.
     } catch (const tf2::ExtrapolationException &) {
+      std::cerr << "Extrapolation detected";
       ret = this->impl().extrapolate(tf_graph, time_point, target_frame, source_frame);
     }
 
