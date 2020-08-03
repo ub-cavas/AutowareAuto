@@ -67,7 +67,8 @@ public:
 
   // TODO(yunus.caliskan): Probably set the pose initializer explicitly.
   explicit P2DNDTVoxelMapperNode(const rclcpp::NodeOptions & options)
-  : rclcpp::Node{"ndt_mapper_node", options} {init();}
+  : rclcpp::Node{"ndt_mapper_node", options},
+    m_tf_listener{m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false} {init();}
 
 private:
   void init()
@@ -336,6 +337,16 @@ private:
     tf2_msgs::msg::TFMessage tf_message;
     tf_message.transforms.push_back(map_odom_tf);
     m_tf_publisher->publish(tf_message);
+  }
+
+  // TODO(yunus.caliskan): Remove this method in #425
+  void check_and_execute_hack(builtin_interfaces::msg::Time stamp)
+  {
+    const auto tp = time_utils::from_message(stamp);
+    if (!m_tf_buffer.canTransform("map", "odom", tp)) {
+      m_init_hack_transform.header.stamp = stamp;
+      m_tf_buffer.setTransform(m_init_hack_transform, "initialization");
+    }
   }
 
   tf2::BufferCore m_tf_buffer;
