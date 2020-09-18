@@ -60,11 +60,11 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES test/test_ssc_interface.cpp)
-  set(TEST_SSC_INTERFACE_EXE test_ssc_interface)
-  ament_add_gtest(${TEST_SSC_INTERFACE_EXE} ${TEST_SOURCES})
-  target_link_libraries(${TEST_SSC_INTERFACE_EXE} ${PROJECT_NAME})
-  add_dependencies(${TEST_SSC_INTERFACE_EXE} ${PROJECT_NAME})
+  #  set(TEST_SOURCES test/test_ssc_interface.cpp)
+  #  set(TEST_SSC_INTERFACE_EXE test_ssc_interface)
+  #  ament_add_gtest(${TEST_SSC_INTERFACE_EXE} ${TEST_SOURCES})
+  #  target_link_libraries(${TEST_SSC_INTERFACE_EXE} ${PROJECT_NAME})
+  #  add_dependencies(${TEST_SSC_INTERFACE_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing

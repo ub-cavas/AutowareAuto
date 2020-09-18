@@ -14,13 +14,51 @@
 
 #include "ssc_interface/ssc_interface.hpp"
 
-namespace autoware
+namespace ssc_interface
 {
 
-int32_t ssc_interface::print_hello()
+SscInterface::SscInterface(rclcpp::Node & node)
+: m_logger{node.get_logger()}
 {
-  std::cout << "Hello World" << std::endl;
-  return 0;
+  // Publishers
+  m_gear_cmd_pub = node.create_publisher<GearCommand>("gear_select", 10);
+  m_speed_cmd_pub = node.create_publisher<SpeedMode>("arbitrated_speed_commands", 10);
+  m_steer_cmd_pub = node.create_publisher<SteerMode>("arbitrated_steering_commands", 10);
+  m_turn_signal_cmd_pub = node.create_publisher<TurnSignalCommand>(
+    "turn_signal_command", 10);
+
+  // Subscribers
+  m_dbw_state_sub =
+    node.create_subscription<std_msgs::msg::Bool>(
+    "dbw_enabled_feedback", rclcpp::QoS{10},
+    [this](std_msgs::msg::Bool::SharedPtr msg) {on_dbw_state_report(msg);});
+  m_gear_feedback_sub =
+    node.create_subscription<GearFeedback>(
+    "gear_feedback", rclcpp::QoS{10},
+    [this](automotive_platform_msgs::msg::GearFeedback::SharedPtr msg)
+    {on_gear_report(msg);});
 }
 
-}  // namespace autoware
+bool8_t SscInterface::update(std::chrono::nanoseconds timeout)
+{
+  (void)timeout;
+  return true;
+}
+
+bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
+{
+  (void)msg;
+  return true;
+}
+
+void SscInterface::on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg)
+{
+  (void)msg;
+}
+
+void SscInterface::on_gear_report(const GearFeedback::SharedPtr & msg)
+{
+  (void)msg;
+}
+
+}  // namespace ssc_interface

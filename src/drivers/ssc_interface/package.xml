@@ -10,8 +10,9 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
-  <depend>automotive_navigation_msgs</depend>
   <depend>automotive_platform_msgs</depend>
+  <depend>autoware_auto_common</depend>
+  <depend>autoware_auto_msgs</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>vehicle_interface</depend>

@@ -21,33 +21,27 @@
 
 #include <ssc_interface/ssc_interface.hpp>
 
+#include <vehicle_interface/vehicle_interface_node.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 
 #include <string>
 
-namespace autoware
-{
 namespace ssc_interface
 {
 
 /// \class SscInterfaceNode
 /// \brief ROS 2 Node for hello world.
-class SSC_INTERFACE_PUBLIC SscInterfaceNode : public rclcpp::Node
+class SSC_INTERFACE_PUBLIC SscInterfaceNode
+  : public ::autoware::drivers::vehicle_interface::VehicleInterfaceNode
 {
 public:
   /// \brief default constructor, starts driver
-  /// \param[in] node_name name of the node for rclcpp internals
+  /// \param[in] options Options for the node
   /// \throw runtime error if failed to start threads or configure driver
   explicit SscInterfaceNode(const rclcpp::NodeOptions & options);
-
-  /// \brief print hello
-  /// return 0 if successful.
-  int32_t print_hello() const;
-
-private:
-  bool verbose;  ///< whether to use verbose output or not.
 };
+
 }  // namespace ssc_interface
-}  // namespace autoware
 
 #endif  // SSC_INTERFACE__SSC_INTERFACE_NODE_HPP_

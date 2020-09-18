@@ -13,25 +13,23 @@
 // limitations under the License.
 
 #include "ssc_interface/ssc_interface_node.hpp"
+#include "ssc_interface/ssc_interface.hpp"
+
+#include <memory>
 
 //lint -e537 NOLINT  // cpplint vs pclint
 #include <string>
 
-namespace autoware
-{
 namespace ssc_interface
 {
 
 SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
-:  Node("hello_wolrd", options),
-  verbose(true)
+: VehicleInterfaceNode{"ssc_interface", options}
 {
-}
-
-int32_t SscInterfaceNode::print_hello() const
-{
-  return ssc_interface::print_hello();
+  set_interface(std::make_unique<SscInterface>(*this));
 }
 
 }  // namespace ssc_interface
-}  // namespace autoware
+
+#include "rclcpp_components/register_node_macro.hpp"  // NOLINT
+RCLCPP_COMPONENTS_REGISTER_NODE(ssc_interface::SscInterfaceNode)

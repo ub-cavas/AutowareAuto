@@ -20,18 +20,81 @@
 #define SSC_INTERFACE__SSC_INTERFACE_HPP_
 
 #include <ssc_interface/visibility_control.hpp>
+
+#include <common/types.hpp>
+#include <vehicle_interface/platform_interface.hpp>
+
+#include <automotive_platform_msgs/msg/gear_command.hpp>
+#include <automotive_platform_msgs/msg/gear_feedback.hpp>
+#include <automotive_platform_msgs/msg/speed_mode.hpp>
+#include <automotive_platform_msgs/msg/steer_mode.hpp>
+#include <automotive_platform_msgs/msg/turn_signal_command.hpp>
+#include <autoware_auto_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
+#include <std_msgs/msg/bool.hpp>
+
+#include <rclcpp/rclcpp.hpp>
+
+#include <chrono>
 #include <iostream>
 
-namespace autoware
-{
-/// \brief TODO(josh.whitley): Document namespaces!
+using autoware::common::types::bool8_t;
+
+using automotive_platform_msgs::msg::GearCommand;
+using automotive_platform_msgs::msg::GearFeedback;
+using automotive_platform_msgs::msg::SpeedMode;
+using automotive_platform_msgs::msg::SteerMode;
+using automotive_platform_msgs::msg::TurnSignalCommand;
+using autoware_auto_msgs::msg::RawControlCommand;
+using autoware_auto_msgs::msg::VehicleControlCommand;
+using autoware_auto_msgs::msg::VehicleStateCommand;
+
 namespace ssc_interface
 {
 
-/// \brief TODO(josh.whitley): Document your functions
-int32_t SSC_INTERFACE_PUBLIC print_hello();
+/// \brief Class for interfacing with AS SSC
+class SSC_INTERFACE_PUBLIC SscInterface
+  : public ::autoware::drivers::vehicle_interface::PlatformInterface
+{
+public:
+  explicit SscInterface(rclcpp::Node & node);
+  ~SscInterface() noexcept override = default;
+
+  /// \brief Try to receive data from the vehicle platform, and update StateReport and Odometry.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] timeout The maximum amount of time to check/receive data
+  /// \return True if data was received before the timeout, false otherwise
+  bool8_t update(std::chrono::nanoseconds timeout) override;
+  /// \brief Send the state command to the vehicle platform.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] msg The state command to send to the vehicle
+  /// \return false if sending failed in some way, true otherwise
+  bool8_t send_state_command(const VehicleStateCommand & msg) override;
+  /// \brief Send the control command to the vehicle platform.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] msg The control command to send to the vehicle
+  /// \return false if sending failed in some way, true otherwise
+  bool8_t send_control_command(const VehicleControlCommand & msg) override;
+  /// \brief Send the control command to the vehicle platform.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] msg The control command to send to the vehicle
+  /// \return false if sending failed in some way, true otherwise
+  bool8_t send_control_command(const RawControlCommand & msg) override;
+
+private:
+  rclcpp::Publisher<GearCommand>::SharedPtr m_gear_cmd_pub;
+  rclcpp::Publisher<SpeedMode>::SharedPtr m_speed_cmd_pub;
+  rclcpp::Publisher<SteerMode>::SharedPtr m_steer_cmd_pub;
+  rclcpp::Publisher<TurnSignalCommand>::SharedPtr m_turn_signal_cmd_pub;
+  rclcpp::SubscriptionBase::SharedPtr m_dbw_state_sub, m_gear_feedback_sub;
+  rclcpp::Logger m_logger;
+
+  void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
+  void on_gear_report(const GearFeedback::SharedPtr & msg);
+};
 
 }  // namespace ssc_interface
-}  // namespace autoware
 
 #endif  // SSC_INTERFACE__SSC_INTERFACE_HPP_
