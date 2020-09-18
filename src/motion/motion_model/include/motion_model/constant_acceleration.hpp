@@ -31,24 +31,45 @@ namespace motion
 {
 namespace motion_model
 {
+
+/// \brief This state gives named handles for state indexing
+struct MOTION_MODEL_PUBLIC StatesPoseVelocityAcceleration2D
+{
+  static const index_t POSE_X = 0U;    ///< index of x position
+  static const index_t POSE_Y = 1U;    ///< index of y position
+  static const index_t VELOCITY_X = 2U;    ///< index of x velocity
+  static const index_t VELOCITY_Y = 3U;    ///< index of y velocity
+  static const index_t ACCELERATION_X = 4U;    ///< index of x acceleration
+  static const index_t ACCELERATION_Y = 5U;    ///< index of y acceleration
+  static const index_t DIMENTIONS = 2U;    ///< dimantionality of space, 2 for 2D.
+};
+
+/// \brief This state gives named handles for state indexing
+struct MOTION_MODEL_PUBLIC StatesPoseVelocityAcceleration3D
+{
+  static const index_t POSE_X = 0U;    ///< index of x position
+  static const index_t POSE_Y = 1U;    ///< index of y position
+  static const index_t POSE_Z = 2U;    ///< index of z position
+  static const index_t VELOCITY_X = 3U;    ///< index of x velocity
+  static const index_t VELOCITY_Y = 4U;    ///< index of y velocity
+  static const index_t VELOCITY_Z = 5U;    ///< index of z velocity
+  static const index_t ACCELERATION_X = 6U;    ///< index of x acceleration
+  static const index_t ACCELERATION_Y = 7U;    ///< index of y acceleration
+  static const index_t ACCELERATION_Z = 8U;    ///< index of z acceleration
+  static const index_t DIMENTIONS = 3U;    ///< dimantionality of space, 3 for 3D.
+};
+
 /// \brief This is a simple constant acceleration motion model
-class MOTION_MODEL_PUBLIC ConstantAcceleration : public MotionModel<6U>
+template<std::int32_t NUMBER_OF_STATES, typename StatesT>
+class MOTION_MODEL_PUBLIC GenericConstantAcceleration : public MotionModel<NUMBER_OF_STATES>
 {
 public:
+  using States = StatesT;
+
   /// \brief Default assignment operator
   /// \param[in] rhs Object to copy
   /// \return reference to this object
-  ConstantAcceleration & operator=(const ConstantAcceleration & rhs);
-  /// \brief This state gives named handles for state indexing
-  struct States
-  {
-    static const index_t POSE_X = 0U;  ///< index of x position
-    static const index_t POSE_Y = 1U;  ///< index of y position
-    static const index_t VELOCITY_X = 2U;  ///< index of x velocity
-    static const index_t VELOCITY_Y = 3U;  ///< index of y velocity
-    static const index_t ACCELERATION_X = 4U;  ///< index of x acceleration
-    static const index_t ACCELERATION_Y = 5U;  ///< index of y acceleration
-  };  // struct States
+  GenericConstantAcceleration & operator=(const GenericConstantAcceleration & rhs);
 
   /// \brief Do motion based on current state, store result somewhere else.
   ///        This is intended to be used with motion planning/collision avoidance
@@ -59,7 +80,7 @@ public:
   /// \param[out] x vector to store result into
   /// \param[in] dt prediction horizon based on current state
   void predict(
-    Eigen::Matrix<float32_t, 6U, 1U> & x,
+    Eigen::Matrix<float32_t, NUMBER_OF_STATES, 1U> & x,
     const std::chrono::nanoseconds & dt) const override;
 
   /// \brief Update current state with a given motion. Note that this should be called
@@ -74,7 +95,7 @@ public:
   /// \param[out] F matrix to store jacobian into
   /// \param[in] dt prediction horizon to build jacobian off of
   void compute_jacobian(
-    Eigen::Matrix<float32_t, 6U, 6U> & F,
+    Eigen::Matrix<float32_t, NUMBER_OF_STATES, NUMBER_OF_STATES> & F,
     const std::chrono::nanoseconds & dt) override;
 
   /// \brief This is called by Esrcf. This should be first a computation of the jacobian, and
@@ -84,7 +105,7 @@ public:
   /// \param[out] F matrix to store jacobian into
   /// \param[in] dt prediction horizon to build jacobian off of
   void compute_jacobian_and_predict(
-    Eigen::Matrix<float32_t, 6U, 6U> & F,
+    Eigen::Matrix<float32_t, NUMBER_OF_STATES, NUMBER_OF_STATES> & F,
     const std::chrono::nanoseconds & dt) override;
 
   /// \brief Get elements of the model's state.
@@ -94,15 +115,19 @@ public:
 
   /// \brief Set the state
   /// \param[in] x the state to store internally
-  void reset(const Eigen::Matrix<float32_t, 6U, 1U> & x) override;
+  void reset(const Eigen::Matrix<float32_t, NUMBER_OF_STATES, 1U> & x) override;
 
   /// \brief const access to internal state
   /// \return const reference to internal state vector
-  const Eigen::Matrix<float32_t, 6U, 1U> & get_state() const override;
+  const Eigen::Matrix<float32_t, NUMBER_OF_STATES, 1U> & get_state() const override;
 
 private:
-  Eigen::Matrix<float32_t, 6U, 1U> m_state;
-};  // class ConstantAcceleration
+  Eigen::Matrix<float32_t, NUMBER_OF_STATES, 1U> m_state;
+};
+
+using ConstantAcceleration = GenericConstantAcceleration<6U, StatesPoseVelocityAcceleration2D>;
+using ConstantAcceleration3D = GenericConstantAcceleration<9U, StatesPoseVelocityAcceleration3D>;
+
 }  // namespace motion_model
 }  // namespace motion
 }  // namespace autoware
