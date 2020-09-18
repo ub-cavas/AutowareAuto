@@ -45,6 +45,24 @@ using MeasurementSpeed = Measurement<common::types::float32_t,
     motion::motion_model::ConstantAcceleration::States::VELOCITY_X,
     motion::motion_model::ConstantAcceleration::States::VELOCITY_Y>;
 
+using MeasurementPose3D = Measurement<common::types::float32_t,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_X,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_Y,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_Z>;
+
+using MeasurementPoseAndSpeed3D = Measurement<common::types::float32_t,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_X,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_Y,
+    motion::motion_model::ConstantAcceleration3D::States::POSE_Z,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_X,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_Y,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_Z>;
+
+using MeasurementSpeed3D = Measurement<common::types::float32_t,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_X,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_Y,
+    motion::motion_model::ConstantAcceleration3D::States::VELOCITY_Z>;
+
 ///
 /// @brief      Interface for converting a message into a measurement.
 ///
@@ -54,7 +72,7 @@ using MeasurementSpeed = Measurement<common::types::float32_t,
 /// @return     The measurement created from a message.
 ///
 template<typename MeasurementT, typename MessageT>
-MeasurementT message_to_measurement(
+MeasurementT STATE_ESTIMATION_NODE_PUBLIC message_to_measurement(
   const MessageT &, const Eigen::Isometry3f &)
 {
   static_assert(sizeof(MessageT) == -1,
@@ -126,6 +144,46 @@ template<>
 STATE_ESTIMATION_NODE_PUBLIC MeasurementPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf_world_message);
+
+///
+/// @brief      Specialization of message_to_measurement for odometry message.
+///
+/// @param[in]  msg               The odometry message.
+/// @param[in]  tf_world_message  A transform from message frame to world frame.
+///
+/// @return     The measurement containing pose and speed.
+///
+template<>
+STATE_ESTIMATION_NODE_PUBLIC MeasurementPoseAndSpeed3D message_to_measurement(
+  const nav_msgs::msg::Odometry & msg,
+  const Eigen::Isometry3f & tf_world_message);
+
+///
+/// @brief      Specialization of message_to_measurement for twist message.
+///
+/// @param[in]  msg               The twist message.
+/// @param[in]  tf_world_message  A transform from message frame to world frame.
+///
+/// @return     The measurement containing speed.
+///
+template<>
+STATE_ESTIMATION_NODE_PUBLIC MeasurementSpeed3D message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
+  const Eigen::Isometry3f & tf_world_message);
+
+///
+/// @brief      Specialization of message_to_measurement for pose message.
+///
+/// @param[in]  msg               The pose message.
+/// @param[in]  tf_world_message  A transform from message frame to world frame.
+///
+/// @return     The measurement containing pose.
+///
+template<>
+STATE_ESTIMATION_NODE_PUBLIC MeasurementPose3D message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
+  const Eigen::Isometry3f & tf_world_message);
+
 
 }  // namespace prediction
 }  // namespace autoware

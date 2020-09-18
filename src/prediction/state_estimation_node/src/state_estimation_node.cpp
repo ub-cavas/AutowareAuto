@@ -86,16 +86,12 @@ std::chrono::nanoseconds validate_publish_frequency(
   return time_between_publish_requests;
 }
 
-template<std::int32_t kStateDim, std::int32_t kNoiseDim>
+template<typename MotionModelT, std::int32_t kStateDim, std::int32_t kNoiseDim>
 Eigen::Matrix<float32_t, kStateDim, kNoiseDim> create_process_noise_variances(
   const std::vector<float64_t> & position_variance,
   const std::vector<float64_t> & velocity_variance,
   const std::vector<float64_t> & acceleration_variance)
 {
-  // TODO(igor): this is a placeholder for a more generic implementation that would allow
-  // configuring the process noise covariances with more flexibility.
-  using autoware::motion::motion_model::ConstantAcceleration;
-
   if (acceleration_variance.size() != static_cast<size_t>(kNoiseDim)) {
     throw std::logic_error("For now we require a 2D acceleration variance.");
   }
@@ -103,23 +99,26 @@ Eigen::Matrix<float32_t, kStateDim, kNoiseDim> create_process_noise_variances(
     Eigen::Matrix<float32_t, kStateDim, kNoiseDim>::Zero()};
   if (position_variance.size() == static_cast<size_t>(kNoiseDim)) {
     assert_all_entries_positive(position_variance, "position_variance");
-    process_noise_variances(ConstantAcceleration::States::POSE_X, 0) =
-      static_cast<float32_t>(position_variance[0]);
-    process_noise_variances(ConstantAcceleration::States::POSE_Y, 1) =
-      static_cast<float32_t>(position_variance[1]);
+    const auto first_pose_idx = MotionModelT::States::POSE_X;
+    for (auto i = 0; i < kNoiseDim; ++i) {
+      process_noise_variances(first_pose_idx + i, i) =
+        static_cast<float32_t>(position_variance[static_cast<std::size_t>(i)]);
+    }
   }
   if (velocity_variance.size() == static_cast<size_t>(kNoiseDim)) {
     assert_all_entries_positive(velocity_variance, "velocity_variance");
-    process_noise_variances(ConstantAcceleration::States::VELOCITY_X, 0) =
-      static_cast<float32_t>(velocity_variance[0]);
-    process_noise_variances(ConstantAcceleration::States::VELOCITY_Y, 1) =
-      static_cast<float32_t>(velocity_variance[1]);
+    const auto first_velocity_idx = MotionModelT::States::VELOCITY_X;
+    for (auto i = 0; i < kNoiseDim; ++i) {
+      process_noise_variances(first_velocity_idx + i, i) =
+        static_cast<float32_t>(velocity_variance[static_cast<std::size_t>(i)]);
+    }
   }
   assert_all_entries_positive(acceleration_variance, "acceleration_variance");
-  process_noise_variances(ConstantAcceleration::States::ACCELERATION_X, 0) =
-    static_cast<float32_t>(acceleration_variance[0]);
-  process_noise_variances(ConstantAcceleration::States::ACCELERATION_Y, 1) =
-    static_cast<float32_t>(acceleration_variance[1]);
+  const auto first_acceleration_idx = MotionModelT::States::ACCELERATION_X;
+  for (auto i = 0; i < kNoiseDim; ++i) {
+    process_noise_variances(first_acceleration_idx + i, i) =
+      static_cast<float32_t>(acceleration_variance[static_cast<std::size_t>(i)]);
+  }
   return process_noise_variances;
 }
 
@@ -132,13 +131,9 @@ Eigen::Matrix<float32_t, kStateDim, kStateDim> create_state_variances(
   }
   assert_all_entries_positive(state_variances, "state_variances");
   Eigen::Matrix<float32_t, kStateDim, 1> diagonal;
-  diagonal <<
-    static_cast<float32_t>(state_variances[0]),
-    static_cast<float32_t>(state_variances[1]),
-    static_cast<float32_t>(state_variances[2]),
-    static_cast<float32_t>(state_variances[3]),
-    static_cast<float32_t>(state_variances[4]),
-    static_cast<float32_t>(state_variances[5]);
+  for (auto i = 0U; i < state_variances.size(); ++i) {
+    diagonal[i] = static_cast<float32_t>(state_variances[i]);
+  }
   return diagonal.asDiagonal();
 }
 
@@ -187,13 +182,16 @@ StateEstimationNode::StateEstimationNode(
   const auto mahalanobis_threshold{
     declare_parameter("mahalanobis_threshold", std::numeric_limits<float32_t>::max())};
 
-  m_ekf = std::make_unique<ConstantAccelerationFilter>(
-    create_state_variances<6>(state_variances),
-    create_process_noise_variances<6, 2>(
+  m_ekf = ConstantAccelerationFilter{
+    create_state_variances<ConstantAccelerationFilter::NumOfStates>(state_variances),
+    create_process_noise_variances<
+      ConstantAccelerationFilter::MotionModel,
+      ConstantAccelerationFilter::NumOfStates,
+      ConstantAccelerationFilter::ProcessNoiseDim>(
       position_variance, velocity_variance, acceleration_variance),
     time_between_publish_requests,
     m_frame_id,
-    mahalanobis_threshold);
+    static_cast<float>(mahalanobis_threshold)};
 
   const std::vector<std::string> empty_vector{};
   const auto input_odom_topics{declare_parameter("topics.input_odom", empty_vector)};
@@ -222,17 +220,37 @@ StateEstimationNode::StateEstimationNode(
 
 void StateEstimationNode::odom_callback(const OdomMsgT::SharedPtr msg)
 {
-  const auto time_observation_received = to_time_point(now());
-  const auto transform = get_transform(msg->header);
-  m_ekf->observation_update(
-    time_observation_received, message_to_measurement<MeasurementPoseAndSpeed>(
-      *msg, tf2::transformToEigen(transform).cast<float32_t>()));
+  struct ObservationVisitor
+  {
+    void operator()(ConstantAccelerationFilter & ekf) const
+    {
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<autoware::prediction::MeasurementPoseAndSpeed>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(autoware::prediction::ConstantAccelerationFilter3D & ekf) const
+    {
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<MeasurementPoseAndSpeed3D>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(mpark::monostate &) const {}
+
+    autoware::prediction::GlobalTime time_observation_received;
+    const OdomMsgT::SharedPtr msg;
+    geometry_msgs::msg::TransformStamped transform;
+  };
+
+  const ObservationVisitor visitor{to_time_point(now()), msg, get_transform(msg->header)};
+  mpark::visit(visitor, m_ekf);
   geometry_msgs::msg::QuaternionStamped orientation_in_expected_frame;
   tf2::doTransform(
     geometry_msgs::msg::QuaternionStamped{}.
     set__quaternion(msg->pose.pose.orientation).
     set__header(msg->header),
-    orientation_in_expected_frame, transform);
+    orientation_in_expected_frame, visitor.transform);
   update_latest_orientation_if_needed(orientation_in_expected_frame);
   if (m_publish_data_driven) {
     publish_current_state();
@@ -241,17 +259,37 @@ void StateEstimationNode::odom_callback(const OdomMsgT::SharedPtr msg)
 
 void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
 {
-  const auto time_observation_received = to_time_point(now());
-  const auto transform = get_transform(msg->header);
-  m_ekf->observation_update(
-    time_observation_received, message_to_measurement<MeasurementPose>(
-      *msg, tf2::transformToEigen(transform).cast<float32_t>()));
+  struct ObservationVisitor
+  {
+    void operator()(ConstantAccelerationFilter & ekf) const
+    {
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<autoware::prediction::MeasurementPose>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(autoware::prediction::ConstantAccelerationFilter3D & ekf) const
+    {
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<MeasurementPose3D>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(mpark::monostate &) const {}
+
+    autoware::prediction::GlobalTime time_observation_received;
+    const PoseMsgT::SharedPtr msg;
+    geometry_msgs::msg::TransformStamped transform;
+  };
+
+  const ObservationVisitor visitor{to_time_point(now()), msg, get_transform(msg->header)};
+  mpark::visit(visitor, m_ekf);
   geometry_msgs::msg::QuaternionStamped orientation_in_expected_frame;
   tf2::doTransform(
     geometry_msgs::msg::QuaternionStamped{}.
     set__quaternion(msg->pose.pose.orientation).
     set__header(msg->header),
-    orientation_in_expected_frame, transform);
+    orientation_in_expected_frame, visitor.transform);
   update_latest_orientation_if_needed(orientation_in_expected_frame);
   if (m_publish_data_driven) {
     publish_current_state();
@@ -260,17 +298,37 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
 
 void StateEstimationNode::twist_callback(const TwistMsgT::SharedPtr msg)
 {
-  if (!m_ekf->is_initialized()) {
-    RCLCPP_WARN(
-      get_logger(),
-      "Received twist update, but ekf has not been initialized with any state yet. Skipping.");
-    return;
-  }
-  const auto time_observation_received = to_time_point(now());
-  const auto transform = get_transform(msg->header);
-  m_ekf->observation_update(
-    time_observation_received, message_to_measurement<MeasurementSpeed>(
-      *msg, tf2::transformToEigen(transform).cast<float32_t>()));
+  struct ObservationVisitor
+  {
+    void operator()(ConstantAccelerationFilter & ekf) const
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<autoware::prediction::MeasurementSpeed>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(autoware::prediction::ConstantAccelerationFilter3D & ekf) const
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      ekf.observation_update(
+        time_observation_received,
+        message_to_measurement<MeasurementSpeed3D>(
+          *msg, tf2::transformToEigen(transform).template cast<float32_t>()));
+    }
+    void operator()(mpark::monostate &) const {}
+
+    autoware::prediction::GlobalTime time_observation_received;
+    const TwistMsgT::SharedPtr msg;
+    geometry_msgs::msg::TransformStamped transform;
+  };
+
+  const ObservationVisitor visitor{to_time_point(now()), msg, get_transform(msg->header)};
+  mpark::visit(visitor, m_ekf);
   if (m_publish_data_driven) {
     publish_current_state();
   }
@@ -286,32 +344,75 @@ geometry_msgs::msg::TransformStamped StateEstimationNode::get_transform(
 
 void StateEstimationNode::predict_and_publish_current_state()
 {
-  if (m_ekf->is_initialized()) {
-    m_ekf->temporal_update(to_time_point(now()));
-    publish_current_state();
-  }
+  struct PredictionVisitor
+  {
+    void operator()(ConstantAccelerationFilter & ekf) const
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      ekf.temporal_update(time_now);
+    }
+    void operator()(autoware::prediction::ConstantAccelerationFilter3D & ekf) const
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      ekf.temporal_update(time_now);
+    }
+    void operator()(mpark::monostate &) const {}
+
+    autoware::prediction::GlobalTime time_now;
+  };
+  PredictionVisitor visitor{to_time_point(now())};
+  mpark::visit(visitor, m_ekf);
 }
 
 void StateEstimationNode::publish_current_state()
 {
-  if (m_ekf->is_initialized() && m_publisher) {
-    auto state = m_ekf->get_state();
-    if (get_speed(state.twist.twist) < m_min_speed_to_use_speed_orientation) {
-      state.pose.pose.orientation = m_latest_orientation.quaternion;
+  struct GetStateVisitor
+  {
+    void operator()(ConstantAccelerationFilter & ekf)
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      state = ekf.get_state();
+      state_set = true;
     }
-    m_publisher->publish(state);
-    if (m_tf_publisher) {
-      TfMsgT tf_msg{};
-      tf_msg.transforms.emplace_back();
-      auto & tf = tf_msg.transforms.back();
-      tf.header = state.header;
-      tf.child_frame_id = m_child_frame_id;
-      tf.transform.translation.x = state.pose.pose.position.x;
-      tf.transform.translation.y = state.pose.pose.position.y;
-      tf.transform.translation.z = state.pose.pose.position.z;
-      tf.transform.rotation = state.pose.pose.orientation;
-      m_tf_publisher->publish(tf_msg);
+    void operator()(autoware::prediction::ConstantAccelerationFilter3D & ekf)
+    {
+      if (!ekf.is_initialized()) {
+        return;
+      }
+      state = ekf.get_state();
+      state_set = true;
     }
+    void operator()(mpark::monostate &) const {}
+
+    bool state_set{};
+    nav_msgs::msg::Odometry state;
+  };
+  if (!m_publisher) {return;}
+  GetStateVisitor visitor;
+  mpark::visit(visitor, m_ekf);
+  if (!visitor.state_set) {return;}
+  auto state = visitor.state;
+  if (get_speed(state.twist.twist) < m_min_speed_to_use_speed_orientation) {
+    state.pose.pose.orientation = m_latest_orientation.quaternion;
+  }
+  m_publisher->publish(state);
+  if (m_tf_publisher) {
+    TfMsgT tf_msg{};
+    tf_msg.transforms.emplace_back();
+    auto & tf = tf_msg.transforms.back();
+    tf.header = state.header;
+    tf.child_frame_id = m_child_frame_id;
+    tf.transform.translation.x = state.pose.pose.position.x;
+    tf.transform.translation.y = state.pose.pose.position.y;
+    tf.transform.translation.z = state.pose.pose.position.z;
+    tf.transform.rotation = state.pose.pose.orientation;
+    m_tf_publisher->publish(tf_msg);
   }
 }
 

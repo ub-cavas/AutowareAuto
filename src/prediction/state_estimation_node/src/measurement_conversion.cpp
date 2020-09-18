@@ -21,7 +21,8 @@ namespace
 {
 constexpr auto kCovarianceMatrixRows = 6U;
 constexpr auto kIndexX = 0U;
-constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
+constexpr auto kIndexY = kIndexX + kCovarianceMatrixRows + 1U;
+constexpr auto kIndexZ = kIndexY + kCovarianceMatrixRows + 1U;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
 static_assert(std::tuple_size<
     geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
@@ -94,6 +95,76 @@ MeasurementPose message_to_measurement(
       msg.pose.pose.position.x, msg.pose.pose.position.y},
     {static_cast<common::types::float32_t>(msg.pose.covariance[kIndexX]),
       static_cast<common::types::float32_t>(msg.pose.covariance[kIndexY])}
+  };
+}
+
+template<>
+MeasurementPoseAndSpeed3D message_to_measurement(
+  const nav_msgs::msg::Odometry & msg,
+  const Eigen::Isometry3f & tf_world_message)
+{
+  using FloatT = common::types::float32_t;
+  using Vector6f = Eigen::Matrix<FloatT, 6, 1>;
+  const Eigen::Vector3f pos_state = tf_world_message * Eigen::Vector3f{
+    static_cast<FloatT>(msg.pose.pose.position.x),
+    static_cast<FloatT>(msg.pose.pose.position.y),
+    static_cast<FloatT>(msg.pose.pose.position.z),
+  };
+  const Eigen::Vector3f speed_state = tf_world_message.rotation() * Eigen::Vector3f{
+    static_cast<FloatT>(msg.twist.twist.linear.x),
+    static_cast<FloatT>(msg.twist.twist.linear.y),
+    static_cast<FloatT>(msg.twist.twist.linear.z),
+  };
+  const Eigen::Vector3f pos_variance{
+    static_cast<FloatT>(msg.pose.covariance[kIndexX]),
+    static_cast<FloatT>(msg.pose.covariance[kIndexY]),
+    static_cast<FloatT>(msg.pose.covariance[kIndexZ])
+  };
+  const Eigen::Vector3f speed_variance{
+    static_cast<FloatT>(msg.twist.covariance[kIndexX]),
+    static_cast<FloatT>(msg.twist.covariance[kIndexY]),
+    static_cast<FloatT>(msg.twist.covariance[kIndexZ])
+  };
+
+  return MeasurementPoseAndSpeed3D{
+    to_time_point(msg.header.stamp),
+    (Vector6f{} << pos_state, speed_state).finished(),
+    (Vector6f{} << pos_variance, speed_variance).finished()};
+}
+
+template<>
+MeasurementSpeed3D message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
+  const Eigen::Isometry3f & tf_world_message)
+{
+  using FloatT = common::types::float32_t;
+  return MeasurementSpeed3D{
+    to_time_point(msg.header.stamp),
+    tf_world_message.rotation() * Eigen::Vector3f{
+      static_cast<FloatT>(msg.twist.twist.linear.x),
+      static_cast<FloatT>(msg.twist.twist.linear.y),
+      static_cast<FloatT>(msg.twist.twist.linear.z)},
+    {static_cast<FloatT>(msg.twist.covariance[kIndexX]),
+      static_cast<FloatT>(msg.twist.covariance[kIndexY]),
+      static_cast<FloatT>(msg.twist.covariance[kIndexZ])}
+  };
+}
+
+template<>
+MeasurementPose3D message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
+  const Eigen::Isometry3f & tf_world_message)
+{
+  using FloatT = common::types::float32_t;
+  return MeasurementPose3D{
+    to_time_point(msg.header.stamp),
+    tf_world_message * Eigen::Vector3f{
+      static_cast<FloatT>(msg.pose.pose.position.x),
+      static_cast<FloatT>(msg.pose.pose.position.y),
+      static_cast<FloatT>(msg.pose.pose.position.z)},
+    {static_cast<FloatT>(msg.pose.covariance[kIndexX]),
+      static_cast<FloatT>(msg.pose.covariance[kIndexY]),
+      static_cast<FloatT>(msg.pose.covariance[kIndexZ])}
   };
 }
 

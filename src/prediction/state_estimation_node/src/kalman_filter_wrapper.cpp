@@ -38,7 +38,8 @@ namespace
 {
 constexpr auto kCovarianceMatrixRows = 6U;
 constexpr auto kIndexX = 0U;
-constexpr auto kIndexY = kCovarianceMatrixRows + 1U;
+constexpr auto kIndexY = kIndexX + kCovarianceMatrixRows + 1U;
+constexpr auto kIndexZ = kIndexY + kCovarianceMatrixRows + 1U;
 constexpr auto kCovarianceMatrixRowsSquared = kCovarianceMatrixRows * kCovarianceMatrixRows;
 static_assert(std::tuple_size<
     geometry_msgs::msg::PoseWithCovariance::_covariance_type>::value ==
@@ -60,6 +61,7 @@ namespace prediction
 {
 
 using motion::motion_model::ConstantAcceleration;
+using motion::motion_model::ConstantAcceleration3D;
 using common::types::float64_t;
 using common::types::bool8_t;
 
@@ -213,12 +215,70 @@ nav_msgs::msg::Odometry ConstantAccelerationFilter::get_state() const
   return msg;
 }
 
+
+template<>
+nav_msgs::msg::Odometry ConstantAccelerationFilter3D::get_state() const
+{
+  using std::chrono::duration_cast;
+  using std::chrono::nanoseconds;
+  nav_msgs::msg::Odometry msg{};
+  if (!is_initialized()) {
+    throw std::runtime_error("Filter not is_initialized, cannot get state.");
+  }
+  msg.header.stamp = rclcpp::Time{to_ros_time(m_time_keeper.latest_timestamp())};
+  msg.header.frame_id = m_frame_id;
+  // Fill state.
+  msg.pose.pose.position.x =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::POSE_X]);
+  msg.pose.pose.position.y =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::POSE_Y]);
+  msg.pose.pose.position.z =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::POSE_Z]);
+  msg.twist.twist.linear.x =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::VELOCITY_X]);
+  msg.twist.twist.linear.y =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::VELOCITY_Y]);
+  msg.twist.twist.linear.z =
+    static_cast<float64_t>(m_motion_model[ConstantAcceleration3D::States::VELOCITY_Z]);
+
+  const auto roll = 0.0;
+  const auto pitch = std::atan2(msg.twist.twist.linear.z, msg.twist.twist.linear.x);
+  const auto yaw = std::atan2(msg.twist.twist.linear.y, msg.twist.twist.linear.x);
+  tf2::Quaternion rotation;
+  rotation.setRPY(roll, pitch, yaw);
+  msg.pose.pose.orientation = tf2::toMsg(rotation);
+
+  // Fill covariances.
+  const auto & covariance_factor = m_ekf->get_covariance();
+  const auto covariance = covariance_factor * covariance_factor.transpose();
+  msg.pose.covariance[kIndexX] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::POSE_X, ConstantAcceleration3D::States::POSE_X));
+  msg.pose.covariance[kIndexY] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::POSE_Y, ConstantAcceleration3D::States::POSE_Y));
+  msg.pose.covariance[kIndexZ] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::POSE_Z, ConstantAcceleration3D::States::POSE_Z));
+  msg.twist.covariance[kIndexX] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::VELOCITY_X, ConstantAcceleration3D::States::VELOCITY_X));
+  msg.twist.covariance[kIndexY] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::VELOCITY_Y, ConstantAcceleration3D::States::VELOCITY_Y));
+  msg.twist.covariance[kIndexZ] = static_cast<double>(covariance(
+      ConstantAcceleration3D::States::VELOCITY_Z, ConstantAcceleration3D::States::VELOCITY_Z));
+  // TODO(igor): do we need elements off the diagonal?
+  return msg;
+}
+
 /// Excplicit class instantiation.
 template class KalmanFilterWrapper<ConstantAcceleration, 6, 2>;
+template class KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>;
 
 using MeasurementPose = Measurement<common::types::float32_t,
     ConstantAcceleration::States::POSE_X,
     ConstantAcceleration::States::POSE_Y>;
+
+using MeasurementPose3D = Measurement<common::types::float32_t,
+    ConstantAcceleration3D::States::POSE_X,
+    ConstantAcceleration3D::States::POSE_Y,
+    ConstantAcceleration3D::States::POSE_Z>;
 
 using MeasurementPoseAndSpeed = Measurement<common::types::float32_t,
     ConstantAcceleration::States::POSE_X,
@@ -226,9 +286,22 @@ using MeasurementPoseAndSpeed = Measurement<common::types::float32_t,
     ConstantAcceleration::States::VELOCITY_X,
     ConstantAcceleration::States::VELOCITY_Y>;
 
+using MeasurementPoseAndSpeed3D = Measurement<common::types::float32_t,
+    ConstantAcceleration3D::States::POSE_X,
+    ConstantAcceleration3D::States::POSE_Y,
+    ConstantAcceleration3D::States::POSE_Z,
+    ConstantAcceleration3D::States::VELOCITY_X,
+    ConstantAcceleration3D::States::VELOCITY_Y,
+    ConstantAcceleration3D::States::VELOCITY_Z>;
+
 using MeasurementSpeed = Measurement<common::types::float32_t,
     ConstantAcceleration::States::VELOCITY_X,
     ConstantAcceleration::States::VELOCITY_Y>;
+
+using MeasurementSpeed3D = Measurement<common::types::float32_t,
+    ConstantAcceleration3D::States::VELOCITY_X,
+    ConstantAcceleration3D::States::VELOCITY_Y,
+    ConstantAcceleration3D::States::VELOCITY_Z>;
 
 template bool8_t KalmanFilterWrapper<ConstantAcceleration, 6, 2>::observation_update<>(
   const GlobalTime &, const MeasurementPose &);
@@ -240,6 +313,18 @@ template bool8_t KalmanFilterWrapper<ConstantAcceleration, 6, 2>::observation_up
 template bool8_t KalmanFilterWrapper<ConstantAcceleration, 6, 2>::temporal_update<>(
   const GlobalTime &);
 template bool8_t KalmanFilterWrapper<ConstantAcceleration, 6, 2>::temporal_update<>(
+  const MeasurementBasedTime &);
+
+template bool8_t KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>::observation_update<>(
+  const GlobalTime &, const MeasurementPose3D &);
+template bool8_t KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>::observation_update<>(
+  const GlobalTime &, const MeasurementSpeed3D &);
+template bool8_t KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>::observation_update<>(
+  const GlobalTime &, const MeasurementPoseAndSpeed3D &);
+
+template bool8_t KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>::temporal_update<>(
+  const GlobalTime &);
+template bool8_t KalmanFilterWrapper<ConstantAcceleration3D, 9, 3>::temporal_update<>(
   const MeasurementBasedTime &);
 
 }  // namespace prediction

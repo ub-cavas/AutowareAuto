@@ -62,6 +62,9 @@ class STATE_ESTIMATION_NODE_PUBLIC KalmanFilterWrapper
   using VectorT = Eigen::Matrix<common::types::float32_t, kLength, 1>;
 
 public:
+  using MotionModel = MotionModelT;
+  static constexpr std::int32_t NumOfStates = kNumOfStates;
+  static constexpr std::int32_t ProcessNoiseDim = kProcessNoiseDim;
   ///
   /// @brief      Create an EKF wrapper.
   ///
@@ -205,6 +208,8 @@ private:
 
 using ConstantAccelerationFilter =
   KalmanFilterWrapper<motion::motion_model::ConstantAcceleration, 6, 2>;
+using ConstantAccelerationFilter3D =
+  KalmanFilterWrapper<motion::motion_model::ConstantAcceleration3D, 9, 3>;
 
 }  // namespace prediction
 }  // namespace autoware

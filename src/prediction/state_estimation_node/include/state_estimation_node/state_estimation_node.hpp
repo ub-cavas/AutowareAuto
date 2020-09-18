@@ -24,6 +24,7 @@
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/quaternion_stamped.hpp>
+#include <mpark_variant_vendor/variant.hpp>
 #include <kalman_filter/esrcf.hpp>
 #include <motion_model/constant_acceleration.hpp>
 #include <nav_msgs/msg/odometry.hpp>
@@ -134,9 +135,10 @@ private:
   std::string m_frame_id{};
   std::string m_child_frame_id{};
 
-  // TODO(igor): we can replace the unique_ptr here with std::variant or alike at a later time to
-  // allow configuring which filter to use at runtime.
-  std::unique_ptr<ConstantAccelerationFilter> m_ekf{};
+  mpark::variant<
+    mpark::monostate,
+    ConstantAccelerationFilter,
+    ConstantAccelerationFilter3D> m_ekf{};
 
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
