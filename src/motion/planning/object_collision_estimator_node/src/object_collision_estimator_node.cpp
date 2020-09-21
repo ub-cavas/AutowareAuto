@@ -157,4 +157,5 @@ void ObjectCollisionEstimatorNode::estimate_collision(
 }  // namespace motion
 
 #include <rclcpp_components/register_node_macro.hpp>  // NOLINT
-RCLCPP_COMPONENTS_REGISTER_NODE(motion::planning::object_collision_estimator_node::ObjectCollisionEstimatorNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(
+  motion::planning::object_collision_estimator_node::ObjectCollisionEstimatorNode)
