@@ -78,13 +78,13 @@ Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
 
 void Lanelet2GlobalPlannerNode::request_osm_binary_map()
 {
-  while (!map_client->wait_for_service(1s)) {
-    if (!rclcpp::ok()) {
-      RCLCPP_ERROR(
+  while (rclcpp::ok() && !map_client->wait_for_service(1s)) {
+    RCLCPP_WARN(this->get_logger(), "HAD map service not available yet. Waiting...");
+  }
+  if (!rclcpp::ok()) {
+    RCLCPP_ERROR(
         this->get_logger(),
-        "Client interrupted while waiting for service to appear. Exiting.");
-    }
-    RCLCPP_WARN(this->get_logger(), "Service not available yet. Waiting...");
+        "Client interrupted while waiting for map service to appear. Exiting.");
   }
 
   auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
