@@ -28,6 +28,7 @@ def generate_launch_description():
         package='lanelet2_global_planner_node',
         node_executable='lanelet2_global_planner_node_exe',
         output='screen',
-        remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service')],
+        remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),
+                    ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')],
     )
     return launch.LaunchDescription([global_planner_node_runner])
