@@ -195,6 +195,14 @@ def generate_launch_description():
         node_executable='lanelet2_map_visualizer_exe',
         node_namespace='had_maps'
     )
+    global_planner = Node(
+        package='lanelet2_global_planner_node',
+        node_name='lanelet2_global_planner_node',
+        node_namespace='planning',
+        node_executable='lanelet2_global_planner_node_exe',
+        remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),
+                    ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')]
+    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -214,5 +222,6 @@ def generate_launch_description():
         point_cloud_fusion,
         lanelet2_map_provider,
         lanelet2_map_visualizer,
+        global_planner,
         rviz2
     ])
