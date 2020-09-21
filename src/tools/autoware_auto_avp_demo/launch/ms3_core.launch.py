@@ -268,6 +268,13 @@ def generate_launch_description():
         ]
     )
 
+    # TODO(nikolai.morin): Hack, to be resolved in #626
+    odom_bl_publisher = Node(
+        package='tf2_ros',
+        node_executable='static_transform_publisher',
+        arguments=["0", "0", "0", "0", "0", "0", "odom", "base_link"]
+    )
+
     return LaunchDescription([
         euclidean_cluster_param,
         pc_filter_transform_param,
@@ -295,5 +302,6 @@ def generate_launch_description():
         parking_planner,
         object_collision_estimator,
         behavior_planner,
+        odom_bl_publisher,
         rviz2
     ])
