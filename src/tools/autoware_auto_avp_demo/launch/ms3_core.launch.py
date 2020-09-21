@@ -59,6 +59,8 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/parking_planner.param.yaml')
     object_collision_estimator_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/object_collision_estimator.param.yaml')
+    behavior_planner_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/behavior_planner.param.yaml')
 
     pc_filter_transform_pkg_prefix = get_package_share_directory(
         'point_cloud_filter_transform_nodes')
@@ -126,6 +128,11 @@ def generate_launch_description():
         'object_collision_estimator_param_file',
         default_value=object_collision_estimator_param_file,
         description='Path to paramter file for object collision estimator'
+    )
+    behavior_planner_param = DeclareLaunchArgument(
+        'behavior_planner_param_file',
+        default_value=behavior_planner_param_file,
+        description='Path to paramter file for behavior planner'
     )
 
     # Nodes
@@ -242,11 +249,23 @@ def generate_launch_description():
     )
     object_collision_estimator = Node(
         package='object_collision_estimator_node',
-        node_name='object_collision_estimator',
+        node_name='object_collision_estimator_node',
         node_namespace='planning',
         node_executable='object_collision_estimator_node_exe',
         parameters=[LaunchConfiguration('object_collision_estimator_param_file')]
         # TODO(JWhitleyWork): Needs remapping for obstacles
+    )
+    behavior_planner = Node(
+        package='behavior_planner_node',
+        node_name='behavior_planner_node',
+        node_namespace='planning',
+        node_executable='behavior_planner_node_exe',
+        parameters=[LaunchConfiguration('behavior_planner_param_file')],
+        remappings=[
+            ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
+            ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
+            ('route', 'global_path')
+        ]
     )
 
     return LaunchDescription([
@@ -261,6 +280,7 @@ def generate_launch_description():
         lane_planner_param,
         parking_planner_param,
         object_collision_estimator_param,
+        behavior_planner_param,
         euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
@@ -274,5 +294,6 @@ def generate_launch_description():
         lane_planner,
         parking_planner,
         object_collision_estimator,
+        behavior_planner,
         rviz2
     ])
