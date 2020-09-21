@@ -63,6 +63,7 @@ public:
   /// \param[in] options node options for rclcpp Node
   explicit TrajectoryPlannerNodeBase(
     const std::string & node_name,
+    const std::string & action_server_name,
     const rclcpp::NodeOptions & options);
 
 protected:
