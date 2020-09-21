@@ -125,6 +125,11 @@ void VehicleInterfaceNode::set_interface(std::unique_ptr<PlatformInterface> && i
 
 rclcpp::Logger VehicleInterfaceNode::logger() const noexcept {return get_logger();}
 
+const SafetyStateMachine VehicleInterfaceNode::get_state_machine() const noexcept
+{
+  return *m_state_machine;
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 // 9073 appears to be a false positive, or the compiler being overly pedantic for templates
 // specializations

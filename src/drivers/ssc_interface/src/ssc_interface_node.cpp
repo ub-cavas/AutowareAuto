@@ -15,10 +15,14 @@
 #include "ssc_interface/ssc_interface_node.hpp"
 #include "ssc_interface/ssc_interface.hpp"
 
+#include <common/types.hpp>
+
 #include <memory>
 
 //lint -e537 NOLINT  // cpplint vs pclint
 #include <string>
+
+using autoware::common::types::float32_t;
 
 namespace ssc_interface
 {
@@ -26,7 +30,14 @@ namespace ssc_interface
 SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
 : VehicleInterfaceNode{"ssc_interface", options}
 {
-  set_interface(std::make_unique<SscInterface>(*this));
+  set_interface(
+    std::make_unique<SscInterface>(
+      *this,
+      2.789,  // Lexus RX 450h wheelbase
+      get_state_machine().get_config().accel_limits().max(),
+      get_state_machine().get_config().accel_limits().min(),
+      declare_parameter("max_yaw_rate").get<float32_t>()
+  ));
 }
 
 }  // namespace ssc_interface

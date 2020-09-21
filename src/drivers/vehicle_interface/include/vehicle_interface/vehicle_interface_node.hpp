@@ -92,6 +92,8 @@ protected:
   void set_interface(std::unique_ptr<PlatformInterface> && interface) noexcept;
   /// Get access to logger
   rclcpp::Logger logger() const noexcept;
+  /// Get access to Safety State Machine
+  const SafetyStateMachine get_state_machine() const noexcept;
 
   /// Error handling behavior for when sending a control command has failed, default is throwing an
   /// exception, which is caught and turned into a change in the NodeState to ERROR

@@ -6,7 +6,7 @@ ssc_interface design {#ssc_interface-package-design}
 This package acts as a message translator between AutonomouStuff's SSC software and Autoware.Auto.
 
 # Design
-This package inherits from @ref vehicle_interface_design and, as such, performs all of the same tasks but specifically with messages from the `automotive_autonomy_msgs` stack.
+This package inherits from @ref vehicle-interface-design and, as such, performs all of the same tasks but specifically with messages from the `automotive_autonomy_msgs` stack.
 
 ## Assumptions / Known limits
 <!-- Required -->
