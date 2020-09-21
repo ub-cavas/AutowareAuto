@@ -55,6 +55,8 @@ def generate_launch_description():
         avp_demo_pkg_prefix, "param/lanelet2_map_provider.param.yaml")
     lane_planner_param_file = os.path.join(
         avp_demo_pkg_prefix, "param/lane_planner.param.yaml")
+    parking_planner_param_file = os.path.join(
+        avp_demo_pkg_prefix, "param/parking_planner.param.yaml")
 
     pc_filter_transform_pkg_prefix = get_package_share_directory(
         'point_cloud_filter_transform_nodes')
@@ -112,6 +114,11 @@ def generate_launch_description():
         'lane_planner_param_file',
         default_value=lane_planner_param_file,
         description='Path to parameter file for lane planner'
+    )
+    parking_planner_param = DeclareLaunchArgument(
+        'parking_planner_param_file',
+        default_value=parking_planner_param_file,
+        description='Path to paramter file for parking planner'
     )
 
     # Nodes
@@ -218,6 +225,14 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('lane_planner_param_file')],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
+    parking_planner = Node(
+        package='parking_planner_node',
+        node_name='parking_planner_node',
+        node_namespace='planning',
+        node_executable='parking_planner_node_exe',
+        parameters=[LaunchConfiguration('parking_planner_param_file')],
+        remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service')]
+    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -229,6 +244,7 @@ def generate_launch_description():
         point_cloud_fusion_param,
         lanelet2_map_provider_param,
         lane_planner_param,
+        parking_planner_param,
         euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
@@ -240,5 +256,6 @@ def generate_launch_description():
         lanelet2_map_visualizer,
         global_planner,
         lane_planner,
+        parking_planner,
         rviz2
     ])
