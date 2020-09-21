@@ -52,11 +52,13 @@ def generate_launch_description():
     recordreplay_planner_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/recordreplay_planner.param.yaml')
     lanelet2_map_provider_param_file = os.path.join(
-        avp_demo_pkg_prefix, "param/lanelet2_map_provider.param.yaml")
+        avp_demo_pkg_prefix, 'param/lanelet2_map_provider.param.yaml')
     lane_planner_param_file = os.path.join(
-        avp_demo_pkg_prefix, "param/lane_planner.param.yaml")
+        avp_demo_pkg_prefix, 'param/lane_planner.param.yaml')
     parking_planner_param_file = os.path.join(
-        avp_demo_pkg_prefix, "param/parking_planner.param.yaml")
+        avp_demo_pkg_prefix, 'param/parking_planner.param.yaml')
+    object_collision_estimator_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/object_collision_estimator.param.yaml')
 
     pc_filter_transform_pkg_prefix = get_package_share_directory(
         'point_cloud_filter_transform_nodes')
@@ -119,6 +121,11 @@ def generate_launch_description():
         'parking_planner_param_file',
         default_value=parking_planner_param_file,
         description='Path to paramter file for parking planner'
+    )
+    object_collision_estimator_param = DeclareLaunchArgument(
+        'object_collision_estimator_param_file',
+        default_value=object_collision_estimator_param_file,
+        description='Path to paramter file for object collision estimator'
     )
 
     # Nodes
@@ -233,6 +240,14 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('parking_planner_param_file')],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
+    object_collision_estimator = Node(
+        package='object_collision_estimator_node',
+        node_name='object_collision_estimator',
+        node_namespace='planning',
+        node_executable='object_collision_estimator_node_exe',
+        parameters=[LaunchConfiguration('object_collision_estimator_param_file')]
+        # TODO(JWhitleyWork): Needs remapping for obstacles
+    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -245,6 +260,7 @@ def generate_launch_description():
         lanelet2_map_provider_param,
         lane_planner_param,
         parking_planner_param,
+        object_collision_estimator_param,
         euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
@@ -257,5 +273,6 @@ def generate_launch_description():
         global_planner,
         lane_planner,
         parking_planner,
+        object_collision_estimator,
         rviz2
     ])

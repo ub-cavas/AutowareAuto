@@ -24,6 +24,7 @@
     <exec_depend>lgsvl_interface</exec_depend>
     <exec_depend>mpc_controller_node</exec_depend>
     <exec_depend>ndt_nodes</exec_depend>
+    <exec_depend>object_collision_estimator_node</exec_depend>
     <exec_depend>parking_planner_node</exec_depend>
     <exec_depend>point_cloud_filter_transform_nodes</exec_depend>
     <exec_depend>point_cloud_fusion</exec_depend>
