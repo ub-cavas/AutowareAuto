@@ -53,6 +53,8 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/recordreplay_planner.param.yaml')
     lanelet2_map_provider_param_file = os.path.join(
         avp_demo_pkg_prefix, "param/lanelet2_map_provider.param.yaml")
+    lane_planner_param_file = os.path.join(
+        avp_demo_pkg_prefix, "param/lane_planner.param.yaml")
 
     pc_filter_transform_pkg_prefix = get_package_share_directory(
         'point_cloud_filter_transform_nodes')
@@ -105,6 +107,11 @@ def generate_launch_description():
         'lanelet2_map_provider_param_file',
         default_value=lanelet2_map_provider_param_file,
         description='Path to parameter file for Lanelet2 Map Provider'
+    )
+    lane_planner_param = DeclareLaunchArgument(
+        'lane_planner_param_file',
+        default_value=lane_planner_param_file,
+        description='Path to parameter file for lane planner'
     )
 
     # Nodes
@@ -203,6 +210,14 @@ def generate_launch_description():
         remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service'),
                     ('vehicle_kinematic_state', '/vehicle/vehicle_kinematic_state')]
     )
+    lane_planner = Node(
+        package='lane_planner_node',
+        node_name='lane_planner_node',
+        node_namespace='planning',
+        node_executable='lane_planner_node_exe',
+        parameters=[LaunchConfiguration('lane_planner_param_file')],
+        remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
+    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -213,6 +228,7 @@ def generate_launch_description():
         recordreplay_planner_param,
         point_cloud_fusion_param,
         lanelet2_map_provider_param,
+        lane_planner_param,
         euclidean_clustering,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
@@ -223,5 +239,6 @@ def generate_launch_description():
         lanelet2_map_provider,
         lanelet2_map_visualizer,
         global_planner,
+        lane_planner,
         rviz2
     ])
