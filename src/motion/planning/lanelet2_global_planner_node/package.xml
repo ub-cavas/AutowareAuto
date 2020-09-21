@@ -21,6 +21,7 @@
   <depend>had_map_utils</depend>
   <depend>tf2</depend>
   <depend>tf2_ros</depend>
+  <depend>tf2_geometry_msgs</depend>
   <depend>time_utils</depend>
 
   <build_depend>autoware_auto_common</build_depend>
