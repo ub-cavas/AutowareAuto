@@ -231,7 +231,7 @@ def generate_launch_description():
         node_namespace='planning',
         node_executable='parking_planner_node_exe',
         parameters=[LaunchConfiguration('parking_planner_param_file')],
-        remappings=[('HAD_Map_Client', '/had_maps/HAD_Map_Service')]
+        remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
 
     return LaunchDescription([
