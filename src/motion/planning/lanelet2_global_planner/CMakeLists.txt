@@ -48,8 +48,4 @@ endif()
 target_compile_options(${GB_PLANNER_LIB} PRIVATE -Wno-sign-conversion -Wno-conversion -Wno-old-style-cast
         -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
 
-ament_auto_package(
-  INSTALL_TO_SHARE
-  param
-  launch
-)
+ament_auto_package()
