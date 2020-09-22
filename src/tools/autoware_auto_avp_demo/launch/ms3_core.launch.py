@@ -187,7 +187,8 @@ def generate_launch_description():
         node_name='rviz2',
         arguments=['-d', str(rviz_cfg_path)],
         condition=IfCondition(LaunchConfiguration('with_rviz')),
-        remappings=[("initialpose", "/localization/initialpose")]
+        remappings=[("initialpose", "/localization/initialpose"),
+                    ("goal_pose", "/planning/goal_pose")],
     )
     scan_downsampler = Node(
         package='voxel_grid_nodes',

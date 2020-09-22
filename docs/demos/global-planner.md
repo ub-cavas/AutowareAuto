@@ -41,6 +41,10 @@ ade$ ros2 launch lanelet2_global_planner_node lanelet2_global_planner.launch.py
 ade$ ros2 topic echo /planning/global_path
 ```
 
+To select a parking spot graphically, click and drag `2D Nav goal` in `rviz`.
+
+To select one programmatically, open
+
 *terminal 4*
 ```
 > ade enter
@@ -69,6 +73,8 @@ The path with lane IDs should be output in *terminal 3**.
 **Note** To choose a different parking spot, click `2D Nav Goal` in `rviz` and listen to the message with 
 
     ros2 topic echo /goal_pose
+
+and update the values in the message in YAML format above.
 
 ## Passing metrics
 
