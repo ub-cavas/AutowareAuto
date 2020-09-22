@@ -54,6 +54,9 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch autoware_auto_avp_demo ms2.launch.py
 ```
 
+## See also
+
+- @subpage avp-demo-test-global-planner
 
 # Setup and launching (hardware)
 
