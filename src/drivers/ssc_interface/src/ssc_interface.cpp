@@ -16,6 +16,7 @@
 
 #include <automotive_platform_msgs/msg/gear.hpp>
 #include <rclcpp/logging.hpp>
+#include <time_utils/time_utils.hpp>
 
 #include <stdexcept>
 
@@ -73,11 +74,11 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
 {
   // Turn signal command
   TurnSignalCommand tsc;
+  tsc.mode = 0;
+  tsc.turn_signal = TurnSignalCommand::NONE;
 
   switch (msg.blinker) {
     case VehicleStateCommand::BLINKER_NO_COMMAND:
-      tsc.mode = 0;
-      tsc.turn_signal = TurnSignalCommand::NONE;
       break;
     case VehicleStateCommand::BLINKER_OFF:
       tsc.mode = 1;
@@ -99,6 +100,38 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
     default:
       RCLCPP_ERROR(m_logger, "Received command for invalid turn signal state.");
   }
+
+  tsc.header.stamp = msg.stamp;
+  m_turn_signal_cmd_pub->publish(tsc);
+
+  // Gear command
+  GearCommand gc;
+  gc.command.gear = SscGear::NONE;
+
+  switch (msg.gear) {
+    case VehicleStateCommand::GEAR_NO_COMMAND:
+      break;
+    case VehicleStateCommand::GEAR_DRIVE:
+      gc.command.gear = SscGear::DRIVE;
+      break;
+    case VehicleStateCommand::GEAR_REVERSE:
+      gc.command.gear = SscGear::REVERSE;
+      break;
+    case VehicleStateCommand::GEAR_PARK:
+      gc.command.gear = SscGear::PARK;
+      break;
+    case VehicleStateCommand::GEAR_LOW:
+      gc.command.gear = SscGear::LOW;
+      break;
+    case VehicleStateCommand::GEAR_NEUTRAL:
+      gc.command.gear = SscGear::NEUTRAL;
+      break;
+    default:
+      RCLCPP_ERROR(m_logger, "Received command for invalid gear state.");
+  }
+
+  gc.header.stamp = msg.stamp;
+  m_gear_cmd_pub->publish(gc);
 
   return true;
 }
@@ -194,6 +227,8 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 {
   odometry().stamp = msg->header.stamp;
   odometry().velocity_mps = msg->velocity;
+  m_last_accel = msg->accleration;
+  m_last_accel_time = time_utils::from_message(msg->header.stamp);
 }
 
 }  // namespace ssc_interface

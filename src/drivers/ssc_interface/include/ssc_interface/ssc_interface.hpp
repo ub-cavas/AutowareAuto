@@ -132,6 +132,8 @@ private:
   float32_t m_accel_limit;
   float32_t m_decel_limit;
   float32_t m_max_yaw_rate;
+  float32_t m_last_accel{};
+  std::chrono::system_clock::time_point m_last_accel_time{};
 
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
   void on_gear_report(const GearFeedback::SharedPtr & msg);
