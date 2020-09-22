@@ -354,3 +354,9 @@ Transform MockInitializer::guess(
   transform.header.frame_id = obs_frame + map_frame;
   return transform;
 }
+
+
+void MockInitializer::set_external_pose(const Transform & tf)
+{
+  (void) tf;
+}

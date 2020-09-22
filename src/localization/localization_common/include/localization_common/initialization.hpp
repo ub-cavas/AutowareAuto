@@ -22,6 +22,7 @@
 #include <geometry_msgs/msg/transform.hpp>
 #include <helper_functions/crtp.hpp>
 #include <tf2/buffer_core.h>
+#include <time_utils/time_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <string>
 // probably include the motion model
@@ -44,9 +45,11 @@ class LOCALIZATION_COMMON_PUBLIC PoseInitializerBase
 
 public:
   /// Guess the pose at a given time point. This function will look the transform up in the
-  /// transform graph between the specified frames. If extrapolation is required, the behavior is
-  /// determined by the implementation class. tf2 lookup may generate exceptions if the lookup
-  /// fails in other ways. For details, see tf2::BufferCore class.
+  /// transform graph between the specified frames. If an external pose has been set, it takes
+  /// precedence over poses in the transform graph and will be stamped with the requested time.
+  /// If extrapolation is required, the behavior is determined by the implementation class.
+  /// tf2 lookup may generate exceptions if the lookup fails in other ways. For details, see
+  /// tf2::BufferCore class.
   /// \param tf_graph Transform graph that contains all the transforms to look up.
   /// \param time_point Time to guess the pose.
   /// \param target_frame Target frame of the transform. (i.e. "map")
@@ -57,6 +60,19 @@ public:
     const std::string & target_frame, const std::string & source_frame)
   {
     PoseT ret;
+
+    if (m_external_pose_available) {
+      // If someone set a transform and then requests a different transform, that's an error
+      if (m_external_pose.header.frame_id != target_frame ||
+        m_external_pose.child_frame_id != source_frame)
+      {
+        throw std::runtime_error("The pose initializer's set_external_pose() "
+                "and guess() methods were called with different frames.");
+      }
+      m_external_pose_available = false;
+      m_external_pose.header.stamp = time_utils::to_message(time_point);
+      return m_external_pose;
+    }
 
     try {
       // attempt to get transform at a given point.
@@ -69,6 +85,17 @@ public:
 
     return ret;
   }
+
+  /// Store a pose which will be returned in the next call to guess().
+  void set_external_pose(const PoseT & external_pose)
+  {
+    m_external_pose_available = true;
+    m_external_pose = external_pose;
+  }
+
+private:
+  PoseT m_external_pose;
+  bool m_external_pose_available = false;
 };
 
 /// Pose initialization implementation where the extrapolation policy is to simply
