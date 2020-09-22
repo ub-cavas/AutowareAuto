@@ -87,7 +87,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
           LaunchConfiguration('lgsvl_interface_param_file'),
-          {"lgsvl.publish_tf": "true"}
+          {"lgsvl.publish_tf": "false"}
         ],
         remappings=[
             ("vehicle_control_cmd", "/lgsvl/vehicle_control_cmd"),
