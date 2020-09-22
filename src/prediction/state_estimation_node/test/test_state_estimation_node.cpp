@@ -145,6 +145,78 @@ TEST_P(DISABLED_StateEstimationNodeTest, publish_and_receive_odom_message) {
     "state_variances", std::vector<double>{1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
   node_options.append_parameter_override(
     "process_noise_variances.acceleration", std::vector<double>{1.0, 1.0});
+  node_options.append_parameter_override("motion_model", "ConstantAcceleration");
+  const auto node{std::make_shared<StateEstimationNode>(node_options)};
+
+  auto count_received_msgs{0};
+  create_fake_odom_publisher("/odom_topic_1");
+  create_result_odom_subscription("/state_estimation_namespace/filtered_state", node.get(),
+    [&count_received_msgs](
+      const Odometry::SharedPtr) {
+      count_received_msgs++;
+    });
+
+  const auto dt{std::chrono::milliseconds{100LL}};
+  const auto max_wait_time{std::chrono::seconds{10LL}};
+  auto time_passed{std::chrono::milliseconds{0LL}};
+  while (count_received_msgs < 1) {
+    get_fake_odometry_publisher().publish(msg);
+    rclcpp::spin_some(node);
+    rclcpp::spin_some(get_fake_odometry_node());
+    std::this_thread::sleep_for(dt);
+    time_passed += dt;
+    if (time_passed > max_wait_time) {
+      FAIL() << "Did not receive a message soon enough.";
+    }
+  }
+  if (publish_tf) {
+    EXPECT_TRUE(
+      get_tf_buffer().canTransform("map", "base_link", to_tf_time_point(msg.header.stamp)));
+    const auto transform{
+      get_tf_buffer().lookupTransform("map", "base_link", to_tf_time_point(msg.header.stamp))};
+    EXPECT_EQ(transform.header.frame_id, "map");
+    EXPECT_EQ(transform.child_frame_id, "base_link");
+    EXPECT_EQ(transform.header.stamp.sec, msg.header.stamp.sec);
+    EXPECT_EQ(transform.header.stamp.nanosec, msg.header.stamp.nanosec);
+    EXPECT_DOUBLE_EQ(transform.transform.translation.x, 0.0);
+    EXPECT_DOUBLE_EQ(transform.transform.translation.y, 0.0);
+    EXPECT_DOUBLE_EQ(transform.transform.translation.z, 0.0);
+  } else {
+    EXPECT_FALSE(
+      get_tf_buffer().canTransform("map", "base_link", to_tf_time_point(msg.header.stamp)));
+  }
+  SUCCEED();
+}
+
+/// @test Test that if we publish one message, it generates a state estimate which is sent out.
+TEST_P(DISABLED_StateEstimationNodeTest, publish_and_receive_odom_message_3d) {
+  const bool publish_tf = GetParam();
+  nav_msgs::msg::Odometry msg{};
+  msg.header.frame_id = "map";
+  msg.header.stamp.sec = 5;
+  msg.header.stamp.nanosec = 12345U;
+  msg.pose.covariance[0] = 1.0;
+  msg.pose.covariance[7] = 1.0;
+  msg.twist.covariance[0] = 1.0;
+  msg.twist.covariance[7] = 1.0;
+
+  rclcpp::NodeOptions node_options{};
+  node_options.append_parameter_override(
+    "topics.input_odom", std::vector<std::string>{"/odom_topic_1"});
+  node_options.append_parameter_override(
+    "topics.input_pose", std::vector<std::string>{"/pose_topic_1"});
+  node_options.append_parameter_override(
+    "topics.input_twist", std::vector<std::string>{"/twist_topic_1"});
+  node_options.append_parameter_override("data_driven", true);
+  node_options.append_parameter_override("publish_tf", publish_tf);
+  node_options.append_parameter_override("frame_id", "map");
+  node_options.append_parameter_override("child_frame_id", "base_link");
+  node_options.append_parameter_override("mahalanobis_threshold", 10.0);
+  node_options.append_parameter_override(
+    "state_variances", std::vector<double>{1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0});
+  node_options.append_parameter_override(
+    "process_noise_variances.acceleration", std::vector<double>{1.0, 1.0, 1.0});
+  node_options.append_parameter_override("motion_model", "ConstantAcceleration3D");
   const auto node{std::make_shared<StateEstimationNode>(node_options)};
 
   auto count_received_msgs{0};

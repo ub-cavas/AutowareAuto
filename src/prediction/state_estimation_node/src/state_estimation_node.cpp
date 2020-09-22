@@ -39,6 +39,8 @@ constexpr int kDefaultHistory{10};  // TODO(igor): remove this.
 constexpr float64_t kInvalidFrequency{-1.0};  // Frames per second.
 const std::chrono::milliseconds kDefaultTimeBetweenUpdates{100LL};
 const char kDefaultOutputTopic[]{"filtered_state"};
+const char kConstantAccelerationTag[]{"ConstantAcceleration"};
+const char kConstantAcceleration3DTag[]{"ConstantAcceleration3D"};
 constexpr auto kCovarianceMatrixRows{6U};
 constexpr auto kIndexX{0U};
 constexpr auto kIndexY{kCovarianceMatrixRows + 1U};
@@ -182,16 +184,33 @@ StateEstimationNode::StateEstimationNode(
   const auto mahalanobis_threshold{
     declare_parameter("mahalanobis_threshold", std::numeric_limits<float32_t>::max())};
 
-  m_ekf = ConstantAccelerationFilter{
-    create_state_variances<ConstantAccelerationFilter::NumOfStates>(state_variances),
-    create_process_noise_variances<
-      ConstantAccelerationFilter::MotionModel,
-      ConstantAccelerationFilter::NumOfStates,
-      ConstantAccelerationFilter::ProcessNoiseDim>(
-      position_variance, velocity_variance, acceleration_variance),
-    time_between_publish_requests,
-    m_frame_id,
-    static_cast<float>(mahalanobis_threshold)};
+  const auto motion_model_name{
+    declare_parameter("motion_model", "ConstantAcceleration")};
+
+  if (motion_model_name == kConstantAccelerationTag) {
+    m_ekf = ConstantAccelerationFilter{
+      create_state_variances<ConstantAccelerationFilter::NumOfStates>(state_variances),
+      create_process_noise_variances<
+        ConstantAccelerationFilter::MotionModel,
+        ConstantAccelerationFilter::NumOfStates,
+        ConstantAccelerationFilter::ProcessNoiseDim>(
+        position_variance, velocity_variance, acceleration_variance),
+      time_between_publish_requests,
+      m_frame_id,
+      static_cast<float>(mahalanobis_threshold)};
+  } else if (motion_model_name == kConstantAcceleration3DTag) {
+    m_ekf = ConstantAccelerationFilter3D{
+      create_state_variances<ConstantAccelerationFilter3D::NumOfStates>(state_variances),
+      create_process_noise_variances<
+        ConstantAccelerationFilter3D::MotionModel,
+        ConstantAccelerationFilter3D::NumOfStates,
+        ConstantAccelerationFilter3D::ProcessNoiseDim>(
+        position_variance, velocity_variance, acceleration_variance),
+      time_between_publish_requests,
+      m_frame_id,
+      static_cast<float>(mahalanobis_threshold)};
+  }
+
 
   const std::vector<std::string> empty_vector{};
   const auto input_odom_topics{declare_parameter("topics.input_odom", empty_vector)};

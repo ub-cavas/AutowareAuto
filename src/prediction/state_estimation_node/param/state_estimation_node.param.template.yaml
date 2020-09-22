@@ -22,6 +22,8 @@
         - /twist_topic_1
         - /twist_topic_2
 
+    motion_model: ConstantAcceleration3D
+
     # Specify variances for the process noise. The values are optional, but at least one for
     # acceleration has to be provided. These will influence the form of the process noise matrix G *
     # Q * G.T used in the EKF. The number of values represent the dimentionality of the state. For
