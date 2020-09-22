@@ -35,7 +35,7 @@ PlannerType get_planner_type_from_primitive(
   const MapPrimitive & map_primitive)
 {
   static const std::unordered_map<std::string, PlannerType> primitive_to_planner_type({
-        {"parking_spot", PlannerType::PARKING},
+        {"parking", PlannerType::PARKING},
         {"drivable_area", PlannerType::PARKING},
         {"lane", PlannerType::LANE}});
 
@@ -152,12 +152,12 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
 
   // add final subroute
   // note that prev_type is actually type of final primitive after the loop is done
-  // if (prev_type == PlannerType::LANE) {
-  subroute.route.goal_point = get_closest_point_on_lane(route.goal_point,
-      prev_primitive.id, lanelet_map_ptr);
-  // }else{
-  //   subroute.route.goal_point = route.goal_point;
-  // }
+  if (prev_type == PlannerType::LANE) {
+    subroute.route.goal_point = get_closest_point_on_lane(route.goal_point,
+        prev_primitive.id, lanelet_map_ptr);
+  }else{
+    subroute.route.goal_point = route.goal_point;
+  }
   m_subroutes.push_back(subroute);
 }
 
