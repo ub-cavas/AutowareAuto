@@ -1,7 +1,7 @@
 Starting and testing the global planner {#avp-demo-test-global-planner}
 =======================================
 
-## How to start the stack
+# How to start the stack
 
 The following instructions were tested for git hash `8431b1ba47a8e` on `origin/integration`.
 
@@ -76,7 +76,7 @@ The path with lane IDs should be output in *terminal 3**.
 
 and update the values in the message in YAML format above.
 
-## Passing metrics
+# Passing metrics
 
 The output message looks like 
 
