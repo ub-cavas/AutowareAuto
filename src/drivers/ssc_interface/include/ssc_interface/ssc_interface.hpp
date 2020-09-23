@@ -81,7 +81,7 @@ class SSC_INTERFACE_PUBLIC DbwStateMachine
 {
 public:
   /// \brief Default constructor
-  /// \param[in] If enable is sent to DBW and DBW reports DISABLED, wait this many msgs to disable
+  /// \param[in] dbw_disabled_debounce If state = ENABLE_SENT and DBW reports DISABLED, debounce this many msgs  // NOLINT
   explicit DbwStateMachine(uint16_t dbw_disabled_debounce);
 
   /// \brief Returns true if state is ENABLED, ENABLE_SENT, or ENABLE_REQUESTED with conditions
