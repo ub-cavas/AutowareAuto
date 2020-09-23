@@ -122,13 +122,15 @@ class SSC_INTERFACE_PUBLIC SscInterface
 public:
   /// \brief Default constructor.
   /// \param[in] node Reference to node
-  /// \param[in] wheelbase_m Vehicle wheelbase in meters
+  /// \param[in] front_axle_to_cog Distance from front axle to center-of-gravity in meters
+  /// \param[in] rear_axle_to_cog Distance from rear axle to center-of-gravity in meters
   /// \param[in] max_accel_mps2 Maximum acceleration in m/s^2
   /// \param[in] max_decel_mps2 Maximum deceleration in m/s^2
   /// \param[in] max_yaw_rate_rad Maximum rate of change of heading in radians/sec
   explicit SscInterface(
     rclcpp::Node & node,
-    float32_t wheelbase_m,
+    float32_t front_axle_to_cog,
+    float32_t rear_axle_to_cog,
     float32_t max_accel_mps2,
     float32_t max_decel_mps2,
     float32_t max_yaw_rate_rad
@@ -176,7 +178,8 @@ private:
   rclcpp::SubscriptionBase::SharedPtr m_dbw_state_sub, m_gear_feedback_sub, m_vel_accel_sub;
 
   rclcpp::Logger m_logger;
-  float32_t m_veh_wheelbase;
+  float32_t m_front_axle_to_cog;
+  float32_t m_rear_axle_to_cog;
   float32_t m_accel_limit;
   float32_t m_decel_limit;
   float32_t m_max_yaw_rate;

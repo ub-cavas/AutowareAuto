@@ -38,6 +38,10 @@ This package inherits from @ref vehicle-interface-design and, as such, performs 
 - automotive_platform_msgs::msg::SteerMode
 - automotive_platform_msgs::msg::TurnSignalCommand
 
+### Parameters
+- `front_axle_to_cog` Distance from the front axle to the center-of-gravity of the vehicle in meters.
+- `rear_axle_to_cog` Distance from the rear axle to the center-of-gravity of the vehicle in meters.
+
 
 ## Inner-workings / Algorithms
 `ssc_interface` employs an internal state machine to conform to some safety features in the SSC software and to avoid sending unintended control commands with an enable flag set to true.

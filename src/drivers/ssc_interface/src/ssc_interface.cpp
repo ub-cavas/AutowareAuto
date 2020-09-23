@@ -18,6 +18,7 @@
 #include <rclcpp/logging.hpp>
 #include <time_utils/time_utils.hpp>
 
+#include <cmath>
 #include <stdexcept>
 
 using SscGear = automotive_platform_msgs::msg::Gear;
@@ -122,13 +123,15 @@ void DbwStateMachine::disable_and_reset()
 
 SscInterface::SscInterface(
   rclcpp::Node & node,
-  float32_t wheelbase_m,
+  float32_t front_axle_to_cog,
+  float32_t rear_axle_to_cog,
   float32_t max_accel_mps2,
   float32_t max_decel_mps2,
   float32_t max_yaw_rate_rad
 )
 : m_logger{node.get_logger()},
-  m_veh_wheelbase{wheelbase_m},
+  m_front_axle_to_cog{front_axle_to_cog},
+  m_rear_axle_to_cog{rear_axle_to_cog},
   m_accel_limit{max_accel_mps2},
   m_decel_limit{max_decel_mps2},
   m_max_yaw_rate{max_yaw_rate_rad},
@@ -271,17 +274,24 @@ bool8_t SscInterface::send_control_command(const RawControlCommand & msg)
 
 bool8_t SscInterface::send_control_command(const VehicleControlCommand & msg)
 {
-  // const auto directional_accel = get_state_report().gear ==
-  //   VehicleStateReport::GEAR_REVERSE ? -msg.long_accel_mps2 : msg.long_accel_mps2;
+  auto signed_velocity = msg.velocity_mps;
+
+  if (msg.velocity_mps > 0.0F && state_report().gear == VehicleStateReport::GEAR_REVERSE) {
+    signed_velocity = -msg.velocity_mps;
+  }
+
+  const auto wheelbase = m_front_axle_to_cog + m_rear_axle_to_cog;
 
   HighLevelControlCommand hlc_cmd;
   hlc_cmd.stamp = msg.stamp;
 
-  // TODO(j.whitley) Calculate desired speed from acceleration
-  hlc_cmd.velocity_mps = 0.0F;
+  // Convert from center-of-mass velocity to rear-axle-center velocity
+  const auto beta =
+    std::atan(m_front_axle_to_cog * std::tan(msg.front_wheel_angle_rad) / (wheelbase));
+  hlc_cmd.velocity_mps = std::cos(beta) * signed_velocity;
 
-  // TODO(j.whitley) Calculate desired curvature from wheel angle using bicycle model
-  hlc_cmd.curvature = 0.0F;
+  // Calculate curvature from desired steering angle
+  hlc_cmd.curvature = std::tan(msg.front_wheel_angle_rad) / (wheelbase);
 
   return send_control_command(hlc_cmd);
 }
