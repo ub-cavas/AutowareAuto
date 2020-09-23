@@ -19,7 +19,7 @@
 #ifndef SSC_INTERFACE__SSC_INTERFACE_NODE_HPP_
 #define SSC_INTERFACE__SSC_INTERFACE_NODE_HPP_
 
-#include <ssc_interface/ssc_interface.hpp>
+#include <ssc_interface/visibility_control.hpp>
 
 #include <vehicle_interface/vehicle_interface_node.hpp>
 

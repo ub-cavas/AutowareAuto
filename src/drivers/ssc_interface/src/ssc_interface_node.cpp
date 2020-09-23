@@ -18,8 +18,6 @@
 #include <common/types.hpp>
 
 #include <memory>
-
-//lint -e537 NOLINT  // cpplint vs pclint
 #include <string>
 
 using autoware::common::types::float32_t;
@@ -30,8 +28,8 @@ namespace ssc_interface
 SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
 : VehicleInterfaceNode{"ssc_interface", options}
 {
-  const auto front_axle_to_cog = declare_parameter("front_axle_to_cog").get<float32_t>();
-  const auto rear_axle_to_cog = declare_parameter("rear_axle_to_cog").get<float32_t>();
+  const auto front_axle_to_cog = declare_parameter("ssc.front_axle_to_cog").get<float32_t>();
+  const auto rear_axle_to_cog = declare_parameter("ssc.rear_axle_to_cog").get<float32_t>();
 
   set_interface(
     std::make_unique<SscInterface>(

@@ -19,38 +19,25 @@ project(ssc_interface)
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-set(SSC_INTERFACE_LIB_SRC
+set(SSC_INTERFACE_SRC
   src/ssc_interface.cpp
+  src/ssc_interface_node.cpp
 )
 
-set(SSC_INTERFACE_LIB_HEADERS
+set(SSC_INTERFACE_HEADERS
   include/ssc_interface/ssc_interface.hpp
+  include/ssc_interface/ssc_interface_node.hpp
   include/ssc_interface/visibility_control.hpp
 )
 
 # generate library
 ament_auto_add_library(${PROJECT_NAME} SHARED
-  ${SSC_INTERFACE_LIB_SRC}
-  ${SSC_INTERFACE_LIB_HEADERS}
+  ${SSC_INTERFACE_SRC}
+  ${SSC_INTERFACE_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
-
-set(SSC_INTERFACE_NODE_SRC
-  src/ssc_interface_node.cpp
-)
-
-set(SSC_INTERFACE_NODE_HEADERS
-  include/ssc_interface/ssc_interface_node.hpp
-)
-
-# generate component node library
-ament_auto_add_library(${PROJECT_NAME}_node SHARED
-  ${SSC_INTERFACE_NODE_SRC}
-  ${SSC_INTERFACE_NODE_HEADERS}
-)
-autoware_set_compile_options(${PROJECT_NAME}_node)
-rclcpp_components_register_node(${PROJECT_NAME}_node
-  "autoware::ssc_interface::SscInterfaceNode"
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "ssc_interface::SscInterfaceNode"
   EXECUTABLE ${PROJECT_NAME}_node_exe
 )
 

@@ -57,11 +57,7 @@ def generate_launch_description():
         node_executable='ssc_interface_node_exe',
         node_namespace='vehicle',
         output='screen',
-        parameters=[
-            LaunchConfiguration('ssc_interface_param'),
-            # overwrite parameters from yaml here
-            {"control_command.name": LaunchConfiguration('control_command')}
-        ],
+        parameters=[LaunchConfiguration('ssc_interface_param')],
         remappings=[
             ('gear_select', '/ssc/gear_select'),
             ('arbitrated_speed_commands', '/ssc/arbitrated_speed_commands'),
