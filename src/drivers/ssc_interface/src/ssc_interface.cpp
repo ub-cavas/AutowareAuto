@@ -107,9 +107,7 @@ void DbwStateMachine::user_request(bool8_t enable)
       m_state = DbwState::ENABLE_REQUESTED;
     }
   } else {                               // Disable is being requested
-    if (m_state == DbwState::ENABLED) {  // Only change states if currently in ENABLED
-      disable_and_reset();
-    }
+    disable_and_reset();                 // Disable in any state if user requests it
   }
 }
 
