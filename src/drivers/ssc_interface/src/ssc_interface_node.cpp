@@ -28,17 +28,14 @@ namespace ssc_interface
 SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
 : VehicleInterfaceNode{"ssc_interface", options}
 {
-  const auto front_axle_to_cog = declare_parameter("ssc.front_axle_to_cog").get<float32_t>();
-  const auto rear_axle_to_cog = declare_parameter("ssc.rear_axle_to_cog").get<float32_t>();
-
   set_interface(
     std::make_unique<SscInterface>(
       *this,
-      front_axle_to_cog,
-      rear_axle_to_cog,
+      declare_parameter("ssc.front_axle_to_cog").get<float32_t>(),
+      declare_parameter("ssc.rear_axle_to_cog").get<float32_t>(),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
-      declare_parameter("max_yaw_rate").get<float32_t>()
+      declare_parameter("ssc.max_yaw_rate").get<float32_t>()
   ));
 }
 
