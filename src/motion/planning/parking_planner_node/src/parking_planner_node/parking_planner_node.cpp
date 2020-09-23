@@ -412,11 +412,17 @@ static Polygon3d coalesce_drivable_areas(
     }
 
     // Convert the resulting polygon to a CGAL_Polygon (this should just do nothing
-    // if the polygon from above is empty)
+    // if the polygon from above is empty). Also make sure the orientation is counter-clockwise.
     CGAL_Polygon to_join{};
     CGAL_Polygon_with_holes temporary_union;
-    for (const auto & area_point : current_area_polygon.points) {
-      to_join.push_back(CGAL_Point(area_point.x, area_point.y));
+    for (auto area_point_it =
+      current_area_polygon.points.begin(); (area_point_it + 1) < current_area_polygon.points.end();
+      area_point_it++)
+    {
+      to_join.push_back(CGAL_Point(area_point_it->x, area_point_it->y));
+    }
+    if (to_join.is_clockwise_oriented() ) {
+      to_join.reverse_orientation();
     }
 
     // Merge this CGAL polygon with the growing drivable_area. We need an intermediate
