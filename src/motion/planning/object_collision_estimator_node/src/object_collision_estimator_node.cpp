@@ -115,6 +115,9 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
 
   // Create a tf interface to perform transforms on obstacle bounding boxes
   m_tf_buffer = std::make_shared<tf2_ros::Buffer>(this->get_clock());
+  m_tf_listener = std::make_shared<tf2_ros::TransformListener>(
+    *m_tf_buffer,
+    std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
 }
 
 void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)

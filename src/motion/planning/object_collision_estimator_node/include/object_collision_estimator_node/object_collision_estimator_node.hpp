@@ -82,6 +82,10 @@ private:
   /// \brief Pointer to the tf interface used to transform obstacle bounding box coordinates.
   std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
 
+  /// \brief Pointer to the tf listener which listens for transforms published in the system and
+  ///        stores them in the node for use.
+  std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
+
   /// \brief Hard coded node name
   static constexpr const char * OBJECT_COLLISION_ESTIMATOR_NODE_NAME =
     "object_collision_estimator_node";
