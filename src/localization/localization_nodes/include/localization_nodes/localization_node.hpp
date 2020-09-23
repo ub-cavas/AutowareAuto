@@ -279,7 +279,8 @@ private:
       tf.translation.z = declare_parameter("init_hack.translation.z").template get<float64_t>();
       init_hack_transform.header.frame_id = "map";
       init_hack_transform.child_frame_id = "base_link";
-      m_pose_initializer.set_external_pose(init_hack_transform);
+      m_external_pose = init_hack_transform;
+      m_external_pose_available = true;
       m_use_hack = true;
       // we currently need the hack for the AVP demo MS2.
       ////////////////////////////////////////////////////
@@ -294,38 +295,57 @@ private:
   void observation_callback(typename ObservationMsgT::ConstSharedPtr msg_ptr)
   {
     check_localizer();
-    if (m_localizer_ptr->map_valid()) {
-      try {
-        const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
-        const auto & observation_frame = get_frame_id(*msg_ptr);
-        const auto & map_frame = m_localizer_ptr->map_frame_id();
-
-        const auto initial_guess =
-          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
-
-        PoseWithCovarianceStamped pose_out;
-        const auto summary =
-          m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, pose_out);
-        if (validate_output(summary, pose_out, initial_guess)) {
-          m_pose_publisher->publish(pose_out);
-          // This is to be used when no state estimator or alternative source of
-          // localization is available.
-          if (m_tf_publisher) {
-            publish_tf(pose_out);
-          }
-          handle_registration_summary(summary);
-        } else {
-          on_invalid_output(pose_out);
-        }
-      } catch (...) {
-        // TODO(mitsudome-r) remove this hack in #458
-        if (m_tf_publisher && m_use_hack) {
-          republish_tf(get_stamp(*msg_ptr));
-        }
-        on_bad_registration(std::current_exception());
-      }
-    } else {
+    if (!m_localizer_ptr->map_valid()) {
       on_observation_with_invalid_map(msg_ptr);
+      return;
+    }
+
+    const auto observation_time = ::time_utils::from_message(get_stamp(*msg_ptr));
+    const auto & observation_frame = get_frame_id(*msg_ptr);
+    const auto & map_frame = m_localizer_ptr->map_frame_id();
+
+    try {
+
+      geometry_msgs::msg::TransformStamped initial_guess;
+      if (m_external_pose_available) {
+        // If someone set a transform and then requests a different transform, that's an error
+        if (m_external_pose.header.frame_id != map_frame ||
+          m_external_pose.child_frame_id != observation_frame)
+        {
+          throw std::runtime_error("The pose initializer's set_external_pose() "
+                  "and guess() methods were called with different frames.");
+        }
+        m_external_pose_available = false;
+        initial_guess = m_external_pose;
+        initial_guess.header.stamp = get_stamp(*msg_ptr);
+      } else if (m_tf_buffer.canTransform(map_frame, observation_frame, tf2::TimePointZero)) {
+        initial_guess =
+          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);        
+      } else {
+        RCLCPP_WARN_ONCE(get_logger(), "For localization to start, please provide an initial pose in RViz.");
+        return;
+      }
+
+      PoseWithCovarianceStamped pose_out;
+      const auto summary =
+        m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, pose_out);
+      if (validate_output(summary, pose_out, initial_guess)) {
+        m_pose_publisher->publish(pose_out);
+        // This is to be used when no state estimator or alternative source of
+        // localization is available.
+        if (m_tf_publisher) {
+          publish_tf(pose_out);
+        }
+        handle_registration_summary(summary);
+      } else {
+        on_invalid_output(pose_out);
+      }
+    } catch (...) {
+      // TODO(mitsudome-r) remove this hack in #458
+      if (m_tf_publisher && m_use_hack) {
+        republish_tf(get_stamp(*msg_ptr));
+      }
+      on_bad_registration(std::current_exception());
     }
   }
 
@@ -426,7 +446,7 @@ private:
     geometry_msgs::msg::TransformStamped transformed_pose_stamped;
     tf2::doTransform(input_pose_stamped, transformed_pose_stamped, transform);
 
-    assert(transformed_pose_stamped.header.frame_id == map_frame);
+    // Note: The frame_id in the result is already the map_frame, no need to set it.
     transformed_pose_stamped.child_frame_id = "base_link";
 
     // For future reference: We can't write this pose to /tf here.
@@ -437,7 +457,8 @@ private:
     // future and the localizer couldn't use it as its next initial pose.
     // We'd need to know the current time before it can be published, and set the
     // time in the header to a recent time.
-    m_pose_initializer.set_external_pose(transformed_pose_stamped);
+    m_external_pose = transformed_pose_stamped;
+    m_external_pose_available = true;
   }
 
   LocalizerBasePtr m_localizer_ptr;
@@ -451,6 +472,10 @@ private:
 
   // Receive updates from "/initialpose" (e.g. rviz2)
   typename rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr m_initial_pose_sub;
+  // Stores "/initialpose", the timestamp is not used/valid
+  geometry_msgs::msg::TransformStamped m_external_pose;
+  bool m_external_pose_available{false};
+
   bool m_use_hack{false};
 };
 }  // namespace localization_nodes

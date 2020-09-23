@@ -1,6 +1,9 @@
+Initializing the NDT localizer {#avp-demo-test-ndt}
+==============================
+
 # NDT initialization check
 
-* Start LGSVL
+* [Start LGSVL](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/lgsvl.html)
 * Start `ms3_sim.launch.py`
 * In RViz, select the `map` fixed frame, make sure the map visualization is enabled and you have a good top-down view
 * Start the simulation ("[ERROR] [localization.p2d_ndt_localizer_node]: Could not find a connection between 'map' and 'base_link' because they are not part of the same tree.Tf has two or more unconnected trees." messages are expected)
