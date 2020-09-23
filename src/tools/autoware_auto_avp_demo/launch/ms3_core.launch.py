@@ -262,6 +262,7 @@ def generate_launch_description():
         node_namespace='planning',
         node_executable='behavior_planner_node_exe',
         parameters=[LaunchConfiguration('behavior_planner_param_file')],
+        output='screen',
         remappings=[
             ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
             ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
