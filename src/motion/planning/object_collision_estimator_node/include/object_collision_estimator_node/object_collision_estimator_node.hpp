@@ -86,6 +86,10 @@ private:
   ///        stores them in the node for use.
   std::shared_ptr<tf2_ros::TransformListener> m_tf_listener;
 
+  /// \brief Pointer to the wall timer used to periodically check if transforms have become
+  ///        available.
+  rclcpp::TimerBase::SharedPtr m_wall_timer{nullptr};
+
   /// \brief Hard coded node name
   static constexpr const char * OBJECT_COLLISION_ESTIMATOR_NODE_NAME =
     "object_collision_estimator_node";

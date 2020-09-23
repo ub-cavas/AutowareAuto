@@ -31,6 +31,7 @@ namespace planning
 namespace object_collision_estimator_node
 {
 
+using namespace std::chrono_literals;
 using motion::planning::object_collision_estimator::ObjectCollisionEstimatorConfig;
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
 using motion::planning::object_collision_estimator::TrajectorySmootherConfig;
@@ -127,19 +128,40 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
     // No transform needed, update bounding boxes directly
     m_estimator->updateObstacles(*msg);
   } else {
-    // Transform the coordinates into map frame
-    tf2::Duration timeout = tf2::durationFromSec(0.2);
-    if (m_tf_buffer->canTransform(
-        m_target_frame_id, msg->header.frame_id,
-        tf2_ros::fromMsg(msg->header.stamp), timeout) )
-    {
-      auto msg_tansformed = m_tf_buffer->transform(*msg, m_target_frame_id, timeout);
-      m_estimator->updateObstacles(msg_tansformed);
-    } else {
-      RCLCPP_WARN(
-        this->get_logger(), "on_bounding_box cannot transform %s to %s",
-        msg->header.frame_id.c_str(), m_target_frame_id.c_str());
+    // clean up any existing timer
+    if (m_wall_timer != nullptr) {
+      m_wall_timer->cancel();
+      m_wall_timer = nullptr;
     }
+
+    // create a new timer with timeout to check periodically if a valid transform for that timestamp
+    // is available.
+    const auto start_time = this->now();
+    m_wall_timer = create_wall_timer(
+      0.02s, [this, msg, start_time]() {
+        auto elapsed_time = this->now() - start_time;
+        const auto timeout = 0.1s;
+
+        if (elapsed_time < timeout) {
+          if (this->m_tf_buffer->canTransform(
+            m_target_frame_id, msg->header.frame_id,
+            tf2_ros::fromMsg(msg->header.stamp)))
+          {
+            // a valid transform is aviable, perform transform
+            this->m_wall_timer->cancel();
+            this->m_wall_timer = nullptr;
+            auto msg_tansformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
+            this->m_estimator->updateObstacles(*msg);
+          }
+        } else {
+          // timeout occurred, clean up timer
+          this->m_wall_timer->cancel();
+          this->m_wall_timer = nullptr;
+          RCLCPP_WARN(
+            this->get_logger(), "on_bounding_box cannot transform %s to %s.",
+            msg->header.frame_id.c_str(), m_target_frame_id.c_str());
+        }
+      });
   }
 }
 
