@@ -10,5 +10,5 @@ Initializing the NDT localizer {#avp-demo-test-ndt}
 * In RViz, click on "2D pose estimation" and then click/drag on the position of the vehicle such that the arrow points in the same direction as the car
 * You should now see a tf visualization (the red-blue-green axes) appearing at that location and the error messages stopping
 
-![RViz before localization initialization](images/avp_before_localization.png)
-![RViz after localization initialization](images/avp_after_localization.png)
+![RViz before localization initialization](../images/avp_before_localization.png)
+![RViz after localization initialization](../images/avp_after_localization.png)
