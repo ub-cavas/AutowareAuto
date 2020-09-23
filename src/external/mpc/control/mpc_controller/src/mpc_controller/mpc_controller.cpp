@@ -215,6 +215,7 @@ Command MpcController::interpolated_command(const std::chrono::nanoseconds x0_ti
     const auto lateral1 = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE_RATE]);
     ret.front_wheel_angle_rad = motion_common::interpolate(lateral0, lateral1, t);
     ret.long_accel_mps2 = motion_common::interpolate(longitudinal0, longitudinal1, t);
+    ret.velocity_mps = acadoVariables.x[(idx * NX) + IDX_VEL_LONG];
   }
 
   if (!std::isfinite(ret.long_accel_mps2) || !std::isfinite(ret.front_wheel_angle_rad) ) {
