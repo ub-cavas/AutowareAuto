@@ -25,6 +25,101 @@ using SscGear = automotive_platform_msgs::msg::Gear;
 namespace ssc_interface
 {
 
+DbwStateMachine::DbwStateMachine(uint16_t dbw_disabled_debounce)
+: m_first_control_cmd_sent{false},
+  m_first_state_cmd_sent{false},
+  m_disabled_feedback_count{0},
+  DISABLED_FEEDBACK_THRESH{dbw_disabled_debounce},
+  m_state{DbwState::DISABLED}
+{
+}
+
+bool8_t DbwStateMachine::enabled() const
+{
+  return m_state == DbwState::ENABLED ||
+         m_state == DbwState::ENABLE_SENT ||
+         (m_state == DbwState::ENABLE_REQUESTED &&
+         m_first_control_cmd_sent &&
+         m_first_state_cmd_sent);
+}
+
+DbwState DbwStateMachine::get_state() const {return m_state;}
+
+void DbwStateMachine::dbw_feedback(bool8_t enabled)
+{
+  if (enabled) {                             // DBW system says enabled
+    if (m_state == DbwState::ENABLE_SENT) {  // and state is ENABLE_SENT
+      m_state = DbwState::ENABLED;
+      m_disabled_feedback_count = 0;
+    }
+  } else {                                   // DBW system says disabled
+    if (m_state == DbwState::ENABLE_SENT) {  // and state is ENABLE_SENT
+      m_disabled_feedback_count++;           // Increase debounce count
+
+      if (m_disabled_feedback_count > DISABLED_FEEDBACK_THRESH) {  // check debounce
+        disable_and_reset();
+      }
+    } else if (m_state == DbwState::ENABLED) {  // and state is ENABLED
+      disable_and_reset();
+    }
+  }
+}
+
+void DbwStateMachine::control_cmd_sent()
+{
+  if (m_state == DbwState::ENABLE_REQUESTED &&
+    m_first_control_cmd_sent &&
+    m_first_state_cmd_sent)
+  {
+    // We just sent a control command with
+    // enable == true so we can transition
+    // to ENABLE_SENT
+    m_state = DbwState::ENABLE_SENT;
+  }
+
+  if (m_state == DbwState::ENABLE_REQUESTED) {
+    m_first_control_cmd_sent = true;
+  }
+}
+
+void DbwStateMachine::state_cmd_sent()
+{
+  if (m_state == DbwState::ENABLE_REQUESTED &&
+    m_first_control_cmd_sent &&
+    m_first_state_cmd_sent)
+  {
+    // We just sent a state command with
+    // enable == true so we can transition
+    // to ENABLE_SENT
+    m_state = DbwState::ENABLE_SENT;
+  }
+
+  if (m_state == DbwState::ENABLE_REQUESTED) {
+    m_first_state_cmd_sent = true;
+  }
+}
+
+void DbwStateMachine::user_request(bool8_t enable)
+{
+  if (enable) {                           // Enable is being requested
+    if (m_state == DbwState::DISABLED) {  // Only change states if currently in DISABLED
+      m_state = DbwState::ENABLE_REQUESTED;
+    }
+  } else {                               // Disable is being requested
+    if (m_state == DbwState::ENABLED) {  // Only change states if currently in ENABLED
+      disable_and_reset();
+    }
+  }
+}
+
+void DbwStateMachine::disable_and_reset()
+{
+  m_state = DbwState::DISABLED;
+  m_first_control_cmd_sent = false;
+  m_first_state_cmd_sent = false;
+  m_disabled_feedback_count = 0;
+}
+
 SscInterface::SscInterface(
   rclcpp::Node & node,
   float32_t wheelbase_m,
@@ -36,7 +131,8 @@ SscInterface::SscInterface(
   m_veh_wheelbase{wheelbase_m},
   m_accel_limit{max_accel_mps2},
   m_decel_limit{max_decel_mps2},
-  m_max_yaw_rate{max_yaw_rate_rad}
+  m_max_yaw_rate{max_yaw_rate_rad},
+  m_dbw_state_machine(new DbwStateMachine{3})
 {
   // Publishers (to SSC)
   m_gear_cmd_pub = node.create_publisher<GearCommand>("gear_select", 10);
@@ -72,9 +168,11 @@ bool8_t SscInterface::update(std::chrono::nanoseconds timeout)
 
 bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
 {
+  m_dbw_state_machine->user_request(msg.mode == VehicleStateCommand::MODE_AUTONOMOUS);
+
   // Turn signal command
   TurnSignalCommand tsc;
-  tsc.mode = 0;
+  tsc.mode = m_dbw_state_machine->enabled() ? 1 : 0;
   tsc.turn_signal = TurnSignalCommand::NONE;
 
   switch (msg.blinker) {
@@ -106,6 +204,8 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
 
   // Gear command
   GearCommand gc;
+  // Has no mode - only listens if at least one
+  // other DBW system is enabled
   gc.command.gear = SscGear::NONE;
 
   switch (msg.gear) {
@@ -133,6 +233,8 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
   gc.header.stamp = msg.stamp;
   m_gear_cmd_pub->publish(gc);
 
+  m_dbw_state_machine->state_cmd_sent();
+
   return true;
 }
 
@@ -140,7 +242,7 @@ bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
 {
   // Publish speed command
   SpeedMode speed_mode;
-  speed_mode.mode = 1;
+  speed_mode.mode = m_dbw_state_machine->enabled() ? 1 : 0;
   speed_mode.speed = msg.velocity_mps;
   speed_mode.acceleration_limit = m_accel_limit;
   speed_mode.deceleration_limit = m_decel_limit;
@@ -149,11 +251,13 @@ bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
 
   // Publish steering command
   SteerMode steer_mode;
-  steer_mode.mode = 1;
+  steer_mode.mode = m_dbw_state_machine->enabled() ? 1 : 0;
   steer_mode.curvature = msg.curvature;
   steer_mode.max_curvature_rate = yaw_rate_to_curvature_rate(m_max_yaw_rate, msg.velocity_mps);
   steer_mode.header.stamp = msg.stamp;
   m_steer_cmd_pub->publish(steer_mode);
+
+  m_dbw_state_machine->control_cmd_sent();
 
   return true;
 }
@@ -189,6 +293,8 @@ void SscInterface::on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & ms
   } else {
     state_report().mode = VehicleStateReport::MODE_MANUAL;
   }
+
+  m_dbw_state_machine->dbw_feedback(msg->data);
 }
 
 void SscInterface::on_gear_report(const GearFeedback::SharedPtr & msg)
@@ -227,8 +333,6 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 {
   odometry().stamp = msg->header.stamp;
   odometry().velocity_mps = msg->velocity;
-  m_last_accel = msg->accleration;
-  m_last_accel_time = time_utils::from_message(msg->header.stamp);
 }
 
 }  // namespace ssc_interface

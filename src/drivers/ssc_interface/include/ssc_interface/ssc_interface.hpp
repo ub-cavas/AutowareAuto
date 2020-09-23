@@ -44,6 +44,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <memory>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -66,6 +67,53 @@ namespace ssc_interface
 {
 
 static constexpr float32_t STEERING_TO_TIRE_RATIO = 8.6F / 0.533F;
+
+enum class DbwState
+{
+  DISABLED = 0,
+  ENABLE_REQUESTED = 1,
+  ENABLE_SENT = 2,
+  ENABLED = 3
+};
+
+/// \brief Class for maintaining the DBW state
+class SSC_INTERFACE_PUBLIC DbwStateMachine
+{
+public:
+  /// \brief Default constructor
+  /// \param[in] If enable is sent to DBW and DBW reports DISABLED, wait this many msgs to disable
+  explicit DbwStateMachine(uint16_t dbw_disabled_debounce);
+
+  /// \brief Returns true if state is ENABLED, ENABLE_SENT, or ENABLE_REQUESTED with conditions
+  bool8_t enabled() const;
+
+  /// \brief Returns current internal state
+  /// \return A DbwState object representing the current state
+  DbwState get_state() const;
+
+  /// \brief Notifies the state machine that feedback was received from the DBW system
+  /// \param[in] enabled If true, DBW system reports enabled. If false, DBW system reports disabled
+  void dbw_feedback(bool8_t enabled);
+
+  /// \brief Notifies the state machine that a control command was sent to the DBW system
+  void control_cmd_sent();
+
+  /// \brief Notifies the state machine that a state command was sent to the DBW system
+  void state_cmd_sent();
+
+  /// \brief The user has requested the DBW system to enable (true) or disable (false)
+  /// \param[in] enable If true, request enable. If false, request disable
+  void user_request(bool8_t enable);
+
+private:
+  bool8_t m_first_control_cmd_sent;
+  bool8_t m_first_state_cmd_sent;
+  uint16_t m_disabled_feedback_count;
+  const uint16_t DISABLED_FEEDBACK_THRESH;
+  DbwState m_state;
+
+  void disable_and_reset();
+};
 
 /// \brief Class for interfacing with AS SSC
 class SSC_INTERFACE_PUBLIC SscInterface
@@ -132,8 +180,7 @@ private:
   float32_t m_accel_limit;
   float32_t m_decel_limit;
   float32_t m_max_yaw_rate;
-  float32_t m_last_accel{};
-  std::chrono::system_clock::time_point m_last_accel_time{};
+  std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
 
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
   void on_gear_report(const GearFeedback::SharedPtr & msg);
