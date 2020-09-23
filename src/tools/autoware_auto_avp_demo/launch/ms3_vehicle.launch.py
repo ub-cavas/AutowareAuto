@@ -131,6 +131,13 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('mpc_param_file')]
     )
 
+    # TODO(nikolai.morin): Hack, to be resolved in #626
+    odom_bl_publisher = Node(
+        package='tf2_ros',
+        node_executable='static_transform_publisher',
+        arguments=["0", "0", "0", "0", "0", "0", "odom", "base_link"]
+    )
+
     core_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/ms3_core.launch.py'])
     )
@@ -147,5 +154,6 @@ def generate_launch_description():
         map_publisher,
         ndt_localizer,
         mpc,
+        odom_bl_publisher,
         core_launch
     ])
