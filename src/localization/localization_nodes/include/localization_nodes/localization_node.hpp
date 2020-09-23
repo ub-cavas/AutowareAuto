@@ -305,7 +305,6 @@ private:
     const auto & map_frame = m_localizer_ptr->map_frame_id();
 
     try {
-
       geometry_msgs::msg::TransformStamped initial_guess;
       if (m_external_pose_available) {
         // If someone set a transform and then requests a different transform, that's an error
@@ -318,12 +317,9 @@ private:
         m_external_pose_available = false;
         initial_guess = m_external_pose;
         initial_guess.header.stamp = get_stamp(*msg_ptr);
-      } else if (m_tf_buffer.canTransform(map_frame, observation_frame, tf2::TimePointZero)) {
-        initial_guess =
-          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);        
       } else {
-        RCLCPP_WARN_ONCE(get_logger(), "For localization to start, please provide an initial pose in RViz.");
-        return;
+        initial_guess =
+          m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
       }
 
       PoseWithCovarianceStamped pose_out;
