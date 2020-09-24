@@ -15,6 +15,7 @@
 #include "lane_planner/lane_planner.hpp"
 #include <lanelet2_traffic_rules/TrafficRules.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
+#include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/geometry/LineString.h>
 #include <geometry/common_2d.hpp>
 #include <limits>
@@ -44,6 +45,24 @@ float32_t calculate_curvature(
     2.0F * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
   return curvature;
 }
+
+size_t get_closest_lanelet(const lanelet::ConstLanelets & lanelets, const TrajectoryPoint & point)
+{
+  float64_t closest_distance = std::numeric_limits<float64_t>::max();
+  size_t closest_index = 0;
+  for (size_t i = 0; i < lanelets.size(); i++) {
+    const auto & llt = lanelets.at(i);
+    const auto & point2d = lanelet::Point2d(lanelet::InvalId, point.x, point.y).basicPoint2d();
+    // TODO(mitsudome-r): change this implementation to remove dependency to boost
+    const float64_t distance = lanelet::geometry::distanceToCenterline2d(llt, point2d);
+    if (distance < closest_distance) {
+      closest_distance = distance;
+      closest_index = i;
+    }
+  }
+  return closest_index;
+}
+
 
 LanePlanner::LanePlanner(
   const VehicleConfig & vehicle_param,
@@ -128,6 +147,8 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
     return TrajectoryPoints();
   }
 
+  const auto start_index = get_closest_lanelet(lanelets, route.start_point);
+
   TrajectoryPoints trajectory_points;
 
   // using Germany Location since it is default location for Lanelet2
@@ -138,29 +159,30 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
 
   // set position and velocity
   trajectory_points.push_back(route.start_point);
-  for (const auto & lanelet : lanelets) {
+  for (size_t i = start_index; i < lanelets.size(); i++) {
+    const auto & lanelet = lanelets.at(i);
     const auto & centerline = lanelet.centerline();
     const auto speed_limit =
       static_cast<float32_t>(traffic_rules_ptr->speedLimit(lanelet).speedLimit.value());
 
     float64_t start_length = 0;
-    if (lanelet.id() == route.primitives.front().id) {
+    if (i == start_index) {
       const auto start_point = convertToLaneletPoint(route.start_point);
       start_length =
         lanelet::geometry::toArcCoordinates(to2D(centerline), to2D(start_point)).length;
     }
 
     float64_t end_length = std::numeric_limits<float32_t>::max();
-    if (lanelet.id() == route.primitives.back().id) {
+    if (i == lanelets.size() - 1) {
       const auto goal_point = convertToLaneletPoint(route.goal_point);
       end_length = lanelet::geometry::toArcCoordinates(to2D(centerline), to2D(goal_point)).length;
     }
 
     float64_t accumulated_length = 0;
     // skip first point to avoid inserting overlaps
-    for (size_t i = 1; i < centerline.size(); i++) {
-      const auto llt_prev_pt = centerline[i - 1];
-      const auto llt_pt = centerline[i];
+    for (size_t j = 1; j < centerline.size(); j++) {
+      const auto llt_prev_pt = centerline[j - 1];
+      const auto llt_pt = centerline[j];
       accumulated_length += lanelet::geometry::distance2d(to2D(llt_prev_pt), to2D(llt_pt));
       if (accumulated_length < start_length) {continue;}
       if (accumulated_length > end_length) {break;}
@@ -213,8 +235,14 @@ void LanePlanner::set_steering_angle(TrajectoryPoints * trajectory_points)
 
 void LanePlanner::set_time_from_start(TrajectoryPoints * trajectory_points)
 {
+  if (trajectory_points->empty()) {
+    return;
+  }
+
   // set time_from_start
   double accumulated_time = 0;
+  trajectory_points->at(0).time_from_start.sec = 0;
+  trajectory_points->at(0).time_from_start.nanosec = 0;
   for (size_t i = 1; i < trajectory_points->size(); i++) {
     auto & pt = trajectory_points->at(i);
     const auto & prev_pt = trajectory_points->at(i - 1);
@@ -222,7 +250,7 @@ void LanePlanner::set_time_from_start(TrajectoryPoints * trajectory_points)
     const double distance_y = pt.y - prev_pt.y;
     const double distance = std::sqrt(distance_x * distance_x + distance_y * distance_y);
     const double velocity = prev_pt.longitudinal_velocity_mps;
-    accumulated_time += distance / std::max(velocity, 1e-9);
+    accumulated_time += distance / std::max(velocity, 0.5);
     std::chrono::nanoseconds duration(static_cast<int64_t>(accumulated_time * 1e9));
     pt.time_from_start = time_utils::to_message(duration);
   }
