@@ -19,7 +19,9 @@
 #include <tf2/buffer_core.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/transform_listener.h>
+#include <tf2/utils.h>
 #include <time_utils/time_utils.hpp>
+#include <motion_common/motion_common.hpp>
 
 #include <lanelet2_global_planner_node/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -45,6 +47,18 @@ namespace planning
 {
 namespace lanelet2_global_planner_node
 {
+
+autoware_auto_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
+  const geometry_msgs::msg::Pose & pose)
+{
+  autoware_auto_msgs::msg::TrajectoryPoint pt;
+  pt.x = pose.position.x;
+  pt.y = pose.position.y;
+  const auto angle = tf2::getYaw(pose.orientation);
+  pt.heading = ::motion::motion_common::from_angle(angle);
+  return pt;
+}
+
 Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
   const rclcpp::NodeOptions & node_options)
 : Node("lanelet2_global_planner_node", node_options),
@@ -84,8 +98,8 @@ void Lanelet2GlobalPlannerNode::request_osm_binary_map()
   }
   if (!rclcpp::ok()) {
     RCLCPP_ERROR(
-        this->get_logger(),
-        "Client interrupted while waiting for map service to appear. Exiting.");
+      this->get_logger(),
+      "Client interrupted while waiting for map service to appear. Exiting.");
   }
 
   auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
@@ -186,6 +200,9 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   // main route = other
   autoware_auto_msgs::msg::Route global_route;
   global_route.header = header;
+  global_route.start_point = convertToTrajectoryPoint(start_pose.pose);
+  global_route.goal_point = convertToTrajectoryPoint(goal_pose.pose);
+
   for (size_t i = 0; i < route.size(); ++i) {
     std::string route_type = "";
     if (i == 0 || i == route.size() - 1) {
@@ -206,8 +223,8 @@ void Lanelet2GlobalPlannerNode::send_global_path(
 }
 
 bool8_t Lanelet2GlobalPlannerNode::transform_pose_to_map(
-  const geometry_msgs::msg::PoseStamped& pose_in,
-  geometry_msgs::msg::PoseStamped& pose_out)
+  const geometry_msgs::msg::PoseStamped & pose_in,
+  geometry_msgs::msg::PoseStamped & pose_out)
 {
   std::string source_frame = pose_in.header.frame_id;
   // lookup transform validity
@@ -220,7 +237,7 @@ bool8_t Lanelet2GlobalPlannerNode::transform_pose_to_map(
   geometry_msgs::msg::TransformStamped tf_map;
   try {
     tf_map = tf_buffer.lookupTransform("map", source_frame,
-      time_utils::from_message(pose_in.header.stamp));
+        time_utils::from_message(pose_in.header.stamp));
   } catch (const tf2::ExtrapolationException &) {
     // currently falls back to retrive newest transform available for availability,
     // Do validation of time stamp in the future
