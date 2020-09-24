@@ -129,7 +129,8 @@ def generate_launch_description():
     )
 
     core_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/ms3_core.launch.py'])
+        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/ms3_core.launch.py']),
+        launch_arguments={}.items()
     )
 
     return LaunchDescription([
