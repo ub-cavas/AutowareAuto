@@ -197,10 +197,16 @@ bool ControllerBaseNode::try_compute(const State & state)
   const auto traj_frame = m_controller->get_reference_trajectory().header.frame_id;
   const auto state_frame = state.header.frame_id;
   const auto stamp = time_utils::from_message(state.header.stamp);
-  if (!m_tf_buffer.canTransform(traj_frame, state_frame, stamp)) {
+
+  geometry_msgs::msg::TransformStamped tf;
+  if (m_tf_buffer.canTransform(traj_frame, state_frame, stamp)) {
+    tf = m_tf_buffer.lookupTransform(traj_frame, state_frame, stamp);
+  } else if (m_tf_buffer.canTransform(traj_frame, state_frame, tf2::TimePointZero)) {
+    tf = m_tf_buffer.lookupTransform(traj_frame, state_frame, tf2::TimePointZero);
+  } else {
     return false;
   }
-  const auto tf = m_tf_buffer.lookupTransform(traj_frame, state_frame, stamp);
+
   auto state_tf = state;
   motion_common::doTransform(state, state_tf, tf);
   // Diagnostic stuff: should maybe be different functions
