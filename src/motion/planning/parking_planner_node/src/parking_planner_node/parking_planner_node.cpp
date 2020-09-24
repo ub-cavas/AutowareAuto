@@ -12,7 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <CGAL/Exact_predicates_exact_constructions_kernel.h>
 #include <CGAL/Boolean_set_operations_2.h>
 
 #include <common/types.hpp>
@@ -411,44 +410,61 @@ static Polygon3d coalesce_drivable_areas(
         std::endl;
     }
 
-    // Convert the resulting polygon to a CGAL_Polygon (this should just do nothing
-    // if the polygon from above is empty). Also make sure the orientation is counter-clockwise.
-    CGAL_Polygon to_join{};
-    CGAL_Polygon_with_holes temporary_union;
-    for (auto area_point_it =
-      current_area_polygon.points.begin(); (area_point_it + 1) < current_area_polygon.points.end();
-      area_point_it++)
-    {
-      to_join.push_back(CGAL_Point(area_point_it->x, area_point_it->y));
-    }
-    if (to_join.is_clockwise_oriented() ) {
-      to_join.reverse_orientation();
-    }
+    // If the current drivable area is not empty, perform a join
+    if (drivable_area.outer_boundary().size() > 0) {
+      // Convert the resulting polygon to a CGAL_Polygon (this should just do nothing
+      // if the polygon from above is empty). Also make sure the orientation is counter-clockwise.
+      CGAL_Polygon to_join{};
+      CGAL_Polygon_with_holes temporary_union;
+      for (auto area_point_it =
+        current_area_polygon.points.begin();
+        (area_point_it + 1) < current_area_polygon.points.end();
+        area_point_it++)
+      {
+        to_join.push_back(CGAL_Point(area_point_it->x, area_point_it->y));
+      }
+      if (to_join.is_clockwise_oriented() ) {
+        to_join.reverse_orientation();
+      }
 
-    // Merge this CGAL polygon with the growing drivable_area. We need an intermediate
-    // merge result because as far as I can tell from the CGAL docs, I can't "join to"
-    // a polygon in-place with the join() interface.
-    const auto polygons_overlap = CGAL::join(drivable_area, to_join, temporary_union);
-    if (!polygons_overlap && !drivable_area.outer_boundary().is_empty()) {
-      // TODO(s.me) cancel here? Right now we just ignore that polygon
-      std::cerr << "Error: polygons in union do not overlap!" << std::endl;
-    } else {
-      drivable_area = temporary_union;
+      // Merge this CGAL polygon with the growing drivable_area. We need an intermediate
+      // merge result because as far as I can tell from the CGAL docs, I can't "join to"
+      // a polygon in-place with the join() interface.
+      const auto polygons_overlap = CGAL::join(drivable_area, to_join, temporary_union);
+      if (!polygons_overlap && !drivable_area.outer_boundary().is_empty()) {
+        // TODO(s.me) cancel here? Right now we just ignore that polygon
+        std::cerr << "Error: polygons in union do not overlap!" << std::endl;
+      } else {
+        drivable_area = temporary_union;
+      }
+    }
+    // Otherwise, just set the current drivable area equal to the area to add to it, because
+    // CGAL seems to do "union(empty, non-empty) = empty" for some reason. 
+    else {
+      for (auto area_point_it =
+        current_area_polygon.points.begin();
+        (area_point_it + 1) < current_area_polygon.points.end();
+        area_point_it++)
+      {
+        drivable_area.outer_boundary().push_back(CGAL_Point(area_point_it->x, area_point_it->y));
+        if (drivable_area.outer_boundary().is_clockwise_oriented() ) {
+          drivable_area.outer_boundary().reverse_orientation();
+        }
+      }
     }
   }
-
 
   // At this point, all the polygons from the route should be merged into drivable_area,
   // and we now need to turn this back into a lanelet polygon.
   std::vector<Point3d> lanelet_drivable_area_points{};
-  std::transform(drivable_area.outer_boundary().vertices_begin(),
-    drivable_area.outer_boundary().vertices_end(),
-    lanelet_drivable_area_points.begin(),
-    [](const CGAL_Point & p) {
-      return Point3d(getId(), CGAL::to_double(p.x()), CGAL::to_double(p.y()), 0.0);
-    });
+  lanelet_drivable_area_points.reserve(drivable_area.outer_boundary().size());
+  for (auto p = drivable_area.outer_boundary().vertices_begin();
+    p != drivable_area.outer_boundary().vertices_end(); p++)
+  {
+    lanelet_drivable_area_points.emplace_back(Point3d(getId(), CGAL::to_double(p->x()),
+      CGAL::to_double(p->y()), 0.0));
+  }
   Polygon3d lanelet_drivable_area(getId(), lanelet_drivable_area_points);
-
   return lanelet_drivable_area;
 }
 
