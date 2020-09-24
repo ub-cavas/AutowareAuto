@@ -388,6 +388,15 @@ private:
     tf2::Vector3 translation{pose.position.x, pose.position.y, pose.position.z};
     const tf2::Transform map_base_link_transform{rotation, translation};
 
+    // Wait for odom to base_link transform to be available
+    bool odom_to_bl_found = m_tf_buffer.canTransform("odom", "base_link", tf2::TimePointZero);
+
+    while (!odom_to_bl_found) {
+      RCLCPP_INFO(get_logger(), "Waiting for odom to base_link transform to be available.");
+      std::this_thread::sleep_for(std::chrono::seconds(1));
+      odom_to_bl_found = m_tf_buffer.canTransform("odom", "base_link", tf2::TimePointZero);
+    }
+
     geometry_msgs::msg::TransformStamped odom_tf;
     try {
       odom_tf = m_tf_buffer.lookupTransform(
