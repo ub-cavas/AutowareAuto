@@ -121,6 +121,47 @@ size_t TrajectoryManager::get_remaining_length(const State & state)
   return remaining_length;
 }
 
+Trajectory TrajectoryManager::crop_from_current_state(
+  const Trajectory & trajectory,
+  const State & state)
+{
+  if (trajectory.points.empty()) {return trajectory;}
+  auto index = get_closest_state(state, trajectory);
+
+  // we always want trajectory to start from front of vehicle so increment index
+  if (index + 1 < trajectory.points.size()) {
+    index += 1;
+  }
+
+  Trajectory output;
+  output.header = trajectory.header;
+  for (size_t i = index; i < trajectory.points.size(); i++) {
+    output.points.push_back(trajectory.points.at(i));
+  }
+  return output;
+}
+
+void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
+{
+  if (trajectory->points.empty()) {
+    return;
+  }
+
+  float32_t t = 0.0;
+  trajectory->points.at(0).time_from_start.sec = 0;
+  trajectory->points.at(0).time_from_start.nanosec = 0;
+  for (std::size_t i = 1; i < trajectory->points.size(); ++i) {
+    auto & p0 = trajectory->points[i - 1];
+    auto & p1 = trajectory->points[i];
+    auto v = 0.5f * (p0.longitudinal_velocity_mps + p1.longitudinal_velocity_mps);
+    t += norm_2d(minus_2d(p0, p1)) / std::max(std::fabs(v), 0.5f);
+    float32_t t_s = 0;
+    float32_t t_ns = std::modf(t, &t_s) * 1.0e9f;
+    trajectory->points[i].time_from_start.sec = static_cast<int32_t>(t_s);
+    trajectory->points[i].time_from_start.nanosec = static_cast<uint32_t>(t_ns);
+  }
+}
+
 Trajectory TrajectoryManager::get_trajectory(const State & state)
 {
   // select new sub_trajectory when vehicle is at stop
@@ -136,10 +177,10 @@ Trajectory TrajectoryManager::get_trajectory(const State & state)
   }
 
   // TODO(mitsudome-r) implement trajectory refine functions if needed to integrate with controller
-  // output = crop_form_current_state(input);
-  // output = set_time_from_start(output);
-  // output = interpolation();
-  return m_sub_trajectories.at(m_selected_trajectory);
+  const auto & input = m_sub_trajectories.at(m_selected_trajectory);
+  auto output = crop_from_current_state(input, state);
+  set_time_from_start(&output);
+  return output;
 }
 
 }  // namespace behavior_planner

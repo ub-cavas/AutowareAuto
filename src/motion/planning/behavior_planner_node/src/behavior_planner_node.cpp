@@ -169,6 +169,8 @@ State BehaviorPlannerNode::transform_to_map(const State & state)
   }
   State transformed_state;
   motion::motion_common::doTransform(state, transformed_state, tf);
+  transformed_state.header.frame_id = "map";
+  transformed_state.header.stamp = state.header.stamp;
   return transformed_state;
 }
 
@@ -241,7 +243,7 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     auto trajectory = m_planner->get_trajectory(m_ego_state);
     // trajectory.header = m_ego_state.header;
     trajectory.header.frame_id = "map";
-    trajectory.header.stamp = time_utils::to_message(std::chrono::system_clock::now());
+    trajectory.header.stamp = msg->header.stamp;
 
     auto request = std::make_shared<ModifyTrajectory::Request>();
     request->original_trajectory = trajectory;

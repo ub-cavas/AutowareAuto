@@ -69,6 +69,8 @@ public:
 private:
   void set_sub_trajectories();
   std::size_t get_closest_state(const State & state, const Trajectory & trajectory);
+  Trajectory crop_from_current_state(const Trajectory & trajectory, const State & state);
+  void set_time_from_start(Trajectory * trajectory);
 
   // parameters
   const PlannerConfig m_config;
