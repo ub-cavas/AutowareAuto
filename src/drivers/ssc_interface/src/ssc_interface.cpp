@@ -144,7 +144,7 @@ SscInterface::SscInterface(
 
   // Publishers (to Autoware)
   m_kinematic_state_pub =
-    node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
+    node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state_cog", 10);
 
   // Subscribers (from SSC)
   m_dbw_state_sub =
@@ -332,15 +332,89 @@ void SscInterface::on_gear_report(const GearFeedback::SharedPtr & msg)
 
 void SscInterface::on_steer_report(const SteeringFeedback::SharedPtr & msg)
 {
+  const auto front_wheel_angle_rad = msg->steering_wheel_angle * STEERING_TO_TIRE_RATIO;
   odometry().stamp = msg->header.stamp;
-  odometry().front_wheel_angle_rad = msg->steering_wheel_angle * STEERING_TO_TIRE_RATIO;
+  odometry().front_wheel_angle_rad = front_wheel_angle_rad;
   odometry().rear_wheel_angle_rad = 0.0F;
+
+  std::lock_guard<std::mutex> guard(m_vehicle_kinematic_state_mutex);
+  m_vehicle_kinematic_state.state.front_wheel_angle_rad = front_wheel_angle_rad;
+  m_seen_steer = true;
 }
 
 void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 {
   odometry().stamp = msg->header.stamp;
   odometry().velocity_mps = msg->velocity;
+
+  std::lock_guard<std::mutex> guard(m_vehicle_kinematic_state_mutex);
+  // Input velocity is (assumed to be) measured at the rear axle, but we're
+  // producing a velocity at the center of gravity.
+  // Lateral velocity increases linearly from 0 at the rear axle to the maximum
+  // at the front axle, where it is tan(δ)*v_lon.
+  const float32_t lat_vel_at_front_axle_to_cog = m_rear_axle_to_cog / (m_rear_axle_to_cog + m_front_axle_to_cog);
+  m_vehicle_kinematic_state.header.seq = m_vehicle_kinematic_state_seq;
+  m_vehicle_kinematic_state.header.frame_id = "odom";
+  m_vehicle_kinematic_state.state.longitudinal_velocity_mps = msg->velocity;
+  m_vehicle_kinematic_state.state.lateral_velocity_mps = lat_vel_at_front_axle_to_cog * msg->velocity * std::tan(m_vehicle_kinematic_state.state.front_wheel_angle_rad);
+  m_vehicle_kinematic_state.state.acceleration_mps2 = msg->accleration;
+  // Dt can not be calculated from the first message alone
+  if (!m_seen_veh_accel) {
+    m_seen_veh_accel = true;
+    m_vehicle_kinematic_state.header.time = msg->header.stamp;
+    return;
+  }
+  // Calculate dt
+  float32_t dt = static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kinematic_state.header.time.sec);
+  dt += static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kinematic_state.header.time.sec) / 1000000000.0F;
+  if (dt < 0.0F) {
+    RCLCPP_WARN(m_logger, "Received inconsistent timestamps.");
+  }
+  m_vehicle_kinematic_state.header.time = msg->header.stamp;
+  if (m_seen_steer) {
+    kinematic_bicycle_model(dt, m_rear_axle_to_cog, m_front_axle_to_cog, &m_vehicle_kinematic_state);
+    m_kinematic_state_pub->publish(m_vehicle_kinematic_state);
+    m_vehicle_kinematic_state_seq += 1;
+  }
+  }
+
+
+// Update x, y, heading, and heading_rate from the other variables
+// TODO(nikolai.morin): Clean up and implement as a motion model
+void kinematic_bicycle_model(float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState* vks) {
+  // convert to yaw – copied from trajectory_spoofer.cpp
+  // The below formula could probably be simplified if it would be derived directly for heading
+  const float32_t sin_y = 2.0F * vks.state.heading.real * vks.state.heading.imag;
+  const float32_t cos_y = 1.0F - 2.0F * vks.state.heading.imag * vks.state.heading.imag;
+  float32_t yaw = std::atan2(sin_y, cos_y);
+  if (yaw < 0) {
+    yaw += TAU;
+  }
+  // δ: tire angle (relative to car's main axis)
+  // φ: heading/yaw
+  // β: direction of movement at point of reference (relative to car's main axis)
+  // l_r: distance of point of reference to rear axle
+  // l_f: distance of point of reference to front axle
+  // x, y, v are at the point of reference
+  // x' = v cos(φ + β)
+  // y' = v sin(φ + β)
+  // φ' = (cos(β)tan(δ)) / (l_r + l_f)
+  // v' = a
+  // β = arctan((l_r*tan(δ))/(l_r + l_f))
+  float32_t v0_x = vks.state.lateral_velocity_mps;
+  float32_t v0_y = vks.state.longitudinal_velocity_mps;
+  float32_t v0 = std::sqrt(v0_x * v0_x + v0_y * v0_y);
+  float32_t delta = vks.state.front_wheel_angle_rad;
+  float32_t a = vks.state.acceleration_mps2;
+  float32_t beta = std::atan2(l_r*std::tan(delta), l_r + l_f);
+  float32_t f_term = yaw + beta;
+  float32_t g_term = std::cos(beta) * std::tan(delta) * v0 / (l_r + l_f);
+  vks.state.x +=  (v0 + a*dt)/g_term*std::sin(f_term + g_term*dt) - v0/g_term*std::sin(f_term) + a/(g_term*g_term)*std::cos(f_term + g_term*dt) - a/(g_term*g_term)*std::cos(f_term);
+  vks.state.y += -(v0 + a*dt)/g_term*std::cos(f_term + g_term*dt) + v0/g_term*std::cos(f_term) + a/(g_term*g_term)*std::cos(f_term + g_term*dt) - a/(g_term*g_term)*std::cos(f_term);
+  yaw += std::cos(beta)*std::tan(delta)/(l_r + l_f) * (v0*dt + 0.5f*a*dt*dt);
+  vks.state.heading.real = std::cos(yaw / 2.0f);
+  vks.state.heading.imag = std::sin(yaw / 2.0f);
+  vks.state.heading_rate_rps = std::cos(beta)*std::tan(delta);
 }
 
 }  // namespace ssc_interface

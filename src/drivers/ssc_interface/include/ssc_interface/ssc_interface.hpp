@@ -45,6 +45,7 @@
 #include <chrono>
 #include <iostream>
 #include <memory>
+#include <mutex>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -184,6 +185,16 @@ private:
   float32_t m_decel_limit;
   float32_t m_max_yaw_rate;
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
+
+  // The vehicle kinematic state is stored because it needs information from
+  // both on_steer_report() and on_vel_accel_report().
+  VehicleKinematicState m_vehicle_kinematic_state;
+  bool m_seen_steer{false};
+  bool m_seen_vel_accel{false};
+  // In case both arrive at the same time
+  std::mutex m_vehicle_kinematic_state_mutex;
+  // A counter for the header
+  uint32_t m_vehicle_kinematic_state_seq{0};
 
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
   void on_gear_report(const GearFeedback::SharedPtr & msg);
