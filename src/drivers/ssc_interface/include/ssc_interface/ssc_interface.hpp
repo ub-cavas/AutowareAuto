@@ -49,6 +49,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::common::types::TAU;
 
 using automotive_platform_msgs::msg::GearCommand;
 using automotive_platform_msgs::msg::GearFeedback;
@@ -193,13 +194,13 @@ private:
   bool m_seen_vel_accel{false};
   // In case both arrive at the same time
   std::mutex m_vehicle_kinematic_state_mutex;
-  // A counter for the header
-  uint32_t m_vehicle_kinematic_state_seq{0};
 
   void on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg);
   void on_gear_report(const GearFeedback::SharedPtr & msg);
   void on_steer_report(const SteeringFeedback::SharedPtr & msg);
   void on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg);
+  void kinematic_bicycle_model(
+    float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks);
 
   inline float32_t yaw_rate_to_curvature_rate(float32_t yaw_rate, float32_t velocity)
   {
