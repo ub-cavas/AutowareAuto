@@ -84,6 +84,7 @@ private:
   rclcpp::Subscription<Trajectory>::SharedPtr m_lane_trajectory_sub{};
   rclcpp::Subscription<Trajectory>::SharedPtr m_parking_trajectory_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
+  rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
 
   //  planner
   std::unique_ptr<behavior_planner::BehaviorPlanner> m_planner;

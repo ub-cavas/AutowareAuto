@@ -102,6 +102,12 @@ BehaviorPlanner::BehaviorPlanner(const PlannerConfig & config)
 {
 }
 
+void BehaviorPlanner::clear_route()
+{
+  m_subroutes.clear();
+  m_trajectory_manager.clear_trajectory();
+}
+
 void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
   // create subroutes from given global route
@@ -235,6 +241,21 @@ bool8_t BehaviorPlanner::is_vehicle_stopped(const State & state)
          m_config.stop_velocity_thresh;
 }
 
+bool8_t BehaviorPlanner::has_arrived_goal(const State & state)
+{
+  if (!is_route_ready()) {
+    return false;
+  }
+
+  const auto satisfy_velocity_condition = is_vehicle_stopped(state);
+
+  const auto & route = m_subroutes.back().route;
+  const auto distance = norm_2d(minus_2d(route.goal_point, state.state));
+  const auto satsify_distance_condition = distance < m_config.goal_distance_thresh;
+
+  return satisfy_velocity_condition && satsify_distance_condition;
+}
+
 bool8_t BehaviorPlanner::has_arrived_subroute_goal(const State & state)
 {
   const auto satisfy_velocity_condition = is_vehicle_stopped(state);
@@ -275,7 +296,7 @@ void BehaviorPlanner::set_trajectory(const Trajectory & trajectory)
   const auto & last_point = trajectory.points.back();
   const auto & route = get_current_subroute().route;
   const auto distance = norm_2d(minus_2d(route.goal_point, last_point));
-  m_is_trajectory_complete = distance < std::numeric_limits<float32_t>::epsilon();
+  m_is_trajectory_complete = distance < m_config.goal_distance_thresh;
 }
 
 Trajectory BehaviorPlanner::get_trajectory(const State & state)

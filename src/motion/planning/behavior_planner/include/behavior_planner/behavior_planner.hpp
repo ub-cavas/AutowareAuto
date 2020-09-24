@@ -80,12 +80,14 @@ public:
   explicit BehaviorPlanner(const PlannerConfig & config);
 
   void set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
+  void clear_route();
   void set_next_subroute(const State & ego_state);
 
   bool8_t is_route_ready();
 
   bool8_t needs_new_trajectory(const State & state);
   TrajectoryPoint get_sub_goal();
+  bool8_t has_arrived_goal(const State & state);
   bool8_t has_arrived_subroute_goal(const State & state);
 
   bool8_t is_vehicle_stopped(const State & state);

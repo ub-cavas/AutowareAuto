@@ -115,6 +115,10 @@ void BehaviorPlannerNode::init()
   // Setup publishers
   m_trajectory_pub =
     this->create_publisher<Trajectory>("trajectory", QoS{10});
+
+  // Setup publishers
+  m_debug_trajectory_pub =
+    this->create_publisher<Trajectory>("debug/full_trajectory", QoS{10});
 }
 
 void BehaviorPlannerNode::goal_response_callback(
@@ -148,6 +152,11 @@ void BehaviorPlannerNode::result_callback(const PlanTrajectoryGoalHandle::Wrappe
   } else {
     RCLCPP_ERROR(get_logger(), "Planner failed to calculate !!");
   }
+
+  auto trajectory = result.result->trajectory;
+  trajectory.header.frame_id = "map";
+  m_debug_trajectory_pub->publish(trajectory);
+
   m_planner->set_trajectory(result.result->trajectory);
 
   // finished requesting trajectory
@@ -226,6 +235,11 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
   // check if we need new trajectory
   // make sure we are not requesting trajectory if we already have
   if (!m_requesting_trajectory) {
+    if (m_planner->has_arrived_goal(m_ego_state)) {
+      RCLCPP_INFO(get_logger(), "Reached goal. Wait for another route");
+      m_planner->clear_route();
+      return;
+    }
     if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
       // send next subroute
       m_planner->set_next_subroute(m_ego_state);
