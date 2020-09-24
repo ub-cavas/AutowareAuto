@@ -20827,7 +20827,7 @@
   <node id='8933' visible='true' version='1' lat='37.38124719857' lon='-121.90959519853'>
     <tag k='ele' v='-2.239353432768783' />
   </node>
-  <node id='8934' visible='true' version='1' lat='37.38168107601' lon='-121.90892134598'>
+  <node id='8934' visible='true' version='1' lat='37.38167697575' lon='-121.90891740002'>
     <tag k='ele' v='-2.239353432768783' />
   </node>
   <node id='8935' visible='true' version='1' lat='37.38167241011' lon='-121.90895955129'>
@@ -40004,6 +40004,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6259' visible='true' version='1'>
     <member type='way' ref='6260' role='left' />
@@ -40023,6 +40024,7 @@
     <tag k='slope' v='0.0612168' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6266' visible='true' version='1'>
     <member type='way' ref='6267' role='right' />
@@ -40042,6 +40044,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6273' visible='true' version='1'>
     <member type='way' ref='6274' role='left' />
@@ -40061,6 +40064,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6280' visible='true' version='1'>
     <member type='way' ref='6281' role='right' />
@@ -40080,6 +40084,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6287' visible='true' version='1'>
     <member type='way' ref='6288' role='left' />
@@ -40099,6 +40104,7 @@
     <tag k='slope' v='-0.00363505' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6294' visible='true' version='1'>
     <member type='way' ref='6295' role='right' />
@@ -40116,6 +40122,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6301' visible='true' version='1'>
     <member type='way' ref='6302' role='left' />
@@ -40133,6 +40140,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6308' visible='true' version='1'>
     <member type='way' ref='6309' role='right' />
@@ -40151,6 +40159,7 @@
     <tag k='slope' v='-0.0235279' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6315' visible='true' version='1'>
     <member type='way' ref='6316' role='left' />
@@ -40169,6 +40178,7 @@
     <tag k='slope' v='-0.00752368' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6322' visible='true' version='1'>
     <member type='way' ref='6323' role='right' />
@@ -40188,6 +40198,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6327' visible='true' version='1'>
     <member type='way' ref='102550' role='right' />
@@ -40207,6 +40218,7 @@
     <tag k='slope' v='-0.0235279' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6329' visible='true' version='1'>
     <member type='way' ref='6330' role='left' />
@@ -40226,6 +40238,7 @@
     <tag k='slope' v='-0.000547453' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6332' visible='true' version='1'>
     <member type='way' ref='102592' role='right' />
@@ -40245,6 +40258,7 @@
     <tag k='slope' v='-0.0235279' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6335' visible='true' version='1'>
     <member type='way' ref='102691' role='right' />
@@ -40264,6 +40278,7 @@
     <tag k='slope' v='-0.0235279' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6336' visible='true' version='1'>
     <member type='way' ref='6337' role='right' />
@@ -40283,6 +40298,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6339' visible='true' version='1'>
     <member type='way' ref='102701' role='right' />
@@ -40302,6 +40318,7 @@
     <tag k='slope' v='-0.0235279' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6343' visible='true' version='1'>
     <member type='way' ref='6344' role='left' />
@@ -40321,6 +40338,7 @@
     <tag k='slope' v='-0.02006' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6350' visible='true' version='1'>
     <member type='way' ref='6351' role='right' />
@@ -40340,6 +40358,7 @@
     <tag k='slope' v='-0.0398145' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6357' visible='true' version='1'>
     <member type='way' ref='6358' role='left' />
@@ -40359,6 +40378,7 @@
     <tag k='slope' v='0.0398145' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6364' visible='true' version='1'>
     <member type='way' ref='6365' role='right' />
@@ -40378,6 +40398,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6371' visible='true' version='1'>
     <member type='way' ref='6372' role='left' />
@@ -40397,6 +40418,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6378' visible='true' version='1'>
     <member type='way' ref='6379' role='right' />
@@ -40416,6 +40438,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6385' visible='true' version='1'>
     <member type='way' ref='6386' role='left' />
@@ -40435,6 +40458,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6392' visible='true' version='1'>
     <member type='way' ref='6393' role='right' />
@@ -40454,6 +40478,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6399' visible='true' version='1'>
     <member type='way' ref='6400' role='right' />
@@ -40473,6 +40498,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6406' visible='true' version='1'>
     <member type='way' ref='6407' role='right' />
@@ -40492,6 +40518,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6413' visible='true' version='1'>
     <member type='way' ref='6414' role='left' />
@@ -40511,6 +40538,7 @@
     <tag k='slope' v='-0.0520786' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6420' visible='true' version='1'>
     <member type='way' ref='6421' role='right' />
@@ -40529,6 +40557,7 @@
     <tag k='slope' v='-0.125051' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6427' visible='true' version='1'>
     <member type='way' ref='6428' role='left' />
@@ -40547,6 +40576,7 @@
     <tag k='slope' v='0.125051' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6434' visible='true' version='1'>
     <member type='way' ref='6435' role='right' />
@@ -40566,6 +40596,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6441' visible='true' version='1'>
     <member type='way' ref='6442' role='left' />
@@ -40585,6 +40616,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6448' visible='true' version='1'>
     <member type='way' ref='6449' role='right' />
@@ -40604,6 +40636,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6455' visible='true' version='1'>
     <member type='way' ref='6456' role='left' />
@@ -40623,6 +40656,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6462' visible='true' version='1'>
     <member type='way' ref='6463' role='right' />
@@ -40640,6 +40674,7 @@
     <tag k='slope' v='0.0546609' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6469' visible='true' version='1'>
     <member type='way' ref='6470' role='left' />
@@ -40658,6 +40693,7 @@
     <tag k='slope' v='-0.0546609' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6476' visible='true' version='1'>
     <member type='way' ref='6477' role='right' />
@@ -40677,6 +40713,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6483' visible='true' version='1'>
     <member type='way' ref='6484' role='left' />
@@ -40696,6 +40733,7 @@
     <tag k='slope' v='-0.0574362' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6490' visible='true' version='1'>
     <member type='way' ref='6491' role='right' />
@@ -40715,6 +40753,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6497' visible='true' version='1'>
     <member type='way' ref='6498' role='left' />
@@ -40734,6 +40773,7 @@
     <tag k='slope' v='0.0017937' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6504' visible='true' version='1'>
     <member type='way' ref='6505' role='right' />
@@ -40753,6 +40793,7 @@
     <tag k='slope' v='-3.62319e-17' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6511' visible='true' version='1'>
     <member type='way' ref='6512' role='left' />
@@ -40772,6 +40813,7 @@
     <tag k='slope' v='-0.0243195' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6518' visible='true' version='1'>
     <member type='way' ref='6519' role='right' />
@@ -40791,6 +40833,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6525' visible='true' version='1'>
     <member type='way' ref='6526' role='left' />
@@ -40810,6 +40853,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6532' visible='true' version='1'>
     <member type='way' ref='6533' role='right' />
@@ -40829,6 +40873,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6539' visible='true' version='1'>
     <member type='way' ref='6540' role='left' />
@@ -40848,6 +40893,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6546' visible='true' version='1'>
     <member type='way' ref='6547' role='right' />
@@ -40867,6 +40913,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6553' visible='true' version='1'>
     <member type='way' ref='6554' role='left' />
@@ -40886,6 +40933,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6560' visible='true' version='1'>
     <member type='way' ref='6561' role='right' />
@@ -40905,6 +40953,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6567' visible='true' version='1'>
     <member type='way' ref='6568' role='left' />
@@ -40924,6 +40973,7 @@
     <tag k='slope' v='-0.0113992' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6574' visible='true' version='1'>
     <member type='way' ref='6575' role='right' />
@@ -40943,6 +40993,7 @@
     <tag k='slope' v='0.0401173' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6581' visible='true' version='1'>
     <member type='way' ref='6582' role='left' />
@@ -40962,6 +41013,7 @@
     <tag k='slope' v='-0.0389605' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6588' visible='true' version='1'>
     <member type='way' ref='6589' role='right' />
@@ -40980,6 +41032,7 @@
     <tag k='slope' v='-0.0577435' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6595' visible='true' version='1'>
     <member type='way' ref='6596' role='left' />
@@ -40998,6 +41051,7 @@
     <tag k='slope' v='0.0577435' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6602' visible='true' version='1'>
     <member type='way' ref='6603' role='right' />
@@ -41017,6 +41071,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6609' visible='true' version='1'>
     <member type='way' ref='6610' role='left' />
@@ -41036,6 +41091,7 @@
     <tag k='slope' v='0.0408163' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6616' visible='true' version='1'>
     <member type='way' ref='102932' role='right' />
@@ -41055,6 +41111,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6617' visible='true' version='1'>
     <member type='way' ref='102937' role='right' />
@@ -41074,6 +41131,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6618' visible='true' version='1'>
     <member type='way' ref='102933' role='right' />
@@ -41093,6 +41151,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6623' visible='true' version='1'>
     <member type='way' ref='6624' role='left' />
@@ -41112,6 +41171,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6630' visible='true' version='1'>
     <member type='way' ref='6631' role='right' />
@@ -41130,6 +41190,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6637' visible='true' version='1'>
     <member type='way' ref='6638' role='left' />
@@ -41148,6 +41209,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6644' visible='true' version='1'>
     <member type='way' ref='6645' role='right' />
@@ -41167,6 +41229,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6651' visible='true' version='1'>
     <member type='way' ref='6652' role='left' />
@@ -41186,6 +41249,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6658' visible='true' version='1'>
     <member type='way' ref='6659' role='right' />
@@ -41205,6 +41269,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6665' visible='true' version='1'>
     <member type='way' ref='6666' role='left' />
@@ -41224,6 +41289,7 @@
     <tag k='slope' v='0.0271526' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6672' visible='true' version='1'>
     <member type='way' ref='6673' role='right' />
@@ -41242,6 +41308,7 @@
     <tag k='slope' v='8.13595e-17' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6679' visible='true' version='1'>
     <member type='way' ref='6680' role='left' />
@@ -41260,6 +41327,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6686' visible='true' version='1'>
     <member type='way' ref='6687' role='right' />
@@ -41278,6 +41346,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6693' visible='true' version='1'>
     <member type='way' ref='6694' role='left' />
@@ -41296,6 +41365,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6700' visible='true' version='1'>
     <member type='way' ref='6701' role='right' />
@@ -41315,6 +41385,7 @@
     <tag k='slope' v='-7.38008e-18' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6707' visible='true' version='1'>
     <member type='way' ref='6708' role='left' />
@@ -41334,6 +41405,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6714' visible='true' version='1'>
     <member type='way' ref='6715' role='right' />
@@ -41352,6 +41424,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6721' visible='true' version='1'>
     <member type='way' ref='6722' role='left' />
@@ -41370,6 +41443,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6728' visible='true' version='1'>
     <member type='way' ref='6729' role='right' />
@@ -41389,6 +41463,7 @@
     <tag k='slope' v='5.2878e-17' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6735' visible='true' version='1'>
     <member type='way' ref='6736' role='left' />
@@ -41408,6 +41483,7 @@
     <tag k='slope' v='5.2878e-17' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6742' visible='true' version='1'>
     <member type='way' ref='6743' role='right' />
@@ -41427,6 +41503,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6749' visible='true' version='1'>
     <member type='way' ref='6750' role='left' />
@@ -41446,6 +41523,7 @@
     <tag k='slope' v='0.0303842' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6792' visible='true' version='1'>
     <member type='way' ref='6793' role='right' />
@@ -41466,6 +41544,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6809' visible='true' version='1'>
     <member type='way' ref='6810' role='left' />
@@ -41486,6 +41565,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6826' visible='true' version='1'>
     <member type='way' ref='6827' role='right' />
@@ -41505,6 +41585,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6843' visible='true' version='1'>
     <member type='way' ref='6844' role='left' />
@@ -41525,6 +41606,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6860' visible='true' version='1'>
     <member type='way' ref='6861' role='left' />
@@ -41544,6 +41626,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6877' visible='true' version='1'>
     <member type='way' ref='6878' role='right' />
@@ -41563,6 +41646,7 @@
     <tag k='slope' v='0.0135485' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6894' visible='true' version='1'>
     <member type='way' ref='6895' role='left' />
@@ -41582,6 +41666,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6911' visible='true' version='1'>
     <member type='way' ref='6912' role='right' />
@@ -41601,6 +41686,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6928' visible='true' version='1'>
     <member type='way' ref='6929' role='left' />
@@ -41621,6 +41707,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6945' visible='true' version='1'>
     <member type='way' ref='6946' role='left' />
@@ -41640,6 +41727,7 @@
     <tag k='slope' v='-0.0135485' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6962' visible='true' version='1'>
     <member type='way' ref='6963' role='left' />
@@ -41660,6 +41748,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6979' visible='true' version='1'>
     <member type='way' ref='6980' role='left' />
@@ -41679,6 +41768,7 @@
     <tag k='slope' v='-0.00958008' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='6996' visible='true' version='1'>
     <member type='way' ref='6997' role='left' />
@@ -41699,6 +41789,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7013' visible='true' version='1'>
     <member type='way' ref='7014' role='left' />
@@ -41719,6 +41810,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7030' visible='true' version='1'>
     <member type='way' ref='7031' role='right' />
@@ -41738,6 +41830,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7047' visible='true' version='1'>
     <member type='way' ref='7048' role='left' />
@@ -41757,6 +41850,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7064' visible='true' version='1'>
     <member type='way' ref='7065' role='right' />
@@ -41776,6 +41870,7 @@
     <tag k='slope' v='0.0716625' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7081' visible='true' version='1'>
     <member type='way' ref='7082' role='right' />
@@ -41795,6 +41890,7 @@
     <tag k='slope' v='-0.0135481' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7098' visible='true' version='1'>
     <member type='way' ref='7099' role='right' />
@@ -41815,6 +41911,7 @@
     <tag k='slope' v='-0.0980056' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7115' visible='true' version='1'>
     <member type='way' ref='7116' role='left' />
@@ -41834,6 +41931,7 @@
     <tag k='slope' v='-0.071663' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7132' visible='true' version='1'>
     <member type='way' ref='7133' role='left' />
@@ -41854,6 +41952,7 @@
     <tag k='slope' v='0.0980056' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7149' visible='true' version='1'>
     <member type='way' ref='7150' role='right' />
@@ -41873,6 +41972,7 @@
     <tag k='slope' v='0.00958008' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7166' visible='true' version='1'>
     <member type='way' ref='7167' role='left' />
@@ -41892,6 +41992,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7183' visible='true' version='1'>
     <member type='way' ref='7184' role='left' />
@@ -41912,6 +42013,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7200' visible='true' version='1'>
     <member type='way' ref='7201' role='left' />
@@ -41932,6 +42034,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7217' visible='true' version='1'>
     <member type='way' ref='7218' role='left' />
@@ -41952,6 +42055,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7234' visible='true' version='1'>
     <member type='way' ref='7235' role='right' />
@@ -41971,6 +42075,7 @@
     <tag k='slope' v='-0.0980056' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7251' visible='true' version='1'>
     <member type='way' ref='7252' role='left' />
@@ -41991,6 +42096,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7268' visible='true' version='1'>
     <member type='way' ref='7269' role='right' />
@@ -42010,6 +42116,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7285' visible='true' version='1'>
     <member type='way' ref='7286' role='left' />
@@ -42030,6 +42137,7 @@
     <tag k='slope' v='-0.0716634' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7302' visible='true' version='1'>
     <member type='way' ref='7303' role='left' />
@@ -42050,6 +42158,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7319' visible='true' version='1'>
     <member type='way' ref='7320' role='right' />
@@ -42069,6 +42178,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7336' visible='true' version='1'>
     <member type='way' ref='7337' role='right' />
@@ -42088,6 +42198,7 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7353' visible='true' version='1'>
     <member type='way' ref='7354' role='right' />
@@ -42107,6 +42218,7 @@
     <tag k='slope' v='0.0135485' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7370' visible='true' version='1'>
     <member type='way' ref='7379' role='left' />
@@ -42126,6 +42238,7 @@
     <tag k='slope' v='0.0716622' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
   <relation id='7387' visible='true' version='1'>
     <member type='way' ref='7388' role='right' />
@@ -42145,5 +42258,6 @@
     <tag k='slope' v='0.0' />
     <tag k='subtype' v='lane' />
     <tag k='type' v='lanelet' />
+    <tag k='speed_limit' v='10km/h' />
   </relation>
 </osm>
