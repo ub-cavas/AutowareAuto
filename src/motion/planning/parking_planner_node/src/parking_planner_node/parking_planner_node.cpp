@@ -398,11 +398,11 @@ HADMapService::Request ParkingPlannerNode::create_map_request(const Route & rout
   return request;
 }
 
+// TODO(s.me) this is getting a bit long, break up
 static Polygon3d coalesce_drivable_areas(
   const Route & route,
   const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
-  // Create a CGAL polygon we'll merge everything into
   CGAL_Polygon_with_holes drivable_area;
 
   for (const auto & map_primitive : route.primitives) {
@@ -410,45 +410,46 @@ static Polygon3d coalesce_drivable_areas(
     Polygon current_area_polygon{};
     if (lanelet_map_ptr->lineStringLayer.exists(map_primitive.id) ) {
       // The ID corresponds to a linestring, so the find() call below should not become null
-      // TODO(s.me) maybe check it anyway and throw if it happens
       LineString3d current_area = *lanelet_map_ptr->lineStringLayer.find(map_primitive.id);
       autoware::common::had_map_utils::lineString2Polygon(current_area, &current_area_polygon);
     } else if (lanelet_map_ptr->laneletLayer.exists(map_primitive.id)) {
       // The ID corresponds to a lanelet, so the find() call below should not become null
-      // TODO(s.me) maybe check it anyway and throw if it happens
       ConstLanelet current_area = *lanelet_map_ptr->laneletLayer.find(map_primitive.id);
       autoware::common::had_map_utils::lanelet2Polygon(current_area, &current_area_polygon);
     } else {
-      // This might happen if a primitive is on the route, but outside of the bounding
-      // box that we query the map for. Not sure how to deal with this at this point
-      // though.
+      // This might happen if a primitive is on the route, but outside of the bounding box that we
+      // query the map for. Not sure how to deal with this at this point though.
       std::cerr << "Error: primitive ID " << map_primitive.id << " not found, skipping" <<
         std::endl;
     }
 
-    // If the current drivable area is not empty, perform a join
     if (drivable_area.outer_boundary().size() > 0) {
-      // Convert the resulting polygon to a CGAL_Polygon (this should just do nothing
-      // if the polygon from above is empty). Also make sure the orientation is counter-clockwise.
+      // Convert current_area_polygon to a CGAL_Polygon and make sure the orientation is correct
       CGAL_Polygon to_join{};
       CGAL_Polygon_with_holes temporary_union;
+      const auto first_point = current_area_polygon.points.begin();
       for (auto area_point_it =
         current_area_polygon.points.begin();
-        (area_point_it + 1) < current_area_polygon.points.end();
+        // Stop if we run out of points, or if we encounter the first point again
+        area_point_it < current_area_polygon.points.end() &&
+        !(first_point != area_point_it && first_point->x == area_point_it->x &&
+        first_point->y == area_point_it->y);
         area_point_it++)
       {
         to_join.push_back(CGAL_Point(area_point_it->x, area_point_it->y));
       }
+
       if (to_join.is_clockwise_oriented() ) {
         to_join.reverse_orientation();
       }
 
-      // Merge this CGAL polygon with the growing drivable_area. We need an intermediate
-      // merge result because as far as I can tell from the CGAL docs, I can't "join to"
-      // a polygon in-place with the join() interface.
+      // Merge this CGAL polygon with the growing drivable_area. We need an intermediate merge
+      // result because as far as I can tell from the CGAL docs, I can't "join to" a polygon
+      // in-place with the join() interface.
       const auto polygons_overlap = CGAL::join(drivable_area, to_join, temporary_union);
       if (!polygons_overlap && !drivable_area.outer_boundary().is_empty()) {
-        // TODO(s.me) cancel here? Right now we just ignore that polygon
+        // TODO(s.me) cancel here? Right now we just ignore that polygon, if it doesn't
+        // overlap with the rest, there is no way to get to it anyway
         std::cerr << "Error: polygons in union do not overlap!" << std::endl;
       } else {
         drivable_area = temporary_union;
@@ -456,15 +457,19 @@ static Polygon3d coalesce_drivable_areas(
     } else {
       // Otherwise, just set the current drivable area equal to the area to add to it, because
       // CGAL seems to do "union(empty, non-empty) = empty" for some reason.
+      const auto first_point = current_area_polygon.points.begin();
       for (auto area_point_it =
         current_area_polygon.points.begin();
-        (area_point_it + 1) < current_area_polygon.points.end();
+        area_point_it < current_area_polygon.points.end() &&
+        // Stop if we run out of points, or if we encounter the first point again
+        !(first_point != area_point_it && first_point->x == area_point_it->x &&
+        first_point->y == area_point_it->y);
         area_point_it++)
       {
         drivable_area.outer_boundary().push_back(CGAL_Point(area_point_it->x, area_point_it->y));
-        if (drivable_area.outer_boundary().is_clockwise_oriented() ) {
-          drivable_area.outer_boundary().reverse_orientation();
-        }
+      }
+      if (drivable_area.outer_boundary().is_clockwise_oriented() ) {
+        drivable_area.outer_boundary().reverse_orientation();
       }
     }
   }
