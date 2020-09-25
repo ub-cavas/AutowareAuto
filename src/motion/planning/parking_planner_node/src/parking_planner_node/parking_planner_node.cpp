@@ -248,7 +248,7 @@ static typename std::vector<std::list<Point>> get_outer_boxes(
       are_points_equal(segment_vector[1], *convex_hull_start) ) )
     {
       auto orthogonal = get_normal(minus_2d(segment_vector[1], segment_vector[0]));
-      orthogonal = times_2d(orthogonal, norm_2d(orthogonal));
+      orthogonal = times_2d(orthogonal, -1.0f / norm_2d(orthogonal));
 
       const auto box = std::list<Point>{
         segment_vector[0],
