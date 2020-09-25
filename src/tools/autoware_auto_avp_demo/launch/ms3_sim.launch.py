@@ -118,7 +118,6 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('ndt_localizer_param_file')],
         remappings=[
             ("points_in", "/lidars/points_fused_downsampled"),
-            # TODO Don't know how to get remapping to work
             ("observation_republish", "/lidars/points_fused_viz"),
         ]
     )

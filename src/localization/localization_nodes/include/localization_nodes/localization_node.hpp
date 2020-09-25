@@ -512,7 +512,7 @@ private:
   typename rclcpp::Publisher<ObservationMsgT>::SharedPtr m_obs_republisher{
       // TODO Don't know how to get remapping to work
       // create_publisher<ObservationMsgT>("observation_republish", 10)};
-      create_publisher<ObservationMsgT>("/lidars/points_fused_viz", 10)};
+      create_publisher<ObservationMsgT>("observation_republish", 10)};
 
   // Receive updates from "/initialpose" (e.g. rviz2)
   typename rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr m_initial_pose_sub;
