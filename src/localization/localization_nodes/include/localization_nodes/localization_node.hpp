@@ -353,7 +353,14 @@ private:
         // localization is available.
         if (m_tf_publisher) {
           publish_tf(pose_out);
+          // republish point cloud so visualization has no issues with the timestamp being too new (no transform yet).
+          // Reset the timestamp to zero so visualization is not bothered if odom->base_link transformation is available
+          // only at different time stamps.
+          auto msg = *msg_ptr;
+          msg.header.stamp = time_utils::to_message(tf2::TimePointZero);
+          m_obs_republisher->publish(msg);
         }
+
         handle_registration_summary(summary);
       } else {
         on_invalid_output(pose_out);
@@ -501,6 +508,11 @@ private:
   typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
   typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;
   typename rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_publisher{nullptr};
+  // TODO(frederik.beaujean) no idea if 10 isa good value for QoS
+  typename rclcpp::Publisher<ObservationMsgT>::SharedPtr m_obs_republisher{
+      // TODO Don't know how to get remapping to work
+      // create_publisher<ObservationMsgT>("observation_republish", 10)};
+      create_publisher<ObservationMsgT>("/lidars/points_fused_viz", 10)};
 
   // Receive updates from "/initialpose" (e.g. rviz2)
   typename rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr m_initial_pose_sub;
