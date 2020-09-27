@@ -53,6 +53,9 @@ if(BUILD_TESTING)
   )
   target_link_libraries(${TEST_DBW_STATE_MACHINE_EXE} ${PROJECT_NAME})
   add_dependencies(${TEST_DBW_STATE_MACHINE_EXE} ${PROJECT_NAME})
+  ament_target_dependencies(${TEST_DBW_STATE_MACHINE_EXE}
+    automotive_platform_msgs
+  )
 
 #  ament_add_gtest(TEST_SSC_INTERFACE_EXE
 #    test/test_ssc_interface.hpp
