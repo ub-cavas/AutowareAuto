@@ -54,7 +54,7 @@ def generate_launch_description():
     vlp16_rear_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/vlp16_rear_vehicle.param.yaml')
     ssc_interface_param_file = os.path.join(
-        av_demo_pkg_prefix, 'param/ssc_interface.param.yaml')
+        avp_demo_pkg_prefix, 'param/ssc_interface.param.yaml')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
@@ -86,7 +86,7 @@ def generate_launch_description():
         default_value=mpc_param_file,
         description='Path to config file for MPC'
     )
-    ssc_interface_param = DeclareArgument(
+    ssc_interface_param = DeclareLaunchArgument(
         'ssc_interface_param_file',
         default_value=ssc_interface_param_file,
         description='Path to config file for SSC interface'
@@ -172,6 +172,7 @@ def generate_launch_description():
         map_publisher_param,
         ndt_localizer_param,
         mpc_param,
+        ssc_interface_param,
         vlp16_front,
         vlp16_rear,
         urdf_publisher,
