@@ -18,6 +18,7 @@ from launch import LaunchContext
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -61,6 +62,11 @@ def generate_launch_description():
 
     # Arguments
 
+    with_lidars_param = DeclareLaunchArgument(
+        'with_lidars',
+        default_value='True',
+        description='Launch lidar drivers in addition to other nodes'
+    )
     vlp16_front_param = DeclareLaunchArgument(
         'vlp16_front_param_file',
         default_value=vlp16_front_param_file,
@@ -99,6 +105,7 @@ def generate_launch_description():
         node_executable='velodyne_cloud_node_exe',
         node_namespace='lidar_front',
         parameters=[LaunchConfiguration('vlp16_front_param_file')],
+        condition=IfCondition(LaunchConfiguration('with_lidars')),
         arguments=["--model", "vlp16"]
     )
     vlp16_rear = Node(
@@ -106,6 +113,7 @@ def generate_launch_description():
         node_executable='velodyne_cloud_node_exe',
         node_namespace='lidar_rear',
         parameters=[LaunchConfiguration('vlp16_rear_param_file')],
+        condition=IfCondition(LaunchConfiguration('with_lidars')),
         arguments=["--model", "vlp16"]
     )
     map_publisher = Node(
@@ -167,6 +175,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        with_lidars_param,
         vlp16_front_param,
         vlp16_rear_param,
         map_publisher_param,
