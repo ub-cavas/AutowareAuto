@@ -84,7 +84,7 @@ public:
 
   void set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr);
   void clear_route();
-  void set_next_subroute(const State & ego_state);
+  void set_next_subroute();
 
   bool8_t is_route_ready();
 
@@ -117,8 +117,6 @@ private:
   TrajectoryManager m_trajectory_manager;
 
   bool8_t m_is_trajectory_complete;
-
-  std::size_t get_closest_subroute(const State & ego_state);
 };
 }  // namespace behavior_planner
 }  // namespace autoware

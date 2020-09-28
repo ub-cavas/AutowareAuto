@@ -197,9 +197,9 @@ bool8_t BehaviorPlanner::is_route_ready()
   return !m_subroutes.empty();
 }
 
-void BehaviorPlanner::set_next_subroute(const State & ego_state)
+void BehaviorPlanner::set_next_subroute()
 {
-  m_current_subroute = get_closest_subroute(ego_state);
+  m_current_subroute = std::min(m_current_subroute + 1, m_subroutes.size() - 1);
 }
 
 RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
@@ -233,28 +233,6 @@ PlannerType BehaviorPlanner::get_planner_type()
     return PlannerType::UNKNOWN;
   }
   return m_subroutes.at(m_current_subroute).planner_type;
-}
-
-std::size_t BehaviorPlanner::get_closest_subroute(const State & ego_state)
-{
-  // Find the subroute with closest starting_point to the ego state
-  const auto distance_function =
-    [this, &ego_state](RouteWithType & route) {
-      const auto s1 = ego_state.state, s2 = route.route.start_point;
-      return (s1.x - s2.x) * (s1.x - s2.x) + (s1.y - s2.y) * (s1.y - s2.y);
-    };
-
-  const auto comparison_function =
-    [&distance_function](RouteWithType & one, RouteWithType & two)
-    {return distance_function(one) < distance_function(two);};
-
-  const auto minimum_index_iterator =
-    std::min_element(
-    std::begin(m_subroutes), std::end(m_subroutes),
-    comparison_function);
-  auto minimum_idx = std::distance(std::begin(m_subroutes), minimum_index_iterator);
-
-  return static_cast<std::size_t>(minimum_idx);
 }
 
 bool8_t BehaviorPlanner::is_vehicle_stopped(const State & state)

@@ -246,11 +246,10 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     }
     if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
       // send next subroute
-      m_planner->set_next_subroute(m_ego_state);
+      m_planner->set_next_subroute();
       request_trajectory(m_planner->get_current_subroute(m_ego_state));
       m_requesting_trajectory = true;
-    }
-    if (m_planner->needs_new_trajectory(m_ego_state)) {
+    } else if (m_planner->needs_new_trajectory(m_ego_state)) {
       // update trajectory for current subroute
       request_trajectory(m_planner->get_current_subroute(m_ego_state));
       m_requesting_trajectory = true;
