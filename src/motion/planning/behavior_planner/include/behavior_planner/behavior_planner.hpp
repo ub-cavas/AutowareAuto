@@ -26,6 +26,7 @@
 #include <common/types.hpp>
 #include <autoware_auto_msgs/msg/route.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 
 // lanelet headers
@@ -55,7 +56,9 @@ using autoware_auto_msgs::msg::Route;
 using autoware_auto_msgs::msg::MapPrimitive;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_msgs::msg::VehicleStateCommand;
 
+using autoware::common::types::uchar8_t;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 
@@ -94,6 +97,7 @@ public:
 
   RouteWithType get_current_subroute(const State & ego_state);
   PlannerType get_planner_type();
+  uchar8_t get_desired_gear(const State & state);
 
   // relay to trajectory_manager
   bool8_t is_trajectory_ready();

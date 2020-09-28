@@ -111,14 +111,17 @@ void BehaviorPlannerNode::init()
   m_route_sub = this->create_subscription<Route>(
     "route", QoS{10},
     [this](const Route::SharedPtr msg) {on_route(msg);});
+  m_vehicle_state_report_sub = this->create_subscription<VehicleStateReport>(
+    "vehicle_state_report", QoS{10},
+    [this](const VehicleStateReport::SharedPtr msg) {on_vehicle_state_report(msg);});
 
   // Setup publishers
   m_trajectory_pub =
     this->create_publisher<Trajectory>("trajectory", QoS{10});
-
-  // Setup publishers
   m_debug_trajectory_pub =
     this->create_publisher<Trajectory>("debug/full_trajectory", QoS{10});
+  m_vehicle_state_command_pub =
+    this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
 }
 
 void BehaviorPlannerNode::goal_response_callback(
@@ -253,7 +256,28 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     }
   }
 
-  if (m_planner->is_trajectory_ready()) {
+  if(!m_planner->is_trajectory_ready())
+  {
+    return;
+  }
+
+  const auto desired_gear = m_planner->get_desired_gear(m_ego_state);
+  if (desired_gear != m_current_gear) {
+    RCLCPP_INFO(get_logger(), "trying to change gear");
+
+    VehicleStateCommand gear_command;
+    gear_command.gear = desired_gear;
+    gear_command.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+    gear_command.stamp = msg->header.stamp;
+    m_vehicle_state_command_pub->publish(gear_command);
+
+    // send trajectory with current state so that velocity will be zero in order to change gear
+    Trajectory trajectory;
+    trajectory.header.frame_id = "map";
+    trajectory.header.stamp = msg->header.stamp;
+    trajectory.points.push_back(msg->state);
+    m_trajectory_pub->publish(trajectory);
+  } else {
     auto trajectory = m_planner->get_trajectory(m_ego_state);
     // trajectory.header = m_ego_state.header;
     trajectory.header.frame_id = "map";
@@ -270,6 +294,10 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
   }
 }
 
+void BehaviorPlannerNode::on_vehicle_state_report(const VehicleStateReport::SharedPtr & msg)
+{
+  m_current_gear = msg->gear;
+}
 
 void BehaviorPlannerNode::on_route(const Route::SharedPtr & msg)
 {

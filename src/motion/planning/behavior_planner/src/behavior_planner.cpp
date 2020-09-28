@@ -309,6 +309,20 @@ size_t BehaviorPlanner::get_remaining_length(const State & state)
   return m_trajectory_manager.get_remaining_length(state);
 }
 
+uchar8_t BehaviorPlanner::get_desired_gear(const State & state)
+{
+  const auto trajectory = get_trajectory(state);
+  for (const auto & pt: trajectory.points) {
+    if (pt.longitudinal_velocity_mps > std::numeric_limits<float32_t>::epsilon()) {
+      return VehicleStateCommand::GEAR_DRIVE;
+    }
+    if (pt.longitudinal_velocity_mps < -std::numeric_limits<float32_t>::epsilon()) {
+      return VehicleStateCommand::GEAR_REVERSE;
+    }
+  }
+  return VehicleStateCommand::GEAR_DRIVE;
+}
+
 
 }  // namespace behavior_planner
 }  // namespace autoware
