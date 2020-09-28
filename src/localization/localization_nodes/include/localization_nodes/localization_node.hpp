@@ -336,11 +336,11 @@ private:
       } else {
         initial_guess =
           m_pose_initializer.guess(m_tf_buffer, observation_time, map_frame, observation_frame);
-        // if (initial_guess.header.stamp != m_previous_guess_timestamp) {
-        //   RCLCPP_WARN(get_logger(),
-        //     "Previous guess had same timestamp as current guess
-        //     – latency needs to be below 100ms");
-        // }
+        if (initial_guess.header.stamp == m_previous_guess_timestamp) {
+          RCLCPP_WARN(get_logger(),
+            "Previous guess had same timestamp as current guess "
+            "– latency needs to be below 100ms");
+        }
         m_previous_guess_timestamp = initial_guess.header.stamp;
       }
 
