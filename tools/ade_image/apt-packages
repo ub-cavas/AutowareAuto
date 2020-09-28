@@ -10,11 +10,13 @@ git-lfs
 graphviz
 icecc
 icecc-monitor
+iproute2
 jq
 lcov
 less
 libpcap-dev
 man
+mesa-utils
 nodejs
 openssh-client
 python3-bloom
