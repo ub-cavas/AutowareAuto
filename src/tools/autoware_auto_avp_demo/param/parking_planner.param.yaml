@@ -16,15 +16,15 @@
       goal: 0.0
     state_bounds:
       lower:
-        x_m: -100.0
-        y_m: -100.0
-        velocity_mps: -10.0
+        x_m: -500.0
+        y_m: -500.0
+        velocity_mps: -2.0
         heading_rad: -3.1415
         steering_rad: -0.52
       upper:
-        x_m: 100.0
-        y_m: 100.0
-        velocity_mps: 10.0
+        x_m: 500.0
+        y_m: 500.0
+        velocity_mps: 2.0
         heading_rad: 3.1415
         steering_rad: 0.52
     command_bounds:
