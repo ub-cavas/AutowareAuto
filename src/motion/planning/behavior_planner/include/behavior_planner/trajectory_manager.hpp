@@ -47,6 +47,7 @@ struct BEHAVIOR_PLANNER_PUBLIC PlannerConfig
   float32_t goal_distance_thresh;
   float32_t stop_velocity_thresh;
   float32_t heading_weight;
+  float32_t subroute_goal_offset;
 };
 
 

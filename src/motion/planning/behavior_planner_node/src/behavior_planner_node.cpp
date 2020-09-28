@@ -42,7 +42,8 @@ void BehaviorPlannerNode::init()
   const behavior_planner::PlannerConfig config{
     static_cast<float32_t>(declare_parameter("goal_distance_thresh").get<float64_t>()),
     static_cast<float32_t>(declare_parameter("stop_velocity_thresh").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("heading_weight").get<float64_t>())
+    static_cast<float32_t>(declare_parameter("heading_weight").get<float64_t>()),
+    static_cast<float32_t>(declare_parameter("subroute_goal_offset").get<float64_t>())
   };
   m_planner = std::make_unique<behavior_planner::BehaviorPlanner>(config);
 
