@@ -121,6 +121,8 @@ void BehaviorPlannerNode::init()
     this->create_publisher<Trajectory>("trajectory", QoS{10});
   m_debug_trajectory_pub =
     this->create_publisher<Trajectory>("debug/full_trajectory", QoS{10});
+  m_debug_checkpoints_pub =
+    this->create_publisher<Trajectory>("debug/checkpoints", QoS{10});
   m_vehicle_state_command_pub =
     this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
 }
@@ -256,8 +258,7 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     }
   }
 
-  if(!m_planner->is_trajectory_ready())
-  {
+  if (!m_planner->is_trajectory_ready()) {
     return;
   }
 
@@ -345,6 +346,16 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
 
   // TODO(mitsudome-r) move to handle_accepted() when synchronous service is available
   m_planner->set_route(*m_route, m_lanelet_map_ptr);
+
+  const auto subroutes = m_planner->get_subroutes();
+  Trajectory checkpoints;
+  checkpoints.header.frame_id = "map";
+  for(const auto subroute : subroutes)
+  {
+    checkpoints.points.push_back(subroute.route.start_point);
+    checkpoints.points.push_back(subroute.route.goal_point);
+  }
+  m_debug_checkpoints_pub->publish(checkpoints);
 }
 }  // namespace behavior_planner_node
 }  // namespace autoware

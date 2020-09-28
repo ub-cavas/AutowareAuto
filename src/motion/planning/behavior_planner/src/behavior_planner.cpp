@@ -116,6 +116,7 @@ TrajectoryPoint get_closest_point_on_lane(
   return closest_point_on_lane;
 }
 
+
 BehaviorPlanner::BehaviorPlanner(const PlannerConfig & config)
 :  m_current_subroute(0),
   m_config(config),
@@ -323,6 +324,10 @@ uchar8_t BehaviorPlanner::get_desired_gear(const State & state)
   return VehicleStateCommand::GEAR_DRIVE;
 }
 
+std::vector<RouteWithType> BehaviorPlanner::get_subroutes()
+{
+  return m_subroutes;
+}
 
 }  // namespace behavior_planner
 }  // namespace autoware

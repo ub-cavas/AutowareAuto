@@ -98,6 +98,7 @@ public:
   RouteWithType get_current_subroute(const State & ego_state);
   PlannerType get_planner_type();
   uchar8_t get_desired_gear(const State & state);
+  std::vector<RouteWithType> get_subroutes();
 
   // relay to trajectory_manager
   bool8_t is_trajectory_ready();

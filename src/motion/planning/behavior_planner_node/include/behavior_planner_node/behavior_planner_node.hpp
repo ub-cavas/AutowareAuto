@@ -91,6 +91,7 @@ private:
   rclcpp::Subscription<VehicleStateReport>::SharedPtr m_vehicle_state_report_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
+  rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
   rclcpp::Publisher<VehicleStateCommand>::SharedPtr m_vehicle_state_command_pub{};
 
   //  planner
