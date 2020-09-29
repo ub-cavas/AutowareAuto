@@ -1,6 +1,6 @@
 autoware_auto_msgs:
   path: src/external/autoware_auto_msgs
-  revision: 1cdb893f8f44d4ad1fe119ef9815cc6985638314
+  revision: 3eccc7e40af7181d3355699a0814f203a1da057e
   url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs
 mpc:
   path: src/external/mpc
