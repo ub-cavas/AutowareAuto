@@ -80,6 +80,7 @@ protected:
   using FilterBasePtr = std::unique_ptr<common::signal_filters::FilterBase<Real>>;
   using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
   using ModeChangeResponse = autoware_auto_msgs::srv::AutonomyModeChange_Response;
+
   struct VehicleFilter
   {
     FilterBasePtr longitudinal;

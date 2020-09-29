@@ -38,6 +38,7 @@
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
+#include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 #include <std_msgs/msg/bool.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -64,6 +65,8 @@ using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_msgs::srv::AutonomyModeChange;
+using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
 
 namespace ssc_interface
 {
@@ -165,6 +168,11 @@ public:
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_control_command(const VehicleControlCommand & msg) override;
+  /// \breif Handle a request from the user to enable or disable the DBW system.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] request The requested autonomy mode
+  /// \return false only if enabling the DBW system actually failed, true otherwise
+  bool8_t handle_mode_change_request(ModeChangeRequest::SharedPtr request) override;
 
 private:
   // Publishers (to SSC)

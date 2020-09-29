@@ -173,8 +173,6 @@ bool8_t SscInterface::update(std::chrono::nanoseconds timeout)
 
 bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
 {
-  m_dbw_state_machine->user_request(msg.mode == VehicleStateCommand::MODE_AUTONOMOUS);
-
   // Turn signal command
   TurnSignalCommand tsc;
   tsc.mode = m_dbw_state_machine->enabled() ? 1 : 0;
@@ -297,6 +295,20 @@ bool8_t SscInterface::send_control_command(const VehicleControlCommand & msg)
   hlc_cmd.curvature = std::tan(msg.front_wheel_angle_rad) / (wheelbase);
 
   return send_control_command(hlc_cmd);
+}
+
+bool8_t SscInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
+{
+  if (request->mode == ModeChangeRequest::MODE_MANUAL) {
+    m_dbw_state_machine->user_request(false);
+    return true;
+  } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
+    m_dbw_state_machine->user_request(true);
+    return true;
+  } else {
+    RCLCPP_ERROR(m_logger, "Got invalid autonomy mode request value.");
+    return false;
+  }
 }
 
 void SscInterface::on_dbw_state_report(const std_msgs::msg::Bool::SharedPtr & msg)
