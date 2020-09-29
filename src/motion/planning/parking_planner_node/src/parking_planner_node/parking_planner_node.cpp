@@ -333,6 +333,8 @@ static std::vector<ParkingPolytope> convert_drivable_area_to_obstacles(
     for (auto it = hull.begin(); it != hull.end(); ++it) {
       parking_points.emplace_back(ParkingPoint(it->x, it->y));
     }
+    // Parking polytopes need ccw, lanelet does clockwise
+    std::reverse(parking_points.begin(), parking_points.end());
     obstacles.emplace_back(ParkingPolytope(parking_points));
   }
 

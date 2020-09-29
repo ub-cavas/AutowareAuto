@@ -163,6 +163,7 @@ PlanningResult ParkingPlanner::plan(
     goal_state,
     vehicle_bounding_box,
     obstacles);
+  std::cout << "A* guess length: " << astar_output.size() << std::endl;
 
   // Translate A* planner output to a trajectory with commands
   const auto trajectory_guess = this->create_trajectory_from_states(astar_output, HORIZON_LENGTH);
