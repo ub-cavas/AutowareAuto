@@ -190,8 +190,6 @@ void VehicleInterfaceNode::on_command_message(
       on_control_send_failure();
     }
     send_state_command(commands.state());
-    state_machine_report();
-
   } else {
     RCLCPP_WARN(logger(), "Vehicle interface time did not increase, skipping");
   }
