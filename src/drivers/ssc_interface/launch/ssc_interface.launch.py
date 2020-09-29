@@ -65,7 +65,11 @@ def generate_launch_description():
             ('turn_signal_command', '/ssc/turn_signal_command'),
             ('dbw_enabled_feedback', '/ssc/dbw_enabled_fedback'),
             ('gear_feedback', '/ssc/gear_feedback'),
-            ('velocity_accel_cov', '/ssc/velocity_accel_cov')
+            ('velocity_accel_cov', '/ssc/velocity_accel_cov'),
+            ('steering_feedback', '/ssc/steering_feedback'),
+            ('vehicle_kinematic_state_cog', '/vehicle/vehicle_kinematic_state'),
+            ('state_report_out', '/vehicle/vehicle_state_report'),
+            ('state_command', '/vehicle/vehicle_state_command')
         ]
     )
 
