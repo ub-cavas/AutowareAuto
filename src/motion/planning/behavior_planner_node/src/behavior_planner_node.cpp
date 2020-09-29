@@ -269,8 +269,7 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
 
     // TODO(mitsudome-r): replace this with throttled output in foxy
     const auto now = std::chrono::system_clock::now();
-    if(now - previous_output > throttle_time)
-    {
+    if (now - previous_output > throttle_time) {
       RCLCPP_INFO(get_logger(), "trying to change gear");
       previous_output = now;
     }
@@ -360,8 +359,7 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   const auto subroutes = m_planner->get_subroutes();
   Trajectory checkpoints;
   checkpoints.header.frame_id = "map";
-  for(const auto subroute : subroutes)
-  {
+  for (const auto subroute : subroutes) {
     checkpoints.points.push_back(subroute.route.start_point);
     checkpoints.points.push_back(subroute.route.goal_point);
   }

@@ -21,6 +21,7 @@
 #include <limits>
 #include <string>
 #include <unordered_map>
+#include <vector>
 
 namespace autoware
 {
@@ -313,7 +314,7 @@ size_t BehaviorPlanner::get_remaining_length(const State & state)
 uchar8_t BehaviorPlanner::get_desired_gear(const State & state)
 {
   const auto trajectory = get_trajectory(state);
-  for (const auto & pt: trajectory.points) {
+  for (const auto & pt : trajectory.points) {
     if (pt.longitudinal_velocity_mps > std::numeric_limits<float32_t>::epsilon()) {
       return VehicleStateCommand::GEAR_DRIVE;
     }
