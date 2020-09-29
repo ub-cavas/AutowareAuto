@@ -195,7 +195,7 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
     if (start_in_parking) {
       // parking, parking access, route
       route.insert(route.begin(), {near_parking_start, parkingaccess_start});
-    } 
+    }
     if (end_in_parking) {
       // route, parking access, parking
       route.insert(route.end(), {parkingaccess_end, near_parking_end});
