@@ -356,13 +356,13 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
   // producing a velocity at the center of gravity.
   // Lateral velocity increases linearly from 0 at the rear axle to the maximum
   // at the front axle, where it is tan(δ)*v_lon.
-  const float32_t lat_vel_at_front_axle_to_cog =
-    m_rear_axle_to_cog / (m_rear_axle_to_cog + m_front_axle_to_cog);
+  const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
+  const float32_t delta = m_vehicle_kinematic_state.state.front_wheel_angle_rad;
+  const float32_t lat_vel_at_front_axle_to_cog = m_rear_axle_to_cog / wheelbase;
   m_vehicle_kinematic_state.header.frame_id = "odom";
   m_vehicle_kinematic_state.state.longitudinal_velocity_mps = msg->velocity;
-  m_vehicle_kinematic_state.state.lateral_velocity_mps =
-    lat_vel_at_front_axle_to_cog * msg->velocity *
-    std::tan(m_vehicle_kinematic_state.state.front_wheel_angle_rad);
+  m_vehicle_kinematic_state.state.lateral_velocity_mps = lat_vel_at_front_axle_to_cog *
+    msg->velocity * std::tan(delta);
   m_vehicle_kinematic_state.state.acceleration_mps2 = msg->accleration;
   // Dt can not be calculated from the first message alone
   if (!m_seen_vel_accel) {
@@ -384,8 +384,14 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
   m_vehicle_kinematic_state.header.stamp = msg->header.stamp;
 
   if (m_seen_steer) {
-    kinematic_bicycle_model(
-      dt, m_rear_axle_to_cog, m_front_axle_to_cog, &m_vehicle_kinematic_state);
+    // TODO(Takamasa Horibe): modify after AVP with TF specifications
+    // position or yaw is 0 since odom=baselink wit hstatic TF in AVP demo
+    m_vehicle_kinematic_state.state.x = 0.0F;
+    m_vehicle_kinematic_state.state.y = 0.0F;
+    m_vehicle_kinematic_state.state.heading.real = std::cos(/*yaw*/ 0.0F / 2.0F);
+    m_vehicle_kinematic_state.state.heading.imag = std::sin(/*yaw*/ 0.0F / 2.0F);
+    const float32_t beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
+    m_vehicle_kinematic_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;
     m_kinematic_state_pub->publish(m_vehicle_kinematic_state);
   }
 }
