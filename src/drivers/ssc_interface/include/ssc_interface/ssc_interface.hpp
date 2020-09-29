@@ -177,7 +177,8 @@ private:
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr m_kinematic_state_pub;
 
   // Subscribers (from SSC)
-  rclcpp::SubscriptionBase::SharedPtr m_dbw_state_sub, m_gear_feedback_sub, m_vel_accel_sub;
+  rclcpp::SubscriptionBase::SharedPtr m_dbw_state_sub, m_gear_feedback_sub, m_vel_accel_sub,
+    m_steer_sub;
 
   rclcpp::Logger m_logger;
   float32_t m_front_axle_to_cog;

@@ -159,6 +159,10 @@ SscInterface::SscInterface(
     node.create_subscription<VelocityAccelCov>(
     "velocity_accel_cov", rclcpp::QoS{10},
     [this](VelocityAccelCov::SharedPtr msg) {on_vel_accel_report(msg);});
+  m_steer_sub =
+    node.create_subscription<SteeringFeedback>(
+    "steering_feedback", rclcpp::QoS{10},
+    [this](SteeringFeedback::SharedPtr msg) {on_steer_report(msg);});
 }
 
 bool8_t SscInterface::update(std::chrono::nanoseconds timeout)
