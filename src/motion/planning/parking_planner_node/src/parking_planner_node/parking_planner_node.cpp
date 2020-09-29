@@ -519,7 +519,8 @@ void ParkingPlannerNode::debug_publish_obstacles(
     all_obstacle_linestrings.push_back(obstacle_linestring);
   }
 
-  m_debug_obstacles_publisher->publish(autoware::common::had_map_utils::lineStringsAsTriangleMarkerArray(
+  m_debug_obstacles_publisher->publish(
+    autoware::common::had_map_utils::lineStringsAsTriangleMarkerArray(
       marker_t, "parking_debug_obstacles",
       all_obstacle_linestrings,
       color_obstacles));

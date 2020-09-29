@@ -37,6 +37,7 @@
 
 #include <string>
 #include <memory>
+#include <vector>
 #include <thread>
 #include <future>
 
@@ -97,7 +98,7 @@ private:
     const std::vector<ParkingPolytope> & obstacles);
 
   PARKING_PLANNER_NODE_LOCAL void debug_publish_trajectory(
-    const  AutowareTrajectory & trajectory);
+    const AutowareTrajectory & trajectory);
 };  // class parkingPlannerNode
 }  // namespace parking_planner_node
 }  // namespace planning
