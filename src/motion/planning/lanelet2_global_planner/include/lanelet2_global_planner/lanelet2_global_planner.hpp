@@ -59,6 +59,8 @@ public:
   bool8_t plan_route(
     const lanelet::Point3d & start, const lanelet::Point3d & end,
     std::vector<lanelet::Id> & route) const;
+  bool8_t point_in_parking_spot(const lanelet::Point3d & point, const lanelet::Id & parking_id) const;
+  std::string get_primitive_type(const lanelet::Id & prim_id);
   lanelet::Id find_nearparking_from_point(const lanelet::Point3d & point) const;
   lanelet::Id find_nearroute_from_parking(const lanelet::Id & park_id) const;
   lanelet::Id find_parkingaccess_from_parking(const lanelet::Id & park_id) const;

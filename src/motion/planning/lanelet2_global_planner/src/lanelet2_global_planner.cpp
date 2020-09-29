@@ -15,6 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <lanelet2_global_planner/lanelet2_global_planner.hpp>
+#include <lanelet2_core/geometry/Area.h>
 #include <common/types.hpp>
 
 #include <string>
@@ -139,28 +140,105 @@ void Lanelet2GlobalPlanner::parse_lanelet_element()
   }
 }
 
+// Function currently assumes the following:
+//   - The route can start in a parking spot or lanelet
+//   - The route can end in a parking spot or lanelet
 bool8_t Lanelet2GlobalPlanner::plan_route(
   const lanelet::Point3d & start,
   const lanelet::Point3d & end, std::vector<lanelet::Id> & route) const
 {
-  // find near start-end parking:return id
-  lanelet::Id near_parking_start = find_nearparking_from_point(start);
-  lanelet::Id near_parking_end = find_nearparking_from_point(end);
-  // find connecting a parking access from a parking spot
-  lanelet::Id parkingaccess_start = find_parkingaccess_from_parking(near_parking_start);
-  lanelet::Id parkingaccess_end = find_parkingaccess_from_parking(near_parking_end);
-  // find connecting a lane from a parking access
-  std::vector<lanelet::Id> lane_start = find_lane_from_parkingaccess(parkingaccess_start);
-  std::vector<lanelet::Id> lane_end = find_lane_from_parkingaccess(parkingaccess_end);
+  std::vector<lanelet::Id> lane_start;
+  std::vector<lanelet::Id> lane_end;
+  lanelet::Id near_parking_start, near_parking_end;
+  lanelet::Id parkingaccess_start, parkingaccess_end;
+
+  // Find nearest parking spot IDs for start and end points
+  near_parking_start = find_nearparking_from_point(start);
+  near_parking_end = find_nearparking_from_point(end);
+
+  // Determine if start/end position is in the closest parking spot
+  const auto start_in_parking = point_in_parking_spot(start, near_parking_start);
+  const auto end_in_parking = point_in_parking_spot(end, near_parking_end);
+
+  if (start_in_parking) {
+    // find connecting parking access from a parking spot
+    parkingaccess_start = find_parkingaccess_from_parking(near_parking_start);
+    // find connecting lane from a parking access
+    lane_start = find_lane_from_parkingaccess(parkingaccess_start);
+  } else {
+    auto nearest_lanelets = osm_map->laneletLayer.nearest(start, 1);
+    if (nearest_lanelets.empty()) {
+      std::cerr << "Couldn't find nearest lanelet to start." << std::endl;
+    } else {
+      lane_start.push_back(nearest_lanelets[0].id());
+    }
+  }
+
+  if (end_in_parking) {
+    // find connecting parking access from a parking spot
+    parkingaccess_end = find_parkingaccess_from_parking(near_parking_end);
+    // find connecting lane from a parking access
+    lane_end = find_lane_from_parkingaccess(parkingaccess_end);
+  } else {
+    auto nearest_lanelets = osm_map->laneletLayer.nearest(end, 1);
+    if (nearest_lanelets.empty()) {
+      std::cerr << "Couldn't find nearest lanelet to goal." << std::endl;
+    } else {
+      lane_end.push_back(nearest_lanelets[0].id());
+    }
+  }
+
   // plan a route using lanelet2 lib
   route = get_lane_route(lane_start, lane_end);
+
   if (route.size() > 0) {
-    // parking, parking access, routes, parking access, parking
-    route.insert(route.begin(), {near_parking_start, parkingaccess_start});
-    route.insert(route.end(), {parkingaccess_end, near_parking_end});
+    if (start_in_parking) {
+      // parking, parking access, route
+      route.insert(route.begin(), {near_parking_start, parkingaccess_start});
+    } else if (end_in_parking) {
+      // route, parking access, parking
+      route.insert(route.end(), {parkingaccess_end, near_parking_end});
+    }
+
     return true;
   } else {
     return false;
+  }
+}
+
+bool8_t Lanelet2GlobalPlanner::point_in_parking_spot(const lanelet::Point3d & point, const lanelet::Id & parking_id)
+const
+{
+  if (osm_map->lineStringLayer.exists(parking_id)) {
+    const auto parking_ls = osm_map->lineStringLayer.get(parking_id);
+    const auto parking_poly = lanelet::BasicPolygon3d(parking_ls.basicLineString());
+    
+    return lanelet::geometry::within(point, parking_poly);
+  } else {
+    return false;
+  }
+}
+
+std::string Lanelet2GlobalPlanner::get_primitive_type(const lanelet::Id & prim_id)
+{
+  if (osm_map->laneletLayer.exists(prim_id)) {
+    return "lane";
+  } else if (osm_map->lineStringLayer.exists(prim_id)) {
+    const auto linestring = osm_map->lineStringLayer.get(prim_id);
+    if (linestring.hasAttribute("subtype") &&
+      linestring.hasAttribute("parking_accesses") &&
+      (linestring.attribute("subtype") == "parking_spot" ||
+      linestring.attribute("subtype") == "parking_spot,drop_off,pick_up")) {
+      return "parking";
+    } else if (linestring.hasAttribute("subtype") &&
+      linestring.hasAttribute("ref_lanelet") &&
+      linestring.attribute("subtype") == "parking_access") {
+      return "drivable_area";
+    } else {
+      return "unknown";
+    }
+  } else {
+    return "unknown";
   }
 }
 
