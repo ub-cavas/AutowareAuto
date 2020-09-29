@@ -202,11 +202,6 @@ private:
   void on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg);
   void kinematic_bicycle_model(
     float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks);
-
-  inline float32_t yaw_rate_to_curvature_rate(float32_t yaw_rate, float32_t velocity)
-  {
-    return 1.0F / (velocity / yaw_rate);
-  }
 };
 
 }  // namespace ssc_interface

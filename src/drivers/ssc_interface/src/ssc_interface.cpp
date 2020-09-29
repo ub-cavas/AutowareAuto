@@ -256,9 +256,10 @@ bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
 
   // Publish steering command
   SteerMode steer_mode;
+  constexpr float32_t curvature_rate = 0.15F;  // assume the rate is constant.
   steer_mode.mode = m_dbw_state_machine->enabled() ? 1 : 0;
   steer_mode.curvature = msg.curvature;
-  steer_mode.max_curvature_rate = yaw_rate_to_curvature_rate(m_max_yaw_rate, msg.velocity_mps);
+  steer_mode.max_curvature_rate = curvature_rate;  // should be positive
   steer_mode.header.stamp = msg.stamp;
   m_steer_cmd_pub->publish(steer_mode);
 
