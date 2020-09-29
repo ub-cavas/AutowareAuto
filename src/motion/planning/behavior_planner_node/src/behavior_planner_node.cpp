@@ -262,9 +262,19 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     return;
   }
 
+  static auto previous_output = std::chrono::system_clock::now();
   const auto desired_gear = m_planner->get_desired_gear(m_ego_state);
   if (desired_gear != m_current_gear) {
-    RCLCPP_INFO(get_logger(), "trying to change gear");
+    const auto throttle_time = std::chrono::duration<float64_t>(3);
+
+    // TODO(mitsudome-r): replace this with throttled output in foxy
+    const auto now = std::chrono::system_clock::now();
+    if(now - previous_output > throttle_time)
+    {
+      RCLCPP_INFO(get_logger(), "trying to change gear");
+      previous_output = now;
+    }
+
 
     VehicleStateCommand gear_command;
     gear_command.gear = desired_gear;
