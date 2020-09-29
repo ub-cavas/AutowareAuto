@@ -241,19 +241,11 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   global_route.start_point = convertToTrajectoryPoint(start_pose.pose);
   global_route.goal_point = convertToTrajectoryPoint(goal_pose.pose);
 
-  for (size_t i = 0; i < route.size(); ++i) {
-    std::string route_type = "";
-    if (i == 0 || i == route.size() - 1) {
-      route_type = "parking";
-    } else if (i == 1 || i == route.size() - 2) {
-      route_type = "drivable_area";
-    } else {
-      route_type = "lane";
-    }
+  for (const auto & route_id : route) {
     // add data to the global path
     autoware_auto_msgs::msg::MapPrimitive primitive;
-    primitive.id = route.at(i);
-    primitive.primitive_type = route_type;
+    primitive.id = route_id;
+    primitive.primitive_type = lanelet2_global_planner->get_primitive_type(route_id);
     global_route.primitives.push_back(primitive);
   }
   // publish the global path
