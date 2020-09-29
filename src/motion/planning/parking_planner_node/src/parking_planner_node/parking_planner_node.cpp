@@ -71,12 +71,12 @@ using ParkerModelParameters =
   autoware::motion::planning::parking_planner::BicycleModelParameters<float64_t>;
 using ParkingPolytope = autoware::motion::planning::parking_planner::Polytope2D<float64_t>;
 using ParkingPlanner = autoware::motion::planning::parking_planner::ParkingPlanner;
+using ParkingStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 using ParkingTrajectory = autoware::motion::planning::parking_planner::Trajectory<float64_t>;
 using PlanningStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 using ParkingPoint = autoware::motion::planning::parking_planner::Point2D<float64_t>;
 
 using autoware_auto_msgs::msg::TrajectoryPoint;
-using AutowareTrajectory = autoware_auto_msgs::msg::Trajectory;
 
 using Point = geometry_msgs::msg::Point32;
 using Polygon = geometry_msgs::msg::Polygon;
@@ -176,6 +176,14 @@ void ParkingPlannerNode::init(
     model_parameters, optimization_weights,
     lower_state_bounds,
     upper_state_bounds, lower_command_bounds, upper_command_bounds);
+
+  m_debug_obstacles_publisher = this->create_publisher<visualization_msgs::msg::MarkerArray>(
+    "parking_debug_obstacles",
+    rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
+
+  m_debug_trajectory_publisher = this->create_publisher<autoware_auto_msgs::msg::Trajectory>(
+    "parking_debug_trajectory",
+    rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }
 
 // --- Helpers for "execute_planning" ---
@@ -314,11 +322,12 @@ static std::vector<ParkingPolytope> convert_drivable_area_to_obstacles(
     drivable_area, drivable_area_hull.begin(),
     drivable_area_hull.end());
 
-  // - Compute parking polytopes from the convex hulls of the outer boxes as well as the pockets
+  // - Merge outer boxes and pocket hulls into one big list
   auto all_hulls = owned_pocket_hulls;
   all_hulls.insert(all_hulls.end(), outer_boxes.begin(), outer_boxes.end());
-  std::vector<ParkingPolytope> obstacles{};
 
+  // - Compute parking polytopes from the convex hulls of the outer boxes as well as the pockets
+  std::vector<ParkingPolytope> obstacles{};
   for (const auto & hull : all_hulls) {
     std::vector<ParkingPoint> parking_points{};
     for (auto it = hull.begin(); it != hull.end(); ++it) {
@@ -330,7 +339,7 @@ static std::vector<ParkingPolytope> convert_drivable_area_to_obstacles(
   return obstacles;
 }
 
-static Trajectory convert_parking_planner_to_autoware_trajectory(
+static AutowareTrajectory convert_parking_planner_to_autoware_trajectory(
   const ParkingTrajectory & parking_trajectory)
 {
   // These constants come from parking_planner/configuration.hpp
@@ -340,6 +349,7 @@ static Trajectory convert_parking_planner_to_autoware_trajectory(
 
   // Create one trajectory point for each parking planner trajectory point.
   AutowareTrajectory trajectory{};
+  trajectory.header.frame_id = "map";
   for (const auto & step : parking_trajectory) {
     auto parking_state = step.get_state();
     auto parking_command = step.get_command();
@@ -490,7 +500,32 @@ static Polygon3d coalesce_drivable_areas(
   return lanelet_drivable_area;
 }
 
-Trajectory ParkingPlannerNode::plan_trajectory(
+void ParkingPlannerNode::debug_publish_obstacles(
+  const std::vector<ParkingPolytope> & obstacles)
+{
+  visualization_msgs::msg::MarkerArray map_marker_array;
+  rclcpp::Time marker_t = rclcpp::Time(0);
+
+  std_msgs::msg::ColorRGBA color_obstacles;
+  autoware::common::had_map_utils::setColor(&color_obstacles, 1.0f, 1.0f, 1.0f, 1.0f);
+
+  std::vector<LineString3d> all_obstacle_linestrings{};
+  for (const auto & the_obstacle : obstacles) {
+    LineString3d obstacle_linestring(getId(), {});
+    for (const auto & pt : the_obstacle.get_vertices() ) {
+      obstacle_linestring.push_back(Point3d(getId(), std::get<0>(pt.get_coord()),
+        std::get<1>(pt.get_coord()), 0.0));
+    }
+    all_obstacle_linestrings.push_back(obstacle_linestring);
+  }
+
+  m_debug_obstacles_publisher->publish(autoware::common::had_map_utils::lineStringsAsTriangleMarkerArray(
+      marker_t, "parking_debug_obstacles",
+      all_obstacle_linestrings,
+      color_obstacles));
+}
+
+AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   const Route & route,
   const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
@@ -500,6 +535,9 @@ Trajectory ParkingPlannerNode::plan_trajectory(
 
   // ---- Obtain "list of bounding obstacles" of drivable surface -----------------------
   const auto obstacles = convert_drivable_area_to_obstacles(drivable_area);
+  //
+  // - Debugging: publish the obstacles as marker arrays for inspection
+  this->debug_publish_obstacles(obstacles);
 
   // ---- Call the actual planner with the inputs we've assembled -----------------------
   const auto start_trajectory_point = route.start_point;
@@ -508,9 +546,16 @@ Trajectory ParkingPlannerNode::plan_trajectory(
   const auto goal_state = convert_trajectorypoint_to_vehiclestate(goal_trajectory_point);
   const auto planner_result = m_planner->plan(starting_state, goal_state, obstacles);
 
+  if (planner_result.get_status() == ParkingStatus::NLP_ERROR) {
+    return AutowareTrajectory{};
+  }
+
   // ---- Convert the trajectory to an autoware trajectory message ----------------------
   auto trajectory =
     convert_parking_planner_to_autoware_trajectory(planner_result.get_trajectory());
+
+  m_debug_trajectory_publisher->publish(trajectory);
+
   return trajectory;
 }
 
