@@ -206,6 +206,19 @@ void VehicleInterfaceNode::on_command_message(
 }
 /*lint -restore*/
 
+////////////////////////////////////////////////////////////////////////////////
+void VehicleInterfaceNode::on_mode_change_request(
+  ModeChangeRequest::SharedPtr request,
+  ModeChangeResponse::SharedPtr response)
+{
+  // Response is std_msgs::msg::Empty because changing the autonomy state
+  // takes a non-trivial amount of time and the current state should be
+  // reported via the VehicleStateReport
+  (void)response;
+  if (!m_interface->handle_mode_change_request(request)) {
+    on_mode_change_failure();
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 void VehicleInterfaceNode::init(
@@ -272,6 +285,14 @@ void VehicleInterfaceNode::init(
   } else {
     throw std::domain_error{"Vehicle interface must have exactly one command subscription"};
   }
+  // Create services
+  m_mode_service = create_service<autoware_auto_msgs::srv::AutonomyModeChange>(
+    "autonomy_mode", [this](
+      ModeChangeRequest::SharedPtr request,
+      ModeChangeResponse::SharedPtr response) -> void
+    {
+      on_mode_change_request(request, response);
+    });
   // Make filters
   const auto create_filter = [](const auto & config) -> auto {
       using common::signal_filters::FilterFactory;
@@ -369,6 +390,12 @@ void VehicleInterfaceNode::on_state_send_failure()
 void VehicleInterfaceNode::on_read_timeout()
 {
   throw std::runtime_error{"Receiving data failed"};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+void VehicleInterfaceNode::on_mode_change_failure()
+{
+  throw std::runtime_error{"Changing autonomy mode failed"};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
