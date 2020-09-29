@@ -206,13 +206,14 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
   }
 }
 
-bool8_t Lanelet2GlobalPlanner::point_in_parking_spot(const lanelet::Point3d & point, const lanelet::Id & parking_id)
+bool8_t Lanelet2GlobalPlanner::point_in_parking_spot(
+  const lanelet::Point3d & point, const lanelet::Id & parking_id)
 const
 {
   if (osm_map->lineStringLayer.exists(parking_id)) {
     const auto parking_ls = osm_map->lineStringLayer.get(parking_id);
     const auto parking_poly = lanelet::BasicPolygon3d(parking_ls.basicLineString());
-    
+
     return lanelet::geometry::within(point, parking_poly);
   } else {
     return false;
@@ -228,11 +229,13 @@ std::string Lanelet2GlobalPlanner::get_primitive_type(const lanelet::Id & prim_i
     if (linestring.hasAttribute("subtype") &&
       linestring.hasAttribute("parking_accesses") &&
       (linestring.attribute("subtype") == "parking_spot" ||
-      linestring.attribute("subtype") == "parking_spot,drop_off,pick_up")) {
+      linestring.attribute("subtype") == "parking_spot,drop_off,pick_up"))
+    {
       return "parking";
-    } else if (linestring.hasAttribute("subtype") &&
+    } else if (linestring.hasAttribute("subtype") &&  // NOLINT
       linestring.hasAttribute("ref_lanelet") &&
-      linestring.attribute("subtype") == "parking_access") {
+      linestring.attribute("subtype") == "parking_access")
+    {
       return "drivable_area";
     } else {
       return "unknown";
