@@ -168,7 +168,7 @@ public:
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_control_command(const VehicleControlCommand & msg) override;
-  /// \breif Handle a request from the user to enable or disable the DBW system.
+  /// \brief Handle a request from the user to enable or disable the DBW system.
   ///   Exceptions may be thrown on errors
   /// \param[in] request The requested autonomy mode
   /// \return false only if enabling the DBW system actually failed, true otherwise
