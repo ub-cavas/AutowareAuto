@@ -155,19 +155,16 @@ PlanningResult ParkingPlanner::plan(
 {
   // If the starting and target angles would be closer if we shift by 2*pi in either
   // direction, do that. This will help avoid the planner coming up with "loop" solutions.
-  // TODO(s.me) this should be cleaned up after AVP 
-  const auto current_heading_difference = std::abs(
-    goal_state.get_heading() - current_state.get_heading());
+  // TODO(s.me) this should be cleaned up after AVP
+  const auto goal_heading = goal_state.get_heading();
+  const auto current_heading = current_state.get_heading();
+  const auto current_heading_difference = std::abs(goal_heading - current_heading);
   VehicleState<float64_t> adapted_goal_state = goal_state;
   const auto pi = 3.14159;
-  if (std::abs(adapted_goal_state.get_heading() - (2 * pi) - current_state.get_heading()) <
-    current_heading_difference)
-  {
-    adapted_goal_state.set_heading(adapted_goal_state.get_heading() - (2 * pi) );
-  } else if (std::abs(adapted_goal_state.get_heading() + (2 * pi) - current_state.get_heading()) <
-    current_heading_difference)
-  {
-    adapted_goal_state.set_heading(adapted_goal_state.get_heading() + (2 * pi) );
+  if (std::abs(goal_heading - (2 * pi) - current_heading) < current_heading_difference) {
+    adapted_goal_state.set_heading(goal_heading - (2 * pi) );
+  } else if (std::abs(goal_heading + (2 * pi) - current_heading) < current_heading_difference) {
+    adapted_goal_state.set_heading(goal_heading + (2 * pi) );
   }
 
   // Run discretized global A* planner

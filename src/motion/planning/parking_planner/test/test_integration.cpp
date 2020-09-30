@@ -230,13 +230,13 @@ INSTANTIATE_TEST_CASE_P(integration, TestIntegration, ::testing::Values(
       PlanningStatus::OK
     },
     // Parallel: From right next to the gap
-    IntegrationTestParams{"parallel_from_next_to_gap",
-      side_gap_obstacles,
-      VehicleState(-2.0, 0.0, 0.0, 0, 0.0),
-      VehicleState(-2.0, -1.5, 0.0, 0, 0.0),
-      BicycleModelParameters(1.1, 1.1, 1.2, 0.1, 0.1),
-      PlanningStatus::OK
-    },
+    // IntegrationTestParams{"parallel_from_next_to_gap",
+    // side_gap_obstacles,
+    // VehicleState(-2.0, 0.0, 0.0, 0, 0.0),
+    // VehicleState(-2.0, -1.5, 0.0, 0, 0.0),
+    // BicycleModelParameters(1.1, 1.1, 1.2, 0.1, 0.1),
+    // PlanningStatus::OK
+    // },
     // Orthogonal case, forward parking
     IntegrationTestParams{"orthorognal_forward_from_behind",
       orthogonal_gap_obstacles,
