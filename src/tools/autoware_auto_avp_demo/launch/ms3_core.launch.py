@@ -62,11 +62,6 @@ def generate_launch_description():
     behavior_planner_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/behavior_planner.param.yaml')
 
-    pc_filter_transform_pkg_prefix = get_package_share_directory(
-        'point_cloud_filter_transform_nodes')
-    pc_filter_transform_param_file = os.path.join(
-        pc_filter_transform_pkg_prefix, 'param/vlp16_sim_lexus_filter_transform.param.yaml')
-
     point_cloud_fusion_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion')
     point_cloud_fusion_param_file = os.path.join(
@@ -78,11 +73,6 @@ def generate_launch_description():
         'euclidean_cluster_param_file',
         default_value=euclidean_cluster_param_file,
         description='Path to config file for Euclidean Clustering'
-    )
-    pc_filter_transform_param = DeclareLaunchArgument(
-        'pc_filter_transform_param_file',
-        default_value=pc_filter_transform_param_file,
-        description='Path to config file for Point Cloud Filter/Transform Nodes'
     )
     ray_ground_classifier_param = DeclareLaunchArgument(
         'ray_ground_classifier_param_file',
@@ -145,22 +135,6 @@ def generate_launch_description():
         remappings=[
             ("points_in", "points_nonground")
         ]
-    )
-    filter_transform_vlp16_front = Node(
-        package='point_cloud_filter_transform_nodes',
-        node_executable='point_cloud_filter_transform_node_exe',
-        node_name='filter_transform_vlp16_front',
-        node_namespace='lidar_front',
-        parameters=[LaunchConfiguration('pc_filter_transform_param_file')],
-        remappings=[("points_in", "points_raw")]
-    )
-    filter_transform_vlp16_rear = Node(
-        package='point_cloud_filter_transform_nodes',
-        node_executable='point_cloud_filter_transform_node_exe',
-        node_name='filter_transform_vlp16_rear',
-        node_namespace='lidar_rear',
-        parameters=[LaunchConfiguration('pc_filter_transform_param_file')],
-        remappings=[("points_in", "points_raw")]
     )
     # point cloud fusion runner to fuse front and rear lidar
     point_cloud_fusion = Node(
@@ -274,7 +248,6 @@ def generate_launch_description():
 
     return LaunchDescription([
         euclidean_cluster_param,
-        pc_filter_transform_param,
         ray_ground_classifier_param,
         scan_downsampler_param,
         with_rviz_param,
@@ -286,8 +259,6 @@ def generate_launch_description():
         object_collision_estimator_param,
         behavior_planner_param,
         euclidean_clustering,
-        filter_transform_vlp16_front,
-        filter_transform_vlp16_rear,
         ray_ground_classifier,
         scan_downsampler,
         recordreplay_planner,
