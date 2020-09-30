@@ -62,16 +62,16 @@ document.addEventListener("DOMContentLoaded", function() {
         console.log('initial pose published');
     }
 
-    var button = document.querySelector("[name='initial']");
-    button.addEventListener('click', setInitialPose);
+    var initialButton = document.querySelector("[name='initial']");
+    initialButton.addEventListener('click', setInitialPose);
+
+    var goalTopic = new ROSLIB.Topic({
+        ros : ros,
+        name : '/planning/goal_pose',
+        messageType : 'geometry_msgs/msg/PoseStamped'
+    });
 
     function setGoalPose() {
-        var poseTopic = new ROSLIB.Topic({
-            ros : ros,
-            name : '/planning/goal_pose',
-            messageType : 'geometry_msgs/msg/PoseStamped'
-        });
-
         const pose = new ROSLIB.Message({
             header : {
                 // stamp should be ignored
@@ -96,10 +96,42 @@ document.addEventListener("DOMContentLoaded", function() {
                 },
             },
         });
-        poseTopic.publish(pose);
+        goalTopic.publish(pose);
         console.log('goal pose published');
     }
 
-    button = document.querySelector("[name='park']");
-    button.addEventListener('click', setGoalPose);
+    var parkButton = document.querySelector("[name='park']");
+    parkButton.addEventListener('click', setGoalPose);
+
+    function setReturnPose() {
+        const pose = new ROSLIB.Message({
+            header : {
+                // stamp should be ignored
+                stamp : {
+                    sec: 0,
+                    nanosec: 0
+                },
+                frame_id : "map"
+            },
+            pose : {
+                // on lane in front of Autonomous Stuff office building
+                position : {
+                    x: -26.73210906982422,
+                    y: 108.79566192626953,
+                    z: 0.0,
+                },
+                orientation : {
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.3421307048194666,
+                    w: 0.9396523723269872,
+                },
+            },
+        });
+        goalTopic.publish(pose);
+        console.log('return pose published');
+    }
+
+    var returnButton = document.querySelector("[name='return']");
+    returnButton.addEventListener('click', setReturnPose);
 })
