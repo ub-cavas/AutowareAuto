@@ -83,6 +83,7 @@ using Polygon = geometry_msgs::msg::Polygon;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::geometry::convex_hull;
+using autoware::common::geometry::ccw;
 using autoware::common::geometry::hull_pockets;
 using autoware::common::geometry::minus_2d;
 using autoware::common::geometry::plus_2d;
@@ -334,7 +335,18 @@ static std::vector<ParkingPolytope> convert_drivable_area_to_obstacles(
       parking_points.emplace_back(ParkingPoint(it->x, it->y));
     }
     // Parking polytopes need ccw, lanelet does clockwise
-    std::reverse(parking_points.begin(), parking_points.end());
+    const auto point_p2g = [](const ParkingPoint & pt) {
+        Point out;
+        out.x = static_cast<float32_t>(std::get<0>(pt.get_coord()));
+        out.y = static_cast<float32_t>(std::get<1>(pt.get_coord()));
+        return out;
+      };
+    if (parking_points.size() >= 3 &&
+      ccw(point_p2g(parking_points[0]), point_p2g(parking_points[1]),
+      point_p2g(parking_points[2])) )
+    {
+      std::reverse(parking_points.begin(), parking_points.end());
+    }
     obstacles.emplace_back(ParkingPolytope(parking_points));
   }
 

@@ -153,6 +153,23 @@ PlanningResult ParkingPlanner::plan(
   const std::vector<Polytope2D<float64_t>> & obstacles
 ) const
 {
+  // If the starting and target angles would be closer if we shift by 2*pi in either
+  // direction, do that. This will help avoid the planner coming up with "loop" solutions.
+  // TODO(s.me) this should be cleaned up after AVP 
+  const auto current_heading_difference = std::abs(
+    goal_state.get_heading() - current_state.get_heading());
+  VehicleState<float64_t> adapted_goal_state = goal_state;
+  const auto pi = 3.14159;
+  if (std::abs(adapted_goal_state.get_heading() - (2 * pi) - current_state.get_heading()) <
+    current_heading_difference)
+  {
+    adapted_goal_state.set_heading(adapted_goal_state.get_heading() - (2 * pi) );
+  } else if (std::abs(adapted_goal_state.get_heading() + (2 * pi) - current_state.get_heading()) <
+    current_heading_difference)
+  {
+    adapted_goal_state.set_heading(adapted_goal_state.get_heading() + (2 * pi) );
+  }
+
   // Run discretized global A* planner
   const auto vehicle_bounding_box =
     BicycleModel<float64_t,
@@ -160,7 +177,7 @@ PlanningResult ParkingPlanner::plan(
   const std::vector<VehicleState<float64_t>> astar_output =
     m_astar_planner.plan_astar(
     current_state,
-    goal_state,
+    adapted_goal_state,
     vehicle_bounding_box,
     obstacles);
   std::cout << "A* guess length: " << astar_output.size() << std::endl;
@@ -169,7 +186,8 @@ PlanningResult ParkingPlanner::plan(
   const auto trajectory_guess = this->create_trajectory_from_states(astar_output, HORIZON_LENGTH);
 
   // Run NLP smoother, warm-started using the A* guess
-  auto nlp_results = m_nlp_planner.plan_nlp(current_state, goal_state, trajectory_guess, obstacles,
+  auto nlp_results = m_nlp_planner.plan_nlp(current_state, adapted_goal_state, trajectory_guess,
+      obstacles,
       m_model_parameters);
   const auto smoothed_trajectory = nlp_results.m_trajectory;
   const std::size_t nlp_iterations =
@@ -179,7 +197,7 @@ PlanningResult ParkingPlanner::plan(
   // Perform post-checking of trajectory for collisions and dynamics
   const auto checking_tolerance = 1e-4;
   const auto trajectory_ok = m_nlp_planner.check_trajectory(smoothed_trajectory, current_state,
-      goal_state, obstacles, m_model_parameters, checking_tolerance);
+      adapted_goal_state, obstacles, m_model_parameters, checking_tolerance);
   std::cout << "Trajectory ok is: " << trajectory_ok << std::endl;
 
   // Return final result

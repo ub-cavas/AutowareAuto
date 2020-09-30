@@ -315,7 +315,13 @@ NLPResults NLPPathPlanner::plan_nlp(
 ) const
 {
   // Assemble solver inputs
-  auto nlp_obstacles = create_obstacles_from_polyhedra(obstacles, current_state);
+  std::vector<NLPObstacle<double>> nlp_obstacles{};
+  try {
+    nlp_obstacles = create_obstacles_from_polyhedra(obstacles, current_state);
+  } catch (const std::length_error & e) {
+    std::cout << e.what() << std::endl;
+    return NLPResults{Trajectory<float64_t>{}, casadi::Dict{}};
+  }
   auto p = assemble_parameter_vector(current_state, goal_state, model_parameters, nlp_obstacles,
       m_cost_weights);
   auto vars_and_bounds = assemble_variable_vector_and_bounds(initial_guess, nlp_obstacles,
