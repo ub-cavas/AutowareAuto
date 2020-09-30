@@ -162,7 +162,7 @@ Command SafetyStateMachine::compute_safe_commands(const Command & command)
     // Apply automatic gear shift logic: no command if already in that state
     {
       const auto requested_gear = automatic_gear_shift(control, state.value());
-      state->gear = (requested_gear == m_state.gear) ? VSC::GEAR_NO_COMMAND : requested_gear;
+      state->gear = (requested_gear == m_state.gear) ? state->gear : requested_gear;
     }
     // Apply gear check logic
     if (bad_gear_shift(state.value())) {
