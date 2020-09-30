@@ -453,7 +453,9 @@ void VehicleInterfaceNode::state_machine_report()
         }
         break;
       case StateMachineReport::STATE_TRANSITION_TIMEOUT:
-        RCLCPP_ERROR(logger(), "State transition timed out");
+        // TODO(JWhitleyWork) Re-enable this error when we can
+        // get it under control.
+        // RCLCPP_ERROR(logger(), "State transition timed out");
         break;
       default:
         throw std::logic_error{"Bad state machine report"};
