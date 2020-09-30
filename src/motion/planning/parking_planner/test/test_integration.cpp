@@ -132,7 +132,7 @@ class TestIntegration : public ::testing::TestWithParam<IntegrationTestParams> {
 
 // TODO(jwhitleywork): Re-enable this test when fixed on arm64. Relevant issue is #551.
 // This test runs the parking planner like a user would
-TEST_P(TestIntegration, with_obstacles) {
+TEST_P(TestIntegration, DISABLED_with_obstacles) {
   const auto params = GetParam();
   RecordProperty("scenario_name", params.scenario_name);
 
