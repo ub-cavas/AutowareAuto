@@ -128,6 +128,7 @@ BehaviorPlanner::BehaviorPlanner(const PlannerConfig & config)
 
 void BehaviorPlanner::clear_route()
 {
+  m_current_subroute = 0;
   m_subroutes.clear();
   m_trajectory_manager.clear_trajectory();
 }
