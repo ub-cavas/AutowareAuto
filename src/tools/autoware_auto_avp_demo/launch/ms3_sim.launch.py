@@ -164,7 +164,8 @@ def generate_launch_description():
     web_files_root = os.path.join(os.environ["COLCON_PREFIX_PATH"], "avp_web_interface/share/")
     web_server = ExecuteProcess(cmd=["python3", "-m", "http.server", "8000"], cwd=web_files_root)
     # TODO might change cmd when rosbridge_suite installed in ADE
-    web_bridge = ExecuteProcess(cmd=["rosbridge"])
+    rosbridge_root = os.path.join(os.environ["COLCON_PREFIX_PATH"], "rosbridge_server", "lib", "rosbridge_server")
+    web_bridge = ExecuteProcess(cmd=[os.path.join(rosbridge_root, "rosbridge_websocket")], log_cmd=True)
 
     return LaunchDescription([
         lgsvl_interface_param,
