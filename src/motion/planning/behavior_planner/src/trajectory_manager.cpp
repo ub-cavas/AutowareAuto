@@ -135,6 +135,9 @@ Trajectory TrajectoryManager::crop_from_current_state(
 
   Trajectory output;
   output.header = trajectory.header;
+  auto current_state = state.state;
+  current_state.longitudinal_velocity_mps = trajectory.points.at(index).longitudinal_velocity_mps;
+  output.points.push_back(current_state);
   for (size_t i = index; i < trajectory.points.size(); i++) {
     output.points.push_back(trajectory.points.at(i));
   }
@@ -148,8 +151,12 @@ void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
   }
 
   float32_t t = 0.0;
-  trajectory->points.at(0).time_from_start.sec = 0;
-  trajectory->points.at(0).time_from_start.nanosec = 0;
+
+  // special operation for first point
+  auto & first_point = trajectory->points.at(0);
+  first_point.time_from_start.sec = 0;
+  first_point.time_from_start.nanosec = 0;
+
   for (std::size_t i = 1; i < trajectory->points.size(); ++i) {
     auto & p0 = trajectory->points[i - 1];
     auto & p1 = trajectory->points[i];
