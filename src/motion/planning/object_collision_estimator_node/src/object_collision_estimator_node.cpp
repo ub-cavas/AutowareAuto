@@ -151,7 +151,7 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
             this->m_wall_timer->cancel();
             this->m_wall_timer = nullptr;
             auto msg_tansformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
-            this->m_estimator->updateObstacles(*msg);
+            this->m_estimator->updateObstacles(msg_tansformed);
           }
         } else {
           // timeout occurred, clean up timer
