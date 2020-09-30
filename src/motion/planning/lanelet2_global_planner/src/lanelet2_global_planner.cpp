@@ -340,8 +340,6 @@ lanelet::Id Lanelet2GlobalPlanner::find_lane_id(const lanelet::Id & cad_id) cons
 std::vector<lanelet::Id> Lanelet2GlobalPlanner::get_lane_route(
   const std::vector<lanelet::Id> & from_id, const std::vector<lanelet::Id> & to_id) const
 {
-  std::vector<lanelet::Id> lane_ids;
-  std::vector<std::vector<lanelet::Id>> routes;
   lanelet::traffic_rules::TrafficRulesPtr trafficRules =
     lanelet::traffic_rules::TrafficRulesFactory::create(lanelet::Locations::Germany,
       lanelet::Participants::Vehicle);
@@ -349,6 +347,8 @@ std::vector<lanelet::Id> Lanelet2GlobalPlanner::get_lane_route(
     lanelet::routing::RoutingGraph::build(*osm_map, *trafficRules);
 
   // plan a shortest path without a lane change from the given from:to combination
+  float64_t shortest_length = std::numeric_limits<float64_t>::max();
+  std::vector<lanelet::Id> shortest_route;
   for (auto start_id : from_id) {
     for (auto end_id : to_id) {
       lanelet::ConstLanelet fromLanelet = osm_map->laneletLayer.get(start_id);
@@ -361,21 +361,17 @@ std::vector<lanelet::Id> Lanelet2GlobalPlanner::get_lane_route(
         // op for the use of shortest path in this implementation
         lanelet::routing::LaneletPath shortestPath = route->shortestPath();
         lanelet::LaneletSequence fullLane = route->fullLane(fromLanelet);
-        if (!shortestPath.empty() && !fullLane.empty()) {
+        const auto route_length = route->length2d();
+        if (!shortestPath.empty() && !fullLane.empty() && shortest_length > route_length) {
           // add to the list
-          routes.emplace_back(fullLane.ids());
+          shortest_length = route_length;
+          shortest_route = fullLane.ids();
         }
       }
     }
   }
 
-  // Get the route: for now take the first one
-  // Improvement: add via lane_ids or shortest path or lowest cost
-  if (routes.size() > 0) {
-    lane_ids = routes.at(0);
-  }
-  // done: return lane ids in the route (empty if find no route)
-  return lane_ids;
+  return shortest_route;
 }
 
 bool8_t Lanelet2GlobalPlanner::compute_parking_center(
