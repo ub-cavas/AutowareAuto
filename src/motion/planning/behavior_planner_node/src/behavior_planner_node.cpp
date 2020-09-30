@@ -123,6 +123,8 @@ void BehaviorPlannerNode::init()
     this->create_publisher<Trajectory>("debug/full_trajectory", QoS{10});
   m_debug_checkpoints_pub =
     this->create_publisher<Trajectory>("debug/checkpoints", QoS{10});
+  m_debug_subroute_pub =
+    this->create_publisher<Route>("debug/current_subroute", QoS{10});
   m_vehicle_state_command_pub =
     this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
 }
@@ -221,6 +223,7 @@ void BehaviorPlannerNode::request_trajectory(const RouteWithType & route_with_ty
     default:
       break;
   }
+  m_debug_subroute_pub->publish(route);
 }
 
 void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)

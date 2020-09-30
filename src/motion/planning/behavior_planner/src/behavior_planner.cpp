@@ -163,6 +163,12 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
           subroute.route.start_point,
           primitive.id, lanelet_map_ptr, m_config.subroute_goal_offset);
         m_subroutes.push_back(subroute);
+
+        // reinitialize for next subroute
+        subroute.planner_type = type;
+        subroute.route.primitives.clear();
+        subroute.route.primitives.push_back(primitive);
+        subroute.route.start_point = subroute.route.goal_point;
       }
       if (prev_type == PlannerType::LANE && type == PlannerType::PARKING) {
         // Currently, we assume that final goal is close to lane.
@@ -170,13 +176,14 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
           route.goal_point, prev_primitive.id,
           lanelet_map_ptr, -m_config.subroute_goal_offset);
         m_subroutes.push_back(subroute);
-      }
 
-      // reinitialize for next subroute
-      subroute.planner_type = type;
-      subroute.route.primitives.clear();
-      subroute.route.primitives.push_back(primitive);
-      subroute.route.start_point = subroute.route.goal_point;
+        // reinitialize for next subroute
+        subroute.planner_type = type;
+        subroute.route.primitives.clear();
+        subroute.route.primitives.push_back(prev_primitive);
+        subroute.route.primitives.push_back(primitive);
+        subroute.route.start_point = subroute.route.goal_point;
+      }
     }
     prev_type = type;
     prev_primitive = primitive;
@@ -211,7 +218,6 @@ RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
   }
   auto updated_subroute = m_subroutes.at(m_current_subroute);
   updated_subroute.route.header = ego_state.header;
-  updated_subroute.route.start_point = ego_state.state;
   return updated_subroute;
 }
 
