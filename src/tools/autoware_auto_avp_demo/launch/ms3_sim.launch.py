@@ -17,6 +17,7 @@
 from launch import LaunchContext
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.actions import ExecuteProcess
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
@@ -160,6 +161,10 @@ def generate_launch_description():
         launch_arguments={}.items()
     )
 
+    web_files_root = os.path.join(os.environ["COLCON_PREFIX_PATH"], "avp_web_interface/share/")
+    web_server = ExecuteProcess(cmd=["python3", "-m", "http.server", "8000"], cwd=web_files_root)
+    web_bridge = ExecuteProcess(cmd=["rosbridge"])
+
     return LaunchDescription([
         lgsvl_interface_param,
         map_publisher_param,
@@ -174,4 +179,6 @@ def generate_launch_description():
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         core_launch
+        web_server,
+        web_bridge,
     ])

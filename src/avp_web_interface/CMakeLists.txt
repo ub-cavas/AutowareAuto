@@ -73,5 +73,7 @@ if(BUILD_TESTING)
   target_link_libraries(${TEST_AVP_WEB_INTERFACE_EXE} ${PROJECT_NAME})
 endif()
 
+install(FILES index.html roslib.min.js script.js DESTINATION share/${PROJECT_NAME})
+
 # ament package generation and installing
 ament_auto_package()
