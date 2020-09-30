@@ -3,7 +3,7 @@ Starting and testing the behavior planner {#avp-demo-test-behavior-planner}
 
 # How to start the stack
 
-The following instructions were tested on `origin/integration`.
+The following instructions were tested on `origin/integration` with commit `492953d66414ac1dd9ec09e766bccbe56d24a88f`.
 
 Start simulation as described [in the docs](https://autowarefoundation.gitlab.io/autoware.auto/AutowareAuto/lgsvl.html), then configure it properly
 
@@ -33,8 +33,16 @@ ade$ stdbuf -o L ros2 launch autoware_auto_avp_demo ms3_sim.launch.py
 ade$ ros2 topic echo /planning/trajectory
 ```
 
-To select a parking spot graphically, click and drag `2D Nav goal` in `rviz`.
-Make sure to select a parking spot as a goal.
+Move the vehicle on LGSVL to the position shown in the image.
+![StartPose](../images/avp-demo-start-pose.png)
+
+Send the goal to another parking spot by:
+
+*terminal 4*
+```
+> ade enter
+ade$ ros2 topic pub /planning/goal_pose geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: -95.875, y: 57.707, z: -1.950}, orientation: {x: -0.021, y: 0.014,z: 0.901,w: 0.434}}'} --once
+```
 
 ## Verify that Behavior Planner recieves routes from Global Path
 On Terminal 2, you should see following message output:
