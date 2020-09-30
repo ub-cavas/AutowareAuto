@@ -167,11 +167,14 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
     // find connecting lane from a parking access
     lane_start = find_lane_from_parkingaccess(parkingaccess_start);
   } else {
-    auto nearest_lanelets = osm_map->laneletLayer.nearest(start, 1);
+    // Two nearest lanelets should, in theory, be the lanelets for each direction
+    auto nearest_lanelets = osm_map->laneletLayer.nearest(start, 2);
     if (nearest_lanelets.empty()) {
       std::cerr << "Couldn't find nearest lanelet to start." << std::endl;
     } else {
-      lane_start.push_back(nearest_lanelets[0].id());
+      for (const auto & lanelet : nearest_lanelets) {
+        lane_start.push_back(lanelet.id());
+      }
     }
   }
 
@@ -181,11 +184,14 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
     // find connecting lane from a parking access
     lane_end = find_lane_from_parkingaccess(parkingaccess_end);
   } else {
-    auto nearest_lanelets = osm_map->laneletLayer.nearest(end, 1);
+    // Two nearest lanelets should, in theory, be the lanelets for each direction
+    auto nearest_lanelets = osm_map->laneletLayer.nearest(end, 2);
     if (nearest_lanelets.empty()) {
       std::cerr << "Couldn't find nearest lanelet to goal." << std::endl;
     } else {
-      lane_end.push_back(nearest_lanelets[0].id());
+      for (const auto & lanelet : nearest_lanelets) {
+        lane_end.push_back(lanelet.id());
+      }
     }
   }
 
