@@ -172,7 +172,7 @@ std::vector<NLPObstacle<double>> create_obstacles_from_polyhedra(
   std::vector<NLPObstacle<double>> nlp_obstacle_list{};
   nlp_obstacle_list.reserve(MAX_NUMBER_OF_OBSTACLES);
   for (const auto & obstacle : obstacles) {
-    const auto nlp_obstacle = create_nlpobstacle(obstacle, 0.1, 0.1);
+    const auto nlp_obstacle = create_nlpobstacle(obstacle, 0.1, 1.0);
     nlp_obstacle_list.push_back(nlp_obstacle);
   }
 
@@ -332,7 +332,7 @@ NLPResults NLPPathPlanner::plan_nlp(
   // kept the same as in generate_nlp_planner_solver, because different settings lead to different
   // callbacks being created.
   casadi::Dict ipopt_options = {{"hessian_approximation", "limited-memory"}, {"print_level", 0},
-    {"max_iter", 500}};
+    {"max_iter", 800}};
   casadi::Function solver = casadi::nlpsol("solver", "ipopt", SHARED_LIBRARY_DIRECTORY + "/" +
       "libparking_planner_callbacks.so", {{"ipopt", ipopt_options}});
 
