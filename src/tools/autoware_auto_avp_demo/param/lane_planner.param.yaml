@@ -12,5 +12,5 @@
       front_overhang_m: 0.5
       rear_overhang_m: 0.5
     gaussian_smoother:
-      standard_deviation: 1.0
-      kernel_size: 5
+      standard_deviation: 5.0
+      kernel_size: 3
