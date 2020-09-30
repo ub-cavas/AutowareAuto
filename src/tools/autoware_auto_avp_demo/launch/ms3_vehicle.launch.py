@@ -182,9 +182,11 @@ def generate_launch_description():
             ('arbitrated_speed_commands', '/ssc/arbitrated_speed_commands'),
             ('arbitrated_steering_commands', '/ssc/arbitrated_steering_commands'),
             ('turn_signal_command', '/ssc/turn_signal_command'),
-            ('dbw_enabled_feedback', '/ssc/dbw_enabled_fedback'),
+            ('dbw_enabled_feedback', '/ssc/dbw_enabled_feedback'),
             ('gear_feedback', '/ssc/gear_feedback'),
-            ('velocity_accel_cov', '/ssc/velocity_accel_cov')
+            ('velocity_accel_cov', '/ssc/velocity_accel_cov'),
+            ('steering_feedback', '/ssc/steering_feedback'),
+            ('vehicle_kinematic_state_cog', 'vehicle_kinematic_state')
         ]
     )
 
