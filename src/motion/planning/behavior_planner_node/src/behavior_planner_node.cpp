@@ -346,7 +346,16 @@ void BehaviorPlannerNode::on_route(const Route::SharedPtr & msg)
 void BehaviorPlannerNode::modify_trajectory_response(
   rclcpp::Client<ModifyTrajectory>::SharedFuture future)
 {
-  m_trajectory_pub->publish(future.get()->modified_trajectory);
+  auto trajectory = future.get()->modified_trajectory;
+
+  // set current position with velocity zero to do emergency stop in case
+  // collision estimator fails or if there is obstacle on first point
+  if (trajectory.points.empty()) {
+    auto stopping_point = m_ego_state.state;
+    stopping_point.longitudinal_velocity_mps = 0.0;
+    trajectory.points.push_back(stopping_point);
+  }
+  m_trajectory_pub->publish(trajectory);
 }
 
 void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFuture future)
