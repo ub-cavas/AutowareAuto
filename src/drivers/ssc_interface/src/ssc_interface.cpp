@@ -19,6 +19,7 @@
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 
 using SscGear = automotive_platform_msgs::msg::Gear;
@@ -125,6 +126,7 @@ SscInterface::SscInterface(
   float32_t rear_axle_to_cog,
   float32_t max_accel_mps2,
   float32_t max_decel_mps2,
+  float32_t min_vel_thresh_mps,
   float32_t max_yaw_rate_rad
 )
 : m_logger{node.get_logger()},
@@ -132,6 +134,7 @@ SscInterface::SscInterface(
   m_rear_axle_to_cog{rear_axle_to_cog},
   m_accel_limit{max_accel_mps2},
   m_decel_limit{max_decel_mps2},
+  m_min_vel_thresh{min_vel_thresh_mps},
   m_max_yaw_rate{max_yaw_rate_rad},
   m_dbw_state_machine(new DbwStateMachine{3})
 {
@@ -285,6 +288,18 @@ bool8_t SscInterface::send_control_command(const VehicleControlCommand & msg)
 
   HighLevelControlCommand hlc_cmd;
   hlc_cmd.stamp = msg.stamp;
+
+  if (signed_velocity > std::numeric_limits<float32_t>::epsilon() &&
+    signed_velocity < m_min_vel_thresh)
+  {
+    signed_velocity = m_min_vel_thresh;
+  }
+
+  if (signed_velocity < -(std::numeric_limits<float32_t>::epsilon()) &&
+    signed_velocity > -m_min_vel_thresh)
+  {
+    signed_velocity = -m_min_vel_thresh;
+  }
 
   // Convert from center-of-mass velocity to rear-axle-center velocity
   const auto beta =

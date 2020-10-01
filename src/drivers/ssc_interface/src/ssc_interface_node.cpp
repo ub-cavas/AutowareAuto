@@ -35,6 +35,7 @@ SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
       declare_parameter("ssc.rear_axle_to_cog").get<float32_t>(),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
+      declare_parameter("ssc.min_vel_thresh").get<float32_t>(),
       declare_parameter("ssc.max_yaw_rate").get<float32_t>()
   ));
 }

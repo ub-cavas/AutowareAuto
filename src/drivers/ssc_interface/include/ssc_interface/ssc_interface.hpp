@@ -138,6 +138,7 @@ public:
     float32_t rear_axle_to_cog,
     float32_t max_accel_mps2,
     float32_t max_decel_mps2,
+    float32_t min_vel_thresh_mps,
     float32_t max_yaw_rate_rad
   );
   /// \brief Default destructor
@@ -193,6 +194,7 @@ private:
   float32_t m_rear_axle_to_cog;
   float32_t m_accel_limit;
   float32_t m_decel_limit;
+  float32_t m_min_vel_thresh;
   float32_t m_max_yaw_rate;
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
 
