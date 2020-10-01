@@ -44,6 +44,12 @@ Send the goal to another parking spot by:
 ade$ ros2 topic pub /planning/goal_pose geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: -95.875, y: 57.707, z: -1.950}, orientation: {x: -0.021, y: 0.014,z: 0.901,w: 0.434}}'} --once
 ```
 
+if you want to park in backward direction, send:
+```
+> ade enter
+ade$ ros2 topic pub /planning/goal_pose geometry_msgs/msg/PoseStamped '{header: {frame_id: "map"}, pose: {position: {x: -97.629, y: 59.872, z: 0.0}, orientation: {x: 0.0, y: 0.0,z: -0.43,w: 0.90283}}'} --once
+```
+
 ## Verify that Behavior Planner recieves routes from Global Path
 On Terminal 2, you should see following message output:
 
