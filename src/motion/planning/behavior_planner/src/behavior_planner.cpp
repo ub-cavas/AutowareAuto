@@ -219,6 +219,9 @@ RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
   }
   auto updated_subroute = m_subroutes.at(m_current_subroute);
   updated_subroute.route.header = ego_state.header;
+  if (updated_subroute.planner_type == PlannerType::LANE) {
+    updated_subroute.route.start_point = ego_state.state;
+  }
   return updated_subroute;
 }
 
@@ -246,7 +249,7 @@ PlannerType BehaviorPlanner::get_planner_type()
 
 bool8_t BehaviorPlanner::is_vehicle_stopped(const State & state)
 {
-  return state.state.longitudinal_velocity_mps <
+  return std::abs(state.state.longitudinal_velocity_mps) <
          m_config.stop_velocity_thresh;
 }
 

@@ -172,7 +172,7 @@ void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
 Trajectory TrajectoryManager::get_trajectory(const State & state)
 {
   // select new sub_trajectory when vehicle is at stop
-  if (state.state.longitudinal_velocity_mps < m_config.stop_velocity_thresh) {
+  if (std::abs(state.state.longitudinal_velocity_mps) < m_config.stop_velocity_thresh) {
     const auto & last_point = m_sub_trajectories.at(m_selected_trajectory).points.back();
     const auto distance = norm_2d(minus_2d(last_point, state.state));
 
