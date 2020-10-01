@@ -16,7 +16,10 @@
 
 #include <lanelet2_global_planner/lanelet2_global_planner.hpp>
 #include <lanelet2_core/geometry/Area.h>
+
 #include <common/types.hpp>
+#include <geometry/common_2d.hpp>
+#include <motion_common/motion_common.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -145,9 +148,12 @@ void Lanelet2GlobalPlanner::parse_lanelet_element()
 //   - The route can start in a parking spot or lanelet
 //   - The route can end in a parking spot or lanelet
 bool8_t Lanelet2GlobalPlanner::plan_route(
-  const lanelet::Point3d & start,
-  const lanelet::Point3d & end, std::vector<lanelet::Id> & route) const
+  TrajectoryPoint & start_point,
+  TrajectoryPoint & end_point, std::vector<lanelet::Id> & route) const
 {
+  const lanelet::Point3d start(lanelet::utils::getId(), start_point.x, start_point.y, 0.0);
+  const lanelet::Point3d end(lanelet::utils::getId(), end_point.x, end_point.y, 0.0);
+
   std::vector<lanelet::Id> lane_start;
   std::vector<lanelet::Id> lane_end;
   lanelet::Id near_parking_start, near_parking_end;
@@ -166,6 +172,7 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
     parkingaccess_start = find_parkingaccess_from_parking(near_parking_start);
     // find connecting lane from a parking access
     lane_start = find_lane_from_parkingaccess(parkingaccess_start);
+    start_point = refine_pose_by_parking_spot(near_parking_start, start_point);
   } else {
     // Two nearest lanelets should, in theory, be the lanelets for each direction
     auto nearest_lanelets = osm_map->laneletLayer.nearest(start, 2);
@@ -183,6 +190,8 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
     parkingaccess_end = find_parkingaccess_from_parking(near_parking_end);
     // find connecting lane from a parking access
     lane_end = find_lane_from_parkingaccess(parkingaccess_end);
+    // refine goal point by parking spot
+    end_point = refine_pose_by_parking_spot(near_parking_end, end_point);
   } else {
     // Two nearest lanelets should, in theory, be the lanelets for each direction
     auto nearest_lanelets = osm_map->laneletLayer.nearest(end, 2);
@@ -212,6 +221,74 @@ bool8_t Lanelet2GlobalPlanner::plan_route(
   } else {
     return false;
   }
+}
+
+TrajectoryPoint Lanelet2GlobalPlanner::refine_pose_by_parking_spot(
+  const lanelet::Id & parking_id,
+  const TrajectoryPoint & input_point)
+const
+{
+  // This function refines the pose within a parking spot into better pose where it is
+  // located at the center of parking spot and is oriented parallel to the parking spot
+  //
+  // TODO(mitsudome-r): this function makes the following assumptions about parking spot:
+  // 1. parking spot is made of 5 points where first and last point overlap
+  // 2. parking spot is rectangle in shape
+  // We probably want to encode more information in the map in first place if we want to
+  // make this function more robust.
+
+  // do not refine point at failure
+  if (!osm_map->lineStringLayer.exists(parking_id)) {
+    return input_point;
+  }
+  const auto parking_ls = osm_map->lineStringLayer.get(parking_id);
+
+  // we assume that parking spot is rectangle shape which has 5 points
+  // where first and last point overlap
+  if (parking_ls.size() != 5) {
+    return input_point;
+  }
+
+  // find centerline of parking spot
+  const auto & p0 = parking_ls[0];
+  const auto & p1 = parking_ls[1];
+  const auto & p2 = parking_ls[2];
+  const auto & p3 = parking_ls[3];
+
+  TrajectoryPoint center_p1, center_p2;
+
+  // find longer side of parking spot
+  if (lanelet::geometry::distance2d(p0, p1) > lanelet::geometry::distance2d(p1, p2)) {
+    const auto c_p1 = (p0.basicPoint2d() + p3.basicPoint2d()) / 2.0;
+    const auto c_p2 = (p1.basicPoint2d() + p2.basicPoint2d()) / 2.0;
+    center_p1.x = c_p1.x();
+    center_p1.y = c_p1.y();
+    center_p2.x = c_p2.x();
+    center_p2.y = c_p2.y();
+  } else {
+    const auto c_p1 = (p0.basicPoint2d() + p1.basicPoint2d()) / 2.0;
+    const auto c_p2 = (p2.basicPoint2d() + p3.basicPoint2d()) / 2.0;
+    center_p1.x = c_p1.x();
+    center_p1.y = c_p1.y();
+    center_p2.x = c_p2.x();
+    center_p2.y = c_p2.y();
+  }
+
+  // calculate refined point
+  TrajectoryPoint refined_point;
+  refined_point = autoware::common::geometry::closest_segment_point_2d(center_p1, center_p2,
+      input_point);
+  const auto direction_vector = autoware::common::geometry::minus_2d(center_p2, center_p1);
+  const auto angle_center_line = std::atan2(direction_vector.y, direction_vector.x);
+  const auto heading_center_line = ::motion::motion_common::from_angle(angle_center_line);
+  const auto angle_diff =
+    std::abs(::motion::motion_common::to_angle(input_point.heading - heading_center_line));
+  if (angle_diff < M_PI / 2) {
+    refined_point.heading = heading_center_line;
+  } else {
+    refined_point.heading = ::motion::motion_common::from_angle(angle_center_line + M_PI);
+  }
+  return refined_point;
 }
 
 bool8_t Lanelet2GlobalPlanner::point_in_parking_spot(

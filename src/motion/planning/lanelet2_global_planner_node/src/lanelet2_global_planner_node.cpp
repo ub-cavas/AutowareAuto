@@ -175,10 +175,9 @@ void Lanelet2GlobalPlannerNode::goal_pose_cb(
     }
   }
 
-  lanelet::Point3d start(lanelet::utils::getId(), start_pose.pose.position.x,
-    start_pose.pose.position.y, start_pose.pose.position.z);
-  lanelet::Point3d end(lanelet::utils::getId(), goal_pose.pose.position.x,
-    goal_pose.pose.position.y, goal_pose.pose.position.z);
+  auto start = convertToTrajectoryPoint(start_pose.pose);
+  auto end = convertToTrajectoryPoint(goal_pose.pose);
+
   // get routes
   std::vector<lanelet::Id> route;
   if (lanelet2_global_planner->plan_route(start, end, route)) {
@@ -186,7 +185,7 @@ void Lanelet2GlobalPlannerNode::goal_pose_cb(
     std_msgs::msg::Header msg_header;
     msg_header.stamp = rclcpp::Clock().now();
     msg_header.frame_id = "map";
-    this->send_global_path(route, msg_header);
+    this->send_global_path(route, start, end, msg_header);
   } else {
     RCLCPP_ERROR(this->get_logger(), "Global route has not been found!");
   }
@@ -224,7 +223,9 @@ void Lanelet2GlobalPlannerNode::current_pose_cb(
 }
 
 void Lanelet2GlobalPlannerNode::send_global_path(
-  const std::vector<lanelet::Id> & route, const std_msgs::msg::Header & header)
+  const std::vector<lanelet::Id> & route,
+  const autoware_auto_msgs::msg::TrajectoryPoint & start_point,
+  const autoware_auto_msgs::msg::TrajectoryPoint & end_point, const std_msgs::msg::Header & header)
 {
   // the maximum of PlanTrajectory message is 100
   if (route.size() > 100) {
@@ -238,8 +239,8 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   // main route = other
   autoware_auto_msgs::msg::Route global_route;
   global_route.header = header;
-  global_route.start_point = convertToTrajectoryPoint(start_pose.pose);
-  global_route.goal_point = convertToTrajectoryPoint(goal_pose.pose);
+  global_route.start_point = start_point;
+  global_route.goal_point = end_point;
 
   for (const auto & route_id : route) {
     // add data to the global path
