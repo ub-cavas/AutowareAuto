@@ -45,18 +45,18 @@
           pose: 10.0                    # to make the pose same as the reference trajectory at each trajectory points
           heading: 10.0                 # to make the pose heading as the reference trajectory at each trajectory points
           longitudinal_velocity: 10.0   # to make the pose velocity as the reference trajectory at each trajectory points
-          lateral_velocity: 10.0        # NOT USED
-          yaw_rate: 10.0                # NOT USED
+          lateral_velocity: 0.0         # NOT USED
+          yaw_rate: 0.0                 # NOT USED
           acceleration: 10.0            # to make the accelration zero
-          jerk: 10.0                    # NOT USED
+          jerk: 0.0                     # NOT USED
           steer_angle: 10.0             # to make the steering angle zero
-          steer_angle_rate: 10.0        # NOT USED
+          steer_angle_rate: 0.0         # NOT USED
         terminal:                       # -- at a trajectory tarminal point --
           pose: 10000.0                 # to make the pose same as the reference
           heading: 10000.0              # to make the heading same as the reference
           longitudinal_velocity: 100.0  # to make the velocity same as the reference
-          lateral_velocity: 10.0        # NOT USED
-          yaw_rate: 10.0                # NOT USED
+          lateral_velocity: 0.0         # NOT USED
+          yaw_rate: 0.0                 # NOT USED
           acceleration: 0.0             # to make the accelration ZERO
           jerk: 0.0                     # NOT USED
           steer_angle: 0.0              # to make the steering angle ZERO
