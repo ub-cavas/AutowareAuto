@@ -227,8 +227,10 @@ def generate_launch_description():
         node_name='object_collision_estimator_node',
         node_namespace='planning',
         node_executable='object_collision_estimator_node_exe',
-        parameters=[LaunchConfiguration('object_collision_estimator_param_file')]
-        # TODO(JWhitleyWork): Needs remapping for obstacles
+        parameters=[LaunchConfiguration('object_collision_estimator_param_file')],
+        remappings=[
+            ('obstacle_topic', '/perception/lidar_bounding_boxes'),
+        ]
     )
     behavior_planner = Node(
         package='behavior_planner_node',
