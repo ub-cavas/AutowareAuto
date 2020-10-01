@@ -33,6 +33,7 @@
 #include <geometry/common_2d.hpp>
 #include <geometry/convex_hull.hpp>
 #include <geometry/hull_pockets.hpp>
+#include <geometry/bounding_box/rotating_calipers.hpp>
 #include <motion_common/motion_common.hpp>
 #include <chrono>
 #include <algorithm>
@@ -77,6 +78,8 @@ using PlanningStatus = autoware::motion::planning::parking_planner::PlanningStat
 using ParkingPoint = autoware::motion::planning::parking_planner::Point2D<float64_t>;
 
 using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::BoundingBox;
 
 using Point = geometry_msgs::msg::Point32;
 using Polygon = geometry_msgs::msg::Polygon;
@@ -90,6 +93,7 @@ using autoware::common::geometry::plus_2d;
 using autoware::common::geometry::norm_2d;
 using autoware::common::geometry::times_2d;
 using autoware::common::geometry::get_normal;
+using autoware::common::geometry::bounding_box::minimum_perimeter_bounding_box;
 
 
 using lanelet::Point3d;
@@ -184,6 +188,11 @@ void ParkingPlannerNode::init(
 
   m_debug_trajectory_publisher = this->create_publisher<autoware_auto_msgs::msg::Trajectory>(
     "parking_debug_trajectory",
+    rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
+
+
+  m_debug_start_end_publisher = this->create_publisher<autoware_auto_msgs::msg::BoundingBoxArray>(
+    "parking_debug_start_end",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }
 
@@ -540,6 +549,64 @@ void ParkingPlannerNode::debug_publish_obstacles(
       color_obstacles));
 }
 
+void ParkingPlannerNode::debug_publish_start_and_end(
+  const ParkerVehicleState & start,
+  const ParkerVehicleState & end
+)
+{
+  const auto params = m_planner->get_parameters();
+  const auto bbox_from_state = [&params](const ParkerVehicleState & state) -> BoundingBox
+    {
+      // Shorthands to keep the formulas sane
+      const double h = state.get_heading();
+      const double xcog = state.get_x(), ycog = state.get_y();
+      const double lf = params.get_length_front() + params.get_front_overhang();
+      const double lr = params.get_length_rear() + params.get_rear_overhang();
+      const double wh = params.get_vehicle_width() * 0.5;
+      const double ch = std::cos(h), sh = std::sin(h);
+
+      // We need a list for the bounding box call later
+      std::list<Point> vehicle_corners;
+
+      { // Front left
+        auto p = Point{};
+        p.x = static_cast<float>(xcog + (lf * ch) - (wh * sh));
+        p.y = static_cast<float>(ycog + (lf * sh) + (wh * ch));
+        vehicle_corners.push_back(p);
+      }
+      { // Front right
+        auto p = Point{};
+        p.x = static_cast<float>(xcog + (lf * ch) + (wh * sh));
+        p.y = static_cast<float>(ycog + (lf * sh) - (wh * ch));
+        vehicle_corners.push_back(p);
+      }
+      { // Rear right
+        auto p = Point{};
+        p.x = static_cast<float>(xcog - (lr * ch) + (wh * sh));
+        p.y = static_cast<float>(ycog - (lr * sh) - (wh * ch));
+        vehicle_corners.push_back(p);
+      }
+      { // Rear right
+        auto p = Point{};
+        p.x = static_cast<float>(xcog - (lr * ch) - (wh * sh));
+        p.y = static_cast<float>(ycog - (lr * sh) + (wh * ch));
+        vehicle_corners.push_back(p);
+      }
+
+      return minimum_perimeter_bounding_box(vehicle_corners);
+    };
+
+  BoundingBoxArray bbox_array;
+  bbox_array.header.frame_id = "map";
+  bbox_array.boxes.resize(2);
+  bbox_array.boxes[0] = bbox_from_state(start);
+  bbox_array.boxes[0].vehicle_label = BoundingBox::CAR;
+  bbox_array.boxes[1] = bbox_from_state(end);
+  bbox_array.boxes[0].vehicle_label = BoundingBox::CAR;
+
+  m_debug_start_end_publisher->publish(bbox_array);
+}
+
 AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   const Route & route,
   const lanelet::LaneletMapPtr & lanelet_map_ptr)
@@ -550,7 +617,7 @@ AutowareTrajectory ParkingPlannerNode::plan_trajectory(
 
   // ---- Obtain "list of bounding obstacles" of drivable surface -----------------------
   const auto obstacles = convert_drivable_area_to_obstacles(drivable_area);
-  //
+
   // - Debugging: publish the obstacles as marker arrays for inspection
   this->debug_publish_obstacles(obstacles);
 
@@ -559,7 +626,12 @@ AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   const auto goal_trajectory_point = route.goal_point;
   const auto starting_state = convert_trajectorypoint_to_vehiclestate(start_trajectory_point);
   const auto goal_state = convert_trajectorypoint_to_vehiclestate(goal_trajectory_point);
+
+  this->debug_publish_start_and_end(starting_state, goal_state);
+
   const auto planner_result = m_planner->plan(starting_state, goal_state, obstacles);
+  std::cout << "NLP solution took " << planner_result.get_nlp_iterations() << " iterations" <<
+    std::endl;
 
   if (planner_result.get_status() == ParkingStatus::NLP_ERROR) {
     return AutowareTrajectory{};

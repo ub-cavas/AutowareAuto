@@ -26,6 +26,8 @@
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <motion_common/motion_common.hpp>
@@ -83,6 +85,8 @@ protected:
   // Debug topics
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_debug_obstacles_publisher;
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_debug_trajectory_publisher;
+  rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
+    m_debug_start_end_publisher;
 
 private:
   PARKING_PLANNER_NODE_LOCAL void init(
@@ -96,6 +100,10 @@ private:
 
   PARKING_PLANNER_NODE_LOCAL void debug_publish_obstacles(
     const std::vector<ParkingPolytope> & obstacles);
+
+  PARKING_PLANNER_NODE_LOCAL void debug_publish_start_and_end(
+    const ParkerVehicleState & start,
+    const ParkerVehicleState & end);
 
   PARKING_PLANNER_NODE_LOCAL void debug_publish_trajectory(
     const AutowareTrajectory & trajectory);

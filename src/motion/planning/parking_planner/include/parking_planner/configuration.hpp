@@ -42,7 +42,7 @@ constexpr std::size_t MAX_HYPERPLANES_PER_OBSTACLE = 4;
 constexpr std::size_t MAX_EGO_HYPERPLANES = 4;
 
 /// Step size (in seconds) for the RK4 integration
-constexpr float64_t INTEGRATION_STEP_SIZE = 0.2;
+constexpr float64_t INTEGRATION_STEP_SIZE = 0.3;
 
 /// \brief Number of (sub-)steps performed INTEGRATION_STEP_SIZE for the RK4 integration.
 constexpr std::size_t NUMBER_OF_INTEGRATION_STEPS = 4;
