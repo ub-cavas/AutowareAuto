@@ -17,6 +17,7 @@
 from launch import LaunchContext
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.actions import ExecuteProcess
 from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -248,6 +249,12 @@ def generate_launch_description():
         ]
     )
 
+    web_files_root = os.path.join(os.environ["COLCON_PREFIX_PATH"], "avp_web_interface", "share", "avp_web_interface", "web")
+    web_server = ExecuteProcess(cmd=["python3", "-m", "http.server", "8000"], cwd=web_files_root)
+    # TODO might change cmd when rosbridge_suite installed in ADE
+    rosbridge_root = os.path.join(os.environ["COLCON_PREFIX_PATH"], "rosbridge_server", "lib", "rosbridge_server")
+    web_bridge = ExecuteProcess(cmd=[os.path.join(rosbridge_root, "rosbridge_websocket")], log_cmd=True)
+
     return LaunchDescription([
         euclidean_cluster_param,
         ray_ground_classifier_param,
@@ -272,5 +279,7 @@ def generate_launch_description():
         parking_planner,
         object_collision_estimator,
         behavior_planner,
-        rviz2
+        rviz2,
+        web_server,
+        web_bridge,
     ])
