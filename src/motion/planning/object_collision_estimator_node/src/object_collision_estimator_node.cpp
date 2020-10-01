@@ -127,11 +127,18 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
   if (msg->header.frame_id == m_target_frame_id) {
     // No transform needed, update bounding boxes directly
     m_estimator->updateObstacles(*msg);
+
+    // keep track of the timestamp of the lastest successful obstacle message
+    m_last_obstacle_msg_time = msg->header.stamp;
   } else {
     // clean up any existing timer
     if (m_wall_timer != nullptr) {
       m_wall_timer->cancel();
       m_wall_timer = nullptr;
+
+      RCLCPP_WARN(
+        this->get_logger(),
+        "Unable to get a valid transform before a new obstacle message arrived");
     }
 
     // create a new timer with timeout to check periodically if a valid transform for that timestamp
@@ -150,8 +157,11 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
             // a valid transform is aviable, perform transform
             this->m_wall_timer->cancel();
             this->m_wall_timer = nullptr;
-            auto msg_tansformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
-            this->m_estimator->updateObstacles(msg_tansformed);
+            auto msg_transformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
+            this->m_estimator->updateObstacles(msg_transformed);
+
+            // keep track of the timestamp of the lastest successful obstacle message
+            this->m_last_obstacle_msg_time = msg_transformed.header.stamp;
           }
         } else {
           // timeout occurred, clean up timer
@@ -169,6 +179,19 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   const std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Request> request,
   std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Response> response)
 {
+  rclcpp::Time request_time{request->original_trajectory.header.stamp};
+  auto elapsed_time = request_time - m_last_obstacle_msg_time;
+  if (m_last_obstacle_msg_time.seconds() == 0) {
+    RCLCPP_WARN(
+      this->get_logger(),
+      "No obstacle information has been received. Collision estimation will have no effect");
+  } else if (elapsed_time > 500ms) {
+    RCLCPP_WARN(
+      this->get_logger(),
+      "Outdated obstacle information."
+      " Collision estimation will be based on old obstacle positions");
+  }
+
   // copy the input trajectory into the output variable
   response->modified_trajectory = request->original_trajectory;
 

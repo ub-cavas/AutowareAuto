@@ -90,6 +90,9 @@ private:
   ///        available.
   rclcpp::TimerBase::SharedPtr m_wall_timer{nullptr};
 
+  /// \brief The time stamp of the last obstacle message received by the node
+  rclcpp::Time m_last_obstacle_msg_time {};
+
   /// \brief Hard coded node name
   static constexpr const char * OBJECT_COLLISION_ESTIMATOR_NODE_NAME =
     "object_collision_estimator_node";
