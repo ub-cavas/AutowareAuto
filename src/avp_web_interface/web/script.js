@@ -16,6 +16,7 @@ ros.on('close', function() {
 });
 
 document.addEventListener("DOMContentLoaded", function() {
+    /*
     function setInitialPose() {
         var poseTopic = new ROSLIB.Topic({
             ros : ros,
@@ -64,6 +65,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
     var initialButton = document.querySelector("[name='initial']");
     initialButton.addEventListener('click', setInitialPose);
+    */
 
     var goalTopic = new ROSLIB.Topic({
         ros : ros,
