@@ -71,7 +71,7 @@ using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
 namespace ssc_interface
 {
 
-static constexpr float32_t STEERING_TO_TIRE_RATIO = 8.6F / 0.533F;
+static constexpr float32_t STEERING_TO_TIRE_RATIO = 0.533F / 8.6F;
 
 enum class DbwState
 {
