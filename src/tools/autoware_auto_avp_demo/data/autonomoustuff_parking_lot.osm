@@ -24146,16 +24146,16 @@
   <node id='10154' action='delete' visible='true' version='1' lat='37.38194027243' lon='-121.90895389149'>
     <tag k='ele' v='-1.7426819125119131' />
   </node>
-  <node id='10664' action='modify' visible='true' version='1' lat='37.38181569581' lon='-121.90869060225'>
+  <node id='10664' action='delete' visible='true' version='1' lat='37.38181569581' lon='-121.90869060225'>
     <tag k='ele' v='-1.742681912511912' />
   </node>
-  <node id='10665' action='modify' visible='true' version='1' lat='37.38178388219' lon='-121.90874051875'>
+  <node id='10665' action='delete' visible='true' version='1' lat='37.38178388219' lon='-121.90874051875'>
     <tag k='ele' v='-1.742681912511912' />
   </node>
-  <node id='10666' action='modify' visible='true' version='1' lat='37.38176369772' lon='-121.90872014453'>
+  <node id='10666' action='delete' visible='true' version='1' lat='37.38176369772' lon='-121.90872014453'>
     <tag k='ele' v='-1.742681912511912' />
   </node>
-  <node id='10667' action='modify' visible='true' version='1' lat='37.38179551135' lon='-121.90867022803'>
+  <node id='10667' action='delete' visible='true' version='1' lat='37.38179551135' lon='-121.90867022803'>
     <tag k='ele' v='-1.742681912511912' />
   </node>
   <node id='10668' action='delete' visible='true' version='1' lat='37.38181554704' lon='-121.90869171667'>
@@ -24215,7 +24215,7 @@
     <tag k='type' v='poi' />
     <tag k='use' v='center' />
   </node>
-  <node id='102061' action='modify' visible='true' version='1' lat='37.381790163' lon='-121.90870512012'>
+  <node id='102061' action='delete' visible='true' version='1' lat='37.381790163' lon='-121.90870512012'>
     <tag k='ele' v='-1.742681912511912' />
     <tag k='level' v='1' />
     <tag k='ref-parking' v='8663' />
@@ -37586,12 +37586,7 @@
     <tag k='subtype' v='parking_access' />
     <tag k='type' v='area' />
   </way>
-  <way id='8663' action='modify' visible='true' version='1'>
-    <nd ref='10664' />
-    <nd ref='10665' />
-    <nd ref='10666' />
-    <nd ref='10667' />
-    <nd ref='10664' />
+  <way id='8663' action='delete' visible='true' version='1'>
     <tag k='center' v='102061' />
     <tag k='drivable' v='True' />
     <tag k='level' v='1' />
@@ -39675,12 +39670,7 @@
     <tag k='subtype' v='parking_spot' />
     <tag k='type' v='area' />
   </way>
-  <way id='10140' action='modify' visible='true' version='1'>
-    <nd ref='10144' />
-    <nd ref='10141' />
-    <nd ref='10142' />
-    <nd ref='10143' />
-    <nd ref='10144' />
+  <way id='10140' action='delete' visible='true' version='1'>
     <tag k='drivable' v='True' />
     <tag k='level' v='1' />
     <tag k='parking_spots' v='8663' />
