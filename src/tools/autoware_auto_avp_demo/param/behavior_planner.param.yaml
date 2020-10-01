@@ -1,6 +1,6 @@
 /**:
   ros__parameters:
     heading_weight: 0.1
-    goal_distance_thresh: 1.0
-    stop_velocity_thresh: 0.1
+    goal_distance_thresh: 5.0
+    stop_velocity_thresh: 2.0
     subroute_goal_offset: 7.5
