@@ -249,7 +249,7 @@ bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
   // Publish speed command
   SpeedMode speed_mode;
   speed_mode.mode = m_dbw_state_machine->enabled() ? 1 : 0;
-  speed_mode.speed = msg.velocity_mps;
+  speed_mode.speed = std::fabs(msg.velocity_mps);
   speed_mode.acceleration_limit = m_accel_limit;
   speed_mode.deceleration_limit = m_decel_limit;
   speed_mode.header.stamp = msg.stamp;
