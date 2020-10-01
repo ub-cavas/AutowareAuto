@@ -185,6 +185,7 @@ def generate_launch_description():
             ('dbw_enabled_feedback', '/ssc/dbw_enabled_feedback'),
             ('gear_feedback', '/ssc/gear_feedback'),
             ('velocity_accel_cov', '/ssc/velocity_accel_cov'),
+            ('state_report_out', 'state_report'),
             ('steering_feedback', '/ssc/steering_feedback'),
             ('vehicle_kinematic_state_cog', 'vehicle_kinematic_state')
         ]
