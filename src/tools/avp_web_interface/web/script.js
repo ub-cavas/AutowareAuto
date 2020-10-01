@@ -86,15 +86,16 @@ document.addEventListener("DOMContentLoaded", function() {
             pose : {
                 // 5th parking spot from the end in front of Autonomous Stuff office building
                 position : {
-                    x: -96.68548583984375,
-                    y: 58.45323181152344,
-                    z: 0.0, // TODO 0.0 is output by map but is it right in reality?
+                    x: -97.62905883789062,
+                    y: 59.871952056884766,
+                    z: 0.0, // planning is done in 2D, so z irrelevant
                 },
+                // park in reverse
                 orientation : {
                     x: 0.0,
                     y: 0.0,
-                    z: 0.9073245099158421,
-                    w: 0.4204310094486097,
+                    z: 0.42534109950065613,
+                    w: -0.9050331115722656,
                 },
             },
         });
