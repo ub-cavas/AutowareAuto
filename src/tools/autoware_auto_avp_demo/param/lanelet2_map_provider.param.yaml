@@ -3,4 +3,4 @@
 
 /**:
    ros__parameters:
-     map_osm_file: "/opt/AutowareAuto/share/autoware_auto_avp_demo/data/autonomoustuff_parking_lot.osm"
+     map_osm_file: "/home/mitsudome-r/AutowareAuto/src/tools/autoware_auto_avp_demo/data/autonomoustuff_parking_lot.osm"

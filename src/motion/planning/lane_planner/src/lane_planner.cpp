@@ -17,6 +17,7 @@
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 #include <lanelet2_core/geometry/Lanelet.h>
 #include <lanelet2_core/geometry/LineString.h>
+#include <had_map_utils/had_map_utils.hpp>
 #include <geometry/common_2d.hpp>
 #include <limits>
 #include <algorithm>
@@ -66,8 +67,10 @@ size_t get_closest_lanelet(const lanelet::ConstLanelets & lanelets, const Trajec
 
 LanePlanner::LanePlanner(
   const VehicleConfig & vehicle_param,
-  const TrajectorySmootherConfig & config)
+  const TrajectorySmootherConfig & config,
+  const LanePlannerConfig & planner_config)
 : m_vehicle_param(vehicle_param),
+  m_planner_config(planner_config),
   m_trajectory_smoother(config)
 {
 }
@@ -161,7 +164,8 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
   trajectory_points.push_back(route.start_point);
   for (size_t i = start_index; i < lanelets.size(); i++) {
     const auto & lanelet = lanelets.at(i);
-    const auto & centerline = lanelet.centerline();
+    const auto & centerline = autoware::common::had_map_utils::generateFineCenterline(lanelet,
+        m_planner_config.trajectory_resolution);
     const auto speed_limit =
       static_cast<float32_t>(traffic_rules_ptr->speedLimit(lanelet).speedLimit.value());
 

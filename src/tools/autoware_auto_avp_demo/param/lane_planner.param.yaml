@@ -1,6 +1,8 @@
 /**:
   ros__parameters:
     heading_weight: 0.1
+    lane_planner:
+      trajectory_resolution: 0.5
     vehicle:
       cg_to_front_m: 1.0
       cg_to_rear_m: 1.0
