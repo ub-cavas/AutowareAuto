@@ -17,7 +17,7 @@ ros.on('close', function() {
 
 document.addEventListener("DOMContentLoaded", function() {
     /*
-    function setInitialPose() {
+    function setInitialSimPose() {
         var poseTopic = new ROSLIB.Topic({
             ros : ros,
             name : '/localization/initialpose',
@@ -60,24 +60,24 @@ document.addEventListener("DOMContentLoaded", function() {
             }
         });
         poseTopic.publish(pose);
-        console.log('initial pose published');
+        console.log('initial sim pose published');
     }
 
     var initialButton = document.querySelector("[name='initial']");
-    initialButton.addEventListener('click', setInitialPose);
+    initialButton.addEventListener('click', setInitialSimPose);
     */
 
-    var goalTopic = new ROSLIB.Topic({
-        ros : ros,
-        name : '/planning/goal_pose',
-        messageType : 'geometry_msgs/msg/PoseStamped'
-    });
+    function publishGoalPose(pos_x, pos_y, orient_z, orient_w) {
+        var goalTopic = new ROSLIB.Topic({
+            ros : ros,
+            name : '/planning/goal_pose',
+            messageType : 'geometry_msgs/msg/PoseStamped'
+        });
 
-    // in parsing the pose, 0.0 get converted to an integer leading to problems in publishing the
-    // message. So choose something close enough to zero that preserves the float type
-    const floatNearZero = 1e-16;
+        // in parsing the pose, 0.0 get converted to an integer leading to problems in publishing the
+        // message. So choose something close enough to zero that preserves the float type
+        const floatNearZero = 1e-16;
 
-    function setGoalPose() {
         const pose = new ROSLIB.Message({
             header : {
                 // stamp should be ignored
@@ -88,57 +88,29 @@ document.addEventListener("DOMContentLoaded", function() {
                 frame_id : "map"
             },
             pose : {
-                // 5th parking spot from the end in front of Autonomous Stuff office building
                 position : {
-                    x: -97.62905883789062,
-                    y: 59.871952056884766,
+                    x: pos_x,
+                    y: pos_y,
                     z: floatNearZero, // planning is done in 2D, so z irrelevant
                 },
                 // park in reverse
                 orientation : {
                     x: floatNearZero,
                     y: floatNearZero,
-                    z: 0.42534109950065613,
-                    w: -0.9050331115722656,
+                    z: orient_z,
+                    w: orient_w,
                 },
             },
         });
         goalTopic.publish(pose);
-        console.log('goal pose published');
     }
 
-    var parkButton = document.querySelector("[name='park']");
-    parkButton.addEventListener('click', setGoalPose);
-
-    function setReturnPose() {
-        const pose = new ROSLIB.Message({
-            header : {
-                // stamp should be ignored
-                stamp : {
-                    sec: 0,
-                    nanosec: 0
-                },
-                frame_id : "map"
-            },
-            pose : {
-                // on lane in front of Autonomous Stuff office building
-                position : {
-                    x: -26.73210906982422,
-                    y: 108.79566192626953,
-                    z: 0.0,
-                },
-                orientation : {
-                    x: 0.0,
-                    y: 0.0,
-                    z: 0.3421307048194666,
-                    w: 0.9396523723269872,
-                },
-            },
-        });
-        goalTopic.publish(pose);
-        console.log('return pose published');
+    function registerCallback(button_name, position, orientation) {
+        var button = document.querySelector("[name='" + button_name + "']");
+        button.addEventListener('click', () => { publishGoalPose(position.x, position.y, orientation.z, orientation.w); });
     }
 
-    var returnButton = document.querySelector("[name='return']");
-    returnButton.addEventListener('click', setReturnPose);
+    registerCallback("park_forward", {x: -95.875, y: 57.707}, {z: 0.901, w: 0.434});
+    registerCallback("park_reverse", {x: -97.629, y: 59.872}, {z: -0.43, w: 0.90283});
+    registerCallback("return", {x: -26.73, y: 108.795}, {z: 0.342, w: 0.939});
 })
