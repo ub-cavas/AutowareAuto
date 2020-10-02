@@ -82,6 +82,10 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     static_cast<float32_t>(declare_parameter(
       "safety_factor"
     ).get<float32_t>());
+  const auto stop_margin =
+    static_cast<float32_t>(declare_parameter(
+      "stop_margin"
+    ).get<float32_t>());
   const TrajectorySmootherConfig smoother_config {
     static_cast<float32_t>(declare_parameter(
       "trajectory_smoother.kernel_std"
@@ -98,7 +102,7 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     ).get<std::string>());
 
   // Create an object collision estimator
-  const ObjectCollisionEstimatorConfig config {vehicle_param, safety_factor};
+  const ObjectCollisionEstimatorConfig config {vehicle_param, safety_factor, stop_margin};
   const TrajectorySmoother smoother{smoother_config};
   m_estimator = std::make_unique<ObjectCollisionEstimator>(config, smoother);
 

@@ -172,6 +172,38 @@ int32_t detectCollision(
   return collision_index;
 }
 
+/// \brief Returns the index that vehicle should stop when the object colliding index
+///        and stop distance is given
+/// \param trajectory Planned trajectory of ego vehicle.
+/// \param collision_index Index of trajectory point that collides with and obstacle
+/// \param stop_margin Distance between the control point of vehicle (CoG or base_link) and obstacle
+/// \return int32_t The index into the trajectory points where vehicle should stop.
+int32_t getStopIndex(
+  const Trajectory & trajectory,
+  const int32_t collision_index,
+  const float32_t stop_margin) noexcept
+{
+  if (collision_index < 0) {
+    return collision_index;
+  }
+  int32_t stop_index = collision_index;
+  float32_t accumulated_distance = 0;
+
+  for (int32_t i = collision_index; i >= 1; i--) {
+    const auto & prev_pt = trajectory.points.at(static_cast<std::size_t>(i - 1));
+    const auto & pt = trajectory.points.at(static_cast<std::size_t>(i));
+
+    const auto dx = prev_pt.x - pt.x;
+    const auto dy = prev_pt.y - pt.y;
+    accumulated_distance += std::hypot(dx, dy);
+    if (accumulated_distance >= stop_margin) {
+      stop_index = i;
+      break;
+    }
+  }
+  return stop_index;
+}
+
 ObjectCollisionEstimator::ObjectCollisionEstimator(
   ObjectCollisionEstimatorConfig config,
   TrajectorySmoother smoother) noexcept
@@ -186,9 +218,11 @@ ObjectCollisionEstimator::ObjectCollisionEstimator(
 void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
 {
   // Collision detection
-  auto trajectory_end_idx = detectCollision(
+  auto collision_index = detectCollision(
     trajectory, m_obstacles, m_config.vehicle_config,
     m_config.safety_factor, m_trajectory_bboxes);
+
+  auto trajectory_end_idx = getStopIndex(trajectory, collision_index, m_config.stop_margin);
 
   if (trajectory_end_idx >= 0) {
     // Cut trajectory short to just before the collision point

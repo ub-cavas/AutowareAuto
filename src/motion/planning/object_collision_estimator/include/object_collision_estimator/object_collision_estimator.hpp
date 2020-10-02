@@ -127,6 +127,7 @@ typedef struct
   // safety factor to artificially inflate the size of the vehicle to prevent ego vehicle getting
   // too close to any obstacles
   float32_t safety_factor;
+  float32_t stop_margin;
 } ObjectCollisionEstimatorConfig;
 
 /// \brief Given a trajectory and a list of obstacles, detect possible collision points between the
