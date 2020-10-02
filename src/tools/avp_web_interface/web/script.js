@@ -73,6 +73,10 @@ document.addEventListener("DOMContentLoaded", function() {
         messageType : 'geometry_msgs/msg/PoseStamped'
     });
 
+    // in parsing the pose, 0.0 get converted to an integer leading to problems in publishing the
+    // message. So choose something close enough to zero that preserves the float type
+    const floatNearZero = 1e-16;
+
     function setGoalPose() {
         const pose = new ROSLIB.Message({
             header : {
@@ -88,12 +92,12 @@ document.addEventListener("DOMContentLoaded", function() {
                 position : {
                     x: -97.62905883789062,
                     y: 59.871952056884766,
-                    z: 0.0, // planning is done in 2D, so z irrelevant
+                    z: floatNearZero, // planning is done in 2D, so z irrelevant
                 },
                 // park in reverse
                 orientation : {
-                    x: 0.0,
-                    y: 0.0,
+                    x: floatNearZero,
+                    y: floatNearZero,
                     z: 0.42534109950065613,
                     w: -0.9050331115722656,
                 },
