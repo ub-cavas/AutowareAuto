@@ -160,10 +160,10 @@ Command SafetyStateMachine::compute_safe_commands(const Command & command)
       m_reports.emplace_back(StateMachineReport::WIPERS_ON_HEADLIGHTS_ON);
     }
     // Apply automatic gear shift logic: no command if already in that state
-    {
+/*    {
       const auto requested_gear = automatic_gear_shift(control, state.value());
       state->gear = (requested_gear == m_state.gear) ? state->gear : requested_gear;
-    }
+    } */
     // Apply gear check logic
     if (bad_gear_shift(state.value())) {
       state->gear = VSC::GEAR_NO_COMMAND;
@@ -174,13 +174,13 @@ Command SafetyStateMachine::compute_safe_commands(const Command & command)
   } else {
     // Check if you need to do gear shifting
     //lint -e{1793} NOLINT nonconst member on temp ok: named parameter idiom
-    const auto dummy_state = VSC{}.set__gear(m_state.gear);
+/*    const auto dummy_state = VSC{}.set__gear(m_state.gear);
     const auto requested_gear = automatic_gear_shift(control, dummy_state);
     if (requested_gear != m_state.gear) {
       state = VSC{};
       state->stamp = control.stamp;
       state->gear = requested_gear;
-    }
+    } */
   }
   return Command{control, state};
 }
