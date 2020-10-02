@@ -384,6 +384,15 @@ Visualization Manager:
       Topic: /control/mpc_debug_computed_trajectory
       Unreliable: false
       Value: true
+    - Class: rviz_default_plugins/MarkerArray
+      Enabled: true
+      Name: BB Trajectory
+      Namespaces:
+        {}
+      Queue Size: 10
+      Topic: /planning/debug/trajectory_bounding_boxes
+      Unreliable: false
+      Value: true
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
