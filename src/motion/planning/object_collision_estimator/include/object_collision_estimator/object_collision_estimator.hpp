@@ -157,9 +157,14 @@ public:
   ///               detected, this variable is modified in place.
   void updatePlan(Trajectory & trajectory) noexcept;
 
+  /// \brief Get the latest bounding box of target trajectory
+  /// \param[out] the latest bounding box of the target trajectory
+  BoundingBoxArray getTrajectoryBoundingBox() const {return m_trajectory_bboxes;}
+
 private:
   ObjectCollisionEstimatorConfig m_config;
   BoundingBoxArray m_obstacles{};
+  BoundingBoxArray m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;
 };
 

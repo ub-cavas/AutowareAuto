@@ -22,6 +22,7 @@
 #include <memory>
 
 #include "object_collision_estimator_node/object_collision_estimator_node.hpp"
+#include "object_collision_estimator_node/visualize.hpp"
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
 namespace motion
@@ -114,6 +115,9 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     OBSTACLE_TOPIC, QoS{10},
     [this](const BoundingBoxArray::SharedPtr msg) {this->on_bounding_box(msg);});
 
+  m_trajectory_bbox_pub =
+    create_publisher<MarkerArray>("debug/trajectory_bounding_boxes", QoS{10});
+
   // Create a tf interface to perform transforms on obstacle bounding boxes
   m_tf_buffer = std::make_shared<tf2_ros::Buffer>(this->get_clock());
   m_tf_listener = std::make_shared<tf2_ros::TransformListener>(
@@ -197,6 +201,13 @@ void ObjectCollisionEstimatorNode::estimate_collision(
 
   // m_estimator performs the collision estimation and the trajectory will get updated inside
   m_estimator->updatePlan(response->modified_trajectory);
+
+  // publish trajectory bounding box for visualization
+  auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
+  trajectory_bbox.header = response->modified_trajectory.header;
+  auto marker = toVisualizationMarkerArray(
+    trajectory_bbox, response->modified_trajectory.points.size());
+  m_trajectory_bbox_pub->publish(marker);
 }
 
 }  // namespace object_collision_estimator_node

@@ -129,7 +129,8 @@ int32_t detectCollision(
   const Trajectory & trajectory,
   const BoundingBoxArray & obstacles,
   const VehicleConfig & vehicle_param,
-  const float32_t safety_factor)
+  const float32_t safety_factor,
+  BoundingBoxArray & waypoint_bboxes)
 {
   // find the dimension of the ego vehicle.
   const auto vehicle_length =
@@ -144,9 +145,14 @@ int32_t detectCollision(
 
   int32_t collision_index = -1;
 
+  waypoint_bboxes.boxes.clear();
+  for (std::size_t i = 0; i < trajectory.points.size(); ++i) {
+    waypoint_bboxes.boxes.push_back(
+      waypointToBox(trajectory.points[i], vehicle_param, safety_factor));
+  }
   for (std::size_t i = 0; (i < trajectory.points.size()) && (collision_index == -1); ++i) {
     // calculate a bounding box given a trajectory point
-    const auto & waypoint_bbox = waypointToBox(trajectory.points[i], vehicle_param, safety_factor);
+    const auto & waypoint_bbox = waypoint_bboxes.boxes.at(i);
 
     // Check for collisions with all perceived obstacles
     for (const auto & obstacle_bbox : obstacles.boxes) {
@@ -182,7 +188,7 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
   // Collision detection
   auto trajectory_end_idx = detectCollision(
     trajectory, m_obstacles, m_config.vehicle_config,
-    m_config.safety_factor);
+    m_config.safety_factor, m_trajectory_bboxes);
 
   if (trajectory_end_idx >= 0) {
     // Cut trajectory short to just before the collision point
