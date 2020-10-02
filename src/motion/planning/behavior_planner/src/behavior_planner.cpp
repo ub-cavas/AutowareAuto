@@ -136,8 +136,7 @@ void BehaviorPlanner::clear_route()
 void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
   // create subroutes from given global route
-  m_subroutes.clear();
-  m_trajectory_manager.clear_trajectory();
+  clear_route();
 
   // initialization for before loop
   RouteWithType subroute;
