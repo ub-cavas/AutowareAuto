@@ -49,9 +49,18 @@ void TrajectoryManager::set_trajectory(const Trajectory & trajectory)
 
 void TrajectoryManager::set_sub_trajectories()
 {
+  // return sign with hysterysis buffer
   const auto is_positive = [](const TrajectoryPoint & pt) {
       // using epsilon instead to ensure change in sign.
-      return pt.longitudinal_velocity_mps > -std::numeric_limits<float32_t>::epsilon();
+      static bool8_t is_prev_positive = true;
+      bool8_t is_positive;
+      if (is_prev_positive) {
+        is_positive = pt.longitudinal_velocity_mps > -std::numeric_limits<float32_t>::epsilon();
+      } else {
+        is_positive = pt.longitudinal_velocity_mps > std::numeric_limits<float32_t>::epsilon();
+      }
+      is_prev_positive = is_positive;
+      return is_positive;
     };
 
   if (m_trajectory.points.empty()) {

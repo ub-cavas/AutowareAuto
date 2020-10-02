@@ -43,7 +43,8 @@ void BehaviorPlannerNode::init()
     static_cast<float32_t>(declare_parameter("goal_distance_thresh").get<float64_t>()),
     static_cast<float32_t>(declare_parameter("stop_velocity_thresh").get<float64_t>()),
     static_cast<float32_t>(declare_parameter("heading_weight").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter("subroute_goal_offset").get<float64_t>())
+    static_cast<float32_t>(declare_parameter("subroute_goal_offset_lane2parking").get<float64_t>()),
+    static_cast<float32_t>(declare_parameter("subroute_goal_offset_parking2lane").get<float64_t>())
   };
   m_planner = std::make_unique<behavior_planner::BehaviorPlanner>(config);
 
@@ -243,13 +244,18 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
 
   // check if we need new trajectory
   // make sure we are not requesting trajectory if we already have
+  static auto previous_output_arrived_goal = std::chrono::system_clock::now();
   if (!m_requesting_trajectory) {
     if (m_planner->has_arrived_goal(m_ego_state)) {
+      // TODO(mitsudome-r): replace this with throttled output in foxy
+      const auto now = std::chrono::system_clock::now();
+      const auto throttle_time = std::chrono::duration<float64_t>(3);
+      if (now - previous_output_arrived_goal > throttle_time) {
+        RCLCPP_INFO(get_logger(), "trying to change gear");
+        previous_output_arrived_goal = now;
+      }
       RCLCPP_INFO(get_logger(), "Reached goal. Wait for another route");
-      m_planner->clear_route();
-      return;
-    }
-    if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
+    } else if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
       // send next subroute
       m_planner->set_next_subroute();
       request_trajectory(m_planner->get_current_subroute(m_ego_state));

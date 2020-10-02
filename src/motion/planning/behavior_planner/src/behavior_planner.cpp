@@ -162,7 +162,7 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
         // set goal to closest poin on lane from starting point
         subroute.route.goal_point = get_closest_point_on_lane(
           subroute.route.start_point,
-          primitive.id, lanelet_map_ptr, m_config.subroute_goal_offset);
+          primitive.id, lanelet_map_ptr, m_config.subroute_goal_offset_parking2lane);
         m_subroutes.push_back(subroute);
 
         // reinitialize for next subroute
@@ -175,7 +175,7 @@ void BehaviorPlanner::set_route(const Route & route, const lanelet::LaneletMapPt
         // Currently, we assume that final goal is close to lane.
         subroute.route.goal_point = get_closest_point_on_lane(
           route.goal_point, prev_primitive.id,
-          lanelet_map_ptr, -m_config.subroute_goal_offset);
+          lanelet_map_ptr, m_config.subroute_goal_offset_lane2parking);
         m_subroutes.push_back(subroute);
 
         // reinitialize for next subroute
