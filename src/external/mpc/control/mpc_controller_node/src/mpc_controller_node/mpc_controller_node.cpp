@@ -160,7 +160,7 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
         rclcpp::QoS{10LL});
       const auto debug_publish = [this, ctrl_ptr]() -> void {
           auto traj = ctrl_ptr->get_computed_trajectory();
-	  traj.header.frame_id = "map";
+          traj.header.frame_id = "map";
           m_debug_traj_pub->publish(traj);
         };
       m_debug_timer = create_wall_timer(cycle_duration, debug_publish);
