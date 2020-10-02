@@ -131,6 +131,7 @@ public:
   /// \param[in] rear_axle_to_cog Distance from rear axle to center-of-gravity in meters
   /// \param[in] max_accel_mps2 Maximum acceleration in m/s^2
   /// \param[in] max_decel_mps2 Maximum deceleration in m/s^2
+  /// \param[in] min_vel_thresh_mps Minimum velocity threshold for commands
   /// \param[in] max_yaw_rate_rad Maximum rate of change of heading in radians/sec
   explicit SscInterface(
     rclcpp::Node & node,
