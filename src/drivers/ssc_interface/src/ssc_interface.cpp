@@ -246,10 +246,21 @@ bool8_t SscInterface::send_state_command(const VehicleStateCommand & msg)
 
 bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
 {
+  auto desired_velocity{0.0F};
+
+  // Handle velocities opposite the current direction of travel
+  if (
+    (state_report().gear == VehicleStateReport::GEAR_DRIVE && msg.velocity_mps < 0.0F) ||
+    (state_report().gear == VehicleStateReport::GEAR_REVERSE && msg.velocity_mps > 0.0F)) {
+    desired_velocity = 0.0F;
+  } else {
+    desired_velocity = std::fabs(msg.velocity_mps);
+  } 
+
   // Publish speed command
   SpeedMode speed_mode;
   speed_mode.mode = m_dbw_state_machine->enabled() ? 1 : 0;
-  speed_mode.speed = std::fabs(msg.velocity_mps);
+  speed_mode.speed = desired_velocity;
   speed_mode.acceleration_limit = m_accel_limit;
   speed_mode.deceleration_limit = m_decel_limit;
   speed_mode.header.stamp = msg.stamp;
