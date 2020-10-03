@@ -251,11 +251,12 @@ bool8_t SscInterface::send_control_command(const HighLevelControlCommand & msg)
   // Handle velocities opposite the current direction of travel
   if (
     (state_report().gear == VehicleStateReport::GEAR_DRIVE && msg.velocity_mps < 0.0F) ||
-    (state_report().gear == VehicleStateReport::GEAR_REVERSE && msg.velocity_mps > 0.0F)) {
+    (state_report().gear == VehicleStateReport::GEAR_REVERSE && msg.velocity_mps > 0.0F))
+  {
     desired_velocity = 0.0F;
   } else {
     desired_velocity = std::fabs(msg.velocity_mps);
-  } 
+  }
 
   // Publish speed command
   SpeedMode speed_mode;
