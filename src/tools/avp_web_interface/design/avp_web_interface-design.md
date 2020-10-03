@@ -1,4 +1,4 @@
-avp_web_interface {#avp_web_interface-package-design**
+avp_web_interface {#avp_web_interface-package-design}
 ===========
 
 This is the design document for the `avp_web_interface` package.
@@ -25,7 +25,6 @@ pose. The communication is handled in javascript through `roslibjs`.
 
 ## Assumptions / Known limits
 <!-- Required -->
-The web page does not use any CSS to look pretty.
 
 ## Inputs / Outputs / API
 <!-- Required -->

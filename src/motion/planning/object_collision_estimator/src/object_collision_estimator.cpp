@@ -123,6 +123,7 @@ bool8_t isTooFarAway(
 /// \param vehicle_param Configuration regarding the dimensions of the ego vehicle
 /// \param safety_factor A factor to inflate the size of the vehicle so to avoid getting too close
 ///                      to obstacles.
+/// \param waypoint_bboxes A list of bounding boxes around each waypoint in the trajectory
 /// \return int32_t The index into the trajectory points where the first collision happens. If no
 ///         collision is detected, -1 is returned.
 int32_t detectCollision(
