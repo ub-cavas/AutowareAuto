@@ -112,5 +112,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     registerCallback("park_forward", {x: -95.875, y: 57.707}, {z: 0.901, w: 0.434});
     registerCallback("park_reverse", {x: -97.629, y: 59.872}, {z: -0.43, w: 0.90283});
-    registerCallback("return", {x: -26.73, y: 108.795}, {z: 0.342, w: 0.939});
+    registerCallback("return", {x: -30.20, y: 105.816}, {z: 0.331, w: 0.943});
+    registerCallback("parking_start", {x: -29.882, y: 106.233}, {z: 0.944, w: -0.33});
 })

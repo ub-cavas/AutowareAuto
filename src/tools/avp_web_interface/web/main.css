@@ -38,3 +38,8 @@ main {
     margin-top: 5rem;
     background-color: rgb(75, 215, 130);
 }
+
+.button[name = "parking_start"] {
+    margin-top: 5rem;
+    background-color: rgb(75, 215, 130);
+}
