@@ -213,7 +213,7 @@ void EuclideanClusterNode::handle_clusters(
       m.color.b = 0.0;
       m.color.a = 0.75;
       m.lifetime.sec = 0;
-      m.lifetime.nanosec = 200000000;
+      m.lifetime.nanosec = 500000000;
       m_marker_array.markers.push_back(m);
       id_counter++;
     }
