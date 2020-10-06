@@ -47,13 +47,13 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_DBW_STATE_MACHINE_EXE test_dbw_state_machine)
-  ament_add_gtest(${TEST_DBW_STATE_MACHINE_EXE}
+  ament_add_gtest(test_${PROJECT_NAME}
     test/test_dbw_state_machine.cpp
+    test/test_ssc_interface.cpp
   )
-  target_link_libraries(${TEST_DBW_STATE_MACHINE_EXE} ${PROJECT_NAME})
-  add_dependencies(${TEST_DBW_STATE_MACHINE_EXE} ${PROJECT_NAME})
-  ament_target_dependencies(${TEST_DBW_STATE_MACHINE_EXE}
+  target_link_libraries(test_${PROJECT_NAME} ${PROJECT_NAME})
+  add_dependencies(test_${PROJECT_NAME} ${PROJECT_NAME})
+  ament_target_dependencies(test_${PROJECT_NAME}
     automotive_platform_msgs
   )
 

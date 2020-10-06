@@ -176,6 +176,9 @@ public:
   /// \return false only if enabling the DBW system actually failed, true otherwise
   bool8_t handle_mode_change_request(ModeChangeRequest::SharedPtr request) override;
 
+  static void kinematic_bicycle_model(
+    float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks);
+
 private:
   // Publishers (to SSC)
   rclcpp::Publisher<GearCommand>::SharedPtr m_gear_cmd_pub;
@@ -211,8 +214,6 @@ private:
   void on_gear_report(const GearFeedback::SharedPtr & msg);
   void on_steer_report(const SteeringFeedback::SharedPtr & msg);
   void on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg);
-  void kinematic_bicycle_model(
-    float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks);
 };
 
 }  // namespace ssc_interface

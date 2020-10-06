@@ -425,7 +425,7 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 
   if (m_seen_steer) {
     // TODO(Takamasa Horibe): modify after AVP with TF specifications
-    // position or yaw is 0 since odom=baselink wit hstatic TF in AVP demo
+    // position or yaw is 0 since odom=baselink with static TF in AVP demo
     m_vehicle_kinematic_state.state.x = 0.0F;
     m_vehicle_kinematic_state.state.y = 0.0F;
     m_vehicle_kinematic_state.state.heading.real = std::cos(/*yaw*/ 0.0F / 2.0F);
@@ -461,27 +461,47 @@ void SscInterface::kinematic_bicycle_model(
   // φ' = (cos(β)tan(δ)) / (l_r + l_f)
   // v' = a
   // β = arctan((l_r*tan(δ))/(l_r + l_f))
-  float32_t v0_x = vks->state.lateral_velocity_mps;
-  float32_t v0_y = vks->state.longitudinal_velocity_mps;
-  float32_t v0 = std::sqrt(v0_x * v0_x + v0_y * v0_y);
+
+  // TODO(nikolai.morin): Decouple from VehicleKinematicState, use only v0 as
+  // input. Currently v0_lat + v0_lon are redundant with beta/delta via
+  // beta = atan2(v_lat, v_lon).
+  float32_t v0_lat = vks->state.lateral_velocity_mps;
+  float32_t v0_lon = vks->state.longitudinal_velocity_mps;
+  float32_t v0 = std::sqrt(v0_lat * v0_lat + v0_lon * v0_lon);
   float32_t delta = vks->state.front_wheel_angle_rad;
   float32_t a = vks->state.acceleration_mps2;
   float32_t beta = std::atan2(l_r * std::tan(delta), l_r + l_f);
-  float32_t f_term = yaw + beta;
-  float32_t g_term =
-    std::cos(beta) * std::tan(delta) * v0 / (l_r + l_f);
-  vks->state.x +=
-    (v0 + a * dt) / g_term * std::sin(f_term + g_term * dt) - v0 / g_term * std::sin(f_term) +
-    a / (g_term * g_term) * std::cos(f_term + g_term * dt) - a / (g_term * g_term) *
-    std::cos(f_term);
-  vks->state.y +=
-    -(v0 + a * dt) / g_term * std::cos(f_term + g_term * dt) +
-    v0 / g_term * std::cos(f_term) + a / (g_term * g_term) * std::cos(f_term + g_term * dt) -
-    a / (g_term * g_term) * std::cos(f_term);
+  // This is the direction in which the POI is moving at the beginning of the
+  // integration step. "Course" may not be super accurate, but it's to
+  // emphasize that the POI doesn't travel in the heading direction.
+  const float32_t course = yaw + beta;
+  // How much the yaw changes per meter traveled (at the reference point)
+  const float32_t yaw_change =
+    std::cos(beta) * std::tan(delta) / (l_r + l_f);
+  // How much the yaw rate
+  const float32_t yaw_rate = yaw_change * v0;
+  // Threshold chosen so as to not result in division by 0
+  if (std::abs(yaw_rate) < 1e-18f) {
+    vks->state.x += std::cos(course) * (v0 * dt + 0.5f * a * dt * dt);
+    vks->state.y += std::sin(course) * (v0 * dt + 0.5f * a * dt * dt);
+  } else {
+    vks->state.x +=
+      (v0 + a * dt) / yaw_rate * std::sin(course + yaw_rate * dt) -
+      v0 / yaw_rate * std::sin(course) +
+      a / (yaw_rate * yaw_rate) * std::cos(course + yaw_rate * dt) -
+      a / (yaw_rate * yaw_rate) * std::cos(course);
+    vks->state.y +=
+      -(v0 + a * dt) / yaw_rate * std::cos(course + yaw_rate * dt) +
+      v0 / yaw_rate * std::cos(course) +
+      a / (yaw_rate * yaw_rate) * std::sin(course + yaw_rate * dt) -
+      a / (yaw_rate * yaw_rate) * std::sin(course);
+  }
   yaw += std::cos(beta) * std::tan(delta) / (l_r + l_f) * (v0 * dt + 0.5f * a * dt * dt);
   vks->state.heading.real = std::cos(yaw / 2.0f);
   vks->state.heading.imag = std::sin(yaw / 2.0f);
-  vks->state.heading_rate_rps = std::cos(beta) * std::tan(delta);
+
+  // Rotations per second or rad per second?
+  vks->state.heading_rate_rps = yaw_rate;
 }
 
 }  // namespace ssc_interface
