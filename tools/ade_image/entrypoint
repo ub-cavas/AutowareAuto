@@ -28,7 +28,7 @@ fi
 groupdel "$GROUP" &>/dev/null || true
 groupadd -fog "$GROUP_ID" "$GROUP"
 
-useradd -M -u "$USER_ID" -g "$GROUP_ID" -d "/home/$USER" -s /bin/bash "$USER"
+useradd -M -u "$USER_ID" -g "$GROUP_ID" -d "$HOME" -s /bin/bash "$USER"
 
 # Create video group. On Debian-based systems, the video group is always 44
 groupdel video &> /dev/null || true
@@ -43,7 +43,7 @@ gpasswd -a "${USER}" dialout
 
 
 for x in /etc/skel/.*; do
-    target="/home/$USER/$(basename "$x")"
+    target="$HOME/$(basename "$x")"
     if [[ ! -e "$target" ]]; then
 	cp -a "$x" "$target"
 	chown -R "$USER":"$GROUP" "$target"
