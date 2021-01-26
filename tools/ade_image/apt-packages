@@ -48,3 +48,7 @@ ros-$ROS_DISTRO-ament-clang-format
 
 # lgsvl-bridge
 ros-$ROS_DISTRO-lgsvl-bridge
+
+# transport-drivers Dependencies
+libasio-dev
+ros-$ROS_DISTRO-udp-msgs
