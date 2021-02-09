@@ -133,7 +133,7 @@ void MpcController::solve()
   const auto solve_ret = acado_feedbackStep();
   if (0 != solve_ret) {
     std::string err_str{"Solver error: ", std::string::allocator_type{}};
-    err_str += std::to_string(solve_ret);
+    err_str += acado_getErrorString(solve_ret);
     throw std::runtime_error{err_str};
   }
 }
