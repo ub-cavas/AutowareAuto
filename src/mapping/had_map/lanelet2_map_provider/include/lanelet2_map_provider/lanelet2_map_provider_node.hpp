@@ -77,12 +77,15 @@ private:
   /// Must be received before the node can call the map provider constructor, and start the
   /// service handler
   void get_map_origin();
-  float64_t m_origin_lat;  /// map orgin in latitude, longitude and elevatopm
-  float64_t m_origin_lon;
-  float64_t m_origin_ele;
   bool8_t m_origin_set;
   bool8_t m_verbose;  ///< whether to use verbose output or not.
   std::string m_map_filename;
+  float64_t m_x_origin_offset;  ///< X origin offset in meters
+  float64_t m_y_origin_offset;  ///< Y origin offset in meters
+  float64_t m_z_origin_offset;  ///< Z origin offset in meters
+  float64_t m_origin_lat;  /// map orgin in latitude, longitude and elevation
+  float64_t m_origin_lon;
+  float64_t m_origin_ele;
   std::unique_ptr<Lanelet2MapProvider> m_map_provider;
   rclcpp::Service<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_service;
   geometry_msgs::msg::TransformStamped m_earth_to_map;   /// map origin in ECEF ENU transform

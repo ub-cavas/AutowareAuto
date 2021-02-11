@@ -29,8 +29,15 @@ namespace autoware
 namespace lanelet2_map_provider
 {
 
-Lanelet2MapProvider::Lanelet2MapProvider(const std::string & map_filename)
-: m_map_filename(map_filename)
+Lanelet2MapProvider::Lanelet2MapProvider(
+  const std::string & map_filename,
+  float64_t x_origin_offset,
+  float64_t y_origin_offset,
+  float64_t z_origin_offset)
+: m_map_filename{map_filename},
+  m_x_origin_offset{x_origin_offset},
+  m_y_origin_offset{y_origin_offset},
+  m_z_origin_offset{z_origin_offset}
 {
 }
 

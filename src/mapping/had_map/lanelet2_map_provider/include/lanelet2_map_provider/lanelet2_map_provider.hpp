@@ -48,18 +48,31 @@ namespace lanelet2_map_provider
 class LANELET2_MAP_PROVIDER_PUBLIC Lanelet2MapProvider
 {
 public:
-  Lanelet2MapProvider(const std::string & map_filename);
+  /// \breif Default constructor
+  /// \param[in] map_filename Absolute path to the OSM file on disk
+  /// \param[in] x_origin_offset An offset to apply to the X value of the map origin in meters
+  /// \param[in] y_origin_offset An offset to apply to the Y value of the map origin in meters
+  /// \param[in] z_origin_offset An offset to apply to the Z value of the map origin in meters
+  Lanelet2MapProvider(
+    const std::string & map_filename,
+    float64_t x_origin_offset,
+    float64_t y_origin_offset,
+    float64_t z_origin_offset);
+
   /// \brief set the transform between earth and map frames for projection of map data
   /// \param stf the earth to map transform
   void set_earth_to_map_transform(const geometry_msgs::msg::TransformStamped & stf)
   {
     m_earth_to_map = stf;
   }
+
   /// \brief load the lanelet map and project into the coordinates of the origin
   void load_map();
+
   /// \brief calculate the latitude, longitude and elevation of the map orgin
   /// from the origin transform
   void calculate_geographic_coords();
+
   /// \brief directly set hte geographic coordinates of the map orgin
   /// \param lat map origin latitude
   /// \param lon map orgin longitude
@@ -70,6 +83,7 @@ public:
     m_origin_lon = lon;
     m_origin_ele = ele;
   }
+
   std::shared_ptr<lanelet::LaneletMap> m_map;
 
 private:
@@ -79,6 +93,9 @@ private:
   float64_t m_origin_lat;  // map orgin in latitude, longitude and elevation
   float64_t m_origin_lon;
   float64_t m_origin_ele;
+  float64_t m_x_origin_offset;  ///< X offset in meters to apply to map origin
+  float64_t m_y_origin_offset;  ///< Y offset in meters to apply to map origin
+  float64_t m_z_origin_offset;  ///< Z offset in meters to apply to map origin
 };
 
 }  // namespace lanelet2_map_provider

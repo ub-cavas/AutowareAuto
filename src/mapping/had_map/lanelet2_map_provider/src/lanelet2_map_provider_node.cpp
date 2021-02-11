@@ -47,7 +47,10 @@ Lanelet2MapProviderNode::Lanelet2MapProviderNode(const rclcpp::NodeOptions & opt
 : Node("Lanelet2MapProvider", options),
   m_origin_set(false),
   m_verbose(true),
-  m_map_filename(declare_parameter("map_osm_file").get<std::string>())
+  m_map_filename(declare_parameter("map_osm_file").get<std::string>()),
+  m_x_origin_offset{declare_parameter("x_origin_offset", 0.0)},
+  m_y_origin_offset{declare_parameter("y_origin_offset", 0.0)},
+  m_z_origin_offset{declare_parameter("z_origin_offset", 0.0)}
 {
   declare_parameter("latitude");
   declare_parameter("longitude");
@@ -93,7 +96,8 @@ void Lanelet2MapProviderNode::get_map_origin()
 
 void Lanelet2MapProviderNode::init()
 {
-  m_map_provider = std::make_unique<Lanelet2MapProvider>(m_map_filename);
+  m_map_provider = std::make_unique<Lanelet2MapProvider>(
+    m_map_filename, m_x_origin_offset, m_y_origin_offset, m_z_origin_offset);
 
   if (!m_origin_set) {
     get_map_origin();

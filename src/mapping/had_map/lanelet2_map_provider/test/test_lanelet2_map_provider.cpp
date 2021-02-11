@@ -55,7 +55,8 @@ TEST(test_lanelet2_map_provider, basic_test) {
   // save it to tempory storage
   std::string lanelet2_map_file = "lanelet2_test.osm";
   write(lanelet2_map_file, lanelet_map);
-  autoware::lanelet2_map_provider::Lanelet2MapProvider map_provider(lanelet2_map_file);
+  autoware::lanelet2_map_provider::Lanelet2MapProvider map_provider(
+    lanelet2_map_file, 0.0, 0.0, 0.0);
   map_provider.load_map();
   remove(lanelet2_map_file.c_str());
 }
