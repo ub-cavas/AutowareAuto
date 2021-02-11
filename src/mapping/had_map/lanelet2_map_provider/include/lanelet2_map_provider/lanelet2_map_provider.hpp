@@ -22,6 +22,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
 #include <common/types.hpp>
+#include <GeographicLib/Geocentric.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Point.h>
 #include <lanelet2_core/utility/Units.h>
@@ -61,28 +62,16 @@ public:
 
   /// \brief set the transform between earth and map frames for projection of map data
   /// \param stf the earth to map transform
-  void set_earth_to_map_transform(const geometry_msgs::msg::TransformStamped & stf)
-  {
-    m_earth_to_map = stf;
-  }
-
-  /// \brief load the lanelet map and project into the coordinates of the origin
-  void load_map();
-
-  /// \brief calculate the latitude, longitude and elevation of the map orgin
-  /// from the origin transform
-  void calculate_geographic_coords();
+  void set_earth_to_map_transform(const geometry_msgs::msg::TransformStamped & stf);
 
   /// \brief directly set hte geographic coordinates of the map orgin
   /// \param lat map origin latitude
   /// \param lon map orgin longitude
   /// \param ele map orgin elevation
-  void set_geographic_coords(const float64_t lat, const float64_t lon, const float64_t ele)
-  {
-    m_origin_lat = lat;
-    m_origin_lon = lon;
-    m_origin_ele = ele;
-  }
+  void set_geographic_coords(const float64_t lat, const float64_t lon, const float64_t ele);
+
+  /// \brief load the lanelet map and project into the coordinates of the origin
+  void load_map();
 
   std::shared_ptr<lanelet::LaneletMap> m_map;
 
@@ -96,6 +85,7 @@ private:
   float64_t m_x_origin_offset;  ///< X offset in meters to apply to map origin
   float64_t m_y_origin_offset;  ///< Y offset in meters to apply to map origin
   float64_t m_z_origin_offset;  ///< Z offset in meters to apply to map origin
+  GeographicLib::Geocentric earth;
 };
 
 }  // namespace lanelet2_map_provider

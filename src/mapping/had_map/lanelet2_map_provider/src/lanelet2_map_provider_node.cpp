@@ -117,7 +117,6 @@ void Lanelet2MapProviderNode::load_map()
     m_map_provider->set_geographic_coords(m_origin_lat, m_origin_lon, m_origin_ele);
   } else {
     m_map_provider->set_earth_to_map_transform(m_earth_to_map);
-    m_map_provider->calculate_geographic_coords();
   }
   m_map_provider->load_map();
 }
