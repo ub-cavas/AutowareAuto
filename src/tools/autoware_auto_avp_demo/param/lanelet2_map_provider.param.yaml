@@ -4,3 +4,6 @@
 /**:
    ros__parameters:
      map_osm_file: "/opt/AutowareAuto/share/autoware_auto_avp_demo/data/autonomoustuff_parking_lot.osm"
+     x_origin_offset: -0.3
+     y_origin_offset: -1.25
+     z_origin_offset: 0.2

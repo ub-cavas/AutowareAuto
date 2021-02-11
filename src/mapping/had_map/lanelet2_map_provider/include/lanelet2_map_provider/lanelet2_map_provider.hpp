@@ -49,7 +49,7 @@ namespace lanelet2_map_provider
 class LANELET2_MAP_PROVIDER_PUBLIC Lanelet2MapProvider
 {
 public:
-  /// \breif Default constructor
+  /// \brief Default constructor
   /// \param[in] map_filename Absolute path to the OSM file on disk
   /// \param[in] x_origin_offset An offset to apply to the X value of the map origin in meters
   /// \param[in] y_origin_offset An offset to apply to the Y value of the map origin in meters
