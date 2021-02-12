@@ -102,8 +102,7 @@ if(BUILD_TESTING)
   )
   add_dependencies(${TEST_LANELET2_MAP_PROVIDER_EXE} ${PROJECT_NAME})
   target_include_directories(${TEST_LANELET2_MAP_PROVIDER_EXE} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})
-  target_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE} PRIVATE -Wno-sign-conversion -Wno-conversion
-  -Wno-old-style-cast -Wno-useless-cast -Wno-double-promotion -Wno-nonnull-compare -Wuseless-cast)
+  autoware_set_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE})
 endif()
 
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${tf2_INCLUDE_DIRS})

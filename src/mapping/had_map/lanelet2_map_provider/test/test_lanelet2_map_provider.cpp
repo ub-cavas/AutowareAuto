@@ -65,7 +65,7 @@ TEST(test_lanelet2_map_provider_node, test_service) {
   std::cerr << "test node\n";
   std::string program_name = "test_node";
   char * argv[] = {strdup("test_node"), NULL};
-  size_t argc = sizeof(argv) / sizeof(char *) - 1;
+  int argc = sizeof(argv) / sizeof(char *) - 1;
   rclcpp::init(argc, argv);
   rclcpp::NodeOptions options;
 
