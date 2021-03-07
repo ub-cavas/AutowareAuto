@@ -235,6 +235,7 @@ ade_arm64_dashing:
     - gen_ros_deps_dashing
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
 
 ade_amd64_foxy:
   variables:
@@ -259,6 +260,7 @@ ade_arm64_foxy:
     - gen_ros_deps_foxy
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
 
 build_barebones_amd64_dashing:
   image: ubuntu:bionic
@@ -279,6 +281,7 @@ build_barebones_arm64_dashing:
   <<: *build_barebones_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - gen_ros_deps_dashing
 
@@ -303,6 +306,7 @@ build_barebones_arm64_foxy:
     - gen_ros_deps_foxy
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
 
 build_amd64_dashing:
   variables:
@@ -323,6 +327,7 @@ build_arm64_dashing:
   <<: *build_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - ade_arm64_dashing
 
@@ -345,6 +350,7 @@ build_arm64_foxy:
   <<: *build_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - job: ade_arm64_foxy
 
@@ -367,6 +373,7 @@ test_arm64_dashing:
   <<: *test_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - build_arm64_dashing
 
@@ -389,6 +396,7 @@ test_arm64_foxy:
   <<: *test_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - build_arm64_foxy
 
@@ -475,6 +483,7 @@ volume_arm64_dashing:
   <<: *volume_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - test_arm64_dashing
 
@@ -509,5 +518,6 @@ volume_arm64_foxy:
   <<: *volume_base
   only:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
+    - tags@autowarefoundation/autoware.auto/AutowareAuto
   needs:
     - test_arm64_foxy
