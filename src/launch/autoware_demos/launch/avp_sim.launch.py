@@ -1,4 +1,4 @@
-# Copyright 2020, The Autoware Foundation
+# Copyright 2020-2022, The Autoware Foundation
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@ from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
+from launch.conditions import IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
@@ -33,9 +34,12 @@ def generate_launch_description():
     be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/25.
     """
     avp_demo_pkg_prefix = get_package_share_directory('autoware_demos')
+    lgsvl_sim_pkg_prefix = get_package_share_directory('lgsvl_simulation')
 
     lgsvl_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/lgsvl_interface.param.yaml')
+    lgsvl_sim_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/avp/lgsvl_simulation.param.yaml')
     map_publisher_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/map_publisher_sim.param.yaml')
     ndt_localizer_param_file = os.path.join(
@@ -58,6 +62,11 @@ def generate_launch_description():
 
     # Arguments
 
+    with_lgsvl_param = DeclareLaunchArgument(
+        'with_lgsvl',
+        default_value='true',
+        description='Launch simulation on the LGSVL simulator through the API',
+    )
     lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param_file',
         default_value=lgsvl_param_file,
@@ -153,7 +162,11 @@ def generate_launch_description():
         executable='p2d_ndt_localizer_exe',
         namespace='localization',
         name='p2d_ndt_localizer_node',
-        parameters=[LaunchConfiguration('ndt_localizer_param_file')],
+        parameters=[
+            LaunchConfiguration('ndt_localizer_param_file'),
+            # Use preset initial pose, if using a preset simulation
+            {'load_initial_pose_from_parameters': LaunchConfiguration('with_lgsvl')},
+        ],
         remappings=[
             ("points_in", "/lidars/points_fused_downsampled"),
             ("observation_republish", "/lidars/points_fused_viz"),
@@ -206,6 +219,17 @@ def generate_launch_description():
         ],
     )
 
+    lgsvl_simulation_launch = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource([lgsvl_sim_pkg_prefix, '/launch/sim.launch.py']),
+        launch_arguments={
+            'simulation_params': LaunchConfiguration(
+                'simulation_params',
+                default=lgsvl_sim_param_file
+            )
+        }.items(),
+        condition=IfCondition(LaunchConfiguration('with_lgsvl')),
+    )
+
     core_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core.launch.py']),
         launch_arguments={}.items()
@@ -221,6 +245,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        with_lgsvl_param,
         lgsvl_interface_param,
         map_publisher_param,
         ndt_localizer_param,
@@ -238,6 +263,7 @@ def generate_launch_description():
         ndt_localizer,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
+        lgsvl_simulation_launch,
         core_launch,
         adapter_launch,
     ])

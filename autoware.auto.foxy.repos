@@ -15,3 +15,8 @@ repositories:
     type: git
     url: https://github.com/f1tenth/vesc
     version: ros2
+  src/external/lgsvl_python_api:
+    type: git
+    url: https://github.com/lgsvl/PythonAPI.git
+    version: 9bc29c9aee5e98d4d99e6a410c04b153b8f7feef
+

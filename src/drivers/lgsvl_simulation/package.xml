@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+
+<package format="3">
+  <name>lgsvl_simulation</name>
+  <version>1.0.0</version>
+  <description>Allows to control an LG SVL simulation through its API.</description>
+  <maintainer email="Luca.Vizzarro@arm.com">Luca Vizzarro</maintainer>
+  <license>Apache License 2.0</license>
+  <author email="Luca.Vizzarro@arm.com">Luca Vizzarro</author>
+
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+
+  <build_depend>ament_cmake_python</build_depend>
+
+  <exec_depend>ament_index_python</exec_depend>
+
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>lgsvl</exec_depend>
+  <exec_depend>rclpy</exec_depend>
+
+  <test_depend>ament_index_python</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <test_depend>autoware_testing</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+
+</package>

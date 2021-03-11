@@ -30,6 +30,9 @@ def generate_test_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(autoware_demos_share_dir, launch_file)),
+            launch_arguments={
+                'with_lgsvl': 'false'
+            }.items(),
         ),
         launch_testing.actions.ReadyToTest(),
     ])

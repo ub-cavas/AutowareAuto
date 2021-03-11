@@ -21,6 +21,17 @@
       # Rotation threshold in radians
       rotation: 3.15
     load_initial_pose_from_parameters: false
+    # initial pose of the vehicle
+    initial_pose:
+      quaternion:
+        x: -0.0026
+        y: -0.0149
+        z: -0.9433
+        w: 0.33176
+      translation:
+        x: -27.838
+        y: 108.935
+        z: -2.0668
     # localizer specific configuration
     localizer:
       #underlying voxel grid configuration of the map

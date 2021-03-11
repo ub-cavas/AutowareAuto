@@ -53,7 +53,7 @@ Running and controlling the simulation requires two separate terminals.
 ### Setup
 
 -# @ref installation-and-development-install-ade.
--# Next open **terminal 1** in ADE and follow the instructions on the @ref lgsvl page to install, configure, and run the simulator:
+-# Next open **terminal 1** in ADE and follow the instructions on the @ref lgsvl page to install, configure for either preset (recommended) or custom simulation, and run the simulator:
 ```{bash}
 $ ade enter
 ade$ /opt/lgsvl/simulator &
@@ -63,7 +63,7 @@ ade$ /opt/lgsvl/simulator &
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
 ```    
-@warning If starting the simulation immediately by pressing the play button in the LGSVL web GUI,
+@warning **Custom LGSVL simulation only:** If starting the simulation immediately by pressing the play button in the LGSVL web GUI,
 the Autoware.Auto stack will emit warnings and error messages upon launch until localization is
 initialized (see section below). To avoid that, do not start the simulation yet; i.e., do not press
 the Play button!
@@ -85,10 +85,15 @@ ade$ source install/setup.bash
 ade$ ros2 launch autoware_demos avp_sim.launch.py
 ```
 
+@note This will automatically launch the preset simulation! If wishing to run a custom LGSVL simulation, an extra argument must be explicitly passed to the above command so that the preset is ignored, like so:
+```{bash}
+ade$ ros2 launch autoware_demos avp_sim.launch.py with_lgsvl:=false
+```
+
 To interrupt the launched processes, hit `Ctrl c`. Turning the simulation off while building can save compute resources to accelerate the build.
 
 When following the steps above, the RViz window should show what the Autoware.Auto stack
-sees. The system is initially not localized, and the car is tentatively placed at the origin of the
+sees. If using a custom simulation the system is initially not localized, and the car is tentatively placed at the origin of the
 map frame. **Terminal 2** displays output related to starting the stack similar to:
 
 ```{bash}
@@ -107,11 +112,12 @@ By default, RViz is in the `Move Camera` mode, in which the mouse can control th
 
 Change properties of how and if entities are shown in RViz from the panel on the left of the window.
 Hide that panel by clicking on the little triangle pointing to the left. When that panel is hidden,
-the output in RViz should look like this where the car is shown as a white outline:
+the output in RViz should look like this where the car is shown as a semi-transparent grey model when running a preset simulation, or a white outline in the custom simulation case:
 
-@image html images/avp-uninitialized.png "Initial view, not localized" width=50%
+@image html images/avp-rviz-init-api.png "Initial view, preset simulation" width=50%
+@image html images/avp-uninitialized.png "Initial view, not localized, custom simulation" width=50%
 
-## Initializing the localization {#avpdemo-simulation-init-localization}
+## Initializing the localization (applies only if using a custom simulation) {#avpdemo-simulation-init-localization}
 
 In the LGSVL simulation, the vehicle is spawned at a particular location of the map that is
 different from the origin. The NDT localizer used in the Autoware.Auto stack currently requires an
@@ -123,7 +129,7 @@ Detailed instructions are given at @ref ndt-initialization.
 Once the initialization of NDT is completed, navigate back to the LGSVL window and press the play
 button in the bottom left corner of the window.
 
-## Driving to the drop-off zone
+## Driving to the drop-off zone (applies only if using a custom simulation)
 
 Now that NDT is initialized, [run the simulation](@ref lgsvl-start-simulation) if it is not already running.
 
@@ -226,6 +232,44 @@ After starting the simulation and the stack, the console is full of errors like 
 ```
 
 **Solution**: @ref avpdemo-simulation-init-localization
+
+### LGSVL stuck at API ready – running on multiple machines
+
+If after running the AVP simulation the LGSVL simulator is still stuck at the API ready splash screen, this is usually a symptom of a failed connection between Autoware and LGSVL. By default the AVP simulation assumes LGSVL is running on the same machine.
+
+**Solution**: specify the address/hostname of the machine running LGSVL explicitly to the AVP simulation launch file by adding the `api_endpoint_address` argument. Example to specify a machine with hostname `lgsvlmachine.local` running LG SVL:
+
+```{bash}
+ade$ ros2 launch autoware_demos avp_sim.launch.py api_endpoint_address:=lgsvlmachine.local
+```
+
+### LGSVL Simulation is stuck or crashes upon AVP simulation startup
+
+If the 3D simulation is stuck after "running" it through the LG SVL web interface, or it crashes after running the AVP simulator, this may be caused by an incorrect sensor configuration. Please check you are using the correct and most up to date one.
+
+**Solution**: @ref lgsvl-configuring-sensors
+
+If this issue presents itself while running a preset simulation, an extra step is required. Normally this should not happen, but it may be that the preset sensor configuration that is shipped with the preset vehicle is not up to date.
+
+After the new sensor configuration has been created, copy its UUID using the button as shown here below:
+
+@image html images/sensor-config-view.png "Sensor Configuration UUID button location" width=50%
+
+Now create a new YAML file containing the value just copied as follows. In this example below we are using the UUID `5ab8175f-e1f1-427c-a86e-e882fa842977` for the new sensor configuration:
+```{yaml}
+# vehicle_sensor_configuration.param.yaml
+---
+
+/**:
+   ros__parameters:
+      vehicle:
+         config_uuid: 5ab8175f-e1f1-427c-a86e-e882fa842977
+```
+Finally run the AVP simulation while passing the override parameters file:
+```{bash}
+ade$ ros2 launch autoware_demos avp_sim.launch.py override_simulation_params:=./vehicle_sensor_configuration.param.yaml
+```
+This should force the preset simulation to use your custom sensor configuration.
 
 ### Planner failure
 

@@ -1,0 +1,20 @@
+# params/avp/lgsvl_simulation.param.yaml
+---
+
+/**:
+  ros__parameters:
+    # AutonomouStuff scene
+    scene_uuid: 2aae5d39-a11c-4516-87c4-cdc9ca784551
+    vehicle:
+      # AWFLexus2016RXHybrid Autoware.Auto configuration
+      config_uuid: 5ab8175f-e1f1-427c-a86e-e882fa842977
+      # Vehicle spawn position
+      spawn:
+        position:
+          x: -108.094
+          y: -2.0545
+          z: -28.905
+        rotation:
+          x: 1.641
+          y: 141.217
+          z: 359.085

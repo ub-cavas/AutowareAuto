@@ -117,7 +117,7 @@ The goal is to add native ROS2 bridge to your library. If this bridge is already
 
 You can also search for `ROS2ForUnitySVLBridge` using the search bar.
 
-### Configure vehicle sensors
+### Configure vehicle sensors {#lgsvl-configuring-sensors}
 
 Once you added vehicle to your library:
 - Go to `Library` -> `Vehicles`.
@@ -144,13 +144,19 @@ That’s it. Now you have a vehicle with a valid configuration.
 
 The SVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, navigate to `Simulations` tab and press the "Run Simulation" button for desired instance. The simulator should now start in the SVL window.
 
-To create a new simulation, follow the below steps:
+To create a new simulation, follow the below steps.
 
-- Switch to the `Simulations` tab and click the `Add new` button.
-- Enter a name, description and select a cluster. Click `Next`.
-- Select the `Random Traffic` runtime template from the drop-down menu.
-- Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`.
-- Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value. 
+@note There may be some AutowareAuto demos that use their own preset simulation by default, which takes advantage of the LGSVL API. This will automatically configure the simulation to the recommended settings for the demo. For this case you need to create an API Only simulation.
+
+- Switch to the `Simulations` tab and click the `Add new` button;
+- Enter a name, description and select a cluster. Click `Next`;
+- _For preset simulations:_
+    - Select the `API Only` runtime template from the drop-down menu.
+
+  _or for custom simulations:_
+    - Select the `Random Traffic` runtime template from the drop-down menu;
+    - Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`;
+    - Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value. 
 - Click `Next` and then `Publish`.
 
 You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
@@ -159,8 +165,16 @@ You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interfa
 
 Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation configuration widget in `Simulations` view.
 
-@image html images/svl-simulation-start.png "Starting the simulation" width=40%
+@image html images/svl-simulation-start-api.png "Starting the simulation, preset simulations" width=40%
+@image html images/svl-simulation-start.png "Starting the simulation, custom simulations" width=40%
 
+### Preset simulation
+The _API Ready_ text should appear in the `SVL Simulator` window (not in the browser).
+
+@image html images/svl-splashscreen-api.png "API Ready simulator view" width=40%
+
+Congratulations if everything is working up to this point. The setup of SVL is completed.
+### Custom simulation
 The Lexus should appear in the `SVL Simulator` window (not in the browser).
 
 The next step is to control the Lexus and to drive around. Press `F1` to see a list of shortcuts and press the cookie button in bottom left corner for more UI controls.
