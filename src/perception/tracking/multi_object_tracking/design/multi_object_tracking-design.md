@@ -5,32 +5,29 @@ This is the design document for the `multi_object_tracking` package.
 
 
 # Purpose / Use cases
-<!-- Required -->
-<!-- Things to consider:
-    - Why did we implement this feature? -->
+This is an algorithm package containing the MultiObjectTracker class.
 
 
 # Design
-<!-- Required -->
-<!-- Things to consider:
-    - How does it work? -->
+See @ref tracking-architecture.
 
 
 ## Assumptions / Known limits
 <!-- Required -->
+TODO: Fill out as part of 870, currently still in iterative porting/development.
 
 ## Inputs / Outputs / API
-<!-- Required -->
-<!-- Things to consider:
-    - How do you use the package / API? -->
+It receives detected dynamic objects from multiple sources (e.g. lidar, camera), and outputs a result object containing tracked dynamic objects.
 
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
+TODO: Fill out as part of 870, currently still in iterative porting/development.
 
 
 ## Error detection and handling
 <!-- Required -->
+TODO: Fill out as part of 870, currently still in iterative porting/development.
 
 
 # Security considerations
@@ -49,8 +46,8 @@ This is the design document for the `multi_object_tracking` package.
 
 
 # Future extensions / Unimplemented parts
-<!-- Optional -->
+TODO: Fill out as part of 870, currently still in iterative porting/development.
 
 
 # Related issues
-<!-- Required -->
+Issue #899.

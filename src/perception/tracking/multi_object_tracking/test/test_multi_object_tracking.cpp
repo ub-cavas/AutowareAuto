@@ -17,11 +17,12 @@
 #include "multi_object_tracking/multi_object_tracking.hpp"
 
 using Tracker = autoware::tracking::MultiObjectTracker;
+using Options = autoware::tracking::MultiObjectTrackerOptions;
 using Status = autoware::tracking::TrackerUpdateStatus;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedDynamicObjectArray;
 
 TEST(test_multi_object_tracking, test_timestamps) {
-  Tracker tracker;
+  Tracker tracker{Options {}};
   DetectedObjects detections;
   detections.header.stamp.sec = 1000;
   tracker.update(detections);
