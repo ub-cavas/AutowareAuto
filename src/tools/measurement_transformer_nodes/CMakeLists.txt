@@ -1,0 +1,66 @@
+# Copyright 2021 The Autoware Foundation
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+cmake_minimum_required(VERSION 3.5)
+
+project(measurement_transformer_nodes)
+
+# require that dependencies from package.xml be available
+find_package(ament_cmake_auto REQUIRED)
+ament_auto_find_build_dependencies(REQUIRED
+  ${${PROJECT_NAME}_BUILD_DEPENDS}
+  ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
+)
+
+# generate nodes library
+set(MEASUREMENT_TRANSFORMER_NODES_SRC
+  src/pose_child_frame_transformer_node.cpp
+)
+
+set(MEASUREMENT_TRANSFORMER_NODES_HEADERS
+  include/measurement_transformer_nodes/measurement_transformer_node_base.hpp
+  include/measurement_transformer_nodes/pose_child_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/visibility_control.hpp
+)
+
+# generate component node library
+ament_auto_add_library(${PROJECT_NAME}_nodes SHARED
+  ${MEASUREMENT_TRANSFORMER_NODES_SRC}
+  ${MEASUREMENT_TRANSFORMER_NODES_HEADERS}
+)
+autoware_set_compile_options(${PROJECT_NAME}_nodes)
+target_compile_options(${PROJECT_NAME}_nodes PRIVATE -Wno-old-style-cast)
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode"
+  EXECUTABLE pose_child_frame_transformer_node_exe
+)
+
+# Testing
+if(BUILD_TESTING)
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
+
+  # Unit tests
+# set(TEST_SOURCES test/test_transformer_nodes.cpp)
+# set(TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE test_transformer_nodes)
+# ament_add_gtest(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE} ${TEST_SOURCES})
+# autoware_set_compile_options(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE})
+# target_link_libraries(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE} ${PROJECT_NAME})
+endif()
+
+# ament package generation and installing
+ament_auto_package(INSTALL_TO_SHARE
+  launch
+  param
+)
