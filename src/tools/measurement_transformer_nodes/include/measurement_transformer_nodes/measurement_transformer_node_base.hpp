@@ -122,7 +122,8 @@ protected:
 
     // Apply measurement TF to child frame measurement and publish
     MeasurementT out{};
-    tf2::doTransform(child_frame_measurement, out, measurement_tf);
+    tf2::doTransform<MeasurementT>(child_frame_measurement, out, measurement_tf);
+    out.header = measurement->header;
     ParentT::m_measurement_pub->publish(out);
   }
 
@@ -174,6 +175,7 @@ protected:
 
     MeasurementT out{};
     tf2::doTransform(*measurement, out, tf);
+    out.header.stamp = measurement->header.stamp;
     ParentT::m_measurement_pub->publish(out);
   }
 
