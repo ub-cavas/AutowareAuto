@@ -40,12 +40,18 @@ class MEASUREMENT_TRANSFORMER_NODES_PUBLIC PoseChildFrameTransformerNode
 public:
   using ParentT = ChildFrameTransformerNode<PoseStamped>;
 
-  /// \brief default constructor, starts driver
-  /// \throw runtime error if failed to start threads or configure driver
+  /// \brief Default constructor
   explicit PoseChildFrameTransformerNode(const rclcpp::NodeOptions & options);
 
 private:
+  /// \brief Concrete function to convert a TransformStamped to a measurement
+  /// \param tf The TransformStamped to convert to a measurement
+  /// \returns A measurement converted from a TransformStamped
   PoseStamped transform_to_measurement(const TransformStamped & tf) override;
+
+  /// \brief Concrete function to convert a measurement to a TransformStamped
+  /// \param measurement The measurement to convert to a TransformStamped
+  /// \returns A TransformStamped converted from a measurement
   TransformStamped measurement_to_transform(const PoseStamped & measurement) override;
 };
 }  // namespace measurement_transformer_nodes

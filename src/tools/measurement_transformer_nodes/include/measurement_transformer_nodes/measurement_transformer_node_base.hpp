@@ -40,6 +40,11 @@ template<class MeasurementT>
 class MEASUREMENT_TRANSFORMER_NODES_PUBLIC MeasurementTransformerNode : public rclcpp::Node
 {
 public:
+  /// \brief Default constructor
+  /// \param node_name The name of the node to pass on to rclcpp::Node
+  /// \param in_topic The name of the input measurement topic
+  /// \param out_topic The name of the output measurement topic
+  /// \param options An rclcpp::NodeOptions object to pass on to rclcpp::Node
   MeasurementTransformerNode(
     const std::string & node_name,
     const std::string & in_topic,
@@ -59,6 +64,8 @@ public:
   }
 
 protected:
+  /// \brief Pure virtual function for processing an incoming measurement
+  /// \param measurement The measurement to be transformed
   virtual void measurement_callback(const std::shared_ptr<MeasurementT> measurement) = 0;
 
   std::unique_ptr<tf2_ros::Buffer> m_tf2_buffer;
@@ -76,6 +83,11 @@ class MEASUREMENT_TRANSFORMER_NODES_PUBLIC ChildFrameTransformerNode
 public:
   using ParentT = MeasurementTransformerNode<MeasurementT>;
 
+  /// \brief Default constructor
+  /// \param node_name The name of the node to pass on to rclcpp::Node
+  /// \param in_topic The name of the input measurement topic
+  /// \param out_topic The name of the output measurement topic
+  /// \param options An rclcpp::NodeOptions object to pass on to rclcpp::Node
   ChildFrameTransformerNode(
     const std::string & node_name,
     const std::string & in_topic,
@@ -93,9 +105,18 @@ public:
   }
 
 protected:
+  /// \brief Pure virtual function to convert a TransformStamped to a measurement
+  /// \param tf The TransformStamped to convert to a measurement
+  /// \returns A measurement converted from a TransformStamped
   virtual MeasurementT transform_to_measurement(const TransformStamped & tf) = 0;
+
+  /// \brief Pure virtual function to convert a measurement to a TransformStamped
+  /// \param measurement The measurement to convert to a TransformStamped
+  /// \returns A TransformStamped converted from a measurement
   virtual TransformStamped measurement_to_transform(const MeasurementT & measurement) = 0;
 
+  /// \brief Concrete function for processing an incoming measurement
+  /// \param measurement The measurement to be transformed
   void measurement_callback(const std::shared_ptr<MeasurementT> measurement) override
   {
     // Get TF between child frames
@@ -140,6 +161,11 @@ class MEASUREMENT_TRANSFORMER_NODES_PUBLIC ParentFrameTransformerNode
 public:
   using ParentT = MeasurementTransformerNode<MeasurementT>;
 
+  /// \brief Default constructor
+  /// \param node_name The name of the node to pass on to rclcpp::Node
+  /// \param in_topic The name of the input measurement topic
+  /// \param out_topic The name of the output measurement topic
+  /// \param options An rclcpp::NodeOptions object to pass on to rclcpp::Node
   ParentFrameTransformerNode(
     const std::string & node_name,
     const std::string & in_topic,
@@ -156,6 +182,8 @@ public:
   }
 
 protected:
+  /// \brief Concrete function for processing an incoming measurement
+  /// \param measurement The measurement to be transformed
   void measurement_callback(const std::shared_ptr<MeasurementT> measurement) override
   {
     TransformStamped tf{};

@@ -40,8 +40,7 @@ class MEASUREMENT_TRANSFORMER_NODES_PUBLIC PoseParentFrameTransformerNode
 public:
   using ParentT = ParentFrameTransformerNode<PoseStamped>;
 
-  /// \brief default constructor, starts driver
-  /// \throw runtime error if failed to start threads or configure driver
+  /// \brief Default Constructor
   explicit PoseParentFrameTransformerNode(const rclcpp::NodeOptions & options);
 };
 }  // namespace measurement_transformer_nodes
