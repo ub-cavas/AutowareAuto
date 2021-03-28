@@ -26,11 +26,13 @@ ament_auto_find_build_dependencies(REQUIRED
 # generate nodes library
 set(MEASUREMENT_TRANSFORMER_NODES_SRC
   src/pose_child_frame_transformer_node.cpp
+  src/pose_parent_frame_transformer_node.cpp
 )
 
 set(MEASUREMENT_TRANSFORMER_NODES_HEADERS
   include/measurement_transformer_nodes/measurement_transformer_node_base.hpp
   include/measurement_transformer_nodes/pose_child_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/pose_parent_frame_transformer_node.hpp
   include/measurement_transformer_nodes/visibility_control.hpp
 )
 
@@ -41,9 +43,15 @@ ament_auto_add_library(${PROJECT_NAME}_nodes SHARED
 )
 autoware_set_compile_options(${PROJECT_NAME}_nodes)
 target_compile_options(${PROJECT_NAME}_nodes PRIVATE -Wno-old-style-cast)
+
 rclcpp_components_register_node(${PROJECT_NAME}_nodes
   PLUGIN "autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode"
   EXECUTABLE pose_child_frame_transformer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::measurement_transformer_nodes::PoseParentFrameTransformerNode"
+  EXECUTABLE pose_parent_frame_transformer_node_exe
 )
 
 # Testing

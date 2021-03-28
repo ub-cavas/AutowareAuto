@@ -26,7 +26,8 @@ A node which inherits from @ref autoware::measurement_transformer_nodes::ParentF
 All nodes subscribe to a measurement topic and publish to a different measurement topic. These
 are different per node type.
 
-For @ref autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode, the defaults are:
+For @ref autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode and
+@ref autoware::measurement_transformer_nodes::PoseParentFrameTransformerNode, the defaults are:
 
 - `pose_in` (input topic)
 - `pose_out` (output topic)

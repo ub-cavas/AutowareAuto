@@ -1,0 +1,4 @@
+/**:
+  ros__parameters:
+    input_parent_frame: 'base_link'
+    output_parent_frame: 'map'
