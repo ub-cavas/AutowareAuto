@@ -14,6 +14,7 @@
 
 #include "measurement_transformer_nodes/pose_parent_frame_transformer_node.hpp"
 #include <geometry_msgs/msg/pose_stamped.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace autoware
 {
@@ -27,6 +28,14 @@ PoseParentFrameTransformerNode::PoseParentFrameTransformerNode(const rclcpp::Nod
     "pose_stamped_out",
     options)
 {
+}
+
+void PoseParentFrameTransformerNode::apply_transform(
+  const PoseStamped & measurement_in,
+  PoseStamped & measurement_out,
+  const TransformStamped & tf)
+{
+  tf2::doTransform(measurement_in, measurement_out, tf);
 }
 
 }  // namespace measurement_transformer_nodes

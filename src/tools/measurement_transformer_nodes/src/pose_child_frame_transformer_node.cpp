@@ -13,6 +13,8 @@
 // limitations under the License.
 
 #include "measurement_transformer_nodes/pose_child_frame_transformer_node.hpp"
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 namespace autoware
 {
@@ -48,6 +50,14 @@ TransformStamped PoseChildFrameTransformerNode::measurement_to_transform(
   tf.transform.translation.z = measurement.pose.position.z;
   tf.transform.rotation = measurement.pose.orientation;
   return tf;
+}
+
+void PoseChildFrameTransformerNode::apply_transform(
+  const PoseStamped & measurement_in,
+  PoseStamped & measurement_out,
+  const TransformStamped & tf)
+{
+  tf2::doTransform(measurement_in, measurement_out, tf);
 }
 
 }  // namespace measurement_transformer_nodes

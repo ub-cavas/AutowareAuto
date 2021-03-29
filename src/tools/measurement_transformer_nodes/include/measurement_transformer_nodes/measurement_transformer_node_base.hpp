@@ -68,6 +68,15 @@ protected:
   /// \param measurement The measurement to be transformed
   virtual void measurement_callback(const std::shared_ptr<MeasurementT> measurement) = 0;
 
+  /// \brief Pure virtual function for applying the transform
+  /// \param[in] measurement_in The measurement to be transformed
+  /// \param[out] measurement_out The result of the transform
+  /// \param[in] tf The transform to apply
+  virtual void apply_transform(
+    const MeasurementT & measurement_in,
+    MeasurementT & measurement_out,
+    const TransformStamped & tf) = 0;
+
   std::unique_ptr<tf2_ros::Buffer> m_tf2_buffer;
   std::unique_ptr<tf2_ros::TransformListener> m_tf2_listener;
   std::shared_ptr<rclcpp::Publisher<MeasurementT>> m_measurement_pub;
@@ -143,7 +152,7 @@ protected:
 
     // Apply measurement TF to child frame measurement and publish
     MeasurementT out{};
-    tf2::doTransform<MeasurementT>(child_frame_measurement, out, measurement_tf);
+    ParentT::apply_transform(child_frame_measurement, out, measurement_tf);
     out.header = measurement->header;
     ParentT::m_measurement_pub->publish(out);
   }
@@ -190,7 +199,7 @@ protected:
 
     try {
       tf = ParentT::m_tf2_buffer->lookupTransform(
-        m_output_parent_frame, measurement->header.frame_id, tf2::getTimestamp(*measurement));
+        m_output_parent_frame, measurement->header.frame_id, measurement->header.stamp);
     } catch (tf2::TransformException & ex) {
       RCLCPP_WARN_THROTTLE(
         this->get_logger(),
@@ -202,7 +211,7 @@ protected:
     }
 
     MeasurementT out{};
-    tf2::doTransform(*measurement, out, tf);
+    ParentT::apply_transform(*measurement, out, tf);
     out.header.stamp = measurement->header.stamp;
     ParentT::m_measurement_pub->publish(out);
   }

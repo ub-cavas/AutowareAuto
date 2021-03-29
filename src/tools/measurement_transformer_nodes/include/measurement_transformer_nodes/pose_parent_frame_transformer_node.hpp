@@ -42,6 +42,15 @@ public:
 
   /// \brief Default Constructor
   explicit PoseParentFrameTransformerNode(const rclcpp::NodeOptions & options);
+
+  /// \brief Concrete function for applying a transform to a measurement
+  /// \param[in] measurement_in The measurement to be transformed
+  /// \param[out] measurement_out The result of the transform
+  /// \param[in] tf The transform to apply
+  void apply_transform(
+    const PoseStamped & measurement_in,
+    PoseStamped & measurement_out,
+    const TransformStamped & tf) override;
 };
 }  // namespace measurement_transformer_nodes
 }  // namespace autoware
