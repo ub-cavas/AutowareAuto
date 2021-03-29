@@ -27,12 +27,14 @@ ament_auto_find_build_dependencies(REQUIRED
 set(MEASUREMENT_TRANSFORMER_NODES_SRC
   src/pose_child_frame_transformer_node.cpp
   src/pose_parent_frame_transformer_node.cpp
+  src/vehicle_kinematic_state_child_frame_transformer_node.cpp
 )
 
 set(MEASUREMENT_TRANSFORMER_NODES_HEADERS
   include/measurement_transformer_nodes/measurement_transformer_node_base.hpp
   include/measurement_transformer_nodes/pose_child_frame_transformer_node.hpp
   include/measurement_transformer_nodes/pose_parent_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/vehicle_kinematic_state_child_frame_transformer_node.hpp
   include/measurement_transformer_nodes/visibility_control.hpp
 )
 
@@ -45,26 +47,29 @@ autoware_set_compile_options(${PROJECT_NAME}_nodes)
 target_compile_options(${PROJECT_NAME}_nodes PRIVATE -Wno-old-style-cast)
 
 rclcpp_components_register_node(${PROJECT_NAME}_nodes
-  PLUGIN "autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode"
+  PLUGIN "autoware::${PROJECT_NAME}::PoseChildFrameTransformerNode"
   EXECUTABLE pose_child_frame_transformer_node_exe
 )
 
 rclcpp_components_register_node(${PROJECT_NAME}_nodes
-  PLUGIN "autoware::measurement_transformer_nodes::PoseParentFrameTransformerNode"
+  PLUGIN "autoware::${PROJECT_NAME}::PoseParentFrameTransformerNode"
   EXECUTABLE pose_parent_frame_transformer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::${PROJECT_NAME}::VehicleKinematicStateParentFrameTransformerNode"
+  EXECUTABLE vehicle_kinematic_state_parent_frame_transformer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::${PROJECT_NAME}::VehicleKinematicStateChildFrameTransformerNode"
+  EXECUTABLE vehicle_kinematic_state_child_frame_transformer_node_exe
 )
 
 # Testing
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
-
-  # Unit tests
-# set(TEST_SOURCES test/test_transformer_nodes.cpp)
-# set(TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE test_transformer_nodes)
-# ament_add_gtest(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE} ${TEST_SOURCES})
-# autoware_set_compile_options(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE})
-# target_link_libraries(${TEST_CHILD_FRAME_TRANSFORMER_NODES_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing

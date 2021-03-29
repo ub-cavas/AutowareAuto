@@ -1,0 +1,4 @@
+/**:
+  ros__parameters:
+    input_child_frame: 'gnss'
+    output_child_frame: 'base_link'

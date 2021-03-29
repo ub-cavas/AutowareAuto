@@ -32,6 +32,12 @@ For @ref autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode 
 - `pose_in` (input topic)
 - `pose_out` (output topic)
 
+For @ref autoware::measurement_transformer_nodes::VehicleKinematicStateChildFrameTransformerNode and
+@ref autoware::measurement_transformer_nodes::VehicleKinematicStateParentFrameTransformerNode, the defaults are:
+
+- `vks_in` (input topic)
+- `vks_out` (output topic)
+
 ## Inner-workings / Algorithms
 Transforms of the parent frame of a measurement are straight-forward.
 A `tf2::TransformListener` looks up the transform between the provided output frame and the
