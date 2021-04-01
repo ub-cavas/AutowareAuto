@@ -68,15 +68,6 @@ protected:
   /// \param measurement The measurement to be transformed
   virtual void measurement_callback(const std::shared_ptr<MeasurementT> measurement) = 0;
 
-  /// \brief Pure virtual function for applying the transform
-  /// \param[in] measurement_in The measurement to be transformed
-  /// \param[out] measurement_out The result of the transform
-  /// \param[in] tf The transform to apply
-  virtual void apply_transform(
-    const MeasurementT & measurement_in,
-    MeasurementT & measurement_out,
-    const TransformStamped & tf) = 0;
-
   std::unique_ptr<tf2_ros::Buffer> m_tf2_buffer;
   std::unique_ptr<tf2_ros::TransformListener> m_tf2_listener;
   std::shared_ptr<rclcpp::Publisher<MeasurementT>> m_measurement_pub;
@@ -124,6 +115,15 @@ protected:
   /// \returns A TransformStamped converted from a measurement
   virtual TransformStamped measurement_to_transform(const MeasurementT & measurement) = 0;
 
+  /// \brief Pure virtual function for applying the transform
+  /// \param[in] measurement_in The measurement to be transformed
+  /// \param[out] measurement_out The result of the transform
+  /// \param[in] tf The transform to apply
+  virtual void apply_transform(
+    const MeasurementT & measurement_in,
+    MeasurementT & measurement_out,
+    const TransformStamped & tf) = 0;
+
   /// \brief Concrete function for processing an incoming measurement
   /// \param measurement The measurement to be transformed
   void measurement_callback(const std::shared_ptr<MeasurementT> measurement) override
@@ -152,7 +152,7 @@ protected:
 
     // Apply measurement TF to child frame measurement and publish
     MeasurementT out{};
-    ParentT::apply_transform(child_frame_measurement, out, measurement_tf);
+    apply_transform(child_frame_measurement, out, measurement_tf);
     out.header = measurement->header;
     ParentT::m_measurement_pub->publish(out);
   }
@@ -191,6 +191,16 @@ public:
   }
 
 protected:
+
+  /// \brief Pure virtual function for applying the transform
+  /// \param[in] measurement_in The measurement to be transformed
+  /// \param[out] measurement_out The result of the transform
+  /// \param[in] tf The transform to apply
+  virtual void apply_transform(
+    const MeasurementT & measurement_in,
+    MeasurementT & measurement_out,
+    const TransformStamped & tf) = 0;
+
   /// \brief Concrete function for processing an incoming measurement
   /// \param measurement The measurement to be transformed
   void measurement_callback(const std::shared_ptr<MeasurementT> measurement) override
@@ -211,7 +221,7 @@ protected:
     }
 
     MeasurementT out{};
-    ParentT::apply_transform(*measurement, out, tf);
+    apply_transform(*measurement, out, tf);
     out.header.stamp = measurement->header.stamp;
     ParentT::m_measurement_pub->publish(out);
   }

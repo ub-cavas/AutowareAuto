@@ -23,6 +23,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using geometry_msgs::msg::TransformStamped;

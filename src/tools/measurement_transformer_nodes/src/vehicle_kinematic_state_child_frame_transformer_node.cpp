@@ -14,6 +14,7 @@
 
 #include "measurement_transformer_nodes/vehicle_kinematic_state_child_frame_transformer_node.hpp"
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+
 #include <motion_common/motion_common.hpp>
 
 namespace autoware
