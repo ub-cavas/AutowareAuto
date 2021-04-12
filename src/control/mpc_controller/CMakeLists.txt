@@ -27,7 +27,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 # TODO(#915) Linker error with -fvisibility=hidden
 # autoware_set_compile_options(${PROJECT_NAME})
 # target_compile_options(${PROJECT_NAME} PRIVATE -Wno-useless-cast -Wno-float-conversion -Wno-sign-conversion)
-target_include_directories(${PROJECT_NAME} PRIVATE ${GENERATED_PATH})
+target_include_directories(${PROJECT_NAME} PRIVATE SYSTEM ${GENERATED_PATH})
 target_link_libraries(${PROJECT_NAME} single_track_mpc)
 
 ### Test
