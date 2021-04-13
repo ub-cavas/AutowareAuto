@@ -29,7 +29,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            'vehicle_parameters_node = vehicle_parameters_node.server:main',
+            'vehicle_parameters_node = vehicle_parameters_node.service:main',
         ],
     },
 )
