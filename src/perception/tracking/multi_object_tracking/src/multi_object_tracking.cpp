@@ -22,23 +22,16 @@ namespace autoware
 namespace tracking
 {
 
-namespace
-{
-
-constexpr = std::chrono::milliseconds(1000);
-}  // anonymous namespace
-
-MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options) m_options(options) {}
+MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options)
+: m_options(options) {}
 
 TrackerUpdateResult MultiObjectTracker::update(const DetectedObjects detections)
 {
   TrackerUpdateResult result;
   auto target_time = time_utils::from_message(detections.header.stamp);
-  if (m_last_update + target_time) {
-    if (target_time < m_last_update) {
-      result.status = TrackerUpdateStatus::WentBackInTime;
-      return result;
-    }
+  if (target_time < m_last_update) {
+    result.status = TrackerUpdateStatus::WentBackInTime;
+    return result;
   }
   this->predict(target_time);
 

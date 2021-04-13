@@ -80,7 +80,7 @@ struct MULTI_OBJECT_TRACKING_PUBLIC MultiObjectTrackerOptions
 {
   /// Tracks older than this will not be associated with observations.
   std::chrono::milliseconds staleness_threshold = std::chrono::milliseconds(1000);
-}
+};
 
 
 /// \brief A class for multi-object tracking.
