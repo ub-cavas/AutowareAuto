@@ -14,14 +14,14 @@
 
 #include "gtest/gtest.h"
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
-#include "multi_object_tracking/multi_object_tracking.hpp"
+#include "tracking/multi_object_tracker.hpp"
 
 using Tracker = autoware::tracking::MultiObjectTracker;
 using Options = autoware::tracking::MultiObjectTrackerOptions;
 using Status = autoware::tracking::TrackerUpdateStatus;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedDynamicObjectArray;
 
-TEST(test_multi_object_tracking, test_timestamps) {
+TEST(test_multi_object_tracker, test_timestamps) {
   Tracker tracker{Options {}};
   DetectedObjects detections;
   detections.header.stamp.sec = 1000;

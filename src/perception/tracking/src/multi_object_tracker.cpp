@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "multi_object_tracking/multi_object_tracking.hpp"
+#include "tracking/multi_object_tracker.hpp"
 
 #include "time_utils/time_utils.hpp"
 

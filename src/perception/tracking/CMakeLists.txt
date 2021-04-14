@@ -14,7 +14,7 @@
 
 cmake_minimum_required(VERSION 3.5)
 
-project(multi_object_tracking)
+project(tracking)
 
 if(NOT CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 14)
@@ -28,12 +28,12 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(MULTI_OBJECT_TRACKING_LIB_SRC
-  src/multi_object_tracking.cpp
+  src/multi_object_tracker.cpp
 )
 
 set(MULTI_OBJECT_TRACKING_LIB_HEADERS
-  include/multi_object_tracking/multi_object_tracking.hpp
-  include/multi_object_tracking/visibility_control.hpp
+  include/tracking/multi_object_tracker.hpp
+  include/tracking/visibility_control.hpp
 )
 
 # generate library
@@ -49,8 +49,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   # Unit tests
-  set(TEST_SOURCES test/test_multi_object_tracking.cpp)
-  set(TEST_MULTI_OBJECT_TRACKING_EXE test_multi_object_tracking)
+  set(TEST_SOURCES test/test_multi_object_tracker.cpp)
+  set(TEST_MULTI_OBJECT_TRACKING_EXE test_multi_object_tracker)
   ament_add_gtest(${TEST_MULTI_OBJECT_TRACKING_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_MULTI_OBJECT_TRACKING_EXE})
   target_link_libraries(${TEST_MULTI_OBJECT_TRACKING_EXE} ${PROJECT_NAME})

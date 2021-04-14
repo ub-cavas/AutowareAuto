@@ -16,8 +16,8 @@
 /// \file
 /// \brief This file defines the multi_object_tracking class.
 
-#ifndef MULTI_OBJECT_TRACKING__MULTI_OBJECT_TRACKING_HPP_
-#define MULTI_OBJECT_TRACKING__MULTI_OBJECT_TRACKING_HPP_
+#ifndef TRACKING__MULTI_OBJECT_TRACKER_HPP_
+#define TRACKING__MULTI_OBJECT_TRACKER_HPP_
 
 #include <chrono>
 #include <memory>
@@ -30,7 +30,7 @@
 #include "kalman_filter/kalman_filter.hpp"
 #include "motion_model/linear_motion_model.hpp"
 #include "motion_model/wiener_noise.hpp"
-#include "multi_object_tracking/visibility_control.hpp"
+#include "tracking/visibility_control.hpp"
 
 
 namespace autoware
@@ -52,7 +52,7 @@ enum class TrackerUpdateStatus
 
 
 /// \brief Output of MultiObjectTracker::update.
-struct MULTI_OBJECT_TRACKING_PUBLIC TrackerUpdateResult
+struct TRACKING_PUBLIC TrackerUpdateResult
 {
   /// The tracking output. It can be nullptr when the status is not Ok.
   std::unique_ptr<autoware_auto_msgs::msg::TrackedDynamicObjectArray> objects;
@@ -64,7 +64,7 @@ struct MULTI_OBJECT_TRACKING_PUBLIC TrackerUpdateResult
 
 
 /// \brief Internal struct containing the object state and other information.
-struct MULTI_OBJECT_TRACKING_LOCAL TrackedObject
+struct TRACKING_LOCAL TrackedObject
 {
   /// The state estimator.
   using CA = autoware::prediction::state::ConstAccelerationXY;
@@ -76,7 +76,7 @@ struct MULTI_OBJECT_TRACKING_LOCAL TrackedObject
 
 
 /// \brief Options for object tracking.
-struct MULTI_OBJECT_TRACKING_PUBLIC MultiObjectTrackerOptions
+struct TRACKING_PUBLIC MultiObjectTrackerOptions
 {
   /// Tracks older than this will not be associated with observations.
   std::chrono::milliseconds staleness_threshold = std::chrono::milliseconds(1000);
@@ -84,7 +84,7 @@ struct MULTI_OBJECT_TRACKING_PUBLIC MultiObjectTrackerOptions
 
 
 /// \brief A class for multi-object tracking.
-class MULTI_OBJECT_TRACKING_PUBLIC MultiObjectTracker
+class TRACKING_PUBLIC MultiObjectTracker
 {
 public:
   using DetectedObjects = autoware_auto_msgs::msg::DetectedDynamicObjectArray;
@@ -116,4 +116,4 @@ private:
 }  // namespace tracking
 }  // namespace autoware
 
-#endif  // MULTI_OBJECT_TRACKING__MULTI_OBJECT_TRACKING_HPP_
+#endif  // TRACKING__MULTI_OBJECT_TRACKER_HPP_
