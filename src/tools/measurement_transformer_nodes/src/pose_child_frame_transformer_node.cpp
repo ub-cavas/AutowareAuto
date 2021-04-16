@@ -31,9 +31,10 @@ PoseChildFrameTransformerNode::PoseChildFrameTransformerNode(const rclcpp::NodeO
 }
 
 PoseStamped PoseChildFrameTransformerNode::transform_to_measurement(
-  const TransformStamped & tf)
+  const TransformStamped & tf,
+  const PoseStamped & orig_measurement)
 {
-  PoseStamped pose;
+  PoseStamped pose = orig_measurement;
   pose.pose.position.x = tf.transform.translation.x;
   pose.pose.position.y = tf.transform.translation.y;
   pose.pose.position.z = tf.transform.translation.z;

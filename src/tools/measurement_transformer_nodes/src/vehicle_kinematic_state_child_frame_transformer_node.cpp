@@ -35,9 +35,10 @@ VehicleKinematicStateChildFrameTransformerNode::VehicleKinematicStateChildFrameT
 }
 
 VehicleKinematicState VehicleKinematicStateChildFrameTransformerNode::transform_to_measurement(
-  const TransformStamped & tf)
+  const TransformStamped & tf,
+  const VehicleKinematicState & orig_measurement)
 {
-  VehicleKinematicState vks;
+  VehicleKinematicState vks = orig_measurement;
   vks.state.x = static_cast<float32_t>(tf.transform.translation.x);
   vks.state.y = static_cast<float32_t>(tf.transform.translation.y);
   vks.state.heading.imag = static_cast<float32_t>(tf.transform.rotation.z);

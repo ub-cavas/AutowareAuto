@@ -107,8 +107,11 @@ public:
 protected:
   /// \brief Pure virtual function to convert a TransformStamped to a measurement
   /// \param tf The TransformStamped to convert to a measurement
+  /// \param orig_measurement The original measurement from which to create the new
   /// \returns A measurement converted from a TransformStamped
-  virtual MeasurementT transform_to_measurement(const TransformStamped & tf) = 0;
+  virtual MeasurementT transform_to_measurement(
+    const TransformStamped & tf,
+    const MeasurementT & orig_measurement) = 0;
 
   /// \brief Pure virtual function to convert a measurement to a TransformStamped
   /// \param measurement The measurement to convert to a TransformStamped
@@ -145,13 +148,14 @@ protected:
     }
 
     // Convert child frame TF to measurement
-    auto child_frame_measurement = transform_to_measurement(child_frame_tf);
+    // Start with values from original measurement
+    auto child_frame_measurement = transform_to_measurement(child_frame_tf, *measurement);
 
     // Convert incoming measurement to TF
     auto measurement_tf = measurement_to_transform(*measurement);
 
     // Apply measurement TF to child frame measurement and publish
-    MeasurementT out = *measurement;
+    MeasurementT out{};
     apply_transform(child_frame_measurement, out, measurement_tf);
     out.header = measurement->header;
     ParentT::m_measurement_pub->publish(out);
@@ -219,7 +223,7 @@ protected:
       return;
     }
 
-    MeasurementT out = *measurement;
+    MeasurementT out{};
     apply_transform(*measurement, out, tf);
     out.header.stamp = measurement->header.stamp;
     ParentT::m_measurement_pub->publish(out);

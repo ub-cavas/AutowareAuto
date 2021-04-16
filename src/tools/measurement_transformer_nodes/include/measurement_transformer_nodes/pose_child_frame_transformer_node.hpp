@@ -46,8 +46,11 @@ public:
 private:
   /// \brief Concrete function to convert a TransformStamped to a measurement
   /// \param tf The TransformStamped to convert to a measurement
+  /// \param orig_measurement The original measurement from which to create the new
   /// \returns A measurement converted from a TransformStamped
-  PoseStamped transform_to_measurement(const TransformStamped & tf) override;
+  PoseStamped transform_to_measurement(
+    const TransformStamped & tf,
+    const PoseStamped & orig_measurement) override;
 
   /// \brief Concrete function to convert a measurement to a TransformStamped
   /// \param measurement The measurement to convert to a TransformStamped
