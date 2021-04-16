@@ -13,6 +13,12 @@ The transform can be applied to either the parent frame of the measurement or th
 ## Assumptions / Known limits
 Currently only designed to transform measurements of the origin of one frame with respect to another.
 
+Currently-supported data types are:
+
+- `autoware_auto_msgs::msg::VehicleKinematicState`
+- `geometry_msgs::msg::PoseStamped`
+- `geometry_msgs::msg::PoseWithCovarianceStamped`
+
 ## Inputs / Outputs / API
 A node which inherits from @ref autoware::measurement_transformer_nodes::ChildFrameTransformerNode requires the following parameters:
 
