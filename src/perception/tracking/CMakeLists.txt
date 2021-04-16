@@ -27,18 +27,20 @@ ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
-
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
+
 
 set(TRACKING_LIB_SRC
   src/data_association.cpp
+  src/multi_object_tracker.cpp
   src/tracked_object.cpp
 )
 
 set(TRACKING_LIB_HEADERS
   include/tracking/data_association.hpp
-  include/tracking/tracker_types.hpp
+  include/tracking/multi_object_tracker.hpp
   include/tracking/tracked_object.hpp
+  include/tracking/tracker_types.hpp
   include/tracking/visibility_control.hpp
 )
 
@@ -58,6 +60,7 @@ if(BUILD_TESTING)
   # Unit tests
   set(TEST_SOURCES
     test/test_data_association.cpp
+    test/test_multi_object_tracker.cpp
     test/test_tracked_object.cpp
   )
   set(TEST_TRACKING_EXE test_multi_object_tracker)
