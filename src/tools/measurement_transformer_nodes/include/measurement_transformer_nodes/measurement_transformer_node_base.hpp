@@ -151,7 +151,7 @@ protected:
     auto measurement_tf = measurement_to_transform(*measurement);
 
     // Apply measurement TF to child frame measurement and publish
-    MeasurementT out{};
+    MeasurementT out = *measurement;
     apply_transform(child_frame_measurement, out, measurement_tf);
     out.header = measurement->header;
     ParentT::m_measurement_pub->publish(out);
@@ -191,7 +191,6 @@ public:
   }
 
 protected:
-
   /// \brief Pure virtual function for applying the transform
   /// \param[in] measurement_in The measurement to be transformed
   /// \param[out] measurement_out The result of the transform
@@ -220,7 +219,7 @@ protected:
       return;
     }
 
-    MeasurementT out{};
+    MeasurementT out = *measurement;
     apply_transform(*measurement, out, tf);
     out.header.stamp = measurement->header.stamp;
     ParentT::m_measurement_pub->publish(out);
