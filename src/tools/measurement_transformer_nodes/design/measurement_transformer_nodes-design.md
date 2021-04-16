@@ -26,8 +26,10 @@ A node which inherits from @ref autoware::measurement_transformer_nodes::ParentF
 All nodes subscribe to a measurement topic and publish to a different measurement topic. These
 are different per node type.
 
-For @ref autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode and
-@ref autoware::measurement_transformer_nodes::PoseParentFrameTransformerNode, the defaults are:
+For @ref autoware::measurement_transformer_nodes::PoseChildFrameTransformerNode,
+@ref autoware::measurement_transformer_nodes::PoseParentFrameTransformerNode,
+@ref autoware::measurement_transformer_nodes::PoseWithCovChildFrameTransformerNode, and
+@ref autoware::measurement_transformer_nodes::PoseWithCovParentFrameTransformerNode the defaults are:
 
 - `pose_in` (input topic)
 - `pose_out` (output topic)
@@ -93,4 +95,4 @@ Make applicable to more message types. Potentially apply to sensor data.
 
 
 # Related issues
-<!-- Required -->
+- [#312] Create Transform Tools

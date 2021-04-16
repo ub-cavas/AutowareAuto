@@ -27,14 +27,20 @@ ament_auto_find_build_dependencies(REQUIRED
 set(MEASUREMENT_TRANSFORMER_NODES_SRC
   src/pose_child_frame_transformer_node.cpp
   src/pose_parent_frame_transformer_node.cpp
+  src/pose_with_cov_child_frame_transformer_node.cpp
+  src/pose_with_cov_parent_frame_transformer_node.cpp
   src/vehicle_kinematic_state_child_frame_transformer_node.cpp
+  src/vehicle_kinematic_state_parent_frame_transformer_node.cpp
 )
 
 set(MEASUREMENT_TRANSFORMER_NODES_HEADERS
   include/measurement_transformer_nodes/measurement_transformer_node_base.hpp
   include/measurement_transformer_nodes/pose_child_frame_transformer_node.hpp
   include/measurement_transformer_nodes/pose_parent_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/pose_with_cov_child_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/pose_with_cov_parent_frame_transformer_node.hpp
   include/measurement_transformer_nodes/vehicle_kinematic_state_child_frame_transformer_node.hpp
+  include/measurement_transformer_nodes/vehicle_kinematic_state_parent_frame_transformer_node.hpp
   include/measurement_transformer_nodes/visibility_control.hpp
 )
 
@@ -57,13 +63,23 @@ rclcpp_components_register_node(${PROJECT_NAME}_nodes
 )
 
 rclcpp_components_register_node(${PROJECT_NAME}_nodes
-  PLUGIN "autoware::${PROJECT_NAME}::VehicleKinematicStateParentFrameTransformerNode"
-  EXECUTABLE vehicle_kinematic_state_parent_frame_transformer_node_exe
+  PLUGIN "autoware::${PROJECT_NAME}::PoseWithCovChildFrameTransformerNode"
+  EXECUTABLE pose_with_cov_child_frame_transformer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::${PROJECT_NAME}::PoseWithCovParentFrameTransformerNode"
+  EXECUTABLE pose_with_cov_parent_frame_transformer_node_exe
 )
 
 rclcpp_components_register_node(${PROJECT_NAME}_nodes
   PLUGIN "autoware::${PROJECT_NAME}::VehicleKinematicStateChildFrameTransformerNode"
   EXECUTABLE vehicle_kinematic_state_child_frame_transformer_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}_nodes
+  PLUGIN "autoware::${PROJECT_NAME}::VehicleKinematicStateParentFrameTransformerNode"
+  EXECUTABLE vehicle_kinematic_state_parent_frame_transformer_node_exe
 )
 
 # Testing
