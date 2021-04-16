@@ -14,4 +14,5 @@ visualization tools and interfaces for debugging.
 - @subpage avp_web_interface-package-design
 - @subpage lidar-integration-design
 - @subpage gnss-conversion-nodes-design
+- @subpage measurement_transformer_nodes-package-design
 - @subpage test_trajectory_following-package-design

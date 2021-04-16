@@ -1,7 +1,7 @@
-child_frame_transformer_nodes {#child_frame_transformer_nodes-package-design}
+measurement_transformer_nodes {#measurement_transformer_nodes-package-design}
 ===========
 
-This is the design document for the `child_frame_transformer_nodes` package.
+This is the design document for the `measurement_transformer_nodes` package.
 
 
 # Purpose / Use cases
@@ -11,7 +11,7 @@ The transform can be applied to either the parent frame of the measurement or th
 # Design
 
 ## Assumptions / Known limits
-Only works with measurement types which have a `doTransform` function defined in `tf2_geometry_msgs`.
+Currently only designed to transform measurements of the origin of one frame with respect to another.
 
 ## Inputs / Outputs / API
 A node which inherits from @ref autoware::measurement_transformer_nodes::ChildFrameTransformerNode requires the following parameters:
@@ -89,7 +89,7 @@ parent frame.
 
 
 # Future extensions / Unimplemented parts
-Make applicable to more message types.
+Make applicable to more message types. Potentially apply to sensor data.
 
 
 # Related issues
