@@ -28,6 +28,16 @@ import unittest
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
+    vehicle_parameters_node = Node(
+        package='vehicle_parameters_node',
+        executable='vehicle_parameters_node_exe',
+        namespace='test',
+        parameters=[os.path.join(
+            get_package_share_directory('behavior_planner_nodes'),
+            'param/vehicle_parameters.param.yaml'
+        )]
+    )
+
     behavior_planner_node = Node(
         package='behavior_planner_nodes',
         node_executable='behavior_planner_node_exe',
@@ -38,10 +48,15 @@ def generate_test_description(ready_fn):
         )]
     )
 
-    context = {'behavior_planner_node': behavior_planner_node}
+    nodes = [
+        vehicle_parameters_node,
+        behavior_planner_node,
+    ]
+
+    context = {'behavior_planner_node': nodes}
 
     return LaunchDescription([
-        behavior_planner_node,
+        *nodes,
         # Start tests right away - no need to wait for anything
         OpaqueFunction(function=lambda context: ready_fn())]
     ), context
@@ -52,4 +67,4 @@ class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, behavior_planner_node):
         # Check that process exits with code -15 code: termination request, sent to the program
-        launch_testing.asserts.assertExitCodes(proc_info, [-15], process=behavior_planner_node)
+        launch_testing.asserts.assertExitCodes(proc_info, [-15], process=behavior_planner_node[1])

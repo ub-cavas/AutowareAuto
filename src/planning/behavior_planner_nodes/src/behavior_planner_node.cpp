@@ -38,15 +38,27 @@ void BehaviorPlannerNode::init()
   using rclcpp::QoS;
   using namespace std::chrono_literals;
 
+  auto parameters_client =
+    std::make_shared<rclcpp::SyncParametersClient>(
+    this, declare_parameter("vehicle_parameters_node").get<std::string>());
+  parameters_client->wait_for_service();
+  auto parameters = parameters_client->get_parameters(
+      {
+        "vehicle.cg_to_front_m",
+        "vehicle.cg_to_rear_m",
+        "vehicle.front_overhang_m",
+        "vehicle.rear_overhang_m"
+      };
+
   // Setup planner
   const auto cg_to_front_m =
-    static_cast<float32_t>(declare_parameter("vehicle.cg_to_front_m").get<float64_t>());
+    static_cast<float32_t>(parameters[0].get_value<float64_t>());
   const auto cg_to_rear_m =
-    static_cast<float32_t>(declare_parameter("vehicle.cg_to_rear_m").get<float64_t>());
+    static_cast<float32_t>(parameters[1].get_value<float64_t>());
   const auto front_overhang_m =
-    static_cast<float32_t>(declare_parameter("vehicle.front_overhang_m").get<float64_t>());
+    static_cast<float32_t>(parameters[2].get_value<float64_t>());
   const auto rear_overhang_m =
-    static_cast<float32_t>(declare_parameter("vehicle.rear_overhang_m").get<float64_t>());
+    static_cast<float32_t>(parameters[3].get_value<float64_t>());
   const auto cg_to_vehicle_center =
     ( (cg_to_front_m + front_overhang_m) - (rear_overhang_m + cg_to_rear_m) ) * 0.5F;
 
