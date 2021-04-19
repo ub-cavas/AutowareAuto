@@ -21,22 +21,18 @@ def build():
     try:
         on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
         if on_rtd:
-            docs_path = '{}/docs/.doxygen'.format(ws)
-            doxygen_base = 'doxygen-1.8.17-bundle'
-            doxygen_tarball = '{}.tar.gz'.format(doxygen_base)
-            doxygen_binary_path = '{}/doxygen-1.8.17'.format(doxygen_base)
-            url = 'https://people.apache.org/~esteve/{}'.format(doxygen_tarball)
-            download_cmd = 'wget {}'.format(url)
-            file_cmd = 'file {}'.format(doxygen_tarball)
-            tar_cmd = 'tar xvf {}'.format(doxygen_tarball)
-            chmod_cmd = 'chmod -v a+x {}'.format(doxygen_base)
-            doxygen_cmd = 'LD_LIBRARY_PATH={} {} docs/.doxygen/Doxyfile'.format(
-                doxygen_base, doxygen_binary_path)
+            artifacts_url = 'https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/jobs/artifacts/{}/download?job=docs'
+            rtd_version = os.environ.get('READTHEDOCS_VERSION', None)
+            if rtd_version == 'latest':
+                artifacts_url = artifacts_url.format('master')
+            else:
+                raise ValueError('Unknown RTD version: '.format(rtd_version))
+            download_cmd = 'wget -O docs.zip {}'.format(url)
+            unzip_cmd = 'unzip docs.zip'
+            mv_cmd = 'mv -v docs/_build _build'
             subprocess.run(download_cmd, shell=True, cwd=ws, check=True)
-            subprocess.run(file_cmd, shell=True, cwd=ws, check=True)
-            subprocess.run(tar_cmd, shell=True, cwd=ws, check=True)
-            subprocess.run(chmod_cmd, shell=True, cwd=ws, check=True)
-            subprocess.run(doxygen_cmd, shell=True, cwd=ws, check=True)
+            subprocess.run(unzip_cmd, shell=True, cwd=ws, check=True)
+            subprocess.run(mv_cmd, shell=True, cwd=ws, check=True)
         else:
             subprocess.run(['doxygen', 'docs/.doxygen/Doxyfile'], cwd=ws, check=True)
     except subprocess.CalledProcessError as err:
