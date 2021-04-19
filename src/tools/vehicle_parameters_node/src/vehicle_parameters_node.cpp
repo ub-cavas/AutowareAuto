@@ -23,7 +23,18 @@ namespace vehicle_parameters_node
 {
 
 VehicleParametersNode::VehicleParametersNode(const rclcpp::NodeOptions & options)
-: Node("vehicle_parameters_node", options) {}
+: Node("vehicle_parameters_node", options)
+{
+  declare_parameter("vehicle.cg_to_front_m");
+  declare_parameter("vehicle.cg_to_rear_m");
+  declare_parameter("vehicle.front_corner_stiffness");
+  declare_parameter("vehicle.rear_corner_stiffness");
+  declare_parameter("vehicle.mass_kg");
+  declare_parameter("vehicle.yaw_inertia_kgm2");
+  declare_parameter("vehicle.width_m");
+  declare_parameter("vehicle.front_overhang_m");
+  declare_parameter("vehicle.rear_overhang_m");
+}
 
 } // namespace vehicle_parameters_node
 } // namespace autoware

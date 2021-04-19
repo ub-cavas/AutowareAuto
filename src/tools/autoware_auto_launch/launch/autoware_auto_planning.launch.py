@@ -45,6 +45,8 @@ def generate_launch_description():
         autoware_auto_launch_pkg_prefix, 'param/object_collision_estimator.param.yaml')
     parking_planner_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/parking_planner.param.yaml')
+    vehicle_parameters_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/vehicle_parameters.param.yaml')
 
     # Arguments
     with_obstacles_param = DeclareLaunchArgument(
@@ -77,8 +79,14 @@ def generate_launch_description():
         default_value=parking_planner_param_file,
         description='Path to parameter file for parking planner'
     )
+    vehicle_parameters_param = DeclareLaunchArgument(
+        'vehicle_parameters_param_file',
+        default_value=vehicle_parameters_param_file,
+        description='Path to parameter file for vehicle parameters'
+    )
 
     # Nodes
+
     behavior_planner = Node(
         package='behavior_planner_nodes',
         name='behavior_planner_node',
@@ -139,6 +147,12 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('parking_planner_param_file')],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
+    vehicle_parameters_node = Node(
+        package='vehicle_parameters_node',
+        executable='vehicle_parameters_node_exe',
+        namespace='vehicle_parameters',
+        parameters=[LaunchConfiguration('vehicle_parameters_param_file')],
+    )
 
     return LaunchDescription([
         with_obstacles_param,
@@ -153,4 +167,6 @@ def generate_launch_description():
         mpc_controller,
         object_collision_estimator,
         parking_planner,
+        vehicle_parameters_param,
+        vehicle_parameters_node,
     ])

@@ -28,16 +28,33 @@ using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
 LanePlannerNode::LanePlannerNode(const rclcpp::NodeOptions & node_options)
 : TrajectoryPlannerNodeBase{"lane_planner", "plan_lane_trajectory", node_options}
 {
+  auto parameters_client =
+    std::make_shared<rclcpp::SyncParametersClient>(
+    this, declare_parameter("vehicle_parameters_node").get<std::string>());
+  parameters_client->wait_for_service();
+  auto parameters = parameters_client->get_parameters(
+      {
+        "vehicle.cg_to_front_m",
+        "vehicle.cg_to_rear_m",
+        "vehicle.front_corner_stiffness",
+        "vehicle.rear_corner_stiffness",
+        "vehicle.mass_kg",
+        "vehicle.yaw_inertia_kgm2",
+        "vehicle.width_m",
+        "vehicle.front_overhang_m",
+        "vehicle.rear_overhang_m"
+      });
+
   const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter("vehicle.cg_to_front_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.cg_to_rear_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.mass_kg").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.width_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_overhang_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_overhang_m").get<float32_t>())
+    static_cast<Real>(parameters[0].get_value<float32_t>()),
+    static_cast<Real>(parameters[1].get_value<float32_t>()),
+    static_cast<Real>(parameters[2].get_value<float32_t>()),
+    static_cast<Real>(parameters[3].get_value<float32_t>()),
+    static_cast<Real>(parameters[4].get_value<float32_t>()),
+    static_cast<Real>(parameters[5].get_value<float32_t>()),
+    static_cast<Real>(parameters[6].get_value<float32_t>()),
+    static_cast<Real>(parameters[7].get_value<float32_t>()),
+    static_cast<Real>(parameters[8].get_value<float32_t>())
   };
   const TrajectorySmootherConfig config{
     static_cast<float32_t>(

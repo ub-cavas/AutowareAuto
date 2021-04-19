@@ -52,6 +52,8 @@ def generate_launch_description():
         avp_demo_pkg_prefix, 'param/behavior_planner.param.yaml')
     off_map_obstacles_filter_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
+    vehicle_parameters_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/vehicle_parameters.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
@@ -107,6 +109,11 @@ def generate_launch_description():
         'off_map_obstacles_filter_param_file',
         default_value=off_map_obstacles_filter_param_file,
         description='Path to parameter file for off-map obstacle filter'
+    )
+    vehicle_parameters_param = DeclareLaunchArgument(
+        'vehicle_parameters_param_file',
+        default_value=vehicle_parameters_param_file,
+        description='Path to parameter file for vehicle parameters'
     )
 
     # Nodes
@@ -227,6 +234,13 @@ def generate_launch_description():
         ]
     )
 
+    vehicle_parameters_node = Node(
+        package='vehicle_parameters_node',
+        executable='vehicle_parameters_node_exe',
+        namespace='vehicle_parameters',
+        parameters=[LaunchConfiguration('vehicle_parameters_param_file')],
+    )
+
     return LaunchDescription([
         euclidean_cluster_param,
         ray_ground_classifier_param,
@@ -250,4 +264,6 @@ def generate_launch_description():
         object_collision_estimator,
         behavior_planner,
         off_map_obstacles_filter,
+        vehicle_parameters_param,
+        vehicle_parameters_node,
     ])

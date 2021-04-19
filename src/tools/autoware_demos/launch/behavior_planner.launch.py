@@ -180,6 +180,18 @@ def generate_launch_description():
         parameters=[{'robot_description': urdf_file}],
     )
 
+    vehicle_parameters_param = DeclareLaunchArgument(
+        'vehicle_parameters_param_file',
+        default_value=str(param_path / 'vehicle_parameters.param.yaml'),
+        description='Path to parameter file for vehicle parameters'
+    )
+    vehicle_parameters_node = Node(
+        package='vehicle_parameters_node',
+        executable='vehicle_parameters_node_exe',
+        namespace='vehicle_parameters',
+        parameters=[LaunchConfiguration('vehicle_parameters_param_file')],
+    )
+
     return LaunchDescription([
         behavior_planner_param,
         behavior_planner,
@@ -200,4 +212,6 @@ def generate_launch_description():
         parking_planner,
         rviz2,
         urdf_publisher,
+        vehicle_parameters_param,
+        vehicle_parameters_node,
     ])
