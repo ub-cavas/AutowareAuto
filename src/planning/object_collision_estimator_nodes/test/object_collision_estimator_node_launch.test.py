@@ -28,6 +28,16 @@ import unittest
 @pytest.mark.launch_test
 def generate_test_description(ready_fn):
 
+    vehicle_parameters_node = Node(
+        package='vehicle_parameters_node',
+        executable='vehicle_parameters_node_exe',
+        namespace='test',
+        parameters=[os.path.join(
+            get_package_share_directory('object_collision_estimator_nodes'),
+            'param/vehicle_parameters.param.yaml'
+        )]
+    )
+
     object_collision_estimator_node = Node(
         package='object_collision_estimator_nodes',
         node_executable='object_collision_estimator_node_exe',
@@ -38,10 +48,15 @@ def generate_test_description(ready_fn):
         )]
     )
 
-    context = {'object_collision_estimator_node': object_collision_estimator_node}
+    nodes = [
+        vehicle_parameters_node,
+        object_collision_estimator_node,
+    ]
+
+    context = {'object_collision_estimator_node': nodes}
 
     return LaunchDescription([
-        object_collision_estimator_node,
+        *nodes,
         # Start tests right away - no need to wait for anything
         OpaqueFunction(function=lambda context: ready_fn())]
     ), context
@@ -55,5 +70,5 @@ class TestProcessOutput(unittest.TestCase):
         launch_testing.asserts.assertExitCodes(
             proc_info,
             [-15],
-            process=object_collision_estimator_node
+            process=object_collision_estimator_node[1]
         )
