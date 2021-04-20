@@ -1,0 +1,5 @@
+/**:
+  ros__parameters:
+    vehicle:
+      cog_to_front_axle: 1.228
+      cog_to_rear_axle: 1.5618

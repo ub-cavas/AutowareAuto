@@ -67,16 +67,33 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
     },
   };
   using mpc_controller::VehicleConfig;
+  auto parameters_client =
+    std::make_shared<rclcpp::SyncParametersClient>(
+    this, declare_parameter("vehicle_parameters_node").get<std::string>());
+  parameters_client->wait_for_service();
+  auto parameters = parameters_client->get_parameters(
+      {
+        "vehicle.cg_to_front_m",
+        "vehicle.cg_to_rear_m",
+        "vehicle.front_corner_stiffness",
+        "vehicle.rear_corner_stiffness",
+        "vehicle.mass_kg",
+        "vehicle.yaw_inertia_kgm2",
+        "vehicle.width_m",
+        "vehicle.front_overhang_m",
+        "vehicle.rear_overhang_m"
+      });
+
   const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter("controller.vehicle.cg_to_front_m").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.cg_to_rear_m").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.front_corner_stiffness").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.rear_corner_stiffness").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.mass_kg").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.yaw_inertia_kgm2").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.width_m").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.front_overhang_m").get<double>()),
-    static_cast<Real>(declare_parameter("controller.vehicle.rear_overhang_m").get<double>())
+    static_cast<Real>(parameters[0].get_value<double>()),
+    static_cast<Real>(parameters[1].get_value<double>()),
+    static_cast<Real>(parameters[2].get_value<double>()),
+    static_cast<Real>(parameters[3].get_value<double>()),
+    static_cast<Real>(parameters[4].get_value<double>()),
+    static_cast<Real>(parameters[5].get_value<double>()),
+    static_cast<Real>(parameters[6].get_value<double>()),
+    static_cast<Real>(parameters[7].get_value<double>()),
+    static_cast<Real>(parameters[8].get_value<double>())
   };
   using mpc_controller::BehaviorConfig;
   using controller_common::ControlReference;

@@ -17,6 +17,7 @@
 from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.time import Time
+from rcl_interfaces.srv import GetParameters
 
 from autoware_auto_msgs.msg import Complex32
 from autoware_auto_msgs.msg import ControlDiagnostic
@@ -80,12 +81,23 @@ class ControllerTestingNode(Node):
         self.param_sim_time_step = self.declare_parameter("sim_time_step_s").value
         self.param_stop_n_report_time_s = self.declare_parameter("stop_and_report_time_s").value
         self.param_real_time_sim = self.declare_parameter("real_time_sim", False).value
-        self.param_cog_to_front_axle = self.declare_parameter(
-            "vehicle.cog_to_front_axle"
+
+        self.vehicle_parameters_node_name = self.declare_parameter(
+            "vehicle_parameters_node"
         ).value
-        self.param_cog_to_rear_axle = self.declare_parameter(
-            "vehicle.cog_to_rear_axle"
-        ).value
+        self.client = self.create_client(GetParameters, self.vehicle_parameters_node_name)
+
+        request = GetParameters.Request()
+        request.names = [
+            "vehicle.cog_to_front_axle",
+            "vehicle.cog_to_rear_axle",
+        ]
+        self.client.wait_for_service()
+        result = self.client.call(request)
+
+        self.param_cog_to_front_axle = result.values[0]
+        self.param_cog_to_rear_axle = result.values[1]
+
         self.param_wheelbase = self.param_cog_to_rear_axle + self.param_cog_to_front_axle
         self.param_trajectory_generate = self.declare_parameter("trajectory.generate").value
         self.param_trajectory_frame = self.declare_parameter("trajectory.frame").value
