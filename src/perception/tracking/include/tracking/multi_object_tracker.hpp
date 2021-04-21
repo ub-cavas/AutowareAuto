@@ -27,6 +27,7 @@
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp"
+#include "geometry_msgs/msg/transform_stamped.hpp"
 #include "tracking/data_association.hpp"
 #include "tracking/tracked_object.hpp"
 #include "kalman_filter/common_states.hpp"
@@ -52,8 +53,15 @@ enum class TrackerUpdateStatus
   /// The provided detections were older than the previous detections.
   /// The Kalman filter can only extrapolate forward, so this is an error.
   WentBackInTime,
-  /// The provided detections are not in the expected frame.
-  WrongFrame,
+  /// The frame of the detections does not match the source frame of the transform.
+  DetectionFrameMismatch,
+  /// The target frame of the transform does not match the frame in which the tracker operates.
+  TrackerFrameMismatch,
+  /// The detections and the transform have different timestamps.
+  TimestampMismatch,
+  /// The provided detections are not in a usable frame – the detection frame must be
+  /// gravity-aligned.
+  FrameNotGravityAligned,
   /// At least one of the provided detections has an invalid shape.
   InvalidShape,
 };
@@ -82,8 +90,8 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
   /// When initializing a new track, this value is used for the variance when none is provided by
   /// the detection.
   float default_variance = 1.0F;
-  /// The magnitude of the noise for
-  float noise_variance = 100.0F;
+  /// The magnitude of the noise in the Kalman filter.
+  float noise_variance = 3.0F;
 };
 
 
@@ -100,12 +108,23 @@ public:
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
   /// \param[in] detections An array of detections.
+  /// \param[in] track_from_detection A transform from the detection frame into the tracker frame,
+  /// see also MultiObjectTrackerOptions.
   /// \return A result object containing tracks, unless an error occurred.
-  TrackerUpdateResult update(const DetectedObjectsMsg & detections);
+  TrackerUpdateResult update(
+    DetectedObjectsMsg detections,
+    const geometry_msgs::msg::TransformStamped & track_from_detection);
 
 private:
   /// Check that the input data is valid.
-  TrackerUpdateStatus validate(const DetectedObjectsMsg & detections);
+  TrackerUpdateStatus validate(
+    const DetectedObjectsMsg & detections,
+    const geometry_msgs::msg::TransformStamped & track_from_detection);
+
+  /// Transform the detections into the tracker frame.
+  void transform(
+    DetectedObjectsMsg & detections,
+    const geometry_msgs::msg::TransformStamped & track_from_detection);
 
   /// Convert the internal tracked object representation to the ROS message type.
   TrackedObjectsMsg convert_to_msg() const;
