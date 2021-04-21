@@ -13,7 +13,9 @@
   <depend>autoware_auto_msgs</depend>
   <depend>autoware_auto_common</depend>
   <depend>autoware_auto_geometry</depend>
+  <depend>geometry_msgs</depend>
   <build_depend>eigen</build_depend>
+  <build_depend>tf2_eigen</build_depend>
   <build_depend>hungarian_assigner</build_depend>
   <build_depend>kalman_filter</build_depend>
   <build_depend>time_utils</build_depend>
