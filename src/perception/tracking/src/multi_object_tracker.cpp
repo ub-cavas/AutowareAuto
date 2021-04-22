@@ -85,7 +85,6 @@ TrackerUpdateResult MultiObjectTracker::update(
   // Initialize new tracks
   // ==================================
   for (size_t new_detection_idx : association.unassigned_detection_indices) {
-    // TODO(nikolai.morin): Make parameters configurable
     m_objects.push_back(
       TrackedObject(
         detections.objects[new_detection_idx],
