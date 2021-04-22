@@ -27,8 +27,6 @@ ament_auto_find_build_dependencies(REQUIRED
   ${${PROJECT_NAME}_BUILD_DEPENDS}
   ${${PROJECT_NAME}_BUILDTOOL_DEPENDS}
 )
-include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
-
 
 set(TRACKING_LIB_SRC
   src/data_association.cpp
@@ -49,6 +47,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${TRACKING_LIB_SRC}
   ${TRACKING_LIB_HEADERS}
 )
+target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 autoware_set_compile_options(${PROJECT_NAME})
 ament_target_dependencies(${PROJECT_NAME} Eigen3)
 
