@@ -14,6 +14,7 @@
   <depend>autoware_auto_common</depend>
   <depend>autoware_auto_geometry</depend>
   <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
   <build_depend>eigen</build_depend>
   <build_depend>tf2_eigen</build_depend>
   <build_depend>hungarian_assigner</build_depend>

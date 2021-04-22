@@ -27,7 +27,7 @@
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object.hpp"
 #include "autoware_auto_msgs/msg/tracked_dynamic_object_array.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "tracking/data_association.hpp"
 #include "tracking/tracked_object.hpp"
 #include "kalman_filter/common_states.hpp"
@@ -57,8 +57,6 @@ enum class TrackerUpdateStatus
   DetectionFrameMismatch,
   /// The target frame of the transform does not match the frame in which the tracker operates.
   TrackerFrameMismatch,
-  /// The detections and the transform have different timestamps.
-  TimestampMismatch,
   /// The provided detections are not in a usable frame – the detection frame must be
   /// gravity-aligned.
   FrameNotGravityAligned,
@@ -108,23 +106,23 @@ public:
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
   /// \param[in] detections An array of detections.
-  /// \param[in] track_from_detection A transform from the detection frame into the tracker frame,
-  /// see also MultiObjectTrackerOptions.
+  /// \param[in] detection_frame_odometry An odometry message for the detection frame in the
+  /// tracking frame, which is defined in MultiObjectTrackerOptions.
   /// \return A result object containing tracks, unless an error occurred.
   TrackerUpdateResult update(
     DetectedObjectsMsg detections,
-    const geometry_msgs::msg::TransformStamped & track_from_detection);
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
 
 private:
   /// Check that the input data is valid.
   TrackerUpdateStatus validate(
     const DetectedObjectsMsg & detections,
-    const geometry_msgs::msg::TransformStamped & track_from_detection);
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// Transform the detections into the tracker frame.
   void transform(
     DetectedObjectsMsg & detections,
-    const geometry_msgs::msg::TransformStamped & track_from_detection);
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// Convert the internal tracked object representation to the ROS message type.
   TrackedObjectsMsg convert_to_msg() const;

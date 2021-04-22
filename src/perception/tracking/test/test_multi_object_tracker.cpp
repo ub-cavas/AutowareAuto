@@ -14,14 +14,14 @@
 
 #include "gtest/gtest.h"
 #include "autoware_auto_msgs/msg/detected_dynamic_object_array.hpp"
-#include "geometry_msgs/msg/transform_stamped.hpp"
+#include "nav_msgs/msg/odometry.hpp"
 #include "tracking/multi_object_tracker.hpp"
 
 using Tracker = autoware::perception::tracking::MultiObjectTracker;
 using Options = autoware::perception::tracking::MultiObjectTrackerOptions;
 using Status = autoware::perception::tracking::TrackerUpdateStatus;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedDynamicObjectArray;
-using TransformStamped = geometry_msgs::msg::TransformStamped;
+using Odometry = nav_msgs::msg::Odometry;
 
 class MultiObjectTrackerTest : public ::testing::Test
 {
@@ -31,6 +31,7 @@ public:
   {
     m_detections.header.stamp.sec = 1000;
     m_tf.header.stamp.sec = 1000;
+    m_tf.pose.pose.orientation.w = 1.0;
   }
 
   void SetUp() {}
@@ -39,7 +40,7 @@ public:
 
   Tracker m_tracker;
   DetectedObjects m_detections;
-  TransformStamped m_tf;
+  Odometry m_tf;
 };
 
 TEST_F(MultiObjectTrackerTest, test_timestamps) {
