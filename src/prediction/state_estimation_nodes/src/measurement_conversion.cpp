@@ -73,19 +73,41 @@ StampedMeasurementPoseAndSpeed message_to_measurement(
 }
 
 template<>
-StampedMeasurementSpeed message_to_measurement(
-  const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
+MeasurementSpeed message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovariance & msg,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
   using FloatT = common::types::float32_t;
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
+  return MeasurementSpeed{
+    converted_tf__world__frame_id.rotation() * Eigen::Vector2f{
+      msg.twist.linear.x, msg.twist.linear.y},
+    {static_cast<FloatT>(msg.covariance[kIndexX]),
+      static_cast<FloatT>(msg.covariance[kIndexY])}
+  };
+}
+
+template<>
+MeasurementPose message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovariance & msg,
+  const Eigen::Isometry3f & tf__world__frame_id)
+{
+  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
+  return MeasurementPose{converted_tf__world__frame_id * Eigen::Vector2f{
+      msg.pose.position.x, msg.pose.position.y},
+    {static_cast<common::types::float32_t>(msg.covariance[kIndexX]),
+      static_cast<common::types::float32_t>(msg.covariance[kIndexY])}
+  };
+}
+
+template<>
+StampedMeasurementSpeed message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovarianceStamped & msg,
+  const Eigen::Isometry3f & tf__world__frame_id)
+{
   return StampedMeasurementSpeed{
     to_time_point(msg.header.stamp),
-    MeasurementSpeed{
-      converted_tf__world__frame_id.rotation() * Eigen::Vector2f{
-        msg.twist.twist.linear.x, msg.twist.twist.linear.y},
-      {static_cast<FloatT>(msg.twist.covariance[kIndexX]),
-        static_cast<FloatT>(msg.twist.covariance[kIndexY])}}
+    message_to_measurement<MeasurementSpeed>(msg.twist, tf__world__frame_id)
   };
 }
 
@@ -94,16 +116,11 @@ StampedMeasurementPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
-  const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
   return StampedMeasurementPose{
     to_time_point(msg.header.stamp),
-    MeasurementPose{converted_tf__world__frame_id * Eigen::Vector2f{
-        msg.pose.pose.position.x, msg.pose.pose.position.y},
-      {static_cast<common::types::float32_t>(msg.pose.covariance[kIndexX]),
-        static_cast<common::types::float32_t>(msg.pose.covariance[kIndexY])}}
+    message_to_measurement<MeasurementPose>(msg.pose, tf__world__frame_id)
   };
 }
-
 
 }  // namespace prediction
 }  // namespace autoware

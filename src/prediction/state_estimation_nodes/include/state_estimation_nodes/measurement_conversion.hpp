@@ -104,10 +104,36 @@ static constexpr Eigen::Transform<
 /// @return     The measurement containing pose and speed.
 ///
 template<>
-STATE_ESTIMATION_NODES_PUBLIC StampedMeasurementPoseAndSpeed message_to_measurement(
+STATE_ESTIMATION_NODES_PUBLIC MeasurementPoseAndSpeed message_to_measurement(
   const nav_msgs::msg::Odometry & msg,
   const Eigen::Isometry3f & tf__world__frame_id,
   const Eigen::Isometry3f & tf__world__child_frame_id);
+
+///
+/// @brief      Specialization of message_to_measurement for twist message.
+///
+/// @param[in]  msg                  The twist message.
+/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
+///
+/// @return     The measurement containing speed.
+///
+template<>
+STATE_ESTIMATION_NODES_PUBLIC MeasurementSpeed message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovariance & msg,
+  const Eigen::Isometry3f & tf__world__frame_id);
+
+///
+/// @brief      Specialization of message_to_measurement for pose message.
+///
+/// @param[in]  msg                  The pose message.
+/// @param[in]  tf__world__frame_id  A transform from message frame_id to world frame.
+///
+/// @return     The measurement containing pose.
+///
+template<>
+STATE_ESTIMATION_NODES_PUBLIC MeasurementPose message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovariance & msg,
+  const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of message_to_measurement for twist message.
@@ -134,6 +160,7 @@ template<>
 STATE_ESTIMATION_NODES_PUBLIC StampedMeasurementPose message_to_measurement(
   const geometry_msgs::msg::PoseWithCovarianceStamped & msg,
   const Eigen::Isometry3f & tf__world__frame_id);
+
 
 }  // namespace prediction
 }  // namespace autoware
