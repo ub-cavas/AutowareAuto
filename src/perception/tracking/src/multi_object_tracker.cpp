@@ -18,6 +18,7 @@
 #include <cmath>
 #include <memory>
 
+#include "autoware_auto_tf2/tf2_autoware_auto_msgs.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "time_utils/time_utils.hpp"
 #include "tf2_eigen/tf2_eigen.h"
@@ -53,6 +54,18 @@ bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
   }
   return true;
 }
+
+geometry_msgs::msg::TransformStamped odometry_to_transform(const nav_msgs::msg::Odometry & odometry)
+{
+  geometry_msgs::msg::TransformStamped tfs;
+  tfs.header = odometry.header;
+  tfs.child_frame_id = odometry.child_frame_id;
+  tfs.transform.translation.x = odometry.pose.pose.position.x;
+  tfs.transform.translation.y = odometry.pose.pose.position.y;
+  tfs.transform.translation.z = odometry.pose.pose.position.z;
+  tfs.transform.rotation = odometry.pose.pose.orientation;
+  return tfs;
+}
 }  // anonymous namespace
 
 
@@ -63,10 +76,9 @@ TrackerUpdateResult MultiObjectTracker::update(
   DetectedObjectsMsg detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
-  TrackerUpdateStatus validation_status = this->validate(detections, detection_frame_odometry);
   TrackerUpdateResult result;
-  if (validation_status != TrackerUpdateStatus::Ok) {
-    result.status = TrackerUpdateStatus::WentBackInTime;
+  result.status = this->validate(detections, detection_frame_odometry);
+  if (result.status != TrackerUpdateStatus::Ok) {
     return result;
   }
 
@@ -108,6 +120,9 @@ TrackerUpdateResult MultiObjectTracker::update(
     const auto & detection = detections.objects[detection_idx];
     m_objects[track_idx].update(detection);
   }
+  for (const size_t track_idx : association.unassigned_track_indices) {
+    m_objects[track_idx].no_update();
+  }
 
   // ==================================
   // Initialize new tracks
@@ -142,10 +157,10 @@ TrackerUpdateStatus MultiObjectTracker::validate(
   if (target_time < m_last_update) {
     return TrackerUpdateStatus::WentBackInTime;
   }
-  if (detections.header.frame_id != detection_frame_odometry.header.frame_id) {
+  if (detections.header.frame_id != detection_frame_odometry.child_frame_id) {
     return TrackerUpdateStatus::DetectionFrameMismatch;
   }
-  if (detection_frame_odometry.child_frame_id != m_options.frame) {
+  if (detection_frame_odometry.header.frame_id != m_options.frame) {
     return TrackerUpdateStatus::TrackerFrameMismatch;
   }
   if (!is_gravity_aligned(detection_frame_odometry.pose.pose.orientation)) {
@@ -162,24 +177,23 @@ void MultiObjectTracker::transform(
   DetectedObjectsMsg & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
+  // Convert the odometry to Eigen objects.
   Eigen::Isometry3d tf__tracking__detection = Eigen::Isometry3d::Identity();
   tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
-  const Eigen::Isometry3f tf__tracking__detection__f = tf__tracking__detection.cast<float>();
   const Eigen::Matrix3d rot_d = tf__tracking__detection.linear();
+  // Convert the odometry to TransformStamped.
+  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection = odometry_to_transform(
+    detection_frame_odometry);
   // Hoisted outside the loop
   Eigen::Isometry3d tf__detection__object = Eigen::Isometry3d::Identity();
   Eigen::Isometry3d tf__tracking__object = Eigen::Isometry3d::Identity();
 
   detections.header.frame_id = m_options.frame;
   for (auto & detection : detections.objects) {
-    // Transform the shape.
-    for (auto & point : detection.shape.polygon.points) {
-      const Eigen::Vector3f eigen_point {point.x, point.y, point.z};
-      const Eigen::Vector3f eigen_point_transformed = tf__tracking__detection__f * eigen_point;
-      point.x = eigen_point_transformed.x();
-      point.y = eigen_point_transformed.y();
-      point.z = eigen_point_transformed.z();
-    }
+    // Transform the shape. If needed, this can potentially be made more efficient by not using
+    // tf2::doTransform, which converts the TransformStamped message to a different representation
+    // in each call.
+    tf2::doTransform(detection.shape.polygon, detection.shape.polygon, tf_msg__tracking__detection);
     // Transform the pose.
     if (detection.kinematics.has_pose) {
       tf2::fromMsg(detection.kinematics.pose.pose, tf__detection__object);

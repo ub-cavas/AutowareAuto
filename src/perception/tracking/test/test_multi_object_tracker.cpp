@@ -29,9 +29,12 @@ public:
   MultiObjectTrackerTest()
   : m_tracker{Options{}}
   {
+    m_detections.header.frame_id = "base_link";
     m_detections.header.stamp.sec = 1000;
-    m_tf.header.stamp.sec = 1000;
-    m_tf.pose.pose.orientation.w = 1.0;
+    m_odom.header.frame_id = "map";
+    m_odom.child_frame_id = "base_link";
+    m_odom.header.stamp.sec = 1000;
+    m_odom.pose.pose.orientation.w = 1.0;
   }
 
   void SetUp() {}
@@ -40,12 +43,24 @@ public:
 
   Tracker m_tracker;
   DetectedObjects m_detections;
-  Odometry m_tf;
+  Odometry m_odom;
 };
 
+TEST_F(MultiObjectTrackerTest, test_happy_path) {
+  EXPECT_NO_THROW(m_tracker.update(m_detections, m_odom));
+}
+
 TEST_F(MultiObjectTrackerTest, test_timestamps) {
-  m_tracker.update(m_detections, m_tf);
+  m_tracker.update(m_detections, m_odom);
   m_detections.header.stamp.sec = 999;
-  auto result = m_tracker.update(m_detections, m_tf);
+  const auto result = m_tracker.update(m_detections, m_odom);
   EXPECT_EQ(result.status, Status::WentBackInTime);
+}
+
+TEST_F(MultiObjectTrackerTest, test_frame_orientation_validation) {
+  // This rotates the object to be on its side, which does not make sense
+  m_odom.pose.pose.orientation.w = 0.0;
+  m_odom.pose.pose.orientation.x = 1.0;
+  const auto result = m_tracker.update(m_detections, m_odom);
+  EXPECT_EQ(result.status, Status::FrameNotGravityAligned);
 }

@@ -13,6 +13,7 @@
   <depend>autoware_auto_msgs</depend>
   <depend>autoware_auto_common</depend>
   <depend>autoware_auto_geometry</depend>
+  <depend>autoware_auto_tf2</depend>
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <build_depend>eigen</build_depend>
