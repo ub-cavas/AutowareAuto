@@ -25,9 +25,10 @@ namespace tracking_nodes
 using autoware::perception::tracking::MultiObjectTracker;
 using autoware::perception::tracking::MultiObjectTrackerOptions;
 using autoware_auto_msgs::msg::DetectedDynamicObjectArray;
-using autoware_auto_msgs::msg::TrackedObjectArray;
+using autoware_auto_msgs::msg::TrackedDynamicObjectArray;
 using nav_msgs::msg::Odometry;
 using std::placeholders::_1;
+using std::placeholders::_2;
 
 namespace
 {
@@ -39,67 +40,34 @@ MultiObjectTracker init_tracker(rclcpp::Node & node)
   return MultiObjectTracker{options};
 }
 
+auto init_subscription(rclcpp::Node & node)
+{
+  autoware::common::SynchronizedSubscriptionConfig<DetectedDynamicObjectArray, Odometry> config;
+  config.cb = std::bind(&MultiObjectTrackerNode::process, node, _1, _2);
+  config.dropped_msg_cb =
+    std::bind(&MultiObjectTrackerNode::dropped_message_callback, node, _1, _2);
+  return autoware::common::SynchronizedSubscription(
+    "detected_objects", rclcpp::QoS(10), "odometry", rclcpp::QoS(10),
+    "odometry", rclcpp::QoS(10), std::move(config));
+}
+
 }  // namespace
 
 MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & options)
 :  Node("multi_object_tracker_node", options),
   m_tracker(init_tracker(*this)),
-  m_odometry_sub(this->create_subscription<Odometry>(
-      "odometry", rclcpp::QoS(10), std::bind(&MultiObjectTrackerNode::odom_callback, this, _1))),
-  m_detections_sub(this->create_subscription<DetectedDynamicObjectArray>(
-      "detected_objects",
-      rclcpp::QoS(10), std::bind(&MultiObjectTrackerNode::objects_callback, this, _1))),
-  m_pub(this->create_publisher<TrackedObjectArray>("tracked_objects", rclcpp::QoS(10)))
+  m_sub(init_subscription(*this)),
+  m_pub(this->create_publisher<TrackedDynamicObjectArray>("tracked_objects", rclcpp::QoS(10)))
 {
 }
 
-void objects_callback(DetectedDynamicObjectArray::ConstSharedPtr msg)
-{
-  // Assume that state estimator and perception are synchronized, see #1040.
-  // Also assume in-order message delivery.
-  if (m_odometry_buffer.empty()) {
-    // We'll need to wait for the odometry message to arrive.
-    // Queue for later processing.
-    if (m_objects_buffer) {
-      // This will likely happen at startup.
-      RCLCPP_WARN(get_logger(), "Dropping detection message since no odometry was received.");
-    }
-    m_objects_buffer = msg;
-    return;
-  }
-  const auto corresponding_odom_msg = std::find_if(
-    m_odometry_buffer.cbegin(), m_odometry_buffer.cend(), [&msg](const auto & odom_msg) {
-      return odom_msg->header.stamp == msg->header.stamp;
-    });
-  if (corresponding_odom_msg != m_odometry_buffer.cend()) {
-    // Both messages are here.
-    this->process(msg, corresponding_odom_msg);
-    // We should delete all odom messages older than msg.
-    m_odometry_buffer.erase(corresponding_odometry_msg, m_odometry_buffer.cend());
-  } else {
-    const auto newest_odom_msg = m_odometry_buffer.front();
-    if (rclcpp::Time(newest_odom_msg->header.stamp) > rclcpp::Time(msg->header.stamp)) {
-      RCLCPP_WARN(get_logger(), "Dropping detection message since no odometry was received.");
-    } else {
-      m_objects_buffer = msg;
-    }
-  }
-}
-
-void odom_callback(Odometry::ConstSharedPtr msg)
-{
-  m_odometry_buffer.push_front(msg);
-  if (!m_odometry_buffer) {
-    return;
-  }
-}
-
-
-void process(DetectedDynamicObjectArray::ConstSharedPtr objs, Odometry::ConstSharedPtr odom)
+void MultiObjectTrackerNode::process(
+  DetectedDynamicObjectArray::ConstSharedPtr objs,
+  Odometry::ConstSharedPtr odom)
 {
   const auto result = m_tracker.update(*objs, *odom);
   if (result.status == TrackerUpdateStatus::Ok) {
-    m_pub.publish(std::move(result.objects));
+    m_pub->publish(std::move(result.objects));
   } else {
     // We use a switch statement without default since it warns when not all cases are handled.
     const auto get_status_string = [](TrackerUpdateStatus status) {
@@ -112,6 +80,13 @@ void process(DetectedDynamicObjectArray::ConstSharedPtr objs, Odometry::ConstSha
       get_logger(), "Tracker update for detection at time failed. Reason: %s",
       get_status_string());
   }
+}
+
+void MultiObjectTrackerNode::dropped_message_callback(
+  autoware_auto_msgs::msg::DetectedDynamicObjectArray::ConstSharedPtr msg,
+  autoware::common::DroppedMessageReason reason)
+{
+  RCLCPP_WARN(get_logger(), "Dropping detection message since no odometry was received.");
 }
 
 }  // namespace tracking_nodes
