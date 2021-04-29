@@ -25,6 +25,7 @@
 using nav_msgs::msg::Odometry;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 using autoware::common::state_estimation::StateEstimationNode;
+using autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
 
 namespace
 {
@@ -51,6 +52,41 @@ geometry_msgs::msg::TransformStamped get_dummy_transform(const nav_msgs::msg::Od
   dummy_transform.transform.translation.set__x(0.0).set__y(0.0).set__z(0.0);
   dummy_transform.transform.rotation.set__x(0.0).set__y(0.0).set__z(0.0).set__w(1.0);
   return dummy_transform;
+}
+
+Odometry create_empty_odometry(const std::string & frame_id, const std::string & child_frame_id)
+{
+  Odometry msg{};
+  msg.header.frame_id = frame_id;
+  msg.child_frame_id = child_frame_id;
+  msg.pose.covariance[0] = 1.0;
+  msg.pose.covariance[7] = 1.0;
+  msg.twist.covariance[0] = 1.0;
+  msg.twist.covariance[7] = 1.0;
+  return msg;
+}
+
+PoseWithCovarianceStamped create_empty_pose(const std::string & frame_id)
+{
+  PoseWithCovarianceStamped msg{};
+  msg.header.frame_id = frame_id;
+  msg.pose.covariance[0] = 1.0;
+  msg.pose.covariance[7] = 1.0;
+  return msg;
+}
+
+RelativePositionWithCovarianceStamped create_empty_relative_pose(
+  const std::string & frame_id,
+  const std::string & child_frame_id)
+{
+  RelativePositionWithCovarianceStamped msg{};
+  msg.header.frame_id = frame_id;
+  msg.child_frame_id = child_frame_id;
+  msg.covariance.resize(9);
+  msg.covariance[0] = 1.0;
+  msg.covariance[4] = 1.0;
+  msg.covariance[8] = 1.0;
+  return msg;
 }
 
 }  // namespace
@@ -132,15 +168,9 @@ INSTANTIATE_TEST_CASE_P(
 /// @test Test that if we publish one message, it generates a state estimate which is sent out.
 TEST_P(DISABLED_StateEstimationNodeTest, publish_and_receive_odom_message) {
   const bool publish_tf = GetParam();
-  nav_msgs::msg::Odometry msg{};
-  msg.header.frame_id = "map";
-  msg.child_frame_id = "base_link";
+  auto msg = create_empty_odometry("map", "base_link");
   msg.header.stamp.sec = 5;
   msg.header.stamp.nanosec = 12345U;
-  msg.pose.covariance[0] = 1.0;
-  msg.pose.covariance[7] = 1.0;
-  msg.twist.covariance[0] = 1.0;
-  msg.twist.covariance[7] = 1.0;
 
   auto dummy_transform = get_dummy_transform(msg);
 
@@ -209,20 +239,11 @@ TEST_P(DISABLED_StateEstimationNodeTest, publish_and_receive_odom_message) {
 /// @test Test that we can track an object moving in a straight line.
 TEST_P(DISABLED_StateEstimationNodeTest, track_object_straight_line) {
   const bool publish_tf = GetParam();
-  nav_msgs::msg::Odometry msg{};
-  msg.child_frame_id = "base_link";
-  msg.header.frame_id = "map";
-  msg.pose.covariance[0] = 1.0;
-  msg.pose.covariance[7] = 1.0;
-  msg.twist.covariance[0] = 1.0;
-  msg.twist.covariance[7] = 1.0;
+  auto odom_msg = create_empty_odometry("map", "base_link");
+  auto pose_msg = create_empty_pose("map");
+  auto relative_pose_msg = create_empty_relative_pose("map", "base_link");
 
-  PoseWithCovarianceStamped pose_msg{};
-  pose_msg.header.frame_id = "map";
-  pose_msg.pose.covariance[0] = 1.0;
-  pose_msg.pose.covariance[7] = 1.0;
-
-  auto dummy_transform = get_dummy_transform(msg);
+  auto dummy_transform = get_dummy_transform(odom_msg);
 
   rclcpp::NodeOptions node_options{};
   node_options.append_parameter_override(
@@ -247,6 +268,8 @@ TEST_P(DISABLED_StateEstimationNodeTest, track_object_straight_line) {
   std::vector<Odometry::SharedPtr> received_msgs{0};
   auto fake_odom_publisher = create_publisher<Odometry>("/odom_topic_1");
   auto fake_pose_publisher = create_publisher<PoseWithCovarianceStamped>("/pose_topic_1");
+  auto fake_relative_pose_publisher = create_publisher<RelativePositionWithCovarianceStamped>(
+    "/relative_pos_topic_1");
   auto result_odom_subscription = create_result_subscription<Odometry>(
     "/filtered_state", node.get(),
     [&received_msgs](
@@ -260,27 +283,36 @@ TEST_P(DISABLED_StateEstimationNodeTest, track_object_straight_line) {
   std::chrono::seconds total_travel_time{2LL};
   size_t messages_sent{};
   int i = 0;
-  for (std::chrono::milliseconds time_passed{};
-    time_passed <= total_travel_time;
-    time_passed += dt, ++i)
+
+  std::vector<std::string> msg_types{"odom", "pose", "relative_pose"};
+
+  // cppcheck-suppress syntaxError // Trust me, this is valid C++ syntax.
+  for (struct { std::chrono::milliseconds time_passed{}; std::size_t msg_idx{}; } iter;
+    iter.time_passed <= total_travel_time;
+    iter.time_passed += dt, iter.msg_idx = (iter.msg_idx + 1U) % msg_types.size())
   {
-    msg.header.stamp = to_ros_time(starting_time_point + time_passed);
-    dummy_transform.header.stamp = msg.header.stamp;
+    const auto stamp = to_ros_time(starting_time_point + iter.time_passed);
+    dummy_transform.header.stamp = stamp;
     node->buffer().setTransform(dummy_transform, "test");
-    std::chrono::duration<double> seconds_passed{time_passed};
-    msg.pose.pose.position.x = seconds_passed.count() * speed;
-    msg.pose.pose.position.y = seconds_passed.count() * speed;
-    msg.twist.twist.linear.x = speed;
-    msg.twist.twist.linear.y = speed;
+    std::chrono::duration<double> seconds_passed{iter.time_passed};
 
-    pose_msg.header.stamp = to_ros_time(starting_time_point + time_passed);
-    pose_msg.pose.pose.position.x = seconds_passed.count() * speed;
-    pose_msg.pose.pose.position.y = seconds_passed.count() * speed;
-
-    if (i % 2 == 0) {
-      fake_odom_publisher->publish(msg);
-    } else {
+    if (msg_types[iter.msg_idx] == "odom") {
+      odom_msg.header.stamp = stamp;
+      odom_msg.pose.pose.position.x = seconds_passed.count() * speed;
+      odom_msg.pose.pose.position.y = seconds_passed.count() * speed;
+      odom_msg.twist.twist.linear.x = speed;
+      odom_msg.twist.twist.linear.y = speed;
+      fake_odom_publisher->publish(odom_msg);
+    } else if (msg_types[iter.msg_idx] == "pose") {
+      pose_msg.header.stamp = stamp;
+      pose_msg.pose.pose.position.x = seconds_passed.count() * speed;
+      pose_msg.pose.pose.position.y = seconds_passed.count() * speed;
       fake_pose_publisher->publish(pose_msg);
+    } else if (msg_types[iter.msg_idx] == "relative_pose") {
+      relative_pose_msg.header.stamp = stamp;
+      relative_pose_msg.position.x = seconds_passed.count() * speed;
+      relative_pose_msg.position.y = seconds_passed.count() * speed;
+      fake_relative_pose_publisher->publish(relative_pose_msg);
     }
     rclcpp::spin_some(node);
     rclcpp::spin_some(get_mock_node());
@@ -317,7 +349,7 @@ TEST_P(DISABLED_StateEstimationNodeTest, track_object_straight_line) {
     } else {
       EXPECT_FALSE(
         get_tf_buffer().canTransform(
-          "map", "base_link", to_tf_time_point(msg.header.stamp)));
+          "map", "base_link", to_tf_time_point(odom_msg.header.stamp)));
     }
   }
   const double epsilon = 0.2;
@@ -327,15 +359,9 @@ TEST_P(DISABLED_StateEstimationNodeTest, track_object_straight_line) {
 
 /// @test Test for the case when we publish on a timer.
 TEST_F(DISABLED_StateEstimationNodeTest, publish_on_timer) {
-  nav_msgs::msg::Odometry msg{};
-  msg.child_frame_id = "base_link";
-  msg.header.frame_id = "map";
+  auto msg = create_empty_odometry("map", "base_link");
   msg.header.stamp.sec = 5;
   msg.header.stamp.nanosec = 12345U;
-  msg.pose.covariance[0] = 1.0;
-  msg.pose.covariance[7] = 1.0;
-  msg.twist.covariance[0] = 1.0;
-  msg.twist.covariance[7] = 1.0;
 
   auto dummy_transform = get_dummy_transform(msg);
 

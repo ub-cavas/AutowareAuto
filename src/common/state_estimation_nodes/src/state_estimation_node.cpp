@@ -244,6 +244,7 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
 
 void StateEstimationNode::relative_pos_callback(const RelativePosMsgT::SharedPtr msg)
 {
+  // TODO(igor): deal with the child frame id.
   const auto tf__m_frame_id__msg_frame_id =
     get_transform(m_frame_id, msg->header.frame_id, msg->header.stamp);
   const auto measurement = message_to_measurement<StampedMeasurementPose>(
