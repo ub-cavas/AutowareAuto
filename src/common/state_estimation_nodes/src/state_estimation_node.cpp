@@ -161,6 +161,8 @@ StateEstimationNode::StateEstimationNode(
   const auto input_odom_topics{declare_parameter("topics.input_odom", empty_vector)};
   const auto input_pose_topics{declare_parameter("topics.input_pose", empty_vector)};
   const auto input_twist_topics{declare_parameter("topics.input_twist", empty_vector)};
+  const auto input_relative_pos_topics{
+    declare_parameter("topics.input_relative_pos", empty_vector)};
   if (input_odom_topics.empty() && input_pose_topics.empty() && input_twist_topics.empty()) {
     throw std::runtime_error("No input topics provided. Make sure to set these in the param file.");
   }
@@ -170,6 +172,10 @@ StateEstimationNode::StateEstimationNode(
     input_pose_topics, &m_pose_subscribers, &StateEstimationNode::pose_callback);
   create_subscriptions<TwistMsgT>(
     input_twist_topics, &m_twist_subscribers, &StateEstimationNode::twist_callback);
+  create_subscriptions<RelativePosMsgT>(
+    input_relative_pos_topics,
+    &m_relative_pos_subscribers,
+    &StateEstimationNode::relative_pos_callback);
 
   m_publisher = create_publisher<nav_msgs::msg::Odometry>(kDefaultOutputTopic, kDefaultHistory);
 
@@ -235,6 +241,25 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
     publish_current_state();
   }
 }
+
+void StateEstimationNode::relative_pos_callback(const RelativePosMsgT::SharedPtr msg)
+{
+  const auto tf__m_frame_id__msg_frame_id =
+    get_transform(m_frame_id, msg->header.frame_id, msg->header.stamp);
+  const auto measurement = message_to_measurement<StampedMeasurementPose>(
+    *msg, tf2::transformToEigen(tf__m_frame_id__msg_frame_id).cast<float32_t>());
+  if (m_ekf->is_initialized()) {
+    if (!m_ekf->add_observation_to_history(measurement)) {
+      throw std::runtime_error("Cannot add an odometry observation to history.");
+    }
+  } else {
+    m_ekf->add_reset_event_to_history(measurement);
+  }
+  if (m_publish_data_driven && m_ekf->is_initialized()) {
+    publish_current_state();
+  }
+}
+
 
 void StateEstimationNode::twist_callback(const TwistMsgT::SharedPtr msg)
 {
