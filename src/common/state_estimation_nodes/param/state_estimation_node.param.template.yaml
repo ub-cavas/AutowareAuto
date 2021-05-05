@@ -60,7 +60,9 @@
     # translation of the ego frame with respect to the <frame_id> frame.
     frame_id: "map"
 
-    # A child frame id for the tf transformations.
+    # A child frame id for the tf transformations. It is furthermore expected that the
+    # PoseWithCovariance and TwistWithCovariance measure the state of this child_frame_id with
+    # respect to their respective frame_id.
     child_frame_id: "base_link"
 
     # The minimum speed at which the output message orientation would be taken from the last

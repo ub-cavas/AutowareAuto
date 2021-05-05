@@ -13,9 +13,12 @@ Note that the outgoing messages will be timestamped in the same time reference f
 # Input / Output
 
 The inputs are measurements that update the prediction of the underlying filter estimate. Currently, the node supports the following inputs:
-- `geometry_msgs/msg/PoseWithCovariance` - updates the 2d position
-- `geometry_msgs/msg/TwistWithCovariance` - updates the 2d speed
-- `nav_msgs/msg/Odometry` - updates both position and speed
+- `geometry_msgs/msg/PoseWithCovariance` - provides the position and orientation
+- `autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped` - provides the position
+- `geometry_msgs/msg/TwistWithCovariance` - provides a speed measurement
+- `nav_msgs/msg/Odometry` - provides both position and speed measurements
+
+@warning It is assumed that all messages that don't have a `child_frame_id` field measure the position of this node's parameter-set `child_frame_id`. There is no way to detect that this is not the case, so the user is responsible to enforce this.
 
 There can be multiple topics for this node and these must be configured through the parameters.
 
