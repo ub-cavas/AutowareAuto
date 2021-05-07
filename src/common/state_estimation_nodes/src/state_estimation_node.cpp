@@ -262,17 +262,6 @@ void StateEstimationNode::twist_callback(const TwistMsgT::SharedPtr msg)
   }
 }
 
-geometry_msgs::msg::TransformStamped StateEstimationNode::get_transform(
-  const std_msgs::msg::Header::_frame_id_type & target_frame_id,
-  const std_msgs::msg::Header::_frame_id_type & source_frame_id,
-  const std_msgs::msg::Header::_stamp_type & timestamp)
-{
-  // Get the transform between the msg and the output frame. We treat the
-  // possible exceptions as unrecoverable and let them bubble up.
-  return m_tf_buffer.lookupTransform(
-    target_frame_id, source_frame_id, tf2_ros::fromMsg(timestamp));
-}
-
 void StateEstimationNode::predict_and_publish_current_state()
 {
   if (!m_ekf->is_initialized()) {return;}

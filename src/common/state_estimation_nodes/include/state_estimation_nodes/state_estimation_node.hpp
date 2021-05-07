@@ -112,12 +112,6 @@ private:
   void STATE_ESTIMATION_NODES_LOCAL update_latest_orientation_if_needed(
     const geometry_msgs::msg::QuaternionStamped & rotation);
 
-  /// Get the transformation from a frame in a provided header to the current frame.
-  geometry_msgs::msg::TransformStamped STATE_ESTIMATION_NODES_LOCAL get_transform(
-    const std_msgs::msg::Header::_frame_id_type & target_frame_id,
-    const std_msgs::msg::Header::_frame_id_type & source_frame_id,
-    const std_msgs::msg::Header::_stamp_type & timestamp);
-
   template<typename MessageT>
   using CallbackFnT = void (StateEstimationNode::*)(const typename MessageT::SharedPtr);
 
@@ -126,12 +120,6 @@ private:
     const std::vector<std::string> & input_topics,
     std::vector<typename rclcpp::Subscription<MessageT>::SharedPtr> * subscribers,
     CallbackFnT<MessageT> callback);
-
-  template<std::int32_t kNumOfStates, std::int32_t kProcessNoiseDim>
-  static Eigen::Matrix<autoware::common::types::float32_t, kNumOfStates, kProcessNoiseDim>
-  create_GQ_factor(
-    const std::chrono::nanoseconds & expected_delta_t,
-    const VectorT<kProcessNoiseDim> & process_noise_variances);
 
   std::vector<rclcpp::Subscription<OdomMsgT>::SharedPtr> m_odom_subscribers;
   std::vector<rclcpp::Subscription<PoseMsgT>::SharedPtr> m_pose_subscribers;
