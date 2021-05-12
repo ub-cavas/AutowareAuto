@@ -29,6 +29,7 @@
 // autoware packages
 #include <common/types.hpp>
 #include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
@@ -59,6 +60,7 @@ using autoware_auto_planning_msgs::msg::RoutePoint;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
@@ -96,6 +98,7 @@ private:
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
   rclcpp::Publisher<HADMapRoute>::SharedPtr m_debug_subroute_pub{};
   rclcpp::Publisher<VehicleStateCommand>::SharedPtr m_vehicle_state_command_pub{};
+  rclcpp::Publisher<HeadlightsCommand>::SharedPtr m_headlights_command_pub{};
 
   //  planner
   std::unique_ptr<behavior_planner::BehaviorPlanner> m_planner;

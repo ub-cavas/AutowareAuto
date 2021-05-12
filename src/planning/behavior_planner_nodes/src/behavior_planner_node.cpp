@@ -143,6 +143,8 @@ void BehaviorPlannerNode::init()
     this->create_publisher<HADMapRoute>("debug/current_subroute", QoS{10});
   m_vehicle_state_command_pub =
     this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
+  m_headlights_command_pub =
+    this->create_publisher<HeadlightsCommand>("headlights_command", QoS{10});
 }
 
 void BehaviorPlannerNode::goal_response_callback(
