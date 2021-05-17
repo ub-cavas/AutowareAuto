@@ -24,6 +24,8 @@ ament_auto_add_library(state_estimation_node SHARED
   include/state_estimation_nodes/kalman_filter_wrapper.hpp
   include/state_estimation_nodes/state_estimation_node.hpp
   include/state_estimation_nodes/steady_time_grid.hpp
+  include/state_estimation_nodes/transform_utils.hpp
+  src/transform_utils.cpp
   src/kalman_filter_wrapper.cpp
   src/state_estimation_node.cpp)
 target_link_libraries(state_estimation_node Eigen3::Eigen)
