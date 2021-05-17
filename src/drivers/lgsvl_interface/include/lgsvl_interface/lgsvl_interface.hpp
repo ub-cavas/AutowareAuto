@@ -153,6 +153,8 @@ private:
   // store state_report with gear value correction
   void on_state_report(const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg);
 
+  void on_headlights_report(const autoware_auto_msgs::msg::HeadlightsReport & msg) override;
+
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleStateData>::SharedPtr m_state_pub{};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr

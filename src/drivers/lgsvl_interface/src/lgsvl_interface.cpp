@@ -214,6 +214,8 @@ LgsvlInterface::LgsvlInterface(
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
       on_state_report(state_report);
+
+      on_headlights_report(headlights_report);
     });
 
   m_veh_odom_sub = node.create_subscription<lgsvl_msgs::msg::VehicleOdometry>(
@@ -566,6 +568,13 @@ void LgsvlInterface::on_state_report(
   corrected_report.blinker++;
 
   state_report() = corrected_report;
+}
+
+void LgsvlInterface::on_headlights_report(
+  const autoware_auto_msgs::msg::HeadlightsReport & headlights_report)
+{
+  // Do not do anything
+  (void)headlights_report;
 }
 
 void LgsvlInterface::on_headlights_command(
