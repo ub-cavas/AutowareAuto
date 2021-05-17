@@ -46,6 +46,7 @@ if(BUILD_TESTING)
           test/test_history.cpp
           test/test_steady_time_grid.cpp
           test/test_kalman_filter_wrapper.cpp
+          test/test_transform_utils.cpp
           test/test_state_estimation_node.cpp
   )
   add_dependencies(test_state_estimation_node state_estimation_node)
