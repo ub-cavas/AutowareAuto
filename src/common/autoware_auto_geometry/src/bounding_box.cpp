@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <limits>
 #include <list>
+#include <utility>
 #include <vector>
 
 namespace autoware
@@ -63,8 +64,55 @@ void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & 
   // centroid
   box.centroid = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
 }
+
+
+autoware_auto_msgs::msg::Shape get_shape(const BoundingBox & box)
+{
+  autoware_auto_msgs::msg::Shape ret;
+  for (const auto & corner_pt : box.corners) {
+    ret.polygon.points.emplace_back(corner_pt);
+  }
+  return ret;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+geometry_msgs::msg::Pose get_pose(const BoundingBox & box)
+{
+  geometry_msgs::msg::Pose ret;
+  ret.position.x = static_cast<double>(box.centroid.x);
+  ret.position.y = static_cast<double>(box.centroid.y);
+  ret.position.z = static_cast<double>(box.centroid.z);
+
+  ret.orientation.x = static_cast<double>(box.orientation.x);
+  ret.orientation.y = static_cast<double>(box.orientation.y);
+  ret.orientation.z = static_cast<double>(box.orientation.z);
+  ret.orientation.w = static_cast<double>(box.orientation.w);
+
+  return ret;
+}
+
+autoware_auto_msgs::msg::DetectedObject get_detected_object(const BoundingBox & box)
+{
+  autoware_auto_msgs::msg::DetectedObject ret;
+
+  ret.kinematics.has_pose = true;
+  ret.kinematics.pose.pose = get_pose(box);
+
+  ret.shape = get_shape(box);
+
+  ret.existence_probability = 1.0F;
+
+  autoware_auto_msgs::msg::ObjectClassification label;
+  label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+  label.probability = 1.0F;
+  ret.classification.emplace_back(std::move(label));
+
+  return ret;
+}
+
 }  // namespace details
-////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////
 // precompilation
 using autoware::common::types::PointXYZIF;
 template BoundingBox minimum_area_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);

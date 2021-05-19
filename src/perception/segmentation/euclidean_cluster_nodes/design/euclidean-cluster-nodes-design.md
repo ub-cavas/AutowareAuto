@@ -25,7 +25,8 @@ permit the following behaviors:
 2. Optionally apply downsampling to the input
 3. Clustering is assumed to happen in all cases
 4. Optionally publish the resulting clusters
-5. Optionally compute and publish bounding boxes around the clusters
+5. Optionally compute and publish bounding boxes around the clusters as either DetectedObjects 
+   type of BoundingBoxArray type
 6. Optionally apply aggressive downsampling (or not) and ignore the z direction entirely
 
 ## Assumptions / Known limits
@@ -60,7 +61,10 @@ PointCloud2 message.
 Any combination of the following two outputs are allowed (except using neither):
 
 1. [PointClusters](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/PointClusters.msg)
-2. [BoundingBoxArray](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/BoundingBoxArray.msg)
+2. [BoundingBoxArray](https://gitlab.com/autowarefoundation/autoware.
+   auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/BoundingBoxArray.msg) or 
+   [DetectedObjects](https://gitlab.com/autowarefoundation/autoware.
+   auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/DetectedObjects.msg)
 
 The former represents the raw clustering output of the object detection algorithm.
 

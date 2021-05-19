@@ -24,8 +24,10 @@ ament_auto_find_build_dependencies()
 # includes
 ament_auto_add_library(${PROJECT_NAME} SHARED
   include/euclidean_cluster/euclidean_cluster.hpp
+  include/euclidean_cluster/shape_estimation.hpp
   include/euclidean_cluster/visibility_control.hpp
   src/euclidean_cluster.cpp
+  src/shape_estimation.cpp
 )
 autoware_set_compile_options(${PROJECT_NAME})
 

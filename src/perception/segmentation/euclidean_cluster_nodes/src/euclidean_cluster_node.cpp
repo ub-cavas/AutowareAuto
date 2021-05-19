@@ -19,6 +19,7 @@
 
 #include <common/types.hpp>
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
+#include <euclidean_cluster/shape_estimation.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -50,14 +51,14 @@ EuclideanClusterNode::EuclideanClusterNode(
   create_publisher<Clusters>(
     "points_clustered",
     rclcpp::QoS(10)) : nullptr},
-m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
-  create_publisher<BoundingBoxArray>(
-    "lidar_bounding_boxes", rclcpp::QoS{10}) :
-  nullptr},
-m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
-  create_publisher<MarkerArray>(
-    "lidar_bounding_boxes_viz", rclcpp::QoS{10}) :
-  nullptr},
+m_use_detected_objects_type(declare_parameter("use_detected_objects_type").get<bool8_t>()),
+m_objects_pub_ptr{declare_parameter("use_box").get<bool8_t>() ? ( m_use_detected_objects_type ?
+  static_cast<VariantPubT>(create_publisher<DetectedObjects>(
+    "lidar_bounding_boxes", rclcpp::QoS{10})) :
+  static_cast<VariantPubT>(create_publisher<BoundingBoxArray>(
+    "lidar_bounding_boxes",
+    rclcpp::QoS{10}))) : mpark::variant<rclcpp::Publisher<DetectedObjects>::SharedPtr,
+    rclcpp::Publisher<BoundingBoxArray>::SharedPtr>{}},
 m_cluster_alg{
   euclidean_cluster::Config{
     declare_parameter("cluster.frame_id").get<std::string>().c_str(),
@@ -78,8 +79,10 @@ m_cluster_alg{
   }
 },
 m_clusters{},
-m_boxes{},
-m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positional arguments
+m_objects{m_use_detected_objects_type ?
+  static_cast<VariantMsgT>(autoware_auto_msgs::msg::DetectedObjects{}) :
+  static_cast<VariantMsgT>(autoware_auto_msgs::msg::BoundingBoxArray{})},
+m_voxel_ptr{nullptr},    // Because voxel config's Point types don't accept positional arguments
 m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
 m_use_z{declare_parameter("use_z").get<bool8_t>()}
 {
@@ -118,12 +121,24 @@ m_use_z{declare_parameter("use_z").get<bool8_t>()}
 void EuclideanClusterNode::init(const euclidean_cluster::Config & cfg)
 {
   // Sanity check
-  if ((!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
+  const auto check_for_nullptr = [](auto & pub_ptr) -> bool {
+      if (pub_ptr == nullptr) {
+        return true;
+      } else {
+        return false;
+      }
+    };
+
+  if ((mpark::visit(check_for_nullptr, m_objects_pub_ptr)) && (!m_cluster_pub_ptr)) {
     throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
   }
   // Reserve
-  m_boxes.header.frame_id.reserve(256U);
-  m_boxes.header.frame_id = cfg.frame_id().c_str();
+  auto init_frame_id = [&cfg](auto & msg) {
+      msg.header.frame_id.reserve(256U);
+      msg.header.frame_id = cfg.frame_id().c_str();
+    };
+
+  mpark::visit(init_frame_id, m_objects);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void EuclideanClusterNode::insert_plain(const PointCloud2 & cloud)
@@ -177,57 +192,38 @@ void EuclideanClusterNode::handle_clusters(
   if (m_cluster_pub_ptr) {
     publish_clusters(clusters, header);
   }
-  if (m_box_pub_ptr) {
+  if (!m_objects_pub_ptr.valueless_by_exception()) {
     if (m_use_lfit) {
       if (m_use_z) {
-        euclidean_cluster::details::compute_eigenboxes_with_z(clusters, m_boxes);
+        mpark::visit(euclidean_cluster::ComputeEigenBoxesWithZ(clusters), m_objects);
       } else {
-        euclidean_cluster::details::compute_eigenboxes(clusters, m_boxes);
+        mpark::visit(euclidean_cluster::ComputeEigenBoxes(clusters), m_objects);
       }
     } else {
       if (m_use_z) {
-        euclidean_cluster::details::compute_lfit_bounding_boxes_with_z(clusters, m_boxes);
+        mpark::visit(euclidean_cluster::ComputeLfitBoundingBoxesWithZ(clusters), m_objects);
       } else {
-        euclidean_cluster::details::compute_lfit_bounding_boxes(clusters, m_boxes);
+        mpark::visit(euclidean_cluster::ComputeLfitBoundingBoxes(clusters), m_objects);
       }
     }
-    m_boxes.header.stamp = header.stamp;
-    // Frame id was reserved
-    m_boxes.header.frame_id = header.frame_id;
-    m_box_pub_ptr->publish(m_boxes);
+    auto update_header = [&header](auto & msg) {
+        msg.header.stamp = header.stamp;
+        msg.header.frame_id = header.frame_id;
+      };
 
-    // Also publish boxes for visualization
-    uint32_t id_counter = 0;
-    MarkerArray marker_array;
-    for (const auto & box : m_boxes.boxes) {
-      Marker m{};
-      m.header.stamp = rclcpp::Time(0);
-      m.header.frame_id = header.frame_id;
-      m.ns = "bbox";
-      m.id = static_cast<int>(id_counter);
-      m.type = Marker::CUBE;
-      m.action = Marker::ADD;
-      m.pose.position.x = static_cast<float64_t>(box.centroid.x);
-      m.pose.position.y = static_cast<float64_t>(box.centroid.y);
-      m.pose.position.z = static_cast<float64_t>(box.centroid.z);
-      m.pose.orientation.x = static_cast<float64_t>(box.orientation.x);
-      m.pose.orientation.y = static_cast<float64_t>(box.orientation.y);
-      m.pose.orientation.z = static_cast<float64_t>(box.orientation.z);
-      m.pose.orientation.w = static_cast<float64_t>(box.orientation.w);
-      // X and Y scale are swapped between these two message types
-      m.scale.x = static_cast<float64_t>(box.size.y);
-      m.scale.y = static_cast<float64_t>(box.size.x);
-      m.scale.z = static_cast<float64_t>(box.size.z);
-      m.color.r = 1.0;
-      m.color.g = 0.5;
-      m.color.b = 0.0;
-      m.color.a = 0.75;
-      m.lifetime.sec = 0;
-      m.lifetime.nanosec = 500000000;
-      marker_array.markers.push_back(m);
-      id_counter++;
-    }
-    m_marker_pub_ptr->publish(marker_array);
+    auto publish_msg = [this](auto & pub_ptr) {
+        using MessageT = typename std::decay_t<decltype(
+              pub_ptr)>::element_type::MessageUniquePtr::element_type;
+        const auto msg_ptr = mpark::get_if<MessageT>(&this->m_objects);
+        if (msg_ptr) {
+          pub_ptr->publish(*msg_ptr);
+        } else {
+          throw std::runtime_error("Mismatch between message variant and publisher variant!");
+        }
+      };
+
+    mpark::visit(update_header, m_objects);
+    mpark::visit(publish_msg, m_objects_pub_ptr);
   }
 }
 ////////////////////////////////////////////////////////////////////////////////

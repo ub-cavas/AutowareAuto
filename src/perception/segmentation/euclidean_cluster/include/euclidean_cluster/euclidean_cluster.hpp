@@ -19,7 +19,7 @@
 #ifndef EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 #define EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <geometry/spatial_hash.hpp>
 #include <euclidean_cluster/visibility_control.hpp>
@@ -227,34 +227,6 @@ private:
   std::vector<bool8_t> m_seen;
 };  // class EuclideanCluster
 
-/// \brief Common euclidean cluster functions not intended for external use
-namespace details
-{
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-///// \brief Compute lfit bounding boxes from clusters
-///// \param[out] boxes Message that gets filled with the resulting bounding boxes
-///// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
-/////                        clusters get their points shuffled
-EUCLIDEAN_CLUSTER_PUBLIC
-void compute_lfit_bounding_boxes(Clusters & clusters, BoundingBoxArray & boxes);
-/// \brief Compute lfit bounding boxes from clusters, including z coordinate
-/// \param[out] boxes Message that gets filled with the resulting bounding boxes
-/// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
-///                        clusters get their points shuffled
-EUCLIDEAN_CLUSTER_PUBLIC
-void compute_lfit_bounding_boxes_with_z(Clusters & clusters, BoundingBoxArray & boxes);
-/// \brief Compute eigenboxes from clusters
-/// \param[out] boxes Message that gets filled with the resulting bounding boxes
-/// \param[in] clusters A set of clusters for which to compute the bounding boxes
-EUCLIDEAN_CLUSTER_PUBLIC
-void compute_eigenboxes(const Clusters & clusters, BoundingBoxArray & boxes);
-/// \brief Compute eigenboxes from clusters, including z coordinate
-/// \param[out] boxes Message that gets filled with the resulting bounding boxes
-/// \param[in] clusters A set of clusters for which to compute the bounding boxes
-EUCLIDEAN_CLUSTER_PUBLIC
-void compute_eigenboxes_with_z(const Clusters & clusters, BoundingBoxArray & boxes);
-}  // namespace details
 }  // namespace euclidean_cluster
 }  // namespace segmentation
 }  // namespace perception

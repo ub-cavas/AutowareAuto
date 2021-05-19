@@ -21,6 +21,7 @@
 //lint -e537 NOLINT Repeated include file: pclint vs cpplint
 #include <utility>
 #include "euclidean_cluster/euclidean_cluster.hpp"
+#include "geometry/bounding_box/bounding_box_common.hpp"
 #include "geometry/bounding_box_2d.hpp"
 
 namespace autoware
@@ -280,81 +281,6 @@ std::size_t EuclideanCluster::last_cluster_size(const Clusters & clusters)
   }
 }
 ////////////////////////////////////////////////////////////////////////////////
-namespace details
-{
-void compute_eigenboxes(const Clusters & clusters, details::BoundingBoxArray & boxes)
-{
-  boxes.boxes.clear();
-  for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
-    try {
-      const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
-      if (iter_pair.first == iter_pair.second) {
-        continue;
-      }
-      boxes.boxes.push_back(
-        common::geometry::bounding_box::eigenbox_2d(iter_pair.first, iter_pair.second));
-    } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
-    }
-  }
-}
-////////////////////////////////////////////////////////////////////////////////
-void compute_eigenboxes_with_z(const Clusters & clusters, details::BoundingBoxArray & boxes)
-{
-  boxes.boxes.clear();
-  for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
-    try {
-      const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
-      if (iter_pair.first == iter_pair.second) {
-        continue;
-      }
-      boxes.boxes.push_back(
-        common::geometry::bounding_box::eigenbox_2d(iter_pair.first, iter_pair.second));
-      common::geometry::bounding_box::compute_height(
-        iter_pair.first, iter_pair.second, boxes.boxes.back());
-    } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
-    }
-  }
-}
-////////////////////////////////////////////////////////////////////////////////
-void compute_lfit_bounding_boxes(Clusters & clusters, details::BoundingBoxArray & boxes)
-{
-  boxes.boxes.clear();
-  for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
-    try {
-      const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
-      if (iter_pair.first == iter_pair.second) {
-        continue;
-      }
-      boxes.boxes.push_back(
-        common::geometry::bounding_box::lfit_bounding_box_2d(iter_pair.first, iter_pair.second));
-    } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
-    }
-  }
-}
-////////////////////////////////////////////////////////////////////////////////
-void compute_lfit_bounding_boxes_with_z(Clusters & clusters, details::BoundingBoxArray & boxes)
-{
-  boxes.boxes.clear();
-  for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
-    try {
-      const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
-      if (iter_pair.first == iter_pair.second) {
-        continue;
-      }
-      boxes.boxes.push_back(
-        common::geometry::bounding_box::lfit_bounding_box_2d(iter_pair.first, iter_pair.second));
-      common::geometry::bounding_box::compute_height(
-        iter_pair.first, iter_pair.second, boxes.boxes.back());
-    } catch (const std::exception & e) {
-      std::cerr << e.what() << std::endl;
-    }
-  }
-}
-////////////////////////////////////////////////////////////////////////////////
-}  // namespace details
 }  // namespace euclidean_cluster
 }  // namespace segmentation
 }  // namespace perception

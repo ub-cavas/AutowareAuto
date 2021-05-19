@@ -18,6 +18,7 @@
     <depend>autoware_auto_msgs</depend>
     <depend>euclidean_cluster</depend>
     <depend>lidar_utils</depend>
+    <depend>mpark_variant_vendor</depend>
     <depend>rclcpp</depend>
     <depend>sensor_msgs</depend>
     <depend>visualization_msgs</depend>
