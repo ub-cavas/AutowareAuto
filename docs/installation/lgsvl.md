@@ -27,13 +27,19 @@ The following guide assumes that the SVL simulator will be run from inside an AD
 
 # Setting up a ROS2 bridge
 
-SVL default ROS2 bridge requires an extra application `lgsvl_bridge` running in the background. 
+Default ROS2 bridge for SVL requires `lgsvl_bridge` running in the background.
 
 You can:
 - use instructions from [github page](https://github.com/lgsvl/ros2-lgsvl-bridge) and build it on your own, or
 - install via apt: `sudo apt install ros-foxy-lgsvl-bridge`.
 
-Then you can run it via: `lgsvl_bridge [--port 9090] [--log D]`
+Then you can run it: 
+
+```{bash}
+$ # Source lgsvl_bridge workspace if built from source
+$ # . ~/ros2-lgsvl-bridge/install/setup.bash
+$ lgsvl_bridge
+```
 
 # Using the simulator
 
@@ -66,16 +72,6 @@ To start the SVL simulator, in the same terminal window:
 ade$ /opt/svl/simulator
 ```
 
-## Configure cluster
-
-This step is one time configuration for SVL simulator. You need to make your ADE environment a valid SVL cluster in order to launch any simulations.
-
-@note SVL creates cluster by calling its remote service with access token. This operation requires a working internet browser in ADE environment. If there are no browsers in ADE, you have to install one manually: `sudo apt update && sudo apt-get install epiphany-browser xdg-utils -y`.
-
-At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it and add a new cluster. You need an SVL account to do so, if you do not have one, create it now. 
-
-You can find more informations about linking to cloud [here](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
-
 ### Troubleshooting
 
 In case the simulator window opens up with a black screen and the application immediately terminates, have a look at the log file at
@@ -91,42 +87,54 @@ ade$ sudo apt remove mesa-vulkan-drivers
 ```
 and launch the simulator again.
 
+## Configure the cluster
+
+You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step.
+
+@note SVL creates cluster by calling its remote service with access token. This operation requires a working internet browser in ADE environment. If there are no browsers in ADE, you have to install one manually: `sudo apt update && sudo apt-get install epiphany-browser xdg-utils -y`.
+
+At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it and add a new cluster. You need an SVL account to do so, if you do not have one, create it now. 
+
+You can find more informations about linking to cloud [here](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
+
 ## Creating a simulation
 
 Creating a simulation configuration takes only a few clicks in the browser. The following steps assume that the launch was successful and illustrate the configuration process with the setup for the @ref avpdemo.
 
 Start your browser on host system and go to [SVL simulator web interface](https://wise.svlsimulator.com/). You should have your account set up already (after setting up a cluster), so sign in using the button on the top right of the screen. 
 
-Detailed documentation for web interface could be found [here](https://www.svlsimulator.com/docs/user-interface/web/store/).
-
+Detailed web interface documentation could be found [here](https://www.svlsimulator.com/docs/user-interface/web/store/).
 
 ### Choosing a map
 
-The goal is to add AutonomouStuff parking lot map to your library. If that map is already in your library then nothings needs to be done.
+The goal is to add `AutonomouStuff` parking lot map to your library. If that map is already in your library then nothings needs to be done.
 
-Else:
-- go to `Store` -> `Maps`.
-- Add `AutonomouStuff` map to your library by clicking `+` button next to it (you can use search bar to filter by name).
+Adding a map to your library:
+- Go to `Store` -> `Maps`.
+- Click `+` button next to `AutonomouStuff` map (you can use search bar to filter by name).
 
-@image html images/svl-map.png "Choosing a map"
+@image html images/svl-map.png "Choosing a map" width=50%
 
 ### Configuring a vehicle {#svl-configuring-vehicle}
 
 The goal is to add a vehicle to your library. If that vehicle is already in your library then nothings needs to be done.
 
-Else:
-- go to `Store` -> `Vehicles`.
-- Add `AWFLexus2016RXHybrid` vehicle to your library by clicking `+` button next to it (you can use search bar to filter by name).
+Adding a vehicle to your library:
+- Go to `Store` -> `Vehicles`.
+- Click `+` button next to `AWFLexus2016RXHybrid` vehicle (you can use search bar to filter by name).
 
-@image html images/svl-vehicle.png `Adding a vehicle`
+@image html images/svl-vehicle.png `Adding a vehicle` width=50%
 
-- Once you added vehicle to your library, go to `Library` -> `Vehicles` and click on the `AWFLexus2016RXHybrid` portrait. You will be forwarded to a vehicle edit page. 
+### Configure vehicle sensors
+
+Once you added vehicle to your library:
+- Go to `Library` -> `Vehicles`.
+- Click on the `AWFLexus2016RXHybrid` portrait. You will be forwarded to a vehicle edit page.
 - Click a button near `Sensor Configurations` section to modify sensor configurations.
 
 @image html images/svl-sensors.png "Configuring sensors"
 
-There is already `Autoware.Auto` configuration but it can be outdated, so it is better to create a new one based on json configuration file.
-
+Notice that there is already an `Autoware.Auto` configuration. To make sure that we are running the newest version possible, it is better to create a new one and use current version of sensor configuration file:
 - Click `+ Create New Configuration` button at the bottom of the page. 
 - Set a configuration name and pick `ROS2` as a bridge. This is a build-in SVL bridge that requires an additional application running in the background to translate simulation data to ROS2. 
 - Confirm.
@@ -136,32 +144,32 @@ In the configuration edit view:
 - Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Confgurator` window should populate with bunch of sensors now. 
 - Click `Save` to save configuration.
 
-@image html images/svl-sensors-json.png "Json configuration file"
+@image html images/svl-sensors-json.png "Json configuration file" width=40%
 
-That’s it. Now you have a vehicle with valid configuration.
+That’s it. Now you have a vehicle with a valid configuration.
 
 ### Choosing/creating a simulation
 
-Choose `Simulations` on the left to see the simulations screen. The SVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, press the "Run Simulation" button for desired instance. The simulator should now start in the SVL window.
+The SVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, navigate to `Simulations` tab and press the "Run Simulation" button for desired instance. The simulator should now start in the SVL window.
 
 To create a new simulation, follow the below steps:
 
-- Switch to the Simulations tab and click the `Add new` button.
+- Switch to the `Simulations` tab and click the `Add new` button.
 - Enter a name, description and select a cluster. Click `Next`.
 - Select the `Random Traffic` runtime template from the drop-down menu.
 - Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`.
-- Select `Autoware.Auto (Apex.AI)` autopilot and set `Bridge IP` address. While running everything locally: `127.0.0.1:9090`. Click `Next`.
-- Click `Publish`.
+- Select `Autoware.Auto (Apex.AI)` autopilot and set `Bridge IP` address. While running everything locally: `127.0.0.1:9090`. 
+- Click `Next` and then `Publish`.
 
-These steps are deeper described in the [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/).
+You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
 
 ### Starting the simulation {#lgsvl-start-simulation}
 
 Make sure you have `lgsvl_bridge` up and running in the background.
 
-Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation instance in `Simulations` view.
+Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation configuration in `Simulations` view.
 
-@image html images/svl-simulation-start.png "Starting the simulation" width=80%
+@image html images/svl-simulation-start.png "Starting the simulation" width=40%
 
 The Lexus should appear in a 3D rendering in the `SVL Simulator` window (not in the browser).
 
@@ -171,7 +179,7 @@ The essential commands are to use the arrow keys to steer and accelerate, and th
 
 Congratulations if everything is working up to this point. The setup of LGSVL is completed.
 
-@image html images/lgsvl-controls.png "Controlling the Lexus"
+@image html images/lgsvl-controls.png "Controlling the Lexus" width=60%
 
 @todo #850 Uncomment joystick session when tested again
 
