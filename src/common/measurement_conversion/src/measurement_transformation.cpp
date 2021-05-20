@@ -25,24 +25,24 @@ namespace state_estimation
 {
 
 template<>
-Measurement2dSpeed transform_measurement(
-  const Measurement2dSpeed & measurement,
+Measurement2dSpeed32 transform_measurement(
+  const Measurement2dSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return Measurement2dSpeed{
+  return Measurement2dSpeed32{
     converted_tf__world__frame_id.rotation() * measurement.state().vector(),
     Eigen::Matrix2f{converted_tf__world__frame_id.rotation() * measurement.covariance().matrix() *
       converted_tf__world__frame_id.rotation().transpose()}};
 }
 
 template<>
-Measurement2dPose transform_measurement(
-  const Measurement2dPose & measurement,
+Measurement2dPose32 transform_measurement(
+  const Measurement2dPose32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
-  return Measurement2dPose{
+  return Measurement2dPose32{
     converted_tf__world__frame_id * measurement.state().vector(),
     Eigen::Matrix2f
     {
@@ -54,29 +54,29 @@ Measurement2dPose transform_measurement(
 }
 
 template<>
-StampedMeasurement2dSpeed transform_measurement(
-  const StampedMeasurement2dSpeed & measurement,
+StampedMeasurement2dSpeed32 transform_measurement(
+  const StampedMeasurement2dSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
-  return StampedMeasurement2dSpeed {
+  return StampedMeasurement2dSpeed32 {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
 }
 
 template<>
-StampedMeasurement2dPose transform_measurement(
-  const StampedMeasurement2dPose & measurement,
+StampedMeasurement2dPose32 transform_measurement(
+  const StampedMeasurement2dPose32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
-  return StampedMeasurement2dPose {
+  return StampedMeasurement2dPose32 {
     measurement.timestamp,
     transform_measurement(measurement.measurement, tf__world__frame_id)};
 }
 
 
 template<>
-StampedMeasurement2dPoseAndSpeed transform_measurement(
-  const StampedMeasurement2dPoseAndSpeed & measurement,
+StampedMeasurement2dPoseAndSpeed32 transform_measurement(
+  const StampedMeasurement2dPoseAndSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id)
 {
   const auto converted_tf__world__frame_id = downscale_isometry<2>(tf__world__frame_id);
@@ -86,9 +86,9 @@ StampedMeasurement2dPoseAndSpeed transform_measurement(
   const Eigen::Vector2f speed_state = converted_tf__world__frame_id.rotation() *
     Eigen::Vector2f{state(2), state(3)};
 
-  return StampedMeasurement2dPoseAndSpeed{
+  return StampedMeasurement2dPoseAndSpeed32{
     measurement.timestamp,
-    Measurement2dPoseAndSpeed{
+    Measurement2dPoseAndSpeed32{
       (Eigen::Vector4f{} << pos_state, speed_state).finished(),
       measurement.measurement.covariance()}
   };

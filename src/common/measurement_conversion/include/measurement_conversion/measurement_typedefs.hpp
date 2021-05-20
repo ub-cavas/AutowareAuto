@@ -18,6 +18,7 @@
 #ifndef MEASUREMENT_CONVERSION__MEASUREMENT_TYPEDEFS_HPP_
 #define MEASUREMENT_CONVERSION__MEASUREMENT_TYPEDEFS_HPP_
 
+#include <common/types.hpp>
 #include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_vector/common_variables.hpp>
 
@@ -35,20 +36,31 @@ struct Stamped
   MeasurementT measurement;
 };
 
+template<typename ScalarT>
 using Measurement2dPose = LinearMeasurement<
-  state_vector::FloatState<
-    state_vector::variable::X, state_vector::variable::Y>>;
-using Measurement2dSpeed = LinearMeasurement<
-  state_vector::FloatState<
-    state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
-using Measurement2dPoseAndSpeed = LinearMeasurement<
-  state_vector::FloatState<
-    state_vector::variable::X, state_vector::variable::Y,
-    state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
+  state_vector::GenericState<ScalarT,
+  state_vector::variable::X, state_vector::variable::Y>>;
+using Measurement2dPose32 = Measurement2dPose<common::types::float32_t>;
+using Measurement2dPose64 = Measurement2dPose<common::types::float64_t>;
 
-using StampedMeasurement2dPose = Stamped<Measurement2dPose>;
-using StampedMeasurement2dSpeed = Stamped<Measurement2dSpeed>;
-using StampedMeasurement2dPoseAndSpeed = Stamped<Measurement2dPoseAndSpeed>;
+template<typename ScalarT>
+using Measurement2dSpeed = LinearMeasurement<
+  state_vector::GenericState<ScalarT,
+  state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
+using Measurement2dSpeed32 = Measurement2dSpeed<common::types::float32_t>;
+using Measurement2dSpeed64 = Measurement2dSpeed<common::types::float64_t>;
+
+template<typename ScalarT>
+using Measurement2dPoseAndSpeed = LinearMeasurement<
+  state_vector::GenericState<ScalarT,
+  state_vector::variable::X, state_vector::variable::Y,
+  state_vector::variable::X_VELOCITY, state_vector::variable::Y_VELOCITY>>;
+using Measurement2dPoseAndSpeed32 = Measurement2dPoseAndSpeed<common::types::float32_t>;
+using Measurement2dPoseAndSpeed64 = Measurement2dPoseAndSpeed<common::types::float64_t>;
+
+using StampedMeasurement2dPose32 = Stamped<Measurement2dPose32>;
+using StampedMeasurement2dSpeed32 = Stamped<Measurement2dSpeed32>;
+using StampedMeasurement2dPoseAndSpeed32 = Stamped<Measurement2dPoseAndSpeed32>;
 
 }  // namespace state_estimation
 }  // namespace common

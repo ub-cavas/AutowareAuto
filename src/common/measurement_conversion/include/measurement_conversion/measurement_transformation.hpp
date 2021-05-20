@@ -73,40 +73,40 @@ MeasurementT message_to_transformed_measurement(
 /// @brief      Specialization of transform_measurement for speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed transform_measurement(
-  const Measurement2dSpeed & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Measurement2dSpeed32 transform_measurement(
+  const Measurement2dSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose transform_measurement(
-  const Measurement2dPose & measurement,
+MEASUREMENT_CONVERSION_PUBLIC Measurement2dPose32 transform_measurement(
+  const Measurement2dPose32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed transform_measurement(
-  const StampedMeasurement2dSpeed & measurement,
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dSpeed32 transform_measurement(
+  const StampedMeasurement2dSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose transform_measurement(
-  const StampedMeasurement2dPose & measurement,
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPose32 transform_measurement(
+  const StampedMeasurement2dPose32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id);
 
 ///
 /// @brief      Specialization of transform_measurement for stamped pose and speed measurement.
 ///
 template<>
-MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed transform_measurement(
-  const StampedMeasurement2dPoseAndSpeed & measurement,
+MEASUREMENT_CONVERSION_PUBLIC StampedMeasurement2dPoseAndSpeed32 transform_measurement(
+  const StampedMeasurement2dPoseAndSpeed32 & measurement,
   const Eigen::Isometry3f & tf__world__frame_id);
 
 }  // namespace state_estimation

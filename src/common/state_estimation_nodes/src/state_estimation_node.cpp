@@ -189,7 +189,7 @@ void StateEstimationNode::odom_callback(const OdomMsgT::SharedPtr msg)
   const auto tf__m_frame_id__msg_child_frame_id =
     get_transform(m_frame_id, msg->child_frame_id, msg->header.stamp);
 
-  const auto measurement = message_to_transformed_measurement<StampedMeasurement2dPoseAndSpeed>(
+  const auto measurement = message_to_transformed_measurement<StampedMeasurement2dPoseAndSpeed32>(
     *msg,
     tf2::transformToEigen(tf__m_frame_id__msg_frame_id).cast<float32_t>());
   if (m_ekf->is_initialized()) {
@@ -215,7 +215,7 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
 {
   const auto tf__m_frame_id__msg_frame_id =
     get_transform(m_frame_id, msg->header.frame_id, msg->header.stamp);
-  const auto measurement = message_to_transformed_measurement<StampedMeasurement2dPose>(
+  const auto measurement = message_to_transformed_measurement<StampedMeasurement2dPose32>(
     *msg, tf2::transformToEigen(tf__m_frame_id__msg_frame_id).cast<float32_t>());
   if (m_ekf->is_initialized()) {
     if (!m_ekf->add_observation_to_history(measurement)) {
@@ -247,7 +247,7 @@ void StateEstimationNode::twist_callback(const TwistMsgT::SharedPtr msg)
   const auto tf__m_frame_id__msg_frame_id =
     get_transform(m_frame_id, msg->header.frame_id, msg->header.stamp);
   if (!m_ekf->add_observation_to_history(
-      message_to_transformed_measurement<StampedMeasurement2dSpeed>(
+      message_to_transformed_measurement<StampedMeasurement2dSpeed32>(
         *msg, tf2::transformToEigen(tf__m_frame_id__msg_frame_id).cast<float32_t>())))
   {
     throw std::runtime_error("Cannot add a twist observation to history.");
