@@ -81,7 +81,6 @@ constexpr bool NO_PUBLISH = false;
 
 // in lgsvl 0 is drive and 1 is reverse https://github.com/lgsvl/simulator/blob/cb937deb8e633573f6c0cc76c9f451398b8b9eff/Assets/Scripts/Sensors/VehicleStateSensor.cs#L70
 using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
-using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
 using VSD = lgsvl_msgs::msg::VehicleStateData;
 using WIPER_TYPE = decltype(VSC::wiper);
 using GEAR_TYPE = decltype(VSC::gear);
@@ -137,9 +136,6 @@ public:
   void send_horn_command(const autoware_auto_vehicle_msgs::msg::HornCommand & msg) override;
   /// Send wipers command data.
   void send_wipers_command(const autoware_auto_vehicle_msgs::msg::WipersCommand & msg) override;
-
-  void on_headlights_command(
-    const autoware_auto_msgs::msg::HeadlightsCommand &) override;
 
 private:
   // Mappings from Autoware to LGSVL values

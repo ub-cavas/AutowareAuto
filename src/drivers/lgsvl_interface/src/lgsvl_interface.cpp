@@ -577,10 +577,4 @@ void LgsvlInterface::on_headlights_report(
   (void)headlights_report;
 }
 
-void LgsvlInterface::on_headlights_command(
-  const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd)
-{
-  m_headlights_command_pub->publish(headlights_cmd);
-}
-
 }  // namespace lgsvl_interface
