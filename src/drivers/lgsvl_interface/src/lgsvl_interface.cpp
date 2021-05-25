@@ -89,9 +89,11 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
+  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
   bool publish_tf,
   bool publish_pose)
-: m_throttle_table{throttle_table},
+: m_headlights_report_pub{headlights_report_pub},
+  m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
   m_logger{node.get_logger()}
@@ -143,9 +145,6 @@ LgsvlInterface::LgsvlInterface(
     sim_cmd_topic, rclcpp::QoS{10});
   m_state_pub = node.create_publisher<lgsvl_msgs::msg::VehicleStateData>(
     sim_state_cmd_topic, rclcpp::QoS{10});
-
-  m_headlights_command_pub = node.create_publisher<autoware_auto_msgs::msg::HeadlightsCommand>(
-    "headlights_command", rclcpp::QoS{10});
 
   // Make subscribers
   if (!sim_nav_odom_topic.empty() && ("null" != sim_nav_odom_topic)) {
@@ -214,8 +213,6 @@ LgsvlInterface::LgsvlInterface(
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
       on_state_report(state_report);
-
-      on_headlights_report(headlights_report);
     });
 
   m_veh_odom_sub = node.create_subscription<lgsvl_msgs::msg::VehicleOdometry>(
@@ -568,13 +565,6 @@ void LgsvlInterface::on_state_report(
   corrected_report.blinker++;
 
   state_report() = corrected_report;
-}
-
-void LgsvlInterface::on_headlights_report(
-  const autoware_auto_msgs::msg::HeadlightsReport & headlights_report)
-{
-  // Do not do anything
-  (void)headlights_report;
 }
 
 }  // namespace lgsvl_interface
