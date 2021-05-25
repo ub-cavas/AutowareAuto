@@ -17,7 +17,6 @@
 #include <motion_common/config.hpp>
 #include <geometry/common_2d.hpp>
 
-#include <autoware_auto_msgs/msg/headlights_report.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 
 #include <string>
@@ -133,10 +132,6 @@ void BehaviorPlannerNode::init()
     "vehicle_state_report", QoS{10},
     [this](const VehicleStateReport::SharedPtr msg) {on_vehicle_state_report(msg);});
 
-  m_headlights_report_sub = this->create_subscription<HeadlightsReport>(
-    "headlights_report", QoS{10},
-    [this](const HeadlightsReport::SharedPtr msg) {on_headlights_report(msg);});
-
   // Setup publishers
   m_trajectory_pub =
     this->create_publisher<Trajectory>("trajectory", QoS{10});
@@ -148,8 +143,6 @@ void BehaviorPlannerNode::init()
     this->create_publisher<HADMapRoute>("debug/current_subroute", QoS{10});
   m_vehicle_state_command_pub =
     this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
-  m_headlights_command_pub =
-    this->create_publisher<HeadlightsCommand>("headlights_command", QoS{10});
 }
 
 void BehaviorPlannerNode::goal_response_callback(
@@ -343,12 +336,6 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
 void BehaviorPlannerNode::on_vehicle_state_report(const VehicleStateReport::SharedPtr & msg)
 {
   m_current_gear = msg->gear;
-}
-
-void BehaviorPlannerNode::on_headlights_report(const HeadlightsReport::SharedPtr & msg)
-{
-  // Do not do anything
-  (void)msg;
 }
 
 void BehaviorPlannerNode::on_route(const HADMapRoute::SharedPtr & msg)

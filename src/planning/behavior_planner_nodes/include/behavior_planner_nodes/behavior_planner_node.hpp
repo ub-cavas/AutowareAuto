@@ -29,8 +29,6 @@
 // autoware packages
 #include <common/types.hpp>
 #include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
-#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
-#include <autoware_auto_vehicle_msgs/msg/headlights_report.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
@@ -61,8 +59,6 @@ using autoware_auto_msgs::msg::RoutePoint;
 using autoware_auto_msgs::msg::Trajectory;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::HeadlightsCommand;
-using autoware_auto_msgs::msg::HeadlightsReport;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
 using State = autoware_auto_msgs::msg::VehicleKinematicState;
@@ -95,13 +91,11 @@ private:
   rclcpp::Subscription<Trajectory>::SharedPtr m_lane_trajectory_sub{};
   rclcpp::Subscription<Trajectory>::SharedPtr m_parking_trajectory_sub{};
   rclcpp::Subscription<VehicleStateReport>::SharedPtr m_vehicle_state_report_sub{};
-  rclcpp::Subscription<HeadlightsReport>::SharedPtr m_headlights_report_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
   rclcpp::Publisher<HADMapRoute>::SharedPtr m_debug_subroute_pub{};
   rclcpp::Publisher<VehicleStateCommand>::SharedPtr m_vehicle_state_command_pub{};
-  rclcpp::Publisher<HeadlightsCommand>::SharedPtr m_headlights_command_pub{};
 
   //  planner
   std::unique_ptr<behavior_planner::BehaviorPlanner> m_planner;
@@ -125,7 +119,6 @@ private:
   void on_lane_trajectory(const Trajectory::SharedPtr & msg);
   void on_parking_trajectory(const Trajectory::SharedPtr & msg);
   void on_vehicle_state_report(const VehicleStateReport::SharedPtr & msg);
-  void on_headlights_report(const HeadlightsReport::SharedPtr & msg);
   void map_response(rclcpp::Client<HADMapService>::SharedFuture future);
   void modify_trajectory_response(rclcpp::Client<ModifyTrajectory>::SharedFuture future);
   void clear_trajectory_cache();
