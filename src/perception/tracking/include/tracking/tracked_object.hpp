@@ -92,7 +92,7 @@ private:
   std::size_t m_ticks_alive = 1;
   /// All variables will initially have this variance where the detection
   /// does not contain one.
-  common::types::float64_t m_default_variance = -1.0F;
+  common::types::float64_t m_default_variance = -1.0;
 };
 
 }  // namespace tracking

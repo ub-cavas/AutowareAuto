@@ -23,6 +23,9 @@
 
 namespace
 {
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+
 constexpr auto kCovarianceMatrixRows = 6U;
 constexpr auto kCovarianceMatrixRowsRelativePos = 3U;
 constexpr auto kIndexX = 0U;
@@ -54,59 +57,63 @@ namespace common
 {
 namespace state_estimation
 {
+namespace
+{
+template<typename ScalarT>
+Measurement2dSpeed<ScalarT> twist_message_to_measurement(
+  const geometry_msgs::msg::TwistWithCovariance & msg)
+{
+  Eigen::Vector2d mean{msg.twist.linear.x, msg.twist.linear.y};
+  Eigen::Matrix2d covariance;
+  covariance <<
+    msg.covariance[kIndexX], msg.covariance[kIndexXY],
+    msg.covariance[kIndexYX], msg.covariance[kIndexY];
+  return Measurement2dSpeed<ScalarT>{
+    mean.cast<ScalarT>(),
+    covariance.cast<ScalarT>()};
+}
+
+template<typename ScalarT>
+Measurement2dPose<ScalarT> pose_message_to_measurement(
+  const geometry_msgs::msg::PoseWithCovariance & msg)
+{
+  Eigen::Vector2d mean{msg.pose.position.x, msg.pose.position.y};
+  Eigen::Matrix2d covariance;
+  covariance <<
+    msg.covariance[kIndexX], msg.covariance[kIndexXY],
+    msg.covariance[kIndexYX], msg.covariance[kIndexY];
+  return Measurement2dPose<ScalarT>{
+    mean.cast<ScalarT>(),
+    covariance.cast<ScalarT>()};
+}
+}  // namespace
 
 template<>
 Measurement2dSpeed32 message_to_measurement(
   const geometry_msgs::msg::TwistWithCovariance & msg)
 {
-  using FloatT = common::types::float32_t;
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return Measurement2dSpeed32{
-    Eigen::Vector2f{msg.twist.linear.x, msg.twist.linear.y},
-    covariance.cast<FloatT>()};
+  return twist_message_to_measurement<float32_t>(msg);
 }
 
 template<>
 Measurement2dSpeed64 message_to_measurement(
   const geometry_msgs::msg::TwistWithCovariance & msg)
 {
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return Measurement2dSpeed64{
-    Eigen::Vector2d{msg.twist.linear.x, msg.twist.linear.y},
-    covariance};
+  return twist_message_to_measurement<float64_t>(msg);
 }
 
 template<>
 Measurement2dPose32 message_to_measurement(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
-  using FloatT = common::types::float32_t;
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return Measurement2dPose32{Eigen::Vector2f{
-      msg.pose.position.x, msg.pose.position.y},
-    covariance.cast<FloatT>()};
+  return pose_message_to_measurement<float32_t>(msg);
 }
 
 template<>
 Measurement2dPose64 message_to_measurement(
   const geometry_msgs::msg::PoseWithCovariance & msg)
 {
-  Eigen::Matrix2d covariance;
-  covariance <<
-    msg.covariance[kIndexX], msg.covariance[kIndexXY],
-    msg.covariance[kIndexYX], msg.covariance[kIndexY];
-  return Measurement2dPose64{Eigen::Vector2d{
-      msg.pose.position.x, msg.pose.position.y},
-    covariance};
+  return pose_message_to_measurement<float64_t>(msg);
 }
 
 template<>
@@ -133,7 +140,6 @@ template<>
 StampedMeasurement2dPose32 message_to_measurement(
   const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
 {
-  using common::types::float32_t;
   Eigen::Matrix2d covariance;
   covariance <<
     msg.covariance[kIndexXRelativePos], msg.covariance[kIndexXYRelativePos],
@@ -148,7 +154,6 @@ StampedMeasurement2dPose32 message_to_measurement(
 template<>
 StampedMeasurement2dPoseAndSpeed32 message_to_measurement(const nav_msgs::msg::Odometry & msg)
 {
-  using common::types::float32_t;
   Eigen::Isometry3d tf__msg_frame_id__msg_child_frame_id;
   tf2::fromMsg(msg.pose.pose, tf__msg_frame_id__msg_child_frame_id);
   const Eigen::Matrix2f rx__msg_frame_id__msg_child_frame_id = downscale_isometry<2>(

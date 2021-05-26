@@ -20,10 +20,13 @@
 
 namespace
 {
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+
 template<typename ScalarT>
 Eigen::Matrix<ScalarT, 3, 3> create_single_variable_block(const std::chrono::nanoseconds & dt)
 {
-  const auto t = std::chrono::duration<double>{dt}.count();
+  const auto t = std::chrono::duration<float64_t>{dt}.count();
   const auto t2 = t * t;
   return (Eigen::Matrix3d{} <<
          1.0, t, 0.5 * t2,
@@ -57,7 +60,7 @@ common::state_vector::ConstAccelerationXYYaw32::Matrix
 LinearMotionModel<common::state_vector::ConstAccelerationXYYaw32>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
-  return create_jacobian<common::types::float32_t, 9>(dt);
+  return create_jacobian<float32_t, 9>(dt);
 }
 
 template<>
@@ -65,7 +68,7 @@ common::state_vector::ConstAccelerationXYYaw64::Matrix
 LinearMotionModel<common::state_vector::ConstAccelerationXYYaw64>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
-  return create_jacobian<common::types::float64_t, 9>(dt);
+  return create_jacobian<float64_t, 9>(dt);
 }
 
 template<>
@@ -73,7 +76,7 @@ common::state_vector::ConstAccelerationXY32::Matrix
 LinearMotionModel<common::state_vector::ConstAccelerationXY32>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
-  return create_jacobian<common::types::float32_t, 6>(dt);
+  return create_jacobian<float32_t, 6>(dt);
 }
 
 template<>
@@ -81,7 +84,7 @@ common::state_vector::ConstAccelerationXY64::Matrix
 LinearMotionModel<common::state_vector::ConstAccelerationXY64>::crtp_jacobian(
   const State &, const std::chrono::nanoseconds & dt) const
 {
-  return create_jacobian<common::types::float64_t, 6>(dt);
+  return create_jacobian<float64_t, 6>(dt);
 }
 
 }  // namespace motion_model
