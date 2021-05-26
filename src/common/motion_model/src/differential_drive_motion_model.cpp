@@ -37,15 +37,13 @@ using autoware::common::state_vector::variable::XY_VELOCITY;
 using autoware::common::state_vector::variable::XY_ACCELERATION;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-
-}  // namespace
-
-namespace autoware
-{
-namespace common
-{
-namespace motion_model
-{
+using autoware::common::motion_model::CvtrMotionModel;
+using autoware::common::motion_model::CatrMotionModel;
+using autoware::common::helper_functions::comparisons::abs_eq_zero;
+using autoware::common::state_vector::ConstantVelocityAndTurnRate32;
+using autoware::common::state_vector::ConstantVelocityAndTurnRate64;
+using autoware::common::state_vector::ConstantAccelerationAndTurnRate32;
+using autoware::common::state_vector::ConstantAccelerationAndTurnRate64;
 
 template<typename ScalarT>
 typename CvtrMotionModel<ScalarT>::State cvtr_predict(
@@ -59,7 +57,7 @@ typename CvtrMotionModel<ScalarT>::State cvtr_predict(
   const auto y = state.template at<Y>();
   const auto v = state.template at<XY_VELOCITY>();
   const auto w = state.template at<YAW_CHANGE_RATE>();
-  if (common::helper_functions::comparisons::abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
+  if (abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
     new_state.template at<X>() = x + t * v * cos(theta);
     new_state.template at<Y>() = y + t * v * sin(theta);
   } else {
@@ -88,7 +86,7 @@ typename CvtrMotionModel<ScalarT>::State::Matrix cvtr_jacobian(
   const auto v_index = State::template index_of<XY_VELOCITY>();
   const auto theta_index = State::template index_of<YAW>();
   const auto w_index = State::template index_of<YAW_CHANGE_RATE>();
-  if (common::helper_functions::comparisons::abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
+  if (abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
     const auto sin_theta = sin(theta);
     const auto cos_theta = cos(theta);
     const auto t_sin_theta = t * sin_theta;
@@ -143,7 +141,7 @@ typename CatrMotionModel<ScalarT>::State catr_predict(
   const auto a = state.template at<XY_ACCELERATION>();
   const auto w = state.template at<YAW_CHANGE_RATE>();
   const auto half_t_squared_a = static_cast<ScalarT>(0.5) * t * t * a;
-  if (common::helper_functions::comparisons::abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
+  if (abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
     new_state.template at<X>() = x + half_t_squared_a * cos(theta) + t * v * cos(theta);
     new_state.template at<Y>() = y + half_t_squared_a * sin(theta) + t * v * sin(theta);
   } else {
@@ -186,7 +184,7 @@ typename CatrMotionModel<ScalarT>::State::Matrix catr_jacobian(
   const auto v_index = State::template index_of<XY_VELOCITY>();
   const auto w_index = State::template index_of<YAW_CHANGE_RATE>();
   const auto a_index = State::template index_of<XY_ACCELERATION>();
-  if (common::helper_functions::comparisons::abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
+  if (abs_eq_zero(w, static_cast<ScalarT>(kEpsilon))) {
     const auto half = static_cast<ScalarT>(0.5);
     // X row non-identity entries
     jacobian(x_index, theta_index) = -half * t * t * a * sin(theta) - t * v * sin(theta);
@@ -242,69 +240,55 @@ typename CatrMotionModel<ScalarT>::State::Matrix catr_jacobian(
   return jacobian;
 }
 
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel32::State CvtrMotionModel32::crtp_predict(
-  const CvtrMotionModel32::State & state,
+}  // namespace
+
+namespace autoware
+{
+namespace common
+{
+namespace motion_model
+{
+
+template<typename ScalarT>
+MOTION_MODEL_PUBLIC typename CvtrMotionModel<ScalarT>::State
+CvtrMotionModel<ScalarT>::crtp_predict(
+  const CvtrMotionModel<ScalarT>::State & state,
   const std::chrono::nanoseconds & dt) const
 {
-  return cvtr_predict<float32_t>(state, dt);
+  return cvtr_predict<ScalarT>(state, dt);
 }
 
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel64::State CvtrMotionModel64::crtp_predict(
-  const CvtrMotionModel64::State & state,
+template<typename ScalarT>
+MOTION_MODEL_PUBLIC typename CvtrMotionModel<ScalarT>::State::Matrix
+CvtrMotionModel<ScalarT>::crtp_jacobian(
+  const CvtrMotionModel<ScalarT>::State & state,
   const std::chrono::nanoseconds & dt) const
 {
-  return cvtr_predict<float64_t>(state, dt);
+  return cvtr_jacobian<ScalarT>(state, dt);
 }
 
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel32::State::Matrix CvtrMotionModel32::crtp_jacobian(
-  const CvtrMotionModel32::State & state,
+template<typename ScalarT>
+MOTION_MODEL_PUBLIC typename CatrMotionModel<ScalarT>::State
+CatrMotionModel<ScalarT>::crtp_predict(
+  const CatrMotionModel<ScalarT>::State & state,
   const std::chrono::nanoseconds & dt) const
 {
-  return cvtr_jacobian<float32_t>(state, dt);
+  return catr_predict<ScalarT>(state, dt);
 }
 
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel64::State::Matrix CvtrMotionModel64::crtp_jacobian(
-  const CvtrMotionModel64::State & state,
+template<typename ScalarT>
+MOTION_MODEL_PUBLIC typename CatrMotionModel<ScalarT>::State::Matrix
+CatrMotionModel<ScalarT>::crtp_jacobian(
+  const CatrMotionModel<ScalarT>::State & state,
   const std::chrono::nanoseconds & dt) const
 {
-  return cvtr_jacobian<float64_t>(state, dt);
+  return catr_jacobian<ScalarT>(state, dt);
 }
 
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel32::State CatrMotionModel32::crtp_predict(
-  const CatrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const
-{
-  return catr_predict<float32_t>(state, dt);
-}
-
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel64::State CatrMotionModel64::crtp_predict(
-  const CatrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const
-{
-  return catr_predict<float64_t>(state, dt);
-}
-
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel32::State::Matrix CatrMotionModel32::crtp_jacobian(
-  const CatrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const
-{
-  return catr_jacobian<float32_t>(state, dt);
-}
-
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel64::State::Matrix CatrMotionModel64::crtp_jacobian(
-  const CatrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const
-{
-  return catr_jacobian<float64_t>(state, dt);
-}
+template class DifferentialDriveMotionModel<ConstantVelocityAndTurnRate32>;
+template class DifferentialDriveMotionModel<ConstantVelocityAndTurnRate64>;
+template class DifferentialDriveMotionModel<ConstantAccelerationAndTurnRate32>;
+template class DifferentialDriveMotionModel<ConstantAccelerationAndTurnRate64>;
 
 }  // namespace motion_model
 }  // namespace common

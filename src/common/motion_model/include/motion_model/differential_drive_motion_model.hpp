@@ -17,8 +17,8 @@
 #ifndef MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 #define MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 
-#include <motion_model/visibility_control.hpp>
 #include <motion_model/motion_model_interface.hpp>
+#include <motion_model/visibility_control.hpp>
 #include <state_vector/common_states.hpp>
 #include <state_vector/generic_state.hpp>
 
@@ -76,53 +76,43 @@ using CatrMotionModel32 = CatrMotionModel<common::types::float32_t>;
 using CatrMotionModel64 = CatrMotionModel<common::types::float64_t>;
 
 
-/// @brief      A crtp-called function that predicts the state forward.
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel32::State CvtrMotionModel32::crtp_predict(
-  const CvtrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const;
+template<typename ScalarT>
+class MOTION_MODEL_PUBLIC DifferentialDriveMotionModel<
+    common::state_vector::ConstantVelocityAndTurnRate<ScalarT>>
+  : public MotionModelInterface<CvtrMotionModel<ScalarT>>
+{
+public:
+  using State = common::state_vector::ConstantVelocityAndTurnRate<ScalarT>;
 
-/// @brief      A crtp-called function that predicts the state forward.
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel64::State CvtrMotionModel64::crtp_predict(
-  const CvtrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const;
+protected:
+  // Allow the CRTP interface to call private functions.
+  friend MotionModelInterface<CvtrMotionModel<ScalarT>>;
 
-/// @brief      A crtp-called function that computes a Jacobian.
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel32::State::Matrix CvtrMotionModel32::crtp_jacobian(
-  const CvtrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const;
+  /// @brief      A crtp-called function that predicts the state forward.
+  State crtp_predict(const State &, const std::chrono::nanoseconds &) const;
 
-/// @brief      A crtp-called function that computes a Jacobian.
-template<>
-MOTION_MODEL_PUBLIC CvtrMotionModel64::State::Matrix CvtrMotionModel64::crtp_jacobian(
-  const CvtrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const;
+  /// @brief      A crtp-called function that computes a Jacobian.
+  typename State::Matrix crtp_jacobian(const State &, const std::chrono::nanoseconds &) const;
+};
 
-/// @brief      A crtp-called function that predicts the state forward.
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel32::State CatrMotionModel32::crtp_predict(
-  const CatrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const;
+template<typename ScalarT>
+class MOTION_MODEL_PUBLIC DifferentialDriveMotionModel<
+    common::state_vector::ConstantAccelerationAndTurnRate<ScalarT>>
+  : public MotionModelInterface<CatrMotionModel<ScalarT>>
+{
+public:
+  using State = common::state_vector::ConstantAccelerationAndTurnRate<ScalarT>;
 
-/// @brief      A crtp-called function that predicts the state forward.
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel64::State CatrMotionModel64::crtp_predict(
-  const CatrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const;
+protected:
+  // Allow the CRTP interface to call private functions.
+  friend MotionModelInterface<CatrMotionModel<ScalarT>>;
 
-/// @brief      A crtp-called function that computes a Jacobian.
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel32::State::Matrix CatrMotionModel32::crtp_jacobian(
-  const CatrMotionModel32::State & state,
-  const std::chrono::nanoseconds & dt) const;
+  /// @brief      A crtp-called function that predicts the state forward.
+  State crtp_predict(const State &, const std::chrono::nanoseconds &) const;
 
-/// @brief      A crtp-called function that computes a Jacobian.
-template<>
-MOTION_MODEL_PUBLIC CatrMotionModel64::State::Matrix CatrMotionModel64::crtp_jacobian(
-  const CatrMotionModel64::State & state,
-  const std::chrono::nanoseconds & dt) const;
+  /// @brief      A crtp-called function that computes a Jacobian.
+  typename State::Matrix crtp_jacobian(const State &, const std::chrono::nanoseconds &) const;
+};
 
 }  // namespace motion_model
 }  // namespace common
