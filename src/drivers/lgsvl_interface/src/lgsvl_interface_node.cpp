@@ -74,7 +74,7 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   m_headlights_report_sub = create_subscription<autoware_auto_msgs::msg::HeadlightsReport>(
     "/lgsvl/headlights_report", rclcpp::QoS{10U},
     [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
-    { m_headlights_report_pub->publish(*msg); });
+    {m_headlights_report_pub->publish(*msg);});
 
   // Set up interface
   set_interface(
