@@ -47,7 +47,6 @@ public:
 
   rclcpp::Subscription<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr m_headlights_report_sub
   {};
-
 };  // class LgsvlInterfaceNode
 }  // namespace lgsvl_interface
 
