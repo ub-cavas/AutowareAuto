@@ -18,6 +18,7 @@
 
 #include <utility>
 #include <vector>
+#include <autoware_auto_msgs/msg/point_clusters.hpp>
 
 using autoware::common::geometry::point_adapter::xr_;
 using autoware::common::geometry::point_adapter::yr_;
@@ -147,3 +148,39 @@ TYPED_TEST_P(InsidePolygon, inside_polygon_test) {
 REGISTER_TYPED_TEST_CASE_P(InsidePolygon, inside_polygon_test);
 // cppcheck-suppress syntaxError
 INSTANTIATE_TYPED_TEST_CASE_P(Test, InsidePolygon, PointTypes, );
+
+TEST(ccw_check, basic) {
+  std::vector<autoware_auto_msgs::msg::PointXYZIF> points_list = {
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(21.427107, -13.841719),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(21.750454, -14.051762),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(21.751509, -14.050132),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(21.428160, -13.840088)
+  };
+
+  EXPECT_TRUE(autoware::common::geometry::all_ccw(points_list.begin(), points_list.end()));
+}
+
+TEST(ordered_check, basic) {
+  std::vector<autoware_auto_msgs::msg::PointXYZIF> points_list = {
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(11.084991, 9.049700),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(11.093757, 9.036320),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(11.030434, 8.962396),
+    make_points<autoware_auto_msgs::msg::PointXYZIF>(11.021668, 8.975776)
+  };
+  EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
+
+  points_list = {
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(21.427107, -13.841719),
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(21.750454, -14.051762),
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(21.751509, -14.050132),
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(21.428160, -13.840088)
+  };
+  EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
+
+  points_list = {
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(2.0, 2.0),
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(4.0, 4.0),
+      make_points<autoware_auto_msgs::msg::PointXYZIF>(6.0, 6.0)
+  };
+  EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
+}

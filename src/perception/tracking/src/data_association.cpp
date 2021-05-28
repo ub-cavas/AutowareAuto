@@ -17,6 +17,7 @@
 #include <common/types.hpp>
 #include <geometry/common_2d.hpp>
 #include <helper_functions/mahalanobis_distance.hpp>
+#include <rclcpp/rclcpp.hpp>
 
 #include <limits>
 #include <vector>
@@ -125,9 +126,9 @@ bool Associator::consider_associating(
   static constexpr float kAreaEps = 1e-3F;
 
   if (common::helper_functions::comparisons::abs_eq_zero(det_area, kAreaEps) ||
-    common::helper_functions::comparisons::abs_eq_zero(track_area, kAreaEps))
+    common::helper_functions::comparisons::abs_eq_zero(track_area, kAreaEps) )
   {
-    throw std::runtime_error("Detection or track area is zero");
+    return false;
   }
 
   const float area_ratio = det_area / track_area;
@@ -190,7 +191,7 @@ AssociatorResult Associator::extract_result() const
     for (size_t det_idx = 0U; det_idx < m_num_detections; det_idx++) {
       const auto track_idx =
         static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(det_idx)));
-      if (track_idx != AssociatorResult::UNASSIGNED) {
+      if (track_idx != m_assigner.UNASSIGNED) {
         ret.track_assignments[track_idx] = det_idx;
         tracks_assigned[track_idx] = true;
       } else {

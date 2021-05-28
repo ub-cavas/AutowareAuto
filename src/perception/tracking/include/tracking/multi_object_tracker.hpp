@@ -96,7 +96,7 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
   /// Number of updates after which unseen tracks should be pruned.
   std::size_t pruning_ticks_threshold = std::numeric_limits<std::size_t>::max();
   /// The frame in which to do tracking.
-  std::string frame = "map";  // This default probably does not need to be changed.
+  std::string frame = "odom";  // This default probably does not need to be changed.
 };
 
 
@@ -132,7 +132,7 @@ private:
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// Convert the internal tracked object representation to the ROS message type.
-  TrackedObjectsMsg convert_to_msg() const;
+  TrackedObjectsMsg convert_to_msg(const builtin_interfaces::msg::Time & stamp) const;
 
   /// The tracked objects, also called "tracks".
   std::vector<TrackedObject> m_objects;

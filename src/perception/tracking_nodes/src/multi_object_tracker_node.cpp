@@ -89,16 +89,16 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
 :  Node("multi_object_tracker_node", options),
   m_tracker(init_tracker(*this))
 {
-  const size_t history_depth = static_cast<size_t>(this->declare_parameter("history_depth", 20));
+  const auto history_depth = static_cast<uint32_t>(this->declare_parameter("history_depth", 20));
   m_pub = this->create_publisher<TrackedObjects>("tracked_objects", history_depth);
   m_objects_sub.subscribe(
     this, "detected_objects",
     rclcpp::QoS(history_depth).get_rmw_qos_profile());
   m_odom_sub.subscribe(this, "odometry", rclcpp::QoS(history_depth).get_rmw_qos_profile());
 
-  m_sync =
-    std::make_shared<message_filters::TimeSynchronizer<DetectedObjects, Odometry>>(
-    m_objects_sub, m_odom_sub, history_depth);
+  m_sync = std::make_unique<message_filters::Synchronizer<ApproximatePolicy>>(
+    ApproximatePolicy(history_depth), m_objects_sub, m_odom_sub);
+  m_sync->setMaxIntervalDuration(rclcpp::Duration(std::chrono::milliseconds(20)));
   m_sync->registerCallback(std::bind(&MultiObjectTrackerNode::process, this, _1, _2));
 }
 

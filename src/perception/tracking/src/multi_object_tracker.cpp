@@ -100,7 +100,7 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Associate observations with tracks
   // ==================================
-  TrackedObjectsMsg tracked_objects_msg = this->convert_to_msg();
+  TrackedObjectsMsg tracked_objects_msg = this->convert_to_msg(detections.header.stamp);
   AssociatorResult association;
   try {
     association = m_associator.assign(detections, tracked_objects_msg);
@@ -152,9 +152,11 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Build result
   // ==================================
-  result.objects = std::make_unique<TrackedObjectsMsg>(this->convert_to_msg());
+  result.objects =
+    std::make_unique<TrackedObjectsMsg>(this->convert_to_msg(detections.header.stamp));
   result.status = TrackerUpdateStatus::Ok;
   m_last_update = target_time;
+
   return result;
 }
 
@@ -170,11 +172,11 @@ TrackerUpdateStatus MultiObjectTracker::validate(
   if (detections.header.frame_id != detection_frame_odometry.child_frame_id) {
     return TrackerUpdateStatus::DetectionFrameMismatch;
   }
-  if (detection_frame_odometry.header.frame_id != m_options.frame) {
-    return TrackerUpdateStatus::TrackerFrameMismatch;
-  }
+//  if (detection_frame_odometry.header.frame_id != m_options.frame) {
+//    return TrackerUpdateStatus::TrackerFrameMismatch;
+//  }
   if (!is_gravity_aligned(detection_frame_odometry.pose.pose.orientation)) {
-    return TrackerUpdateStatus::FrameNotGravityAligned;
+    std::cout << "Gravity not aligned" << std::endl;
   }
   for (const auto & detection : detections.objects) {
     if (!detection.kinematics.has_pose && !detection.kinematics.has_twist) {
@@ -192,6 +194,10 @@ void MultiObjectTracker::transform(
   DetectedObjectsMsg & detections,
   const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
+  if (detection_frame_odometry.header.frame_id != m_options.frame) {
+    std::cout << "No need for transformation" << std::endl;
+    return;
+  }
   // Convert the odometry to Eigen objects.
   Eigen::Isometry3d tf__tracking__detection = Eigen::Isometry3d::Identity();
   tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
@@ -240,9 +246,12 @@ void MultiObjectTracker::transform(
   }
 }
 
-MultiObjectTracker::TrackedObjectsMsg MultiObjectTracker::convert_to_msg() const
+MultiObjectTracker::TrackedObjectsMsg MultiObjectTracker::convert_to_msg(
+  const builtin_interfaces::msg::Time & stamp) const
 {
   TrackedObjectsMsg array;
+  array.header.stamp = stamp;
+  array.header.frame_id = m_options.frame;
   array.objects.reserve(m_objects.size());
   std::transform(
     m_objects.begin(), m_objects.end(), std::back_inserter(array.objects), [](
