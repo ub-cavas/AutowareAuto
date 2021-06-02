@@ -132,11 +132,11 @@ TEST_F(TestFilterNodeBase, test_filter) {
 
   wait_for_subscriber(cloud_pub);
 
-  // Check that the filter method in the MockFilterNodeBase class has been called at least once
-  EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
   // Publish cloud
   cloud_pub->publish(cloud);
   rclcpp::spin_some(mock_filter_node_base);
+    // Check that the filter method in the MockFilterNodeBase class has been called at least once
+  EXPECT_CALL(*mock_filter_node_base, filter(_, _)).Times(AtLeast(1));
 }
 
 TEST_F(TestFilterNodeBase, test_parameters) {
