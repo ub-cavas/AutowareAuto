@@ -89,7 +89,7 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
-  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsReport>::SharedPtr headlights_report_pub,
+  rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
   bool publish_tf,
   bool publish_pose)
 : m_headlights_report_pub{headlights_report_pub},
