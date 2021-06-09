@@ -240,7 +240,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     case VehicleStateCommand::BLINKER_RIGHT:
       m_misc_cmd.cmd.value = TurnSignal::RIGHT;
       break;
-    case VehicleStateCommand::BLINKER_HAZARD:
+    case HazardLightsCommand::ENABLE:
       m_misc_cmd.cmd.value = TurnSignal::HAZARDS;
       break;
     default:
