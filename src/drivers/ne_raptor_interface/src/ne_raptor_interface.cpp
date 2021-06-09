@@ -21,6 +21,8 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "autoware_auto_msgs/msg/hazard_lights_command.hpp"
+
 namespace autoware
 {
 namespace ne_raptor_interface
