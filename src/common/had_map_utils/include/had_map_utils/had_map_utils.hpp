@@ -16,12 +16,13 @@
 #define HAD_MAP_UTILS__HAD_MAP_UTILS_HPP_
 
 
+#include <common/types.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Point.h>
 #include <lanelet2_core/utility/Units.h>
-#include <common/types.hpp>
 
 #include <cmath>
+
 #include "had_map_utils/visibility_control.hpp"
 
 namespace autoware

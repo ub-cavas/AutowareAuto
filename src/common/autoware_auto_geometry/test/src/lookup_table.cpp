@@ -16,8 +16,8 @@
 
 #include <gtest/gtest.h>
 
-#include <geometry/lookup_table.hpp>
 #include <common/types.hpp>
+#include <geometry/lookup_table.hpp>
 
 #include <memory>
 #include <vector>

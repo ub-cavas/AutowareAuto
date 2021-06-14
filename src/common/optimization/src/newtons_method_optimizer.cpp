@@ -14,9 +14,9 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "optimization/newtons_method_optimizer.hpp"
 #include "optimization/line_search/fixed_line_search.hpp"
 #include "optimization/line_search/more_thuente_line_search.hpp"
+#include "optimization/newtons_method_optimizer.hpp"
 
 namespace autoware
 {

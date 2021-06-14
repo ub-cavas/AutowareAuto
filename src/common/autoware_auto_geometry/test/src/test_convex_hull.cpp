@@ -14,10 +14,12 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <gtest/gtest.h>
 #include <geometry_msgs/msg/point32.hpp>
+#include <gtest/gtest.h>
+
 #include <list>
 #include <vector>
+
 #include "geometry/convex_hull.hpp"
 
 using autoware::common::types::float32_t;

@@ -16,8 +16,8 @@
 
 #include <gtest/gtest.h>
 
-#include <helper_functions/message_adapters.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+#include <helper_functions/message_adapters.hpp>
 #include <memory>
 #include <vector>
 

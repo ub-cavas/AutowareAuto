@@ -23,8 +23,8 @@
 #include <mpark_variant_vendor/variant.hpp>
 #include <state_estimation_nodes/steady_time_grid.hpp>
 
-#include <Eigen/Core>
 #include <Eigen/Cholesky>
+#include <Eigen/Core>
 
 #include <chrono>
 #include <map>
@@ -187,7 +187,8 @@ public:
 
   template<typename SingleEventT>
   // cppcheck-suppress noExplicitConstructor; Conversion to the variant type takes place.
-  HistoryEntry(const SingleEventT & event) : m_event {event} {}
+  HistoryEntry(const SingleEventT & event)
+    : m_event{event} {}
 
   /// @brief      Update the stored state.
   void update_stored_state(const typename FilterT::State & state) noexcept
@@ -226,7 +227,7 @@ public:
     FilterT & filter,
     const common::types::float32_t mahalanobis_threshold,
     const std::chrono::system_clock::duration & dt = std::chrono::milliseconds{0})
-    : m_filter {filter}, m_mahalanobis_threshold{mahalanobis_threshold}, m_dt{dt}
+    : m_filter{filter}, m_mahalanobis_threshold{mahalanobis_threshold}, m_dt{dt}
   {}
 
   ///

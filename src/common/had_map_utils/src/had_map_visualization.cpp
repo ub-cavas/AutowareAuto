@@ -26,8 +26,8 @@
 #include <limits>
 #include <memory>
 #include <string>
-#include <vector>
 #include <unordered_set>
+#include <vector>
 
 #include "had_map_utils/had_map_visualization.hpp"
 

@@ -17,14 +17,15 @@
 #ifndef OPTIMIZATION__NEWTONS_METHOD_OPTIMIZER_HPP_
 #define OPTIMIZATION__NEWTONS_METHOD_OPTIMIZER_HPP_
 
-#include <optimization/optimizer.hpp>
-#include <optimization/optimization_problem.hpp>
-#include <optimization/optimizer_options.hpp>
-#include <optimization/line_search/line_search.hpp>
 #include <Eigen/SVD>
+#include <optimization/line_search/line_search.hpp>
+#include <optimization/optimization_problem.hpp>
+#include <optimization/optimizer.hpp>
+#include <optimization/optimizer_options.hpp>
+
+#include <cmath>
 #include <limits>
 #include <memory>
-#include <cmath>
 
 namespace autoware
 {

@@ -27,8 +27,8 @@
 //lint -e537 NOLINT pclint vs cpplint
 #include <algorithm>
 //lint -e537 NOLINT pclint vs cpplint
-#include <list>
 #include <limits>
+#include <list>
 #include <utility>
 
 using autoware::common::types::float32_t;

@@ -23,9 +23,10 @@
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <autoware_auto_msgs/msg/shape.hpp>
-#include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/visibility_control.hpp>
 #include <geometry_msgs/msg/pose.hpp>
+
 #include <array>
 #include <limits>
 

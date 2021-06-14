@@ -19,9 +19,9 @@
 
 #ifndef GEOMETRY__BOUNDING_BOX__ROTATING_CALIPERS_HPP_
 #define GEOMETRY__BOUNDING_BOX__ROTATING_CALIPERS_HPP_
-#include <geometry/convex_hull.hpp>
-#include <geometry/common_2d.hpp>
 #include <geometry/bounding_box/bounding_box_common.hpp>
+#include <geometry/common_2d.hpp>
+#include <geometry/convex_hull.hpp>
 
 #include <algorithm>
 #include <cstring>

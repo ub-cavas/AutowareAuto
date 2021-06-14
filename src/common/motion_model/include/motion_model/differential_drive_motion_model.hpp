@@ -17,8 +17,8 @@
 #ifndef MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 #define MOTION_MODEL__DIFFERENTIAL_DRIVE_MOTION_MODEL_HPP_
 
-#include <motion_model/visibility_control.hpp>
 #include <motion_model/motion_model_interface.hpp>
+#include <motion_model/visibility_control.hpp>
 #include <state_vector/common_states.hpp>
 #include <state_vector/generic_state.hpp>
 

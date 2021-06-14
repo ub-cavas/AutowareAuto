@@ -15,9 +15,10 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <vector>
+
+#include "common/types.hpp"
 #include "gtest/gtest.h"
 #include "helper_functions/byte_reader.hpp"
-#include "common/types.hpp"
 
 using autoware::common::types::float64_t;
 

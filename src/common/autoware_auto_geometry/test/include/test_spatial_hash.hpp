@@ -18,8 +18,10 @@
 #define TEST_SPATIAL_HASH_HPP_
 
 #include <geometry_msgs/msg/point32.hpp>
-#include <vector>
+
 #include <limits>
+#include <vector>
+
 #include "geometry/spatial_hash.hpp"
 
 using autoware::common::types::float32_t;

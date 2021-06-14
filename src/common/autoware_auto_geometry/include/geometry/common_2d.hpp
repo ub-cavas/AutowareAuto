@@ -20,6 +20,7 @@
 #define GEOMETRY__COMMON_2D_HPP_
 
 #include <common/types.hpp>
+
 #include <cmath>
 #include <limits>
 #include <stdexcept>

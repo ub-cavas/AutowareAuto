@@ -15,15 +15,15 @@
 #ifndef HAD_MAP_UTILS__HAD_MAP_QUERY_HPP_
 #define HAD_MAP_UTILS__HAD_MAP_QUERY_HPP_
 
-
 #include <lanelet2_core/LaneletMap.h>
-#include <lanelet2_core/primitives/Point.h>
 #include <lanelet2_core/primitives/LineString.h>
+#include <lanelet2_core/primitives/Point.h>
 #include <lanelet2_core/primitives/Polygon.h>
 #include <lanelet2_core/utility/Units.h>
 
 #include <cmath>
 #include <memory>
+
 #include "had_map_utils/visibility_control.hpp"
 
 namespace autoware

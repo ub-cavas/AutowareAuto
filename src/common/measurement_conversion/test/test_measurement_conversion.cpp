@@ -17,8 +17,8 @@
 
 #include <gtest/gtest.h>
 
-#include <measurement_conversion/measurement_conversion.hpp>
 #include <common/types.hpp>
+#include <measurement_conversion/measurement_conversion.hpp>
 
 using autoware::common::state_estimation::StampedMeasurement2dPose64;
 using autoware::common::state_estimation::StampedMeasurement2dSpeed64;

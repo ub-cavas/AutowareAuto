@@ -16,8 +16,9 @@
 
 #include <common/types.hpp>
 #include <optimization/optimizer_options.hpp>
-#include <stdexcept>
+
 #include <cmath>
+#include <stdexcept>
 
 using autoware::common::types::float64_t;
 

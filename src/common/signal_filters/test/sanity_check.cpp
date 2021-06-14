@@ -16,8 +16,8 @@
 #include <common/types.hpp>
 #include <gtest/gtest.h>
 
-#include <signal_filters/filter_factory.hpp>
 #include <helper_functions/float_comparisons.hpp>
+#include <signal_filters/filter_factory.hpp>
 
 #include <chrono>
 #include <cmath>

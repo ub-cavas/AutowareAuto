@@ -14,9 +14,9 @@
 #ifndef TIME_UTILS__TIME_UTILS_HPP_
 #define TIME_UTILS__TIME_UTILS_HPP_
 
-#include <time_utils/visibility_control.hpp>
 #include <builtin_interfaces/msg/duration.hpp>
 #include <builtin_interfaces/msg/time.hpp>
+#include <time_utils/visibility_control.hpp>
 
 #include <chrono>
 

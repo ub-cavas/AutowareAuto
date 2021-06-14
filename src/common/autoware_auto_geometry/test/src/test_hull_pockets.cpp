@@ -12,12 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <geometry_msgs/msg/point32.hpp>
-#include <list>
-#include <vector>
-#include <utility>
+#include <gtest/gtest.h>
+
 #include <iterator>
+#include <list>
+#include <utility>
+#include <vector>
+
 #include "geometry/convex_hull.hpp"
 #include "geometry/hull_pockets.hpp"
 

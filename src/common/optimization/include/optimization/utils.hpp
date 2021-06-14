@@ -18,8 +18,9 @@
 #define OPTIMIZATION__UTILS_HPP_
 
 #include <common/types.hpp>
-#include <optimization/visibility_control.hpp>
 #include <Eigen/Core>
+#include <optimization/visibility_control.hpp>
+
 #include <functional>
 #include <limits>
 

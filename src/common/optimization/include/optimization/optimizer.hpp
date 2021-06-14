@@ -17,9 +17,9 @@
 #ifndef OPTIMIZATION__OPTIMIZER_HPP_
 #define OPTIMIZATION__OPTIMIZER_HPP_
 
-#include <optimization/optimizer_options.hpp>
-#include <optimization/line_search/line_search.hpp>
 #include <Eigen/SVD>
+#include <optimization/line_search/line_search.hpp>
+#include <optimization/optimizer_options.hpp>
 
 namespace autoware
 {

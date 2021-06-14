@@ -16,6 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <vector>
+
 #include "autoware_auto_algorithm/algorithm.hpp"
 
 template<typename Container, typename RandomIt = typename Container::iterator>

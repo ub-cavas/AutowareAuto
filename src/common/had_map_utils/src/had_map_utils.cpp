@@ -19,13 +19,14 @@
 
 #include "had_map_utils/had_map_utils.hpp"
 
-#include <lanelet2_core/geometry/Lanelet.h>
 #include <common/types.hpp>
-#include <utility>
+#include <lanelet2_core/geometry/Lanelet.h>
+
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 using autoware::common::types::float64_t;

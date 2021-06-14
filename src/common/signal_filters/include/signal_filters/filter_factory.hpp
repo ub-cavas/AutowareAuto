@@ -18,9 +18,9 @@
 #ifndef SIGNAL_FILTERS__FILTER_FACTORY_HPP_
 #define SIGNAL_FILTERS__FILTER_FACTORY_HPP_
 
-#include <signal_filters/visibility_control.hpp>
-#include <signal_filters/signal_filter.hpp>
 #include <signal_filters/low_pass_filter.hpp>
+#include <signal_filters/signal_filter.hpp>
+#include <signal_filters/visibility_control.hpp>
 
 #include <algorithm>
 #include <memory>

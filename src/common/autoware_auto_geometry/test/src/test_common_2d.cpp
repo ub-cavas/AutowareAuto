@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <gtest/gtest.h>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/point32.hpp>
+#include <gtest/gtest.h>
 
 #include <utility>
 #include <vector>

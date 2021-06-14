@@ -21,8 +21,8 @@
 #define GEOMETRY__SPATIAL_HASH_CONFIG_HPP_
 
 #include <common/types.hpp>
-#include <geometry/visibility_control.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/visibility_control.hpp>
 
 #include <algorithm>
 #include <cmath>

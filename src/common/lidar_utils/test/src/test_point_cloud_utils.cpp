@@ -15,8 +15,10 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <gtest/gtest.h>
+
 #include <string>
 #include <vector>
+
 #include "common/types.hpp"
 #include "lidar_utils/lidar_utils.hpp"
 

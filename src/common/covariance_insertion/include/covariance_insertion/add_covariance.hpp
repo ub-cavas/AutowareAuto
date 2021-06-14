@@ -18,8 +18,8 @@
 #ifndef COVARIANCE_INSERTION__ADD_COVARIANCE_HPP_
 #define COVARIANCE_INSERTION__ADD_COVARIANCE_HPP_
 
-#include <covariance_insertion/traits.hpp>
 #include <covariance_insertion/output_type_trait.hpp>
+#include <covariance_insertion/traits.hpp>
 
 #include <string>
 #include <vector>

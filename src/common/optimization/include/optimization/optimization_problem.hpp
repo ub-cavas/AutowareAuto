@@ -18,15 +18,16 @@
 #define OPTIMIZATION__OPTIMIZATION_PROBLEM_HPP_
 
 #include <common/types.hpp>
-#include <optimization/visibility_control.hpp>
-#include <optimization/utils.hpp>
-#include <helper_functions/crtp.hpp>
 #include <Eigen/Core>
-#include <vector>
+#include <helper_functions/crtp.hpp>
+#include <optimization/utils.hpp>
+#include <optimization/visibility_control.hpp>
+
 #include <cstddef>
 #include <memory>
 #include <tuple>
 #include <utility>
+#include <vector>
 
 using autoware::common::types::bool8_t;
 

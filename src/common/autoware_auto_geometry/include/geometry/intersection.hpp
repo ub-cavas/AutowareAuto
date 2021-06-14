@@ -16,20 +16,20 @@
 #define GEOMETRY__INTERSECTION_HPP_
 
 
-#include <motion_common/config.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <geometry/convex_hull.hpp>
+#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/convex_hull.hpp>
+#include <motion_common/config.hpp>
 
-#include <limits>
-#include <vector>
-#include <iostream>
-#include <list>
-#include <utility>
-#include <type_traits>
 #include <algorithm>
+#include <iostream>
+#include <limits>
+#include <list>
+#include <type_traits>
+#include <utility>
+#include <vector>
 
 namespace autoware
 {

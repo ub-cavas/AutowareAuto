@@ -19,10 +19,10 @@
 
 #include <rclcpp_components/register_node_macro.hpp>
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <map>
+#include <memory>
+#include <string>
+#include <vector>
 
 namespace autoware
 {

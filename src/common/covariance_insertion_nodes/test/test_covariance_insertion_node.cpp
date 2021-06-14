@@ -15,8 +15,8 @@
 /// \copyright Copyright 2020 Apex.AI, Inc.
 /// All rights reserved.
 
-#include <gtest/gtest.h>
 #include <covariance_insertion_nodes/covariance_insertion_node.hpp>
+#include <gtest/gtest.h>
 
 #include <memory>
 #include <string>

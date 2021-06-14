@@ -23,8 +23,8 @@
 #include <list>
 #include <vector>
 
-#include "geometry/bounding_box/rotating_calipers.hpp"
 #include "geometry/bounding_box/lfit.hpp"
+#include "geometry/bounding_box/rotating_calipers.hpp"
 
 using autoware_auto_msgs::msg::BoundingBox;
 using autoware::common::geometry::point_adapter::x_;

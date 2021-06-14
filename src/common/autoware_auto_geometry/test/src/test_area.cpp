@@ -14,8 +14,8 @@
 
 #include <gtest/gtest.h>
 
-#include <geometry_msgs/msg/point32.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 
 #include <list>
 #include <utility>

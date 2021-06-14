@@ -19,9 +19,10 @@
 
 #include <gtest/gtest.h>
 #include <optimization/utils.hpp>
+
 #include <functional>
-#include <vector>
 #include <map>
+#include <vector>
 
 namespace autoware
 {

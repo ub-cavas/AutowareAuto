@@ -56,12 +56,12 @@
 #ifndef OPTIMIZATION__LINE_SEARCH__MORE_THUENTE_LINE_SEARCH_HPP_
 #define OPTIMIZATION__LINE_SEARCH__MORE_THUENTE_LINE_SEARCH_HPP_
 
+#include <helper_functions/float_comparisons.hpp>
 #include <optimization/line_search/line_search.hpp>
 #include <optimization/utils.hpp>
-#include <helper_functions/float_comparisons.hpp>
 
-#include <limits>
 #include <algorithm>
+#include <limits>
 #include <utility>
 
 namespace autoware

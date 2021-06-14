@@ -20,11 +20,11 @@
 #define COMMON__TYPES_HPP_
 
 #include <cstdint>
-#include <vector>
 #include <limits>
+#include <vector>
 
-#include "helper_functions/float_comparisons.hpp"
 #include "common/visibility_control.hpp"
+#include "helper_functions/float_comparisons.hpp"
 
 namespace autoware
 {

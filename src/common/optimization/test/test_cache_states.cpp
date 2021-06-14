@@ -14,13 +14,14 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#include "test_cache_states.hpp"
 #include <common/types.hpp>
+#include <Eigen/Core>
 #include <gtest/gtest.h>
 #include <optimization/utils.hpp>
-#include <Eigen/Core>
-#include <vector>
+
 #include <limits>
-#include "test_cache_states.hpp"
+#include <vector>
 
 using autoware::common::types::float64_t;
 

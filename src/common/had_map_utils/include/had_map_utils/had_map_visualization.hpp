@@ -15,21 +15,21 @@
 #ifndef HAD_MAP_UTILS__HAD_MAP_VISUALIZATION_HPP_
 #define HAD_MAP_UTILS__HAD_MAP_VISUALIZATION_HPP_
 
-#include <visualization_msgs/msg/marker.hpp>
-#include <visualization_msgs/msg/marker_array.hpp>
+#include <common/types.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <common/types.hpp>
+#include <visualization_msgs/msg/marker.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 
 #include <lanelet2_core/LaneletMap.h>
 
 #include <chrono>
-#include <unordered_set>
+#include <cmath>
 #include <memory>
 #include <string>
-#include <cmath>
+#include <unordered_set>
 #include <vector>
 
 #include "had_map_utils/visibility_control.hpp"

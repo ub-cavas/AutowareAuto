@@ -19,9 +19,10 @@
 
 #include <helper_functions/crtp.hpp>
 #include <optimization/visibility_control.hpp>
-#include <limits>
-#include <cmath>
+
 #include <algorithm>
+#include <cmath>
+#include <limits>
 
 namespace autoware
 {
