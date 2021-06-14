@@ -45,6 +45,9 @@ if(TIDY_WITH_CLANG)
     "readability-*")
 endif()
 
+# Set custom config file for ament_uncrustify
+set(ament_cmake_uncrustify_ADDITIONAL_ARGS -c ${autoware_auto_cmake_DIR}/config/ament_code_style.cfg)
+
 # Try to adhere to strict ISO C++ as much as possible:
 #    from https://lefticus.gitbooks.io/cpp-best-practices/content/02-Use_the_Tools_Available.html
 function(autoware_set_compile_options target)
