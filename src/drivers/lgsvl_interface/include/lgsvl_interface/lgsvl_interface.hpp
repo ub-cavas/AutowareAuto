@@ -20,15 +20,17 @@
 
 #include <lgsvl_interface/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
 #include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
 
-#include <lgsvl_msgs/msg/vehicle_odometry.hpp>
 #include <lgsvl_msgs/msg/can_bus_data.hpp>
+#include <lgsvl_msgs/msg/detection2_d_array.hpp>
 #include <lgsvl_msgs/msg/vehicle_control_data.hpp>
+#include <lgsvl_msgs/msg/vehicle_odometry.hpp>
 #include <lgsvl_msgs/msg/vehicle_state_data.hpp>
 
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
@@ -125,6 +127,9 @@ private:
   static const std::unordered_map<GEAR_TYPE, GEAR_TYPE> autoware_to_lgsvl_gear;
   static const std::unordered_map<MODE_TYPE, MODE_TYPE> autoware_to_lgsvl_mode;
 
+  /// Convert to ClassifiedRoiMessage
+  void on_detection(const lgsvl_msgs::msg::Detection2DArray & msg);
+
   // Convert odometry into vehicle kinematic state and pose
   void on_odometry(const nav_msgs::msg::Odometry & msg);
 
@@ -137,9 +142,13 @@ private:
     m_kinematic_state_pub{};
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr m_tf_pub{};
   rclcpp::Publisher<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr m_pose_pub{};
+  rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};
+
   rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr m_nav_odom_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::CanBusData>::SharedPtr m_state_sub{};
   rclcpp::Subscription<lgsvl_msgs::msg::VehicleOdometry>::SharedPtr m_veh_odom_sub{};
+  rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
+
   rclcpp::TimerBase::SharedPtr m_nav_base_tf_timer{};
 
   Table1D m_throttle_table;

@@ -114,3 +114,21 @@ TEST_F(LgsvlInterface_test, gear_mapping_state_report)
   publish_gear_and_wait(static_cast<lgsvl_interface::GEAR_TYPE>(99u));
   EXPECT_EQ(lgsvl_interface_->get_state_report().gear, VSC::GEAR_NEUTRAL);
 }
+
+// TODO add test for 2D bounding box
+TEST_F(LgsvlInterface_test, groundtruth_detections_2D)
+{
+  // Setup Node execution
+  const auto pub_node = std::make_shared<rclcpp::Node>(
+    "test_lgsvl_interface_pub_detections_2D",
+    "/gtest");
+  rclcpp::executors::SingleThreadedExecutor executor;
+  executor.add_node(node_);
+
+  // Setup Publisher
+  const auto pub_ptr = pub_node->create_publisher<lgsvl_msgs::msg::Detection2DArray>(
+    sim_state_rpt_topic,
+    rclcpp::QoS{10});
+  wait_for_subscriber(pub_ptr);
+
+}

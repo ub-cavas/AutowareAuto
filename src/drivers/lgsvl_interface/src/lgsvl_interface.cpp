@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <common/types.hpp>
-#include <geometry_msgs/msg/quaternion.hpp>
+#include <autoware_auto_msgs/msg/classified_roi.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <motion_common/motion_common.hpp>
 
@@ -146,6 +146,14 @@ LgsvlInterface::LgsvlInterface(
       m_tf_pub = node.create_publisher<tf2_msgs::msg::TFMessage>("/tf", rclcpp::QoS{10});
     }
   }
+
+  // TODO(frederik.beaujean) Add parameter to enable camera output
+  m_detection2d_sub = node.create_subscription<lgsvl_msgs::msg::Detection2DArray>(
+    "topic_name", rclcpp::QoS{10},
+    [this](lgsvl_msgs::msg::Detection2DArray::SharedPtr msg) {on_detection(*msg);}
+  );
+  m_detection2d_pub = node.create_publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>(
+    "/output_topic", rclcpp::QoS{10});
 
   m_state_sub = node.create_subscription<lgsvl_msgs::msg::CanBusData>(
     sim_state_report_topic,
@@ -478,6 +486,66 @@ void LgsvlInterface::on_state_report(const autoware_auto_msgs::msg::VehicleState
   corrected_report.blinker++;
 
   state_report() = corrected_report;
+}
+
+// Make classification with class known with certainty. LGSVL only knows `car` and `pedestrian` up to now
+autoware_auto_msgs::msg::ObjectClassification make_classification(
+  const lgsvl_msgs::msg::Detection2D & detection)
+{
+  autoware_auto_msgs::msg::ObjectClassification obj_classification;
+  obj_classification.probability = 1.0;
+  if (detection.label == "car") {
+    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
+  } else if (detection.label == "pedestrian") {
+    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
+  } else {
+    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+  }
+  return obj_classification;
+}
+
+// Convert 2D bounding box from LGSVL format of center point, width, and height to a polygon with with four points
+geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & detection)
+{
+  geometry_msgs::msg::Polygon polygon;
+  auto & points = polygon.points;
+  points.resize(4);
+  const float width = detection.bbox.width;
+  const float height = detection.bbox.height;
+
+  // bbox coordinates given at center
+  // lower left corner
+  points[0].x = detection.bbox.x - 0.5F * width;
+  points[0].y = detection.bbox.y - 0.5F * height;
+
+  // lower right corner
+  points[1] = points[0];
+  points[1].x += width;
+
+  // upper right corner
+  points[2] = points[1];
+  points[2].y += height;
+
+  // upper left corner
+  points[3] = points[2];
+  points[3].x -= width;
+
+  return polygon;
+}
+
+void LgsvlInterface::on_detection(const lgsvl_msgs::msg::Detection2DArray & msg)
+{
+  autoware_auto_msgs::msg::ClassifiedRoiArray roi_array;
+  roi_array.header = msg.header;
+
+  roi_array.rois.reserve(msg.detections.size());
+  std::transform(
+    msg.detections.begin(), msg.detections.end(), roi_array.rois.begin(),
+    [](const lgsvl_msgs::msg::Detection2D & detection) {
+      return autoware_auto_msgs::build<autoware_auto_msgs::msg::ClassifiedRoi>().classifications(
+        {make_classification(detection)}).polygon(make_polygon(detection));
+    });
+  m_detection2d_pub->publish(roi_array);
 }
 
 }  // namespace lgsvl_interface
