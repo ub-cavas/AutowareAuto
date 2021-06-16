@@ -3,6 +3,7 @@
 <package format="3">
   <name>ground_truth_detections</name>
   <version>1.0.0</version>
+<!--   TODO(frederik.beaujean) Add description-->
   <description>DESCRIPTION</description>
   <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
   <license>Apache 2.0</license>

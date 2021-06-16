@@ -45,8 +45,8 @@ public:
 private:
   void on_detection(const lgsvl_msgs::msg::Detection2DArray & msg);
 
-  rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
   rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};
+  rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
 };
 }  // namespace ground_truth_detections
 }  // namespace autoware
