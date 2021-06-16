@@ -13,10 +13,12 @@
 // limitations under the License.
 
 #include <common/types.hpp>
+#include <motion_model/bicycle_motion_model.hpp>
 #include <motion_model/linear_motion_model.hpp>
 #include <state_estimation/kalman_filter/kalman_filter.hpp>
 #include <state_estimation/measurement/linear_measurement.hpp>
 #include <state_estimation/noise_model/wiener_noise.hpp>
+#include <state_estimation/noise_model/isotropic_noise.hpp>
 
 #include <gtest/gtest.h>
 
@@ -37,7 +39,9 @@ using autoware::common::state_vector::FloatState;
 using autoware::common::state_estimation::LinearMeasurement;
 using autoware::common::state_estimation::KalmanFilter;
 using autoware::common::state_estimation::WienerNoise;
+using autoware::common::state_estimation::IsotropicNoise;
 using autoware::common::motion_model::LinearMotionModel;
+using autoware::common::motion_model::BicycleMotionModel;
 using autoware::common::state_vector::ConstAccelerationXY32;
 using autoware::common::state_vector::ConstAccelerationXYYaw32;
 using autoware::common::types::float32_t;
@@ -237,4 +241,21 @@ TEST(TestKalmanFilter, TrackThrownBall) {
   EXPECT_NEAR(expected_state.at<Y_VELOCITY>(), kf.state().at<Y_VELOCITY>(), kRelaxedEpsilon);
   EXPECT_NEAR(expected_state.at<X_ACCELERATION>(), 0.0F, kRelaxedEpsilon);
   EXPECT_NEAR(expected_state.at<Y_ACCELERATION>(), g, kRelaxedEpsilon);
+}
+
+TEST(TestKalmanFilter, TrackBicycle) {
+  using namespace std::chrono_literals;
+  BicycleMotionModel<float> motion_model{};
+  IsotropicNoise<BicycleMotionModel<float>::State> noise_model{1.0F};
+
+  BicycleMotionModel<float>::State initial_state{};
+  const auto initial_covariance = BicycleMotionModel<float>::State::Matrix::Identity();
+  auto kf = make_kalman_filter(
+    motion_model,
+    noise_model,
+    initial_state,
+    initial_covariance);
+  const auto increment = 10ms;
+  autoware::common::motion_model::SteeringAngle<float> steering{1.0F};
+  kf.predict(steering, increment);
 }

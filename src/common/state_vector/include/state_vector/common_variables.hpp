@@ -66,6 +66,9 @@ struct PITCH : AngleVariable {};
 ///
 struct YAW : AngleVariable {};
 
+struct SIDE_SLIP_ANGLE : AngleVariable {};
+
+
 struct X_VELOCITY : Variable {};
 struct Y_VELOCITY : Variable {};
 struct Z_VELOCITY : Variable {};

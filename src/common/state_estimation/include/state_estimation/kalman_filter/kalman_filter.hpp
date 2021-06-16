@@ -94,6 +94,23 @@ public:
   }
 
   ///
+  /// @brief      Predict next state.
+  ///
+  /// @param[in]  dt    Time difference to the time at which prediction is needed.
+  ///
+  /// @return     Predicted state.
+  ///
+  template<typename ControlT>
+  State crtp_predict(const ControlT & control, const std::chrono::nanoseconds & dt)
+  {
+    m_state = m_motion_model.predict(m_state, control, dt);
+    const auto & motion_jacobian = m_motion_model.jacobian(m_state, control, dt);
+    m_covariance =
+      motion_jacobian * m_covariance * motion_jacobian.transpose() + m_noise_model.covariance(dt);
+    return m_state;
+  }
+
+  ///
   /// @brief      Correct the predicted state given a measurement
   ///
   /// @note       It is expected that a prediction step was done right before the correction.

@@ -58,6 +58,28 @@ public:
     return this->impl().crtp_predict(state, dt);
   }
   ///
+  /// @brief      Get the next predicted state.
+  ///
+  /// @param[in]  state    The initial state
+  /// @param[in]  control  The control input
+  /// @param[in]  dt       Length of prediction into the future
+  ///
+  /// @tparam     StateT   Type of the state.
+  /// @tparam     StateT   Type of the control.
+  ///
+  /// @return     Predicted state after the time has passed.
+  ///
+  template<typename StateT, typename ControlT>
+  inline auto predict(
+    const StateT & state, const ControlT & control,
+    const std::chrono::nanoseconds & dt) const
+  {
+    static_assert(
+      common::state_vector::is_state<StateT>::value,
+      "\n\nStateT must be a GenericState\n\n");
+    return this->impl().crtp_predict(state, control, dt);
+  }
+  ///
   /// @brief      Get the Jacobian of this motion model.
   ///
   /// @param[in]  state   The current state.
@@ -74,6 +96,27 @@ public:
       common::state_vector::is_state<StateT>::value,
       "\n\nStateT must be a GenericState\n\n");
     return this->impl().crtp_jacobian(state, dt);
+  }
+
+  ///
+  /// @brief      Get the Jacobian of this motion model.
+  ///
+  /// @param[in]  state   The current state.
+  /// @param[in]  dt      Time span.
+  ///
+  /// @tparam     StateT  Type of the state.
+  ///
+  /// @return     A Jacobian of the motion model. In the linear case - a transition matrix.
+  ///
+  template<typename StateT, typename ControlT>
+  inline auto jacobian(
+    const StateT & state, const ControlT & control,
+    const std::chrono::nanoseconds & dt) const
+  {
+    static_assert(
+      common::state_vector::is_state<StateT>::value,
+      "\n\nStateT must be a GenericState\n\n");
+    return this->impl().crtp_jacobian(state, control, dt);
   }
 };
 

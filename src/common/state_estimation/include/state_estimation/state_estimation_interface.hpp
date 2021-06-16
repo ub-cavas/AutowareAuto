@@ -50,6 +50,18 @@ public:
   auto predict(const std::chrono::nanoseconds & dt) {return this->impl().crtp_predict(dt);}
 
   ///
+  /// @brief      Predict the state by dt into the future.
+  ///
+  /// @param[in]  dt    Time for prediction.
+  ///
+  /// @return     A new predicted state.
+  ///
+  template<typename ControlT>
+  auto predict(const ControlT & control, const std::chrono::nanoseconds & dt)
+  {
+    return this->impl().crtp_predict(control, dt);
+  }
+  ///
   /// @brief      Correct the state with a measurement.
   ///
   /// @note       It is expected that prediction step was called before-wise.

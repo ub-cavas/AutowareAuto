@@ -12,6 +12,7 @@ ament_auto_find_build_dependencies()
 ament_auto_add_library(
   ${PROJECT_NAME} SHARED
   src/linear_motion_model.cpp
+  include/motion_model/bicycle_motion_model.hpp
   src/differential_drive_motion_model.cpp)
 autoware_set_compile_options(${PROJECT_NAME})
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
@@ -24,6 +25,7 @@ if(BUILD_TESTING)
 
   # gtest
   ament_add_gtest(${MOTION_MODEL_GTEST}
+                  test/test_bicycle_motion_model.cpp
                   test/test_linear_motion_model.cpp
                   test/test_differential_motion_model.cpp)
   autoware_set_compile_options(${MOTION_MODEL_GTEST})
