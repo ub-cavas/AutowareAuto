@@ -36,7 +36,13 @@ fi
 set -ex
 
 if [ ${SKIP_BUILD} -eq 0 ]; then
+# Build src/external packages without profiling flags
   colcon build \
+    --packages-up-to $(colcon list --names-only --base-paths src/external/)
+
+# Build all packages except those in src/external with profiling flags
+  colcon build \
+    --packages-skip $(colcon list --names-only --base-paths src/external/) \
     --ament-cmake-args \
       -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" \
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
@@ -48,7 +54,7 @@ fi
 if [ ${SKIP_TEST} -eq 0 ]; then
   colcon test \
     --return-code-on-test-failure \
-    --packages-skip $(grep -h -r -o -P '(?<=\<name\>).*(?=\<\/name\>)' $(find src/external -name package.xml) | sort)
+    --packages-skip $(colcon list --names-only --base-paths src/external/)
 
   mv log/latest_lcov_stdout.logs log/latest/lcov_stdout.logs  # 'latest' will be the latest test job
   lcov --config-file .lcovrc --base-directory ${PWD} --capture --directory build -o lcov.test >> log/latest/lcov_stdout.logs
