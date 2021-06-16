@@ -98,7 +98,7 @@ public:
   typename rclcpp::Publisher<MsgT>::SharedPtr create_publisher(
     const std::string & topic,
     const std::chrono::milliseconds & timeout = std::chrono::seconds{10LL},
-    const std::int32_t history_size = 10)
+    const std::size_t history_size = 10)
   {
     typename rclcpp::Publisher<MsgT>::SharedPtr publisher =
       m_fake_node->create_publisher<MsgT>(topic, history_size);
