@@ -84,6 +84,8 @@ Detection2DArray make_sample_detections()
 // ---------------
 // [src/perception/segmentation/ground_truth_detections/test/test_ground_truth_detections.cpp:82]:
 // (error: syntaxError) syntax error
+
+// cppcheck-suppress syntaxError  // cppcheck doesn't like the trailing comma.
 TEST_F(FakeNodeFixture, receive_detections)
 {
   rclcpp::NodeOptions options{};
