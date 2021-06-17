@@ -20,7 +20,7 @@
 namespace
 {
 
-// Make classification with class known with certainty. LGSVL only knows `car` and `pedestrian` up to now
+// Make classification with class known with certainty. LGSVL only knows `car` and `pedestrian`
 autoware_auto_msgs::msg::ObjectClassification make_classification(
   const lgsvl_msgs::msg::Detection2D & detection)
 {
@@ -36,7 +36,8 @@ autoware_auto_msgs::msg::ObjectClassification make_classification(
   return obj_classification;
 }
 
-// Convert 2D bounding box from LGSVL format of center point, width, and height to a polygon with with four points
+// Convert 2D bounding box from LGSVL format of center point, width, and height to a polygon with
+// with four points
 geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & detection)
 {
   geometry_msgs::msg::Polygon polygon;
@@ -65,7 +66,7 @@ geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & de
   return polygon;
 }
 
-}
+}  // namespace
 
 namespace autoware
 {
@@ -89,7 +90,7 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DA
   autoware_auto_msgs::msg::ClassifiedRoiArray roi_array;
   roi_array.header = msg.header;
 
-  roi_array.rois.reserve(msg.detections.size());
+  roi_array.rois.resize(msg.detections.size());
   std::transform(
     msg.detections.begin(), msg.detections.end(), roi_array.rois.begin(),
     [](const lgsvl_msgs::msg::Detection2D & detection) {

@@ -71,15 +71,15 @@ if(BUILD_TESTING)
   set(TEST_GROUND_TRUTH_DETECTIONS_EXE test_ground_truth_detections)
   ament_add_gtest(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${TEST_SOURCES})
 #  autoware_set_compile_options(${TEST_GROUND_TRUTH_DETECTIONS_EXE})
-
-  add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)
   target_link_libraries(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME} ${PROJECT_NAME}_node)
+  add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)
   # TODO Why fake_test_node not needed to add to link and include?
-#  ament_target_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE}
-#      "rclcpp"
-#      "rclcpp_components"
-#      "autoware_auto_msgs"
-#      )
+  ament_target_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE}
+     "rclcpp"
+     "rclcpp_components"
+     "autoware_auto_msgs"
+     "lgsvl_msgs"
+     )
 endif()
 
 # ament package generation and installing

@@ -14,15 +14,16 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "ground_truth_detections/ground_truth_detections_node.hpp"
+#include <ground_truth_detections/ground_truth_detections_node.hpp>
 
 #include <geometry_msgs/msg/vector3.hpp>
 
 #include <fake_test_node/fake_test_node.hpp>
 
+#include <memory>
+
 #include "gtest/gtest.h"
 
-#include <memory>
 
 namespace
 {
@@ -49,7 +50,6 @@ Detection2DArray make_sample_detections()
   {
     d.label = "car";
     d.header = detections.header;
-    // TODO what are the units? Pixel coordinates? WHere is the origin?
     d.bbox.x = 15.3F;
     d.bbox.y = 17.4F;
     d.bbox.height = 5.2F;
@@ -79,25 +79,22 @@ Detection2DArray make_sample_detections()
   return detections;
 }
 
-TEST_F(FakeNodeFixture, receive_detections) {
+// TODO(Frederik.Beaujean) fix this failure
+// Running cppcheck
+// ---------------
+// [src/perception/segmentation/ground_truth_detections/test/test_ground_truth_detections.cpp:82]:
+// (error: syntaxError) syntax error
+TEST_F(FakeNodeFixture, receive_detections)
+{
   rclcpp::NodeOptions options{};
   const auto node = std::make_shared<GroundTruthDetectionsNode>(options);
 
   ClassifiedRoiArray::SharedPtr last_received_msg{};
   const auto input_topic = "/simulator/ground_truth/detections2D";
   const auto output_topic = "/simulator/ground_truth/detections2D_roi";
-  // TODO build error
-// /home/frederik.beaujean/AutowareAuto/install/fake_test_node/include/fake_test_node/fake_test_node.hpp: In instantiation of ‘typename rclcpp::Publisher<MsgT>::SharedPtr autoware::tools::testing::detail::FakeNodeCore::create_publisher(const string&, const milliseconds&, int32_t) [with MsgT = lgsvl_msgs::msg::Detection2DArray_<std::allocator<void> >; typename rclcpp::Publisher<MsgT>::SharedPtr = std::shared_ptr<rclcpp::Publisher<lgsvl_msgs::msg::Detection2DArray_<std::allocator<void> >, std::allocator<void> > >; std::string = std::__cxx11::basic_string<char>; std::chrono::milliseconds = std::chrono::duration<long int, std::ratio<1, 1000> >; int32_t = int]’:
-///home/frederik.beaujean/AutowareAuto/src/perception/segmentation/ground_truth_detections/test/test_ground_truth_detections.cpp:46:71:   required from here
-///home/frederik.beaujean/AutowareAuto/install/fake_test_node/include/fake_test_node/fake_test_node.hpp:104:50: error: conversion to ‘size_t’ {aka ‘long unsigned int’} from ‘int32_t’ {aka ‘int’} may change the sign of the  [-Werror=sign-conversion]
-//  104 |       m_fake_node->create_publisher<MsgT>(topic, history_size);
-//      |                                                  ^~~~~~~~~~~~
-//  auto fake_publisher = create_publisher<Detection2DArray>(input_topic);
 
-#if 1
   auto fake_publisher = create_publisher<Detection2DArray>(input_topic, 1s);
 
-  // TODO correct Igor's sample: create_result_subscription doesn't exist
   auto result_subscription = create_subscription<ClassifiedRoiArray>(
     output_topic, *node,                                                                  //
     [&last_received_msg](
@@ -105,17 +102,9 @@ TEST_F(FakeNodeFixture, receive_detections) {
       last_received_msg = msg;
     });
 
-
   Detection2DArray input_msg = make_sample_detections();
 
   const auto dt{100ms};
-  // TODO Test continues after timeout
-  // /home/frederik.beaujean/AutowareAuto/install/fake_test_node/include/fake_test_node/fake_test_node.hpp:110: Failure
-//Expected: (spent_time) < (timeout), actual: 8-byte object <34-3A 00-00 00-00 00-00> vs 8-byte object <E8-03 00-00 00-00 00-00>
-//Nobody is listening to the mock topic we publish.
-///home/frederik.beaujean/AutowareAuto/install/fake_test_node/include/fake_test_node/fake_test_node.hpp:110: Failure
-//Expected: (spent_time) < (timeout), actual: 8-byte object <98-3A 00-00 00-00 00-00> vs 8-byte object <E8-03 00-00 00-00 00-00>
-//Nobody is listening to the mock topic we publish.
   const auto max_wait_time{std::chrono::seconds{1LL}};
   auto time_passed{std::chrono::milliseconds{0LL}};
   while (!last_received_msg) {
@@ -142,25 +131,25 @@ TEST_F(FakeNodeFixture, receive_detections) {
 
   ASSERT_EQ(car_roi.polygon.points.size(), 4);
 
-  // lower left corner
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].x, 15.3F - 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].y, 15.3F - 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].z, 0.0F);
+  const auto & lower_left = car_roi.polygon.points[0];
+  EXPECT_FLOAT_EQ(lower_left.x, 15.3F - 0.5F * 2.7F);
+  EXPECT_FLOAT_EQ(lower_left.y, 17.4F - 0.5F * 5.2F);
+  EXPECT_FLOAT_EQ(lower_left.z, 0.0F);
 
-  // lower right corner
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].x, 15.3F + 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].y, 15.3F - 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[0].z, 0.0F);
+  const auto & lower_right = car_roi.polygon.points[1];
+  EXPECT_FLOAT_EQ(lower_right.x, 15.3F + 0.5F * 2.7F);
+  EXPECT_FLOAT_EQ(lower_right.y, 17.4F - 0.5F * 5.2F);
+  EXPECT_FLOAT_EQ(lower_right.z, 0.0F);
 
-  // upper right corner
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].x, 15.3F + 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].y, 15.3F + 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].z, 0.0F);
+  const auto & upper_right = car_roi.polygon.points[2];
+  EXPECT_FLOAT_EQ(upper_right.x, 15.3F + 0.5F * 2.7F);
+  EXPECT_FLOAT_EQ(upper_right.y, 17.4F + 0.5F * 5.2F);
+  EXPECT_FLOAT_EQ(upper_right.z, 0.0F);
 
-  // upper left corner
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].x, 15.3F - 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].y, 15.3F + 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(car_roi.polygon.points[2].z, 0.0F);
+  const auto & upper_left = car_roi.polygon.points[3];
+  EXPECT_FLOAT_EQ(upper_left.x, 15.3F - 0.5F * 2.7F);
+  EXPECT_FLOAT_EQ(upper_left.y, 17.4F + 0.5F * 5.2F);
+  EXPECT_FLOAT_EQ(upper_left.z, 0.0F);
 
   const auto & pedestrian_roi = last_received_msg->rois[1];
   EXPECT_EQ(
@@ -173,12 +162,6 @@ TEST_F(FakeNodeFixture, receive_detections) {
     unknown_roi.classifications.front().classification,
     autoware_auto_msgs::msg::ObjectClassification::UNKNOWN);
   EXPECT_EQ(unknown_roi.polygon, pedestrian_roi.polygon);
-#endif
 }
-
-TEST(test_ground_truth_detections, expected_failure) {
-  EXPECT_TRUE(false);
-}
-
 
 }  // namespace
