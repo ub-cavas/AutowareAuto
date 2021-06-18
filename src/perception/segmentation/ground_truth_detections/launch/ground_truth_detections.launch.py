@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-"""
-Example launch file for a new package.
+# Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-Note: Does not work in ROS2 dashing!
-"""
+"""Launch node to convert ground-truth 2D detections from SVL to Autoware-internal format."""
+
+# TODO(frederik.beaujean) Use new smoke test facility
 
 import launch
 from launch_ros.actions import ComposableNodeContainer

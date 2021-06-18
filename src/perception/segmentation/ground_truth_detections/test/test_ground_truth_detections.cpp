@@ -24,7 +24,6 @@
 
 #include "gtest/gtest.h"
 
-
 namespace
 {
 
@@ -38,7 +37,7 @@ using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 using namespace std::chrono_literals;
 
-// 3 detections, the latter two overlap
+// One detection for each supported label + one detection with unsupported label
 Detection2DArray make_sample_detections()
 {
   Detection2DArray detections;
@@ -48,7 +47,7 @@ Detection2DArray make_sample_detections()
   Detection2D d;
 
   {
-    d.label = "car";
+    d.label = "Hatchback";
     d.header = detections.header;
     d.bbox.x = 15.3F;
     d.bbox.y = 17.4F;
@@ -61,31 +60,49 @@ Detection2DArray make_sample_detections()
   }
 
   {
-    d.label = "pedestrian";
-    d.bbox.x *= 30.0F;
-    d.bbox.y *= 30.0F;
-    d.bbox.height *= 0.1;
-    d.bbox.width *= 0.1;
-    d.id = 28;
+    d.label = "Jeep";
+    d.id = 15;
     detections.detections.emplace_back(d);
   }
 
   {
-    d.label = "foo";
+    d.label = "Sedan";
+    d.id = 16;
+    detections.detections.emplace_back(d);
+  }
+
+  {
+    d.label = "SUV";
+    d.id = 17;
+    detections.detections.emplace_back(d);
+  }
+
+  {
+    d.label = "BoxTruck";
+    d.id = 30;
+    detections.detections.emplace_back(d);
+  }
+
+  {
+    d.label = "Pedestrian";
+    d.bbox.x = 5.0F;
+    d.bbox.y = 6.0F;
+    d.bbox.width = 10.00003F;
+    d.bbox.height = 12.00002F;
     d.id = 92;
+    detections.detections.emplace_back(d);
+  }
+
+  {
+    d.label = "Foo";
+    d.id = 77;
     detections.detections.emplace_back(d);
   }
 
   return detections;
 }
 
-// TODO(Frederik.Beaujean) fix this failure
-// Running cppcheck
-// ---------------
-// [src/perception/segmentation/ground_truth_detections/test/test_ground_truth_detections.cpp:82]:
-// (error: syntaxError) syntax error
-
-// cppcheck-suppress syntaxError  // cppcheck doesn't like the trailing comma.
+// cppcheck-suppress syntaxError
 TEST_F(FakeNodeFixture, receive_detections)
 {
   rclcpp::NodeOptions options{};
@@ -121,7 +138,7 @@ TEST_F(FakeNodeFixture, receive_detections)
   }
 
   ASSERT_TRUE(last_received_msg);
-  ASSERT_EQ(last_received_msg->rois.size(), 3);
+  ASSERT_EQ(last_received_msg->rois.size(), input_msg.detections.size());
 
   const auto & car_roi = last_received_msg->rois.front();
 
@@ -133,37 +150,62 @@ TEST_F(FakeNodeFixture, receive_detections)
 
   ASSERT_EQ(car_roi.polygon.points.size(), 4);
 
-  const auto & lower_left = car_roi.polygon.points[0];
-  EXPECT_FLOAT_EQ(lower_left.x, 15.3F - 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(lower_left.y, 17.4F - 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(lower_left.z, 0.0F);
+  {
+    const auto & lower_left = car_roi.polygon.points[0];
+    EXPECT_FLOAT_EQ(lower_left.x, 15.3F - 0.5F * 2.7F);
+    EXPECT_FLOAT_EQ(lower_left.y, 17.4F - 0.5F * 5.2F);
+    EXPECT_EQ(lower_left.z, 0.0F);
 
-  const auto & lower_right = car_roi.polygon.points[1];
-  EXPECT_FLOAT_EQ(lower_right.x, 15.3F + 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(lower_right.y, 17.4F - 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(lower_right.z, 0.0F);
+    const auto & lower_right = car_roi.polygon.points[1];
+    EXPECT_FLOAT_EQ(lower_right.x, 15.3F + 0.5F * 2.7F);
+    EXPECT_FLOAT_EQ(lower_right.y, 17.4F - 0.5F * 5.2F);
+    EXPECT_EQ(lower_right.z, 0.0F);
 
-  const auto & upper_right = car_roi.polygon.points[2];
-  EXPECT_FLOAT_EQ(upper_right.x, 15.3F + 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(upper_right.y, 17.4F + 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(upper_right.z, 0.0F);
+    const auto & upper_right = car_roi.polygon.points[2];
+    EXPECT_FLOAT_EQ(upper_right.x, 15.3F + 0.5F * 2.7F);
+    EXPECT_FLOAT_EQ(upper_right.y, 17.4F + 0.5F * 5.2F);
+    EXPECT_EQ(upper_right.z, 0.0F);
 
-  const auto & upper_left = car_roi.polygon.points[3];
-  EXPECT_FLOAT_EQ(upper_left.x, 15.3F - 0.5F * 2.7F);
-  EXPECT_FLOAT_EQ(upper_left.y, 17.4F + 0.5F * 5.2F);
-  EXPECT_FLOAT_EQ(upper_left.z, 0.0F);
+    const auto & upper_left = car_roi.polygon.points[3];
+    EXPECT_FLOAT_EQ(upper_left.x, 15.3F - 0.5F * 2.7F);
+    EXPECT_FLOAT_EQ(upper_left.y, 17.4F + 0.5F * 5.2F);
+    EXPECT_EQ(upper_left.z, 0.0F);
+  }
 
-  const auto & pedestrian_roi = last_received_msg->rois[1];
-  EXPECT_EQ(
-    pedestrian_roi.classifications.front().classification,
-    autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN);
-  EXPECT_NE(pedestrian_roi.polygon, car_roi.polygon);
+  for (int i = 1; i < 4; ++i) {
+    const auto & other_car_roi = last_received_msg->rois[i];
+    EXPECT_EQ(other_car_roi.classifications, car_roi.classifications);
+    EXPECT_EQ(other_car_roi.polygon, car_roi.polygon);
+  }
 
-  const auto & unknown_roi = last_received_msg->rois.back();
-  EXPECT_EQ(
-    unknown_roi.classifications.front().classification,
-    autoware_auto_msgs::msg::ObjectClassification::UNKNOWN);
-  EXPECT_EQ(unknown_roi.polygon, pedestrian_roi.polygon);
+  {
+    const auto & truck_roi = last_received_msg->rois[5];
+    EXPECT_EQ(
+      truck_roi.classifications.at(0).classification,
+      autoware_auto_msgs::msg::ObjectClassification::TRUCK);
+    EXPECT_EQ(truck_roi.polygon, car_roi.polygon);
+  }
+
+  const auto & pedestrian_roi = *(last_received_msg->rois.end() - 2);
+  {
+    EXPECT_EQ(
+      pedestrian_roi.classifications.at(0).classification,
+      autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN);
+    EXPECT_NE(pedestrian_roi.polygon, car_roi.polygon);
+
+    // check clipping to non-negative values
+    const auto & lower_left = pedestrian_roi.polygon.points.at(0);
+    EXPECT_EQ(lower_left.x, 0.0F);
+    EXPECT_EQ(lower_left.y, 0.0F);
+  }
+
+  {
+    const auto & unknown_roi = last_received_msg->rois.back();
+    EXPECT_EQ(
+      unknown_roi.classifications.at(0).classification,
+      autoware_auto_msgs::msg::ObjectClassification::UNKNOWN);
+    EXPECT_EQ(unknown_roi.polygon, pedestrian_roi.polygon);
+  }
 }
 
 }  // namespace

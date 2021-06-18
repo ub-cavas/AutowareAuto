@@ -1,80 +1,17 @@
 [
   {
-    "type": "Transform",
-    "name": "base_link",
-    "transform": {
-      "x": -0.015,
-      "y": 0.369,
-      "z": -1.37,
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    }
-  },
-  {
-    "type": "CAN-Bus",
-    "name": "CAN Bus",
-    "params": {
-      "Frequency": 10,
-      "Topic": "/lgsvl/state_report"
-    },
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    }
-  },
-  {
-    "type": "GPS Device",
-    "name": "GPS",
-    "params": {
-      "Frequency": 12.5,
-      "Topic": "/gnss/fix",
-      "Frame": "gnss",
-      "IgnoreMapOrigin": false
-    },
-    "parent": "base_link",
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    }
-  },
-  {
     "type": "GPS Odometry",
     "name": "GPS Odometry",
-    "params": {
-      "Frequency": 30.0,
+    "params":
+    {
+      "Frequency": 30,
       "Topic": "/lgsvl/gnss_odom",
       "Frame": "odom",
       "ChildFrame": "base_link",
       "IgnoreMapOrigin": true
     },
-    "parent": "base_link",
-    "transform": {
-      "x": 0,
-      "y": 0,
-      "z": 0,
-      "pitch": 0,
-      "yaw": 0,
-      "roll": 0
-    }
-  },
-  {
-    "type": "IMU",
-    "name": "IMU",
-    "params": {
-      "Topic": "/imu/imu_raw",
-      "Frame": "imu"
-    },
-    "parent": "base_link",
-    "transform": {
+    "transform":
+    {
       "x": 0,
       "y": 0,
       "z": 0,
@@ -86,7 +23,8 @@
   {
     "type": "Lidar",
     "name": "LidarFront",
-    "params": {
+    "params":
+    {
       "LaserCount": 16,
       "MinDistance": 2.0,
       "MaxDistance": 100,
@@ -99,8 +37,8 @@
       "Topic": "/lidar_front/points_raw",
       "Frame": "lidar_front"
     },
-    "parent": "base_link",
-    "transform": {
+    "transform":
+    {
       "x": 0.022,
       "y": 1.49,
       "z": 1.498,
@@ -112,7 +50,8 @@
   {
     "type": "Lidar",
     "name": "LidarRear",
-    "params": {
+    "params":
+    {
       "LaserCount": 16,
       "MinDistance": 2.0,
       "MaxDistance": 100,
@@ -125,8 +64,8 @@
       "Topic": "/lidar_rear/points_raw",
       "Frame": "lidar_rear"
     },
-    "parent": "base_link",
-    "transform": {
+    "transform":
+    {
       "x": 0.022,
       "y": 1.49,
       "z": 0.308,
@@ -136,35 +75,55 @@
     }
   },
   {
-    "type": "Vehicle Control",
-    "name": "Autoware Car Control",
-    "params": {
-      "Topic": "/lgsvl/vehicle_control_cmd"
-    }
-  },
-  {
-    "type": "Vehicle State",
-    "name": "Autoware Auto Vehicle State",
-    "params": {
-      "Topic": "/lgsvl/vehicle_state_cmd"
-    }
-  },
-  {
-    "type": "Vehicle Odometry",
-    "name": "Vehicle Odometry Sensor",
-    "params": {
-      "Topic": "/lgsvl/vehicle_odom"
-    }
-  },
-  {
     "type": "Keyboard Control",
     "name": "Keyboard Car Control"
   },
   {
-    "type": "Clock",
-    "name": "Simulation Clock",
+    "type": "Vehicle Control",
+    "name": "Autoware Car Control",
+    "params":
+    {
+      "Topic": "/lgsvl/vehicle_control_cmd"
+    }
+  },
+  {
+    "type": "Color Camera",
+    "name": "Main Camera",
     "params": {
-      "Topic": "/lgsvl/clock"
+      "Width": 1920,
+      "Height": 1080,
+      "Frequency": 15,
+      "JpegQuality": 75,
+      "FieldOfView": 50,
+      "MinDistance": 0.1,
+      "MaxDistance": 2000,
+      "Topic": "/simulator/main_camera",
+      "Frame": "camera"
+    },
+    "transform": {
+      "x": 0,
+      "y": 1.7,
+      "z": -0.2,
+      "pitch": 0,
+      "yaw": 0,
+      "roll": 0
+    }
+  },
+  {
+    "type": "2D Ground Truth",
+    "name": "2D Ground Truth",
+    "params": {
+      "Frequency": 10,
+      "DetectionRange": 100,
+      "Topic": "/simulator/ground_truth/detections2D"
+    },
+    "transform": {
+      "x": 0,
+      "y": 1.7,
+      "z": -0.2,
+      "pitch": 0,
+      "yaw": 0,
+      "roll": 0
     }
   }
 ]

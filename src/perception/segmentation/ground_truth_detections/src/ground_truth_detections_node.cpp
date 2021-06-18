@@ -17,6 +17,8 @@
 #include "ground_truth_detections/ground_truth_detections_node.hpp"
 
 #include <autoware_auto_msgs/msg/classified_roi.hpp>
+
+#include <algorithm>
 namespace
 {
 
@@ -26,12 +28,17 @@ autoware_auto_msgs::msg::ObjectClassification make_classification(
 {
   autoware_auto_msgs::msg::ObjectClassification obj_classification;
   obj_classification.probability = 1.0;
-  if (detection.label == "car") {
-    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
-  } else if (detection.label == "pedestrian") {
-    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
+  auto & classification = obj_classification.classification;
+  if (detection.label == "Hatchback" || detection.label == "Jeep" ||
+    detection.label == "Sedan" || detection.label == "SUV")
+  {
+    classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
+  } else if (detection.label == "BoxTruck") {
+    classification = autoware_auto_msgs::msg::ObjectClassification::TRUCK;
+  } else if (detection.label == "Pedestrian") {
+    classification = autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
   } else {
-    obj_classification.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+    classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
   }
   return obj_classification;
 }
@@ -42,14 +49,19 @@ geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & de
 {
   geometry_msgs::msg::Polygon polygon;
   auto & points = polygon.points;
+  // implicitly assign 0 to z coordinate
   points.resize(4);
   const float width = detection.bbox.width;
   const float height = detection.bbox.height;
 
-  // bbox coordinates given at center
+  // clip coordinates to avoid negative values due to rounding.
+  // Can't clip upper bound because image size not known.
+
+  // bbox coordinates (x, y) given at center
+
   // lower left corner
-  points[0].x = detection.bbox.x - 0.5F * width;
-  points[0].y = detection.bbox.y - 0.5F * height;
+  points[0].x = std::max(detection.bbox.x - 0.5F * width, 0.0F);
+  points[0].y = std::max(detection.bbox.y - 0.5F * height, 0.0F);
 
   // lower right corner
   points[1] = points[0];
@@ -61,7 +73,7 @@ geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & de
 
   // upper left corner
   points[3] = points[2];
-  points[3].x -= width;
+  points[3].x = std::max(points[3].x - width, 0.0F);
 
   return polygon;
 }
@@ -82,7 +94,6 @@ GroundTruthDetectionsNode::GroundTruthDetectionsNode(const rclcpp::NodeOptions &
       [this](lgsvl_msgs::msg::Detection2DArray::SharedPtr msg) {on_detection(*msg);}
   )}
 {
-// asd
 }
 
 void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DArray & msg)
