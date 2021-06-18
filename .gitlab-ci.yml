@@ -253,8 +253,6 @@ ade_arm64_foxy:
 build_barebones_amd64_foxy:
   variables:
     ARCH: amd64
-  tags:
-    - shared
   extends: .build_barebones_base
 
 build_barebones_arm64_foxy:
@@ -265,8 +263,6 @@ build_barebones_arm64_foxy:
 build_amd64_foxy:
   variables:
     ARCH: amd64
-  tags:
-    - shared
   extends: .build_base
   needs:
     - job: ade_amd64_foxy
@@ -281,8 +277,6 @@ build_arm64_foxy:
 test_amd64_foxy:
   variables:
     ARCH: amd64
-  tags:
-    - shared
   extends: .test_base
   needs:
     - build_amd64_foxy
@@ -297,8 +291,6 @@ test_arm64_foxy:
 coverage:
   stage: test
   image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
-  tags:
-    - shared
   script:
     - 'apt-get update && apt-get -y --no-install-recommends install
           clang-tidy
