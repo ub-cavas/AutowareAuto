@@ -76,11 +76,11 @@ if(BUILD_TESTING)
   target_link_libraries(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME} ${PROJECT_NAME}_node)
   add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)
   ament_target_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE}
-     "rclcpp"
-     "rclcpp_components"
-     "autoware_auto_msgs"
-     "lgsvl_msgs"
-     )
+    "rclcpp"
+    "rclcpp_components"
+    "autoware_auto_msgs"
+    "lgsvl_msgs"
+  )
 endif()
 
 # ament package generation and installing

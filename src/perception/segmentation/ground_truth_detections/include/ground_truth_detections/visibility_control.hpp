@@ -11,6 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #ifndef GROUND_TRUTH_DETECTIONS__VISIBILITY_CONTROL_HPP_
 #define GROUND_TRUTH_DETECTIONS__VISIBILITY_CONTROL_HPP_
@@ -20,10 +22,10 @@
   #if defined(GROUND_TRUTH_DETECTIONS_BUILDING_DLL) || defined(GROUND_TRUTH_DETECTIONS_EXPORTS)
     #define GROUND_TRUTH_DETECTIONS_PUBLIC __declspec(dllexport)
     #define GROUND_TRUTH_DETECTIONS_LOCAL
-  #else  // defined(GROUND_TRUTH_DETECTIONS_BUILDING_DLL) || defined(GROUND_TRUTH_DETECTIONS_EXPORTS)
+  #else
     #define GROUND_TRUTH_DETECTIONS_PUBLIC __declspec(dllimport)
     #define GROUND_TRUTH_DETECTIONS_LOCAL
-  #endif  // defined(GROUND_TRUTH_DETECTIONS_BUILDING_DLL) || defined(GROUND_TRUTH_DETECTIONS_EXPORTS)
+  #endif
 #elif defined(__linux__)
   #define GROUND_TRUTH_DETECTIONS_PUBLIC __attribute__((visibility("default")))
   #define GROUND_TRUTH_DETECTIONS_LOCAL __attribute__((visibility("hidden")))

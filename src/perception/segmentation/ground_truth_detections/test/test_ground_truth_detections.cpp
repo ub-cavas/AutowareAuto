@@ -44,60 +44,43 @@ Detection2DArray make_sample_detections()
   detections.header.stamp.sec = 34;
   detections.header.stamp.nanosec = 8723U;
 
-  Detection2D d;
+  const auto add_detection = [&detections](const char * label) -> Detection2D & {
+      detections.detections.emplace_back(detections.detections.back());
+      auto & d = detections.detections.back();
+      d.label = label;
+      ++d.id;
 
+      return d;
+    };
   {
+    Detection2D d;
+
     d.label = "Hatchback";
     d.header = detections.header;
     d.bbox.x = 15.3F;
     d.bbox.y = 17.4F;
     d.bbox.height = 5.2F;
     d.bbox.width = 2.7F;
-    d.id = 14;
+    d.id = 0;
     d.score = 1.0F;
     d.velocity.linear = geometry_msgs::build<Vector3>().x(1.1).y(2.2).z(3.3);
     detections.detections.emplace_back(d);
   }
 
-  {
-    d.label = "Jeep";
-    d.id = 15;
-    detections.detections.emplace_back(d);
-  }
+  add_detection("Jeep");
+  add_detection("Sedan");
+  add_detection("SUV");
+  add_detection("BoxTruck");
 
   {
-    d.label = "Sedan";
-    d.id = 16;
-    detections.detections.emplace_back(d);
-  }
-
-  {
-    d.label = "SUV";
-    d.id = 17;
-    detections.detections.emplace_back(d);
-  }
-
-  {
-    d.label = "BoxTruck";
-    d.id = 30;
-    detections.detections.emplace_back(d);
-  }
-
-  {
-    d.label = "Pedestrian";
+    Detection2D & d = add_detection("Pedestrian");
     d.bbox.x = 5.0F;
     d.bbox.y = 6.0F;
     d.bbox.width = 10.00003F;
     d.bbox.height = 12.00002F;
-    d.id = 92;
-    detections.detections.emplace_back(d);
   }
 
-  {
-    d.label = "Foo";
-    d.id = 77;
-    detections.detections.emplace_back(d);
-  }
+  add_detection("Foo");
 
   return detections;
 }
@@ -179,14 +162,14 @@ TEST_F(FakeNodeFixture, receive_detections)
   }
 
   {
-    const auto & truck_roi = last_received_msg->rois[5];
+    const auto & truck_roi = last_received_msg->rois[4];
     EXPECT_EQ(
       truck_roi.classifications.at(0).classification,
       autoware_auto_msgs::msg::ObjectClassification::TRUCK);
     EXPECT_EQ(truck_roi.polygon, car_roi.polygon);
   }
 
-  const auto & pedestrian_roi = *(last_received_msg->rois.end() - 2);
+  const auto & pedestrian_roi = *(last_received_msg->rois.rbegin() + 1);
   {
     EXPECT_EQ(
       pedestrian_roi.classifications.at(0).classification,
