@@ -4,7 +4,7 @@
   <name>ground_truth_detections</name>
   <version>1.0.0</version>
 <!--   TODO(frederik.beaujean) Add description-->
-  <description>DESCRIPTION</description>
+  <description>Provide ground-truth detections from SVL simulator</description>
   <maintainer email="opensource@apex.ai">Apex.AI, Inc.</maintainer>
   <license>Apache 2.0</license>
 
@@ -20,6 +20,7 @@
   <test_depend>ament_cmake_gtest</test_depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
+  <test_depend>autoware_testing</test_depend>
 <!--    TODO It doesn't work with `<test_depend>`. Why not?-->
 <!--  <test_depend>fake_test_node</test_depend>-->
     <depend>fake_test_node</depend>

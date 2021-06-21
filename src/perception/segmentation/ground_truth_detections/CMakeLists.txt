@@ -66,6 +66,8 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
   find_package(fake_test_node REQUIRED)
 
+  add_smoke_test(${PROJECT_NAME} ${PROJECT_NAME}_node_exe)
+
   # Unit tests
   set(TEST_SOURCES test/test_ground_truth_detections.cpp)
   set(TEST_GROUND_TRUTH_DETECTIONS_EXE test_ground_truth_detections)
@@ -73,7 +75,6 @@ if(BUILD_TESTING)
 #  autoware_set_compile_options(${TEST_GROUND_TRUTH_DETECTIONS_EXE})
   target_link_libraries(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME} ${PROJECT_NAME}_node)
   add_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE} ${PROJECT_NAME}_node)
-  # TODO Why fake_test_node not needed to add to link and include?
   ament_target_dependencies(${TEST_GROUND_TRUTH_DETECTIONS_EXE}
      "rclcpp"
      "rclcpp_components"

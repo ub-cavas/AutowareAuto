@@ -28,9 +28,12 @@ autoware_auto_msgs::msg::ObjectClassification make_classification(
 {
   autoware_auto_msgs::msg::ObjectClassification obj_classification;
   obj_classification.probability = 1.0;
+
+  static constexpr const char * car_labels[] = {"Hatchback", "Jeep", "Sedan", "SUV"};
   auto & classification = obj_classification.classification;
-  if (detection.label == "Hatchback" || detection.label == "Jeep" ||
-    detection.label == "Sedan" || detection.label == "SUV")
+  if (std::find(
+      std::begin(car_labels), std::end(car_labels),
+      detection.label) != std::end(car_labels))
   {
     classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
   } else if (detection.label == "BoxTruck") {

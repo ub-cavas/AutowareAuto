@@ -43,6 +43,8 @@ public:
   explicit GroundTruthDetectionsNode(const rclcpp::NodeOptions & options);
 
 private:
+  /// \brief Callback for input message. Publish output message.
+  /// @param msg Input message
   void on_detection(const lgsvl_msgs::msg::Detection2DArray & msg);
 
   rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};

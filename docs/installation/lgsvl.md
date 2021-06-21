@@ -92,7 +92,7 @@ Once submitted, this will download the map automatically.
 
 @image html images/lgsvl-map.png "Choosing a map"
 
-### Configuring a vehicle
+### Configuring a vehicle {#lgsvl-configuring-vehicle}
 The goal is to create a vehicle configuration for the AutonomouStuff parking lot.
 
 Follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle),
