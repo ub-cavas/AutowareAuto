@@ -23,6 +23,8 @@
 #include <rclcpp/clock.hpp>
 #include <memory>
 
+#include "autoware_auto_msgs/msg/detected_object.hpp"
+
 std::unique_ptr<tf2_ros::Buffer> tf_buffer = nullptr;
 constexpr double EPS = 1e-3;
 
@@ -104,59 +106,61 @@ TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 TEST(Tf2AutowareAuto, DoTransformBoundingBox)
 {
   const auto trans = filled_transfom();
-  BoundingBox bb1;
-  bb1.orientation.w = 0;
-  bb1.orientation.x = 0;
-  bb1.orientation.y = 0;
-  bb1.orientation.z = 1;
-  bb1.centroid.x = 1;
-  bb1.centroid.y = 2;
-  bb1.centroid.z = 3;
-  bb1.corners[0].x = 4;
-  bb1.corners[0].y = 5;
-  bb1.corners[0].z = 6;
-  bb1.corners[1].x = 7;
-  bb1.corners[1].y = 8;
-  bb1.corners[1].z = 9;
-  bb1.corners[2].x = 10;
-  bb1.corners[2].y = 11;
-  bb1.corners[2].z = 12;
-  bb1.corners[3].x = 13;
-  bb1.corners[3].y = 14;
-  bb1.corners[3].z = 15;
+  autoware_auto_msgs::msg::DetectedObject do1;
+  do1.kinematics.orientation.w = 0;
+  do1.kinematics.orientation.x = 0;
+  do1.kinematics.orientation.y = 0;
+  do1.kinematics.orientation.z = 1;
+  do1.kinematics.centroid_position.x = 1;
+  do1.kinematics.centroid_position.y = 2;
+  do1.kinematics.centroid_position.z = 3;
+  do1.shape.polygon.points.resize(4);
+  do1.shape.polygon.points[0].x = 4;
+  do1.shape.polygon.points[0].y = 5;
+  do1.shape.polygon.points[0].z = 6;
+  do1.shape.polygon.points[1].x = 7;
+  do1.shape.polygon.points[1].y = 8;
+  do1.shape.polygon.points[1].z = 9;
+  do1.shape.polygon.points[2].x = 10;
+  do1.shape.polygon.points[2].y = 11;
+  do1.shape.polygon.points[2].z = 12;
+  do1.shape.polygon.points[3].x = 13;
+  do1.shape.polygon.points[3].y = 14;
+  do1.shape.polygon.points[3].z = 15;
 
   // doTransform
-  BoundingBox bb_out;
-  tf2::doTransform(bb1, bb_out, trans);
+  autoware_auto_msgs::msg::DetectedObject do_out;
+  tf2::doTransform(do1, do_out, trans);
 
-  EXPECT_NEAR(bb_out.orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bb_out.orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bb_out.centroid.x, 11, EPS);
-  EXPECT_NEAR(bb_out.centroid.y, 18, EPS);
-  EXPECT_NEAR(bb_out.centroid.z, 27, EPS);
-  EXPECT_NEAR(bb_out.corners[0].x, 14, EPS);
-  EXPECT_NEAR(bb_out.corners[0].y, 15, EPS);
-  EXPECT_NEAR(bb_out.corners[0].z, 24, EPS);
-  EXPECT_NEAR(bb_out.corners[1].x, 17, EPS);
-  EXPECT_NEAR(bb_out.corners[1].y, 12, EPS);
-  EXPECT_NEAR(bb_out.corners[1].z, 21, EPS);
-  EXPECT_NEAR(bb_out.corners[2].x, 20, EPS);
-  EXPECT_NEAR(bb_out.corners[2].y, 9, EPS);
-  EXPECT_NEAR(bb_out.corners[2].z, 18, EPS);
-  EXPECT_NEAR(bb_out.corners[3].x, 23, EPS);
-  EXPECT_NEAR(bb_out.corners[3].y, 6, EPS);
-  EXPECT_NEAR(bb_out.corners[3].z, 15, EPS);
+  EXPECT_NEAR(do_out.kinematics.orientation.x, 0.0, EPS);
+  EXPECT_NEAR(do_out.kinematics.orientation.y, 1.0, EPS);
+  EXPECT_NEAR(do_out.kinematics.orientation.z, 0.0, EPS);
+  EXPECT_NEAR(do_out.kinematics.orientation.w, 0.0, EPS);
+  EXPECT_NEAR(do_out.kinematics.centroid_position.x, 11, EPS);
+  EXPECT_NEAR(do_out.kinematics.centroid_position.y, 18, EPS);
+  EXPECT_NEAR(do_out.kinematics.centroid_position.z, 27, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[0].x, 14, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[0].y, 15, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[0].z, 24, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[1].x, 17, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[1].y, 12, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[1].z, 21, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[2].x, 20, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[2].y, 9, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[2].z, 18, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[3].x, 23, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[3].y, 6, EPS);
+  EXPECT_NEAR(do_out.shape.polygon.points[3].z, 15, EPS);
 
   // Testing unused fields are unmodified
-  EXPECT_EQ(bb_out.size, bb1.size);
-  EXPECT_EQ(bb_out.heading, bb1.heading);
-  EXPECT_EQ(bb_out.heading_rate, bb1.heading_rate);
-  EXPECT_EQ(bb_out.variance, bb1.variance);
-  EXPECT_EQ(bb_out.vehicle_label, bb1.vehicle_label);
-  EXPECT_EQ(bb_out.signal_label, bb1.signal_label);
-  EXPECT_EQ(bb_out.class_likelihood, bb1.class_likelihood);
+  EXPECT_EQ(do_out.classification.size(), do1.classification.size());
+  EXPECT_EQ(do_out.kinematics.position_covariance, do1.kinematics.position_covariance);
+  EXPECT_EQ(do_out.kinematics.position_covariance, do1.kinematics.position_covariance);
+  EXPECT_EQ(do_out.kinematics.has_position_covariance, do1.kinematics.has_position_covariance);
+  EXPECT_EQ(do_out.kinematics.orientation_availability, do1.kinematics.orientation_availability);
+  EXPECT_EQ(do_out.kinematics.twist, do1.kinematics.twist);
+  EXPECT_EQ(do_out.kinematics.has_twist, do1.kinematics.has_twist);
+  EXPECT_EQ(do_out.kinematics.has_twist_covariance, do1.kinematics.has_twist_covariance);
 }
 
 TEST(Tf2AutowareAuto, TransformBoundingBoxArray)

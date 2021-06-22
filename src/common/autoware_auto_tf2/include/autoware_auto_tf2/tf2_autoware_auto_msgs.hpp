@@ -22,10 +22,13 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <autoware_auto_msgs/msg/quaternion32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
+#include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/point32.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
 #include <kdl/frames.hpp>
 #include <common/types.hpp>
 #include <string>
@@ -33,8 +36,9 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::DetectedObject;
 
 namespace tf2
 {
@@ -62,6 +66,27 @@ void doTransform(
   t_out.z = static_cast<float>(v_out[2]);
 }
 
+/***********/
+/** Point **/
+/***********/
+
+/** \brief Apply a geometry_msgs TransformStamped to a geometry_msgs Point type.
+ * This function is a specialization of the doTransform template defined in tf2/convert.h.
+ * \param t_in The point to transform, as a Point message.
+ * \param t_out The transformed point, as a Point message.
+ * \param transform The timestamped transform to apply, as a TransformStamped message.
+ */
+template<>
+inline
+void doTransform(
+  const geometry_msgs::msg::Point & t_in, geometry_msgs::msg::Point & t_out,
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  const KDL::Vector v_out = gmTransformToKDL(transform) * KDL::Vector(t_in.x, t_in.y, t_in.z);
+  t_out.x = static_cast<float>(v_out[0]);
+  t_out.y = static_cast<float>(v_out[1]);
+  t_out.z = static_cast<float>(v_out[2]);
+}
 
 /*************/
 /** Polygon **/
@@ -120,6 +145,33 @@ void doTransform(
   t_out.w = static_cast<float32_t>(qw);
 }
 
+/****************/
+/** Quaternion **/
+/****************/
+
+/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs Quaternion type.
+ * This function is a specialization of the doTransform template defined in tf2/convert.h.
+ * \param t_in The Quaternion message to transform.
+ * \param t_out The transformed Quaternion message.
+ * \param transform The timestamped transform to apply, as a TransformStamped message.
+ */
+template<>
+inline
+void doTransform(
+  const geometry_msgs::msg::Quaternion & t_in,
+  geometry_msgs::msg::Quaternion & t_out,
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  KDL::Rotation r_in = KDL::Rotation::Quaternion(t_in.x, t_in.y, t_in.z, t_in.w);
+  KDL::Rotation out = gmTransformToKDL(transform).M * r_in;
+
+  double qx, qy, qz, qw;
+  out.GetQuaternion(qx, qy, qz, qw);
+  t_out.x = static_cast<float32_t>(qx);
+  t_out.y = static_cast<float32_t>(qy);
+  t_out.z = static_cast<float32_t>(qz);
+  t_out.w = static_cast<float32_t>(qw);
+}
 
 /******************/
 /** BoundingBox **/
@@ -147,6 +199,28 @@ void doTransform(
   // TODO(jitrc): add conversion for other fields of BoundingBox, such as heading, variance, size
 }
 
+/******************/
+/** DetectedObject **/
+/******************/
+
+/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBox type.
+ * This function is a specialization of the doTransform template defined in tf2/convert.h.
+ * \param t_in The BoundingBox message to transform.
+ * \param t_out The transformed BoundingBox message.
+ * \param transform The timestamped transform to apply, as a TransformStamped message.
+ */
+template<>
+inline
+void doTransform(
+  const DetectedObject & t_in, DetectedObject & t_out,
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  t_out = t_in;
+  doTransform(t_in.kinematics.orientation, t_out.kinematics.orientation, transform);
+  doTransform(t_in.kinematics.centroid_position, t_out.kinematics.centroid_position, transform);
+  doTransform(t_in.shape.polygon, t_out.shape.polygon, transform);
+  // TODO(jitrc): add conversion for other fields of DetectedObject, such as heading, variance, size
+}
 
 /**********************/
 /** BoundingBoxArray **/
