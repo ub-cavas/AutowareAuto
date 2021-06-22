@@ -24,6 +24,7 @@
 #include <memory>
 
 #include "autoware_auto_msgs/msg/detected_object.hpp"
+#include "autoware_auto_msgs/msg/detected_objects.hpp"
 
 std::unique_ptr<tf2_ros::Buffer> tf_buffer = nullptr;
 constexpr double EPS = 1e-3;
@@ -103,7 +104,7 @@ TEST(Tf2AutowareAuto, DoTransformQuaternion32)
 }
 
 
-TEST(Tf2AutowareAuto, DoTransformBoundingBox)
+TEST(Tf2AutowareAuto, DoTransformDetectedObject)
 {
   const auto trans = filled_transfom();
   autoware_auto_msgs::msg::DetectedObject do1;
@@ -163,153 +164,155 @@ TEST(Tf2AutowareAuto, DoTransformBoundingBox)
   EXPECT_EQ(do_out.kinematics.has_twist_covariance, do1.kinematics.has_twist_covariance);
 }
 
-TEST(Tf2AutowareAuto, TransformBoundingBoxArray)
+TEST(Tf2AutowareAuto, TransformDetectedObjects)
 {
-  BoundingBox bb1;
-  bb1.orientation.w = 0;
-  bb1.orientation.x = 0;
-  bb1.orientation.y = 0;
-  bb1.orientation.z = 1;
-  bb1.centroid.x = 20;
-  bb1.centroid.y = 21;
-  bb1.centroid.z = 22;
-  bb1.corners[0].x = 23;
-  bb1.corners[0].y = 24;
-  bb1.corners[0].z = 25;
-  bb1.corners[1].x = 26;
-  bb1.corners[1].y = 27;
-  bb1.corners[1].z = 28;
-  bb1.corners[2].x = 29;
-  bb1.corners[2].y = 30;
-  bb1.corners[2].z = 31;
-  bb1.corners[3].x = 32;
-  bb1.corners[3].y = 33;
-  bb1.corners[3].z = 34;
+  autoware_auto_msgs::msg::DetectedObject do1;
+  do1.kinematics.orientation.w = 0;
+  do1.kinematics.orientation.x = 0;
+  do1.kinematics.orientation.y = 0;
+  do1.kinematics.orientation.z = 1;
+  do1.kinematics.centroid_position.x = 20;
+  do1.kinematics.centroid_position.y = 21;
+  do1.kinematics.centroid_position.z = 22;
+  do1.shape.polygon.points.resize(4);
+  do1.shape.polygon.points[0].x = 23;
+  do1.shape.polygon.points[0].y = 24;
+  do1.shape.polygon.points[0].z = 25;
+  do1.shape.polygon.points[1].x = 26;
+  do1.shape.polygon.points[1].y = 27;
+  do1.shape.polygon.points[1].z = 28;
+  do1.shape.polygon.points[2].x = 29;
+  do1.shape.polygon.points[2].y = 30;
+  do1.shape.polygon.points[2].z = 31;
+  do1.shape.polygon.points[3].x = 32;
+  do1.shape.polygon.points[3].y = 33;
+  do1.shape.polygon.points[3].z = 34;
 
-  BoundingBox bb2;
-  bb2.orientation.w = 0.707f;
-  bb2.orientation.x = -0.706f;
-  bb2.orientation.y = 0;
-  bb2.orientation.z = 0;
-  bb2.centroid.x = 50;
-  bb2.centroid.y = 51;
-  bb2.centroid.z = 52;
-  bb2.corners[0].x = 53;
-  bb2.corners[0].y = 54;
-  bb2.corners[0].z = 55;
-  bb2.corners[1].x = 56;
-  bb2.corners[1].y = 57;
-  bb2.corners[1].z = 58;
-  bb2.corners[2].x = 59;
-  bb2.corners[2].y = 50;
-  bb2.corners[2].z = 51;
-  bb2.corners[3].x = 52;
-  bb2.corners[3].y = 53;
-  bb2.corners[3].z = 54;
+  autoware_auto_msgs::msg::DetectedObject do2;
+  do2.kinematics.orientation.w = 0.707f;
+  do2.kinematics.orientation.x = -0.706f;
+  do2.kinematics.orientation.y = 0;
+  do2.kinematics.orientation.z = 0;
+  do2.kinematics.centroid_position.x = 50;
+  do2.kinematics.centroid_position.y = 51;
+  do2.kinematics.centroid_position.z = 52;
+  do2.shape.polygon.points.resize(4);
+  do2.shape.polygon.points[0].x = 53;
+  do2.shape.polygon.points[0].y = 54;
+  do2.shape.polygon.points[0].z = 55;
+  do2.shape.polygon.points[1].x = 56;
+  do2.shape.polygon.points[1].y = 57;
+  do2.shape.polygon.points[1].z = 58;
+  do2.shape.polygon.points[2].x = 59;
+  do2.shape.polygon.points[2].y = 50;
+  do2.shape.polygon.points[2].z = 51;
+  do2.shape.polygon.points[3].x = 52;
+  do2.shape.polygon.points[3].y = 53;
+  do2.shape.polygon.points[3].z = 54;
 
-  BoundingBoxArray bba1;
-  bba1.header.stamp = tf2_ros::toMsg(tf2::timeFromSec(2));
-  bba1.header.frame_id = "A";
-  bba1.boxes.push_back(bb1);
-  bba1.boxes.push_back(bb2);
+  autoware_auto_msgs::msg::DetectedObjects dos1;
+  dos1.header.stamp = tf2_ros::toMsg(tf2::timeFromSec(2));
+  dos1.header.frame_id = "A";
+  dos1.objects.push_back(do1);
+  dos1.objects.push_back(do2);
 
   // simple api
-  const auto bba_simple = tf_buffer->transform(bba1, "B", tf2::durationFromSec(2.0));
+  const auto dos_simple = tf_buffer->transform(dos1, "B", tf2::durationFromSec(2.0));
 
 
-  EXPECT_EQ(bba_simple.header.frame_id, "B");
+  EXPECT_EQ(dos_simple.header.frame_id, "B");
 
-  // checking boxes[0]
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.x, 10, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.y, -1, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].centroid.z, 8, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].x, 13, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].y, -4, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[0].z, 5, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].x, 16, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].y, -7, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[1].z, 2, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].x, 19, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].y, -10, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[2].z, -1, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].x, 22, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].y, -13, EPS);
-  EXPECT_NEAR(bba_simple.boxes[0].corners[3].z, -4, EPS);
+  // checking objects[0]
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.orientation.x, 0.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.orientation.y, 1.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.orientation.z, 0.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.orientation.w, 0.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.centroid_position.x, 10, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.centroid_position.y, -1, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].kinematics.centroid_position.z, 8, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[0].x, 13, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[0].y, -4, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[0].z, 5, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[1].x, 16, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[1].y, -7, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[1].z, 2, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[2].x, 19, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[2].y, -10, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[2].z, -1, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[3].x, 22, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[3].y, -13, EPS);
+  EXPECT_NEAR(dos_simple.objects[0].shape.polygon.points[3].z, -4, EPS);
 
-  // checking boxes[1]
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.x, 0.707, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.y, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].orientation.w, 0.707, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.x, 40, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.y, -31, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].centroid.z, -22, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].x, 43, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].y, -34, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[0].z, -25, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].x, 46, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].y, -37, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[1].z, -28, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].x, 49, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].y, -30, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[2].z, -21, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].x, 42, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].y, -33, EPS);
-  EXPECT_NEAR(bba_simple.boxes[1].corners[3].z, -24, EPS);
+  // checking objects[1]
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.orientation.x, 0.707, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.orientation.y, 0.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.orientation.z, 0.0, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.orientation.w, 0.707, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.centroid_position.x, 40, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.centroid_position.y, -31, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].kinematics.centroid_position.z, -22, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[0].x, 43, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[0].y, -34, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[0].z, -25, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[1].x, 46, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[1].y, -37, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[1].z, -28, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[2].x, 49, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[2].y, -30, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[2].z, -21, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[3].x, 42, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[3].y, -33, EPS);
+  EXPECT_NEAR(dos_simple.objects[1].shape.polygon.points[3].z, -24, EPS);
 
 
   // advanced api
-  const auto bba_advanced = tf_buffer->transform(
-    bba1, "B",
+  const auto dos_advanced = tf_buffer->transform(
+    dos1, "B",
     tf2::timeFromSec(2.0), "A", tf2::durationFromSec(3.0));
 
-  EXPECT_EQ(bba_advanced.header.frame_id, "B");
+  EXPECT_EQ(dos_advanced.header.frame_id, "B");
 
-  // checking boxes[0]
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.x, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.y, 1.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].orientation.w, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.x, 10, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.y, -1, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].centroid.z, 8, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].x, 13, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].y, -4, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[0].z, 5, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].x, 16, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].y, -7, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[1].z, 2, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].x, 19, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].y, -10, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[2].z, -1, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].x, 22, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].y, -13, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[0].corners[3].z, -4, EPS);
+  // checking objects[0]
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.orientation.x, 0.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.orientation.y, 1.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.orientation.z, 0.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.orientation.w, 0.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.centroid_position.x, 10, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.centroid_position.y, -1, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].kinematics.centroid_position.z, 8, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[0].x, 13, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[0].y, -4, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[0].z, 5, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[1].x, 16, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[1].y, -7, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[1].z, 2, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[2].x, 19, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[2].y, -10, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[2].z, -1, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[3].x, 22, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[3].y, -13, EPS);
+  EXPECT_NEAR(dos_advanced.objects[0].shape.polygon.points[3].z, -4, EPS);
 
-  // checking boxes[1]
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.x, 0.707, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.y, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.z, 0.0, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].orientation.w, 0.707, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.x, 40, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.y, -31, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].centroid.z, -22, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].x, 43, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].y, -34, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[0].z, -25, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].x, 46, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].y, -37, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[1].z, -28, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].x, 49, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].y, -30, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[2].z, -21, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].x, 42, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].y, -33, EPS);
-  EXPECT_NEAR(bba_advanced.boxes[1].corners[3].z, -24, EPS);
+  // checking objects[1]
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.orientation.x, 0.707, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.orientation.y, 0.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.orientation.z, 0.0, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.orientation.w, 0.707, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.centroid_position.x, 40, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.centroid_position.y, -31, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].kinematics.centroid_position.z, -22, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[0].x, 43, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[0].y, -34, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[0].z, -25, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[1].x, 46, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[1].y, -37, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[1].z, -28, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[2].x, 49, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[2].y, -30, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[2].z, -21, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[3].x, 42, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[3].y, -33, EPS);
+  EXPECT_NEAR(dos_advanced.objects[1].shape.polygon.points[3].z, -24, EPS);
 }
 
 int main(int argc, char ** argv)

@@ -23,6 +23,7 @@
 #include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <autoware_auto_msgs/msg/quaternion32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
@@ -39,6 +40,7 @@ using autoware::common::types::float64_t;
 using autoware_auto_msgs::msg::BoundingBoxArray;
 using autoware_auto_msgs::msg::BoundingBox;
 using autoware_auto_msgs::msg::DetectedObject;
+using autoware_auto_msgs::msg::DetectedObjects;
 
 namespace tf2
 {
@@ -263,6 +265,52 @@ void doTransform(
   t_out = t_in;
   for (auto idx = 0U; idx < t_in.boxes.size(); idx++) {
     doTransform(t_out.boxes[idx], t_out.boxes[idx], transform);
+  }
+  t_out.header.stamp = transform.header.stamp;
+  t_out.header.frame_id = transform.header.frame_id;
+}
+
+/*********************/
+/** DetectedObjects **/
+/*********************/
+
+/** \brief Extract a timestamp from the header of a DetectedObjects message.
+ * This function is a specialization of the getTimestamp template defined in tf2/convert.h.
+ * \param t A timestamped DetectedObjects message to extract the timestamp from.
+ * \return The timestamp of the message.
+ */
+template<>
+inline
+tf2::TimePoint getTimestamp(const DetectedObjects & t)
+{
+  return tf2_ros::fromMsg(t.header.stamp);
+}
+
+/** \brief Extract a frame ID from the header of a DetectedObjects message.
+ * This function is a specialization of the getFrameId template defined in tf2/convert.h.
+ * \param t A timestamped DetectedObjects message to extract the frame ID from.
+ * \return A string containing the frame ID of the message.
+ */
+template<>
+inline
+std::string getFrameId(const DetectedObjects & t) {return t.header.frame_id;}
+
+/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs DetectedObjects type.
+ * This function is a specialization of the doTransform template defined in tf2/convert.h.
+ * \param t_in The DetectedObjects to transform, as a timestamped DetectedObjects message.
+ * \param t_out The transformed DetectedObjects, as a timestamped DetectedObjects message.
+ * \param transform The timestamped transform to apply, as a TransformStamped message.
+ */
+template<>
+inline
+void doTransform(
+  const DetectedObjects & t_in,
+  DetectedObjects & t_out,
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  t_out = t_in;
+  for (auto idx = 0U; idx < t_in.objects.size(); idx++) {
+    doTransform(t_out.objects[idx], t_out.objects[idx], transform);
   }
   t_out.header.stamp = transform.header.stamp;
   t_out.header.frame_id = transform.header.frame_id;
