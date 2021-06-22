@@ -18,6 +18,8 @@
 #include <common/types.hpp>
 #include <memory>
 
+#include "autoware_auto_msgs/msg/object_classification.hpp"
+
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
@@ -103,19 +105,19 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
 
   QColor color;
   switch (box.vehicle_label) {
-    case BoundingBox::NO_LABEL:     // white: non labeled
+    case ObjectClassification::NO_LABEL:     // white: non labeled
       color = no_label_color_property_->getColor();
       break;
-    case BoundingBox::CAR:          // yellow: car
+    case ObjectClassification::CAR:          // yellow: car
       color = car_color_property_->getColor();
       break;
-    case BoundingBox::PEDESTRIAN:   // blue: pedestrian
+    case ObjectClassification::PEDESTRIAN:   // blue: pedestrian
       color = pedestrian_color_property_->getColor();
       break;
-    case BoundingBox::CYCLIST:      // orange: cyclist
+    case ObjectClassification::CYCLIST:      // orange: cyclist
       color = cyclist_color_property_->getColor();
       break;
-    case BoundingBox::MOTORCYCLE:   // green: motorcycle
+    case ObjectClassification::MOTORCYCLE:   // green: motorcycle
       color = motorcycle_color_property_->getColor();
       break;
     default:                        // black: other labels
