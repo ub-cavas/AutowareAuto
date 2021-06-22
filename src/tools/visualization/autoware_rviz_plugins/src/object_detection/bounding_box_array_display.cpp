@@ -28,6 +28,8 @@ namespace autoware
 namespace rviz_plugins
 {
 
+using autoware_auto_msgs::msg::ObjectClassification;
+
 BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
 : rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
@@ -105,7 +107,7 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
 
   QColor color;
   switch (box.vehicle_label) {
-    case ObjectClassification::NO_LABEL:     // white: non labeled
+    case ObjectClassification::UNKNOWN:     // white: non labeled
       color = no_label_color_property_->getColor();
       break;
     case ObjectClassification::CAR:          // yellow: car
@@ -114,7 +116,7 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
     case ObjectClassification::PEDESTRIAN:   // blue: pedestrian
       color = pedestrian_color_property_->getColor();
       break;
-    case ObjectClassification::CYCLIST:      // orange: cyclist
+    case ObjectClassification::BICYCLE:      // orange: cyclist
       color = cyclist_color_property_->getColor();
       break;
     case ObjectClassification::MOTORCYCLE:   // green: motorcycle
