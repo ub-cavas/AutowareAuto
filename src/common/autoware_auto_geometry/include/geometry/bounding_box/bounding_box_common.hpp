@@ -20,7 +20,6 @@
 #ifndef GEOMETRY__BOUNDING_BOX__BOUNDING_BOX_COMMON_HPP_
 #define GEOMETRY__BOUNDING_BOX__BOUNDING_BOX_COMMON_HPP_
 
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <autoware_auto_msgs/msg/shape.hpp>
 #include <geometry/visibility_control.hpp>
@@ -38,7 +37,8 @@ namespace geometry
 /// \brief Functions and types for generating enclosing bounding boxes around a set of points
 namespace bounding_box
 {
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::DetectedObject;
+using geometry_msgs::msg::Polygon;
 
 /// \brief Computes height of bounding box given a full list of points
 /// \param[in] begin The start of the list of points
@@ -47,7 +47,7 @@ using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
 /// \tparam IT An iterator type, must dereference into a point type with float member z, or
 ///            appropriate point adapter defined
 template<typename IT>
-void compute_height(const IT begin, const IT end, BoundingBox & box)
+void compute_height(const IT begin, const IT end, DetectedObject & box)
 {
   float32_t max_z = -std::numeric_limits<float32_t>::max();
   float32_t min_z = std::numeric_limits<float32_t>::max();
@@ -60,11 +60,12 @@ void compute_height(const IT begin, const IT end, BoundingBox & box)
       max_z = z;
     }
   }
-  box.centroid.z = (max_z + min_z) * 0.5F;
-  for (auto & corner : box.corners) {
-    corner.z = box.centroid.z;
+  box.kinematics.centroid_position.z = (max_z + min_z) * 0.5F;
+  for (auto & corner : box.shape.polygon.points) {
+    corner.z = box.kinematics.centroid_position.z;
   }
-  box.size.z = (max_z - min_z) * 0.5F;
+  // TODO(esteve): how to adapt this to DetectedObject?
+  // box.size.z = (max_z - min_z) * 0.5F;
 }
 
 /// \brief Computes height of bounding box given a full list of points
@@ -113,21 +114,18 @@ struct array_size<std::array<T, N>>
 {
   static std::size_t const size = N;
 };
-static_assert(
-  array_size<base_type<decltype(BoundingBox::corners)>>::size == 4U,
-  "Bounding box does not have the right number of corners");
 
 /// \brief Compute length, width, area of bounding box
 /// \param[in] corners Corners of the current bounding box
 /// \param[out] ret A point struct used to hold size of box defined by corners
 void GEOMETRY_PUBLIC size_2d(
-  const decltype(BoundingBox::corners) & corners,
+  const decltype(Polygon::points) & corners,
   geometry_msgs::msg::Point32 & ret);
 /// \brief Computes centroid and orientation of a box given corners
 /// \param[in] corners Array of final corners of bounding box
 /// \param[out] box Message to have corners, orientation, and centroid updated
 void GEOMETRY_PUBLIC finalize_box(
-  const decltype(BoundingBox::corners) & corners, BoundingBox & box);
+  const decltype(Polygon::points) & corners, DetectedObject & box);
 
 /// \brief given support points and two orthogonal directions, compute corners of bounding box
 /// \tparam PointT Type of a point, must have float members x and y`
@@ -138,7 +136,7 @@ void GEOMETRY_PUBLIC finalize_box(
 /// \param[in] directions Directions of each edge of the bounding box from each support point
 template<typename IT, typename PointT>
 void compute_corners(
-  decltype(BoundingBox::corners) & corners,
+  decltype(Polygon::points) & corners,
   const Point4<IT> & supports,
   const Point4<PointT> & directions)
 {
@@ -156,18 +154,18 @@ void compute_corners(
 /// \brief Copy vertices of the given box into a Shape type
 /// \param box Box to be converted
 /// \return Shape type filled with box vertices
-autoware_auto_msgs::msg::Shape GEOMETRY_PUBLIC make_shape(const BoundingBox & box);
+autoware_auto_msgs::msg::Shape GEOMETRY_PUBLIC make_shape(const DetectedObject & box);
 
 /// \brief Copy centroid and orientation info of the box into Pose type
-/// \param box BoundingBox to be converted
+/// \param box DetectedObject to be converted
 /// \return Pose type filled with centroid and orientation from box
-geometry_msgs::msg::Pose GEOMETRY_PUBLIC make_pose(const BoundingBox & box);
+geometry_msgs::msg::Pose GEOMETRY_PUBLIC make_pose(const DetectedObject & box);
 
-/// \brief Fill DetectedObject type with contents from a BoundingBox type
-/// \param box BoundingBox to be converted
+/// \brief Fill DetectedObject type with contents from a DetectedObject type
+/// \param box DetectedObject to be converted
 /// \return Filled DetectedObject type
 autoware_auto_msgs::msg::DetectedObject GEOMETRY_PUBLIC make_detected_object(
-  const BoundingBox & box);
+  const DetectedObject & box);
 
 }  // namespace details
 }  // namespace bounding_box

@@ -38,7 +38,7 @@ namespace details
 {
 ////////////////////////////////////////////////////////////////////////////////
 void size_2d(
-  const decltype(BoundingBox::corners) & corners,
+  const decltype(DetectedObject::corners) & corners,
   geometry_msgs::msg::Point32 & ret)
 {
   ret.x = std::max(
@@ -53,20 +53,20 @@ void size_2d(
         corners[1U])), std::numeric_limits<float32_t>::epsilon());
 }
 ////////////////////////////////////////////////////////////////////////////////
-void finalize_box(const decltype(BoundingBox::corners) & corners, BoundingBox & box)
+void finalize_box(const decltype(DetectedObject::corners) & corners, DetectedObject & box)
 {
-  (void)std::copy(&corners[0U], &corners[corners.size()], &box.corners[0U]);
+  (void)std::copy(&corners[0U], &corners[corners.size()], &box.shape.polygon.points[0U]);
   // orientation: this is robust to lines
   const float32_t yaw_rad_2 =
-    atan2f(box.corners[2U].y - box.corners[1U].y, box.corners[2U].x - box.corners[1U].x) * 0.5F;
-  box.orientation.w = cosf(yaw_rad_2);
-  box.orientation.z = sinf(yaw_rad_2);
+    atan2f(box.shape.polygon.points[2U].y - box.shape.polygon.points[1U].y, box.shape.polygon.points[2U].x - box.shape.polygon.points[1U].x) * 0.5F;
+  box.kinematics.orientation.w = cosf(yaw_rad_2);
+  box.kinematics.orientation.z = sinf(yaw_rad_2);
   // centroid
-  box.centroid = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
+  box.kinematics.centroid_position = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
 }
 
 
-autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
+autoware_auto_msgs::msg::Shape make_shape(const DetectedObject & box)
 {
   autoware_auto_msgs::msg::Shape ret;
   for (auto corner_pt : box.corners) {
@@ -77,7 +77,7 @@ autoware_auto_msgs::msg::Shape make_shape(const BoundingBox & box)
   return ret;
 }
 
-autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox & box)
+autoware_auto_msgs::msg::DetectedObject make_detected_object(const DetectedObject & box)
 {
   autoware_auto_msgs::msg::DetectedObject ret;
 
@@ -101,18 +101,18 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const BoundingBox &
 ///////////////////////////////////////////////////////////////////////////////
 // precompilation
 using autoware::common::types::PointXYZIF;
-template BoundingBox minimum_area_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);
-template BoundingBox minimum_perimeter_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);
+template DetectedObject minimum_area_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);
+template DetectedObject minimum_perimeter_bounding_box<PointXYZIF>(std::list<PointXYZIF> & list);
 using PointXYZIFVIT = std::vector<PointXYZIF>::iterator;
-template BoundingBox eigenbox_2d<PointXYZIFVIT>(const PointXYZIFVIT begin, const PointXYZIFVIT end);
-template BoundingBox lfit_bounding_box_2d<PointXYZIFVIT>(
+template DetectedObject eigenbox_2d<PointXYZIFVIT>(const PointXYZIFVIT begin, const PointXYZIFVIT end);
+template DetectedObject lfit_bounding_box_2d<PointXYZIFVIT>(
   const PointXYZIFVIT begin, const PointXYZIFVIT end);
 using geometry_msgs::msg::Point32;
-template BoundingBox minimum_area_bounding_box<Point32>(std::list<Point32> & list);
-template BoundingBox minimum_perimeter_bounding_box<Point32>(std::list<Point32> & list);
+template DetectedObject minimum_area_bounding_box<Point32>(std::list<Point32> & list);
+template DetectedObject minimum_perimeter_bounding_box<Point32>(std::list<Point32> & list);
 using Point32VIT = std::vector<Point32>::iterator;
-template BoundingBox eigenbox_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
-template BoundingBox lfit_bounding_box_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
+template DetectedObject eigenbox_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
+template DetectedObject lfit_bounding_box_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
 }  // namespace bounding_box
 }  // namespace geometry
 }  // namespace common

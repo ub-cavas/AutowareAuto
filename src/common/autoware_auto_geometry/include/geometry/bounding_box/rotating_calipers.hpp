@@ -153,7 +153,7 @@ void init_bbox(const IT begin, const IT end, Point4<IT> & support)
 /// \throw std::domain_error if the list of points is too small to reasonable generate a bounding
 ///                          box
 template<typename IT, typename MetricF>
-BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF metric_fn)
+DetectedObject rotating_calipers_impl(const IT begin, const IT end, const MetricF metric_fn)
 {
   using PointT = base_type<decltype(*begin)>;
   // sanity check TODO(c.ho) more checks (up to n = 2?)
@@ -177,8 +177,8 @@ BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF m
   Point4<PointT> edges;
   init_edges(begin, end, support, edges);
   // size of initial guess
-  BoundingBox bbox;
-  decltype(BoundingBox::corners) best_corners;
+  DetectedObject bbox;
+  decltype(Polygon::points) best_corners;
   compute_corners(best_corners, support, directions);
   size_2d(best_corners, bbox.size);
   bbox.value = metric_fn(bbox.size);
@@ -187,7 +187,7 @@ BoundingBox rotating_calipers_impl(const IT begin, const IT end, const MetricF m
     // find smallest angle to next, update directions
     const uint32_t advance_idx = update_angles(edges, directions);
     // recompute area
-    decltype(BoundingBox::corners) corners;
+    decltype(Polygon::points) corners;
     compute_corners(corners, support, directions);
     decltype(BoundingBox::size) tmp_size;
     size_2d(corners, tmp_size);

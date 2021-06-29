@@ -20,8 +20,6 @@
 #include <tf2/convert.h>
 #include <tf2/time.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -37,8 +35,6 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware_auto_msgs::msg::BoundingBoxArray;
-using autoware_auto_msgs::msg::BoundingBox;
 using autoware_auto_msgs::msg::DetectedObject;
 using autoware_auto_msgs::msg::DetectedObjects;
 
@@ -175,40 +171,14 @@ void doTransform(
   t_out.w = static_cast<float32_t>(qw);
 }
 
-/******************/
-/** BoundingBox **/
-/******************/
-
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBox type.
- * This function is a specialization of the doTransform template defined in tf2/convert.h.
- * \param t_in The BoundingBox message to transform.
- * \param t_out The transformed BoundingBox message.
- * \param transform The timestamped transform to apply, as a TransformStamped message.
- */
-template<>
-inline
-void doTransform(
-  const BoundingBox & t_in, BoundingBox & t_out,
-  const geometry_msgs::msg::TransformStamped & transform)
-{
-  t_out = t_in;
-  doTransform(t_in.orientation, t_out.orientation, transform);
-  doTransform(t_in.centroid, t_out.centroid, transform);
-  doTransform(t_in.corners[0], t_out.corners[0], transform);
-  doTransform(t_in.corners[1], t_out.corners[1], transform);
-  doTransform(t_in.corners[2], t_out.corners[2], transform);
-  doTransform(t_in.corners[3], t_out.corners[3], transform);
-  // TODO(jitrc): add conversion for other fields of BoundingBox, such as heading, variance, size
-}
-
-/******************/
+/********************/
 /** DetectedObject **/
-/******************/
+/********************/
 
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBox type.
+/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs DetectedObject type.
  * This function is a specialization of the doTransform template defined in tf2/convert.h.
- * \param t_in The BoundingBox message to transform.
- * \param t_out The transformed BoundingBox message.
+ * \param t_in The DetectedObject message to transform.
+ * \param t_out The transformed DetectedObject message.
  * \param transform The timestamped transform to apply, as a TransformStamped message.
  */
 template<>
@@ -222,52 +192,6 @@ void doTransform(
   doTransform(t_in.kinematics.centroid_position, t_out.kinematics.centroid_position, transform);
   doTransform(t_in.shape.polygon, t_out.shape.polygon, transform);
   // TODO(jitrc): add conversion for other fields of DetectedObject, such as heading, variance, size
-}
-
-/**********************/
-/** BoundingBoxArray **/
-/**********************/
-
-/** \brief Extract a timestamp from the header of a BoundingBoxArray message.
- * This function is a specialization of the getTimestamp template defined in tf2/convert.h.
- * \param t A timestamped BoundingBoxArray message to extract the timestamp from.
- * \return The timestamp of the message.
- */
-template<>
-inline
-tf2::TimePoint getTimestamp(const BoundingBoxArray & t)
-{
-  return tf2_ros::fromMsg(t.header.stamp);
-}
-
-/** \brief Extract a frame ID from the header of a BoundingBoxArray message.
- * This function is a specialization of the getFrameId template defined in tf2/convert.h.
- * \param t A timestamped BoundingBoxArray message to extract the frame ID from.
- * \return A string containing the frame ID of the message.
- */
-template<>
-inline
-std::string getFrameId(const BoundingBoxArray & t) {return t.header.frame_id;}
-
-/** \brief Apply a geometry_msgs TransformStamped to an autoware_auto_msgs BoundingBoxArray type.
- * This function is a specialization of the doTransform template defined in tf2/convert.h.
- * \param t_in The BoundingBoxArray to transform, as a timestamped BoundingBoxArray message.
- * \param t_out The transformed BoundingBoxArray, as a timestamped BoundingBoxArray message.
- * \param transform The timestamped transform to apply, as a TransformStamped message.
- */
-template<>
-inline
-void doTransform(
-  const BoundingBoxArray & t_in,
-  BoundingBoxArray & t_out,
-  const geometry_msgs::msg::TransformStamped & transform)
-{
-  t_out = t_in;
-  for (auto idx = 0U; idx < t_in.boxes.size(); idx++) {
-    doTransform(t_out.boxes[idx], t_out.boxes[idx], transform);
-  }
-  t_out.header.stamp = transform.header.stamp;
-  t_out.header.frame_id = transform.header.frame_id;
 }
 
 /*********************/

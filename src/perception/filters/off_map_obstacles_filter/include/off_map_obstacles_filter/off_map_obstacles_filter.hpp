@@ -23,7 +23,7 @@
 
 #include <memory>
 
-#include "autoware_auto_msgs/msg/bounding_box_array.hpp"
+#include "autoware_auto_msgs/msg/detected_objects.hpp"
 #include "common/types.hpp"
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
@@ -56,14 +56,14 @@ public:
   /// \return A marker array of linestrings, one for each bbox.
   visualization_msgs::msg::MarkerArray bboxes_in_map_frame_viz(
     const geometry_msgs::msg::TransformStamped & map_from_base_link,
-    const autoware_auto_msgs::msg::BoundingBoxArray & msg) const;
+    const autoware_auto_msgs::msg::DetectedObjects & msg) const;
 
   /// \param map_from_base_link The transform that transforms things from base_link to map.
   /// \param msg The bounding boxes array to filter – will be modified.
   /// This function assumes that bboxes are 2.5d, i.e. only have yaw but no roll or pitch.
   void remove_off_map_bboxes(
     const geometry_msgs::msg::TransformStamped & map_from_base_link,
-    autoware_auto_msgs::msg::BoundingBoxArray & msg) const;
+    autoware_auto_msgs::msg::DetectedObjects & msg) const;
 
 private:
   /// The full lanelet map.
