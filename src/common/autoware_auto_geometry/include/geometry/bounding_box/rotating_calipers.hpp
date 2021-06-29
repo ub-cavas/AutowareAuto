@@ -189,7 +189,7 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
     // recompute area
     decltype(Polygon::points) corners;
     compute_corners(corners, support, directions);
-    decltype(BoundingBox::size) tmp_size;
+    geometry_msgs::msg::Point32 tmp_size;
     size_2d(corners, tmp_size);
     const float32_t tmp_value = metric_fn(tmp_size);
     // update best if necessary
@@ -235,7 +235,7 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
 template<typename IT>
 DetectedObject minimum_area_bounding_box(const IT begin, const IT end)
 {
-  const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
+  const auto metric_fn = [](const geometry_msgs::msg::Point32 & pt) -> float32_t
     {
       return pt.x * pt.y;
     };
@@ -251,7 +251,7 @@ DetectedObject minimum_area_bounding_box(const IT begin, const IT end)
 template<typename IT>
 DetectedObject minimum_perimeter_bounding_box(const IT begin, const IT end)
 {
-  const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
+  const auto metric_fn = [](const geometry_msgs::msg::Point32 & pt) -> float32_t
     {
       return pt.x + pt.y;
     };
