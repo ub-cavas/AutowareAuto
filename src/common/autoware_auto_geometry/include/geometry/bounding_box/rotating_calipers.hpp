@@ -233,7 +233,7 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
 /// \return A minimum area bounding box, value field is the area
 /// \tparam IT An iterator type dereferencable into a point type with float members x and y
 template<typename IT>
-BoundingBox minimum_area_bounding_box(const IT begin, const IT end)
+DetectedObject minimum_area_bounding_box(const IT begin, const IT end)
 {
   const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
     {
@@ -249,7 +249,7 @@ BoundingBox minimum_area_bounding_box(const IT begin, const IT end)
 /// \return A minimum perimeter bounding box, value field is half the perimeter
 /// \tparam IT An iterator type dereferencable into a point type with float members x and y
 template<typename IT>
-BoundingBox minimum_perimeter_bounding_box(const IT begin, const IT end)
+DetectedObject minimum_perimeter_bounding_box(const IT begin, const IT end)
 {
   const auto metric_fn = [](const decltype(BoundingBox::size) & pt) -> float32_t
     {
@@ -265,7 +265,7 @@ BoundingBox minimum_perimeter_bounding_box(const IT begin, const IT end)
 /// \return A minimum area bounding box, value field is the area
 /// \tparam PointT Point type of the lists, must have float members x and y
 template<typename PointT>
-BoundingBox minimum_area_bounding_box(std::list<PointT> & list)
+DetectedObject minimum_area_bounding_box(std::list<PointT> & list)
 {
   const auto last = convex_hull(list);
   return minimum_area_bounding_box(list.cbegin(), last);
@@ -278,7 +278,7 @@ BoundingBox minimum_area_bounding_box(std::list<PointT> & list)
 /// \return A minimum perimeter bounding box, value field is half the perimeter
 /// \tparam PointT Point type of the lists, must have float members x and y
 template<typename PointT>
-BoundingBox minimum_perimeter_bounding_box(std::list<PointT> & list)
+DetectedObject minimum_perimeter_bounding_box(std::list<PointT> & list)
 {
   const auto last = convex_hull(list);
   return minimum_perimeter_bounding_box(list.cbegin(), last);
