@@ -32,13 +32,13 @@ namespace planning
 namespace object_collision_estimator_nodes
 {
 
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 using autoware::common::types::float64_t;
 using autoware::common::types::float32_t;
 
-MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size_t collision_idx)
+MarkerArray toVisualizationMarkerArray(const DetectedObjects bboxes, const size_t collision_idx)
 {
   MarkerArray marker_array{};
 
@@ -84,15 +84,15 @@ MarkerArray toVisualizationMarkerArray(const BoundingBoxArray bboxes, const size
     const auto box = bboxes.boxes.at(i);
     for (std::size_t j = 0; j < 4; ++j) {
       geometry_msgs::msg::Point point;
-      point.x = static_cast<float64_t>(box.corners.at(j).x);
-      point.y = static_cast<float64_t>(box.corners.at(j).y);
-      point.z = static_cast<float64_t>(box.corners.at(j).z);
+      point.x = static_cast<float64_t>(box.shape.polygon.points.at(j).x);
+      point.y = static_cast<float64_t>(box.shape.polygon.points.at(j).y);
+      point.z = static_cast<float64_t>(box.shape.polygon.points.at(j).z);
       marker.points.push_back(point);
     }
     geometry_msgs::msg::Point point;
-    point.x = static_cast<float64_t>(box.corners.at(0).x);
-    point.y = static_cast<float64_t>(box.corners.at(0).y);
-    point.z = static_cast<float64_t>(box.corners.at(0).z);
+    point.x = static_cast<float64_t>(box.shape.polygon.points.at(0).x);
+    point.y = static_cast<float64_t>(box.shape.polygon.points.at(0).y);
+    point.z = static_cast<float64_t>(box.shape.polygon.points.at(0).z);
     marker.points.push_back(point);
 
     marker_array.markers.push_back(marker);

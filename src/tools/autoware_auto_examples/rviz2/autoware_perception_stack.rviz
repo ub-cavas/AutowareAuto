@@ -132,7 +132,7 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
-    - Class: autoware_rviz_plugins/BoundingBoxArray
+    - Class: autoware_rviz_plugins/DetectedObjects
       Enabled: true
       Name: Object detections
       Namespaces:

@@ -199,17 +199,17 @@ bool8_t compute_supports(
 ///                     direction. Should be result of compute_supports function
 /// \return A bounding box based on the basis axes and the support points
 template<typename IT, typename PointT>
-BoundingBox compute_bounding_box(
+DetectedObject compute_bounding_box(
   const PointT & ax1,
   const PointT & ax2,
   const Point4<IT> & supports)
 {
-  decltype(BoundingBox::corners) corners;
+  decltype(Polygon::points) corners;
   const Point4<PointT> directions{{ax1, ax2, minus_2d(ax1), minus_2d(ax2)}};
   compute_corners(corners, supports, directions);
 
   // build box
-  BoundingBox bbox;
+  DetectedObject bbox;
   finalize_box(corners, bbox);
   size_2d(corners, bbox.size);
   return bbox;
@@ -223,7 +223,7 @@ BoundingBox compute_bounding_box(
 /// \tparam IT An iterator type dereferencable into a point with float members x and y
 /// \return An oriented bounding box in x-y. This bounding box has no height information
 template<typename IT>
-BoundingBox eigenbox_2d(const IT begin, const IT end)
+DetectedObject eigenbox_2d(const IT begin, const IT end)
 {
   // compute covariance
   const details::Covariance2d cov = details::covariance_2d(begin, end);
@@ -241,7 +241,7 @@ BoundingBox eigenbox_2d(const IT begin, const IT end)
   if (is_ccw) {
     std::swap(eig1, eig2);
   }
-  BoundingBox bbox = details::compute_bounding_box(eig1, eig2, supports);
+  DetectedObject bbox = details::compute_bounding_box(eig1, eig2, supports);
   bbox.value = eigv.first;
 
   return bbox;

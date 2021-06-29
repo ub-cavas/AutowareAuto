@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /PointCloud21
-        - /BoundingBoxArray1
+        - /DetectedObjects1
       Splitter Ratio: 0.5
     Tree Height: 1161
   - Class: rviz_common/Selection

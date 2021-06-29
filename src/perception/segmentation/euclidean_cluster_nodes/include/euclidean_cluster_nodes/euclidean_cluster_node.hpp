@@ -45,7 +45,7 @@ using Clusters = euclidean_cluster::Clusters;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 /// \brief Combined object detection node, primarily does clustering, can also do in-place
 ///        downsampling and bounding box formation
@@ -81,7 +81,7 @@ private:
   // pub/sub
   const rclcpp::Subscription<PointCloud2>::SharedPtr m_cloud_sub_ptr;
   const rclcpp::Publisher<Clusters>::SharedPtr m_cluster_pub_ptr;
-  const rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_box_pub_ptr;
+  const rclcpp::Publisher<DetectedObjects>::SharedPtr m_box_pub_ptr;
   const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_pub_ptr;
   const rclcpp::Publisher<MarkerArray>::SharedPtr m_marker_pub_ptr;
   // algorithms

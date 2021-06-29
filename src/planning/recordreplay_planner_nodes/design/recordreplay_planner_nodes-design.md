@@ -12,7 +12,7 @@ the functionality is to be used for.
 
 This is a wrapper around `recordreplay_planner`. Its behavior can be controlled via actions. It can record
 the ego state of the vehicle and play back a set of recorded states at a later time. It does stop for obstacles, 
-from `BoundingBoxArray`, publsihed in any `tf` frame that can transform to `VehicleKinematicState`'s frame.
+from `DetectedObjects`, publsihed in any `tf` frame that can transform to `VehicleKinematicState`'s frame.
 
 
 ## Assumptions / Known limits
@@ -42,7 +42,7 @@ The actions are defined in `autoware_auto_msgs`.
 Inputs:
 
 * `autoware_auto_msgs/msg/VehicleKinematicState` is the state used as recorded points for replaym, and also to prune starting point of replay trajectory
-* `autoware_auto_msgs/msg/BoundingBoxArray` is list of bounding boxes of obstacle, that thre reaply trajectory stops for to avoid collision.
+* `autoware_auto_msgs/msg/DetectedObjects` is list of bounding boxes of obstacle, that thre reaply trajectory stops for to avoid collision.
 
 Outputs:
 

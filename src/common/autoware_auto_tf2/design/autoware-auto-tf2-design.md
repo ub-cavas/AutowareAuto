@@ -67,10 +67,10 @@ were not added; such as `Vector3`, `Point`, or ported in this commit ros/geometr
 The non-stamped data with `toMsg` and `fromMsg` are `Quaternion`, `Transform`. `Pose` has the
 modified `toMsg` and not used by `PoseStamped`.
 
-## Plan for autoware_auto_msgs::msg::BoundingBoxArray
+## Plan for autoware_auto_msgs::msg::DetectedObjects
 
 The initial rough plan was to implement some of the common tf2 functions like `toMsg`, `fromMsg`,
-and `doTransform`, as needed for all the underlying data types in `BoundingBoxArray`. Examples
+and `doTransform`, as needed for all the underlying data types in `DetectedObjects`. Examples
 of the data types include: `BoundingBox`, `Quaternion32`, and `Point32`. In addition, the
 implementation should be done such that upstream contributions could also be made to `geometry_msgs`.
 
@@ -117,20 +117,20 @@ inline void doTransform(
   const BoundingBox & t_in, BoundingBox & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
-* `BoundingBoxArray`
+* `DetectedObjects`
 ```
 inline void doTransform(
-  const BoundingBoxArray & t_in,
-  BoundingBoxArray & t_out,
+  const DetectedObjects & t_in,
+  DetectedObjects & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
 
 In addition, the following helper methods are also added:
-* `BoundingBoxArray`
+* `DetectedObjects`
 ```
-inline tf2::TimePoint getTimestamp(const BoundingBoxArray & t)
+inline tf2::TimePoint getTimestamp(const DetectedObjects & t)
 
-inline std::string getFrameId(const BoundingBoxArray & t)
+inline std::string getFrameId(const DetectedObjects & t)
 ```
 
 <!-- ## Inner-workings / Algorithms -->
@@ -166,7 +166,7 @@ inline std::string getFrameId(const BoundingBoxArray & t)
  * `tf2_geometry_msgs` does not have `Point`, `Point32`, does not seem it needs one, also the
  implementation of non-standard `toMsg` would not help the convert.
  * `BoundingBox` uses 32-bit float like `Quaternion32` and `Point32` to save space, as they are used
- repeatedly in `BoundingBoxArray`. While transforming is it better to convert to 64-bit `Quaternion`,
+ repeatedly in `DetectedObjects`. While transforming is it better to convert to 64-bit `Quaternion`,
  `Point`, or `PoseStamped`, to re-use existing implementation of `doTransform`, or does it need to be
  implemented? Templatization may not be simple.
 

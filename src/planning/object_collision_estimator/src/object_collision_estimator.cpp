@@ -111,7 +111,7 @@ bool8_t isTooFarAway(
   bool is_too_far_away{true};
   auto distance_threshold_squared = distance_threshold * distance_threshold;
 
-  for (const auto & corner : obstacle_bbox.corners) {
+  for (const auto & corner : obstacle_bbox.shape.polygon.points) {
     auto dx = corner.x - way_point.x;
     auto dy = corner.y - way_point.y;
     auto distance_squared = (dx * dx) + (dy * dy);
@@ -137,10 +137,10 @@ bool8_t isTooFarAway(
 ///         collision is detected, -1 is returned.
 int32_t detectCollision(
   const Trajectory & trajectory,
-  const BoundingBoxArray & obstacles,
+  const DetectedObjects & obstacles,
   const VehicleConfig & vehicle_param,
   const float32_t safety_factor,
-  BoundingBoxArray & waypoint_bboxes)
+  DetectedObjects & waypoint_bboxes)
 {
   // find the dimension of the ego vehicle.
   const auto vehicle_length =
@@ -169,8 +169,8 @@ int32_t detectCollision(
       if (!isTooFarAway(
           trajectory.points[i], obstacle_bbox,
           distance_threshold) && autoware::common::geometry::intersect(
-          waypoint_bbox.corners.begin(), waypoint_bbox.corners.end(),
-          obstacle_bbox.corners.begin(), obstacle_bbox.corners.end()))
+          waypoint_bbox.shape.polygon.points.begin(), waypoint_bbox.shape.polygon.points.end(),
+          obstacle_bbox.shape.polygon.points.begin(), obstacle_bbox.shape.polygon.points.end()))
       {
         // Collision detected, set end index (non-inclusive), this will end outer loop immediately
         collision_index = static_cast<decltype(collision_index)>(i);
@@ -253,8 +253,8 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
   }
 }
 
-std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
-  const BoundingBoxArray & bounding_boxes) noexcept
+std::vector<DetectedObject> ObjectCollisionEstimator::updateObstacles(
+  const DetectedObjects & detected_objects) noexcept
 {
   m_obstacles = bounding_boxes;
 

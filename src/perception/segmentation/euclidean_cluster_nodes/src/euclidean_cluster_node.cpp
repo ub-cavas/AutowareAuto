@@ -33,7 +33,7 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 
 namespace autoware
@@ -57,7 +57,7 @@ EuclideanClusterNode::EuclideanClusterNode(
     "points_clustered",
     rclcpp::QoS(10)) : nullptr},
 m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
-  create_publisher<BoundingBoxArray>(
+  create_publisher<DetectedObjects>(
     "lidar_bounding_boxes", rclcpp::QoS{10}) :
   nullptr},
 m_detected_objects_pub_ptr{declare_parameter("use_detected_objects").get<bool8_t>() ?
@@ -183,7 +183,7 @@ void EuclideanClusterNode::handle_clusters(
     return;
   }
 
-  BoundingBoxArray boxes;
+  DetectedObjects boxes;
   if (m_use_lfit) {
     boxes = euclidean_cluster::details::compute_bounding_boxes(clusters, BboxMethod::LFit, m_use_z);
   } else {
@@ -212,9 +212,9 @@ void EuclideanClusterNode::handle_clusters(
     m.id = static_cast<int>(id_counter);
     m.type = Marker::CUBE;
     m.action = Marker::ADD;
-    m.pose.position.x = static_cast<float64_t>(box.centroid.x);
-    m.pose.position.y = static_cast<float64_t>(box.centroid.y);
-    m.pose.position.z = static_cast<float64_t>(box.centroid.z);
+    m.pose.position.x = static_cast<float64_t>(box.kinematics.centroid_position.x);
+    m.pose.position.y = static_cast<float64_t>(box.kinematics.centroid_position.y);
+    m.pose.position.z = static_cast<float64_t>(box.kinematics.centroid_position.z);
     m.pose.orientation.x = static_cast<float64_t>(box.orientation.x);
     m.pose.orientation.y = static_cast<float64_t>(box.orientation.y);
     m.pose.orientation.z = static_cast<float64_t>(box.orientation.z);

@@ -29,7 +29,7 @@ using motion::motion_common::VehicleConfig;
 using autoware_auto_msgs::msg::Trajectory;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::BoundingBox;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 
 const auto make_point(const float32_t x, const float32_t y)
 {
@@ -74,17 +74,17 @@ void object_collision_estimator_test(
   trajectory.points.resize(trajectory_length);
 
   // insert an obstacle that blocks the trajectory
-  BoundingBoxArray bbox_array{};
+  DetectedObjects bbox_array{};
 
   if (obstacle_bbox_idx < trajectory_length) {
     BoundingBox obstacle_bbox{};
 
     auto obstacle_point = trajectory.points[obstacle_bbox_idx];
-    obstacle_bbox.centroid = make_point(obstacle_point.x, obstacle_point.y);
+    obstacle_bbox.kinematics.centroid_position = make_point(obstacle_point.x, obstacle_point.y);
     obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
     obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
     obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.corners = {
+    obstacle_bbox.shape.polygon.points = {
       make_point(
         obstacle_point.x - obstacle_bbox.size.x / 2,
         obstacle_point.y - obstacle_bbox.size.y / 2),

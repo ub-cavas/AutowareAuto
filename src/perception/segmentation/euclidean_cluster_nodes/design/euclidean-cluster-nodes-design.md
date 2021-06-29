@@ -26,7 +26,7 @@ permit the following behaviors:
 3. Clustering is assumed to happen in all cases
 4. Optionally publish the resulting clusters
 5. Optionally compute and publish bounding boxes around the clusters as either `DetectedObjects` 
-   type or `BoundingBoxArray` type
+   type or `DetectedObjects` type
 6. Optionally apply aggressive downsampling (or not) and ignore the z direction entirely
 
 ## Assumptions / Known limits
@@ -61,7 +61,7 @@ PointCloud2 message.
 Any combination of the following three outputs are allowed (except using neither):
 
 1. [PointClusters](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/PointClusters.msg)
-2. [BoundingBoxArray](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/BoundingBoxArray.msg)
+2. [DetectedObjects](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/DetectedObjects.msg)
 3. [DetectedObjects](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/DetectedObjects.msg)
 
 The first represents the raw clustering output of the object detection algorithm.
@@ -72,7 +72,7 @@ more compact and simpler to interpret and handle. They are provided mainly for t
 ### Parameters
 - `use_detected_objects` - When true, the node publishes bounding boxes as a `DetectedObjects` msg.
 - `use_cluster` - When true, the node publishes clusters as `PointClusters` msg; otherwise, clusters are not published.
-- `use_box` - When true, clusters are formed into a box shape and published as a `BoundingBoxArray` msg.
+- `use_box` - When true, clusters are formed into a box shape and published as a `DetectedObjects` msg.
 - `max_cloud_size` - Maximum number of points expected in the input point cloud. Used to preallocate internal types.
 - `downsample` - Parameter to control whether to downsample the input point cloud using a voxel grid. If this is set to true, a set of `voxel` parameters need to be defined.
 - `use_lfit` - When true, the `L-fit` method of fitting a bounding box to cluster will be used; otherwise,the  `EigenBoxes` method will be used.

@@ -13,7 +13,7 @@ Finally the local path is modified to avoid any potential collisions.
 
 Inputs:
 
-- `BoundingBoxArray.msg`
+- `DetectedObjects.msg`
   - A list of bounding boxes of obstacles
   - Produced by the perception stack
 - `Trajectory.msg`

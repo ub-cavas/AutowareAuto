@@ -136,7 +136,7 @@ public:
   }
 
 private:
-  /// \brief Fills BoundingBoxArray message with boxes, and publishes
+  /// \brief Fills DetectedObjects message with boxes, and publishes
   void task_function()
   {
     using namespace std::chrono_literals;  // NOLINT

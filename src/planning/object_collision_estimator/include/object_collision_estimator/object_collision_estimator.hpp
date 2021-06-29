@@ -39,8 +39,8 @@ using motion::motion_common::VehicleConfig;
 using motion::planning::trajectory_smoother::TrajectorySmoother;
 using autoware_auto_msgs::msg::Trajectory;
 using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObject;
+using autoware_auto_msgs::msg::DetectedObjects;
 using autoware::common::types::float32_t;
 using autoware::common::types::PI;
 
@@ -80,10 +80,10 @@ public:
   ///           * the points are in counterclockwise order
   ///           * box.size.x and box.size.y map to the length of the first and second edges
   ///             respectively
-  /// \param[in] bounding_boxes A array of bounding boxes representing a list of obstacles
+  /// \param[in] detected_objects A array of bounding boxes representing a list of obstacles
   /// \returns A vector of obstacles modified for being smaller than min_obstacle_dimension_m
-  std::vector<BoundingBox> updateObstacles(
-    const BoundingBoxArray & bounding_boxes) noexcept;
+  std::vector<DetectedObject> updateObstacles(
+    const DetectedObjects & detected_objects) noexcept;
 
   /// \brief Perform collision detection given an trajectory
   /// \details the list of obstacles should be passed to the estimator with a prior call to
@@ -95,12 +95,12 @@ public:
 
   /// \brief Get the latest bounding box of target trajectory
   /// \returns The latest bounding box of the target trajectory
-  BoundingBoxArray getTrajectoryBoundingBox() const {return m_trajectory_bboxes;}
+  DetectedObjects getTrajectoryBoundingBox() const {return m_trajectory_bboxes;}
 
 private:
   ObjectCollisionEstimatorConfig m_config;
-  BoundingBoxArray m_obstacles{};
-  BoundingBoxArray m_trajectory_bboxes{};
+  DetectedObjects m_obstacles{};
+  DetectedObjects m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;
 };
 

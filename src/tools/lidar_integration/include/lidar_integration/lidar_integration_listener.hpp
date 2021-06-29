@@ -28,7 +28,7 @@ namespace lidar_integration
 {
 
 using sensor_msgs::msg::PointCloud2;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;
@@ -119,7 +119,7 @@ public:
   bool8_t is_success() const override;
 
 private:
-  rclcpp::Subscription<BoundingBoxArray>::SharedPtr m_sub_ptr;
+  rclcpp::Subscription<DetectedObjects>::SharedPtr m_sub_ptr;
 };  // class LidarIntegrationBoxListener
 
 }  // namespace lidar_integration

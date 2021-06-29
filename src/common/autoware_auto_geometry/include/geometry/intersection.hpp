@@ -39,7 +39,7 @@ namespace common
 namespace geometry
 {
 using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::DetectedObject;
 using autoware::common::geometry::convex_hull;
 using autoware::common::geometry::get_normal;
 using autoware::common::geometry::dot_2d;

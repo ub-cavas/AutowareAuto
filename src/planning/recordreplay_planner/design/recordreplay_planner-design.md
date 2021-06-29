@@ -40,7 +40,7 @@ velocity profile for stopping - this has not been done yet.
 Inputs:
 
 * `VehicleKinematicState.msg` is the state that gets recorded
-* `BoundingBoxArray.msg` is a list of bounding boxes of obstacles
+* `DetectedObjects.msg` is a list of bounding boxes of obstacles
 
 Outputs:
 

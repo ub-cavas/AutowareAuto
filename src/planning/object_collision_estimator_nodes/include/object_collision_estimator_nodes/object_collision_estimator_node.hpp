@@ -36,7 +36,7 @@ namespace object_collision_estimator_nodes
 {
 
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 using visualization_msgs::msg::MarkerArray;
 using visualization_msgs::msg::Marker;
 
@@ -63,7 +63,7 @@ private:
     std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Response> response);
 
   /// \brief Pointer to the subscriber listening for a list of obstacles
-  rclcpp::Subscription<BoundingBoxArray>::SharedPtr m_obstacles_sub{nullptr};
+  rclcpp::Subscription<DetectedObjects>::SharedPtr m_obstacles_sub{nullptr};
 
   /// \brief Pointer to the publisher for bounding boxes of the target trajectory
   rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_bbox_pub{nullptr};
@@ -75,7 +75,7 @@ private:
   /// \brief Callback function for the obstacles topic
   /// \param[in] msg ROS2 message from the obstacle topic containing an array of bounding boxes
   ///                representing obstacles found by the perception pipeline.
-  void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
+  void on_bounding_box(const DetectedObjects::SharedPtr & msg);
 
   /// \brief Pointer to an instance of object collision estimator. It performs the main task of
   ///        estimating collisions and modifying the trajectory.

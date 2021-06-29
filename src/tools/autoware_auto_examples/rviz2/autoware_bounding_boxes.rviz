@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /PointCloud21
         - /PointCloud22
-        - /BoundingBoxArray1
+        - /DetectedObjects1
       Splitter Ratio: 0.5
     Tree Height: 1112
   - Class: rviz_common/Selection
@@ -105,7 +105,7 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: false
       Value: true
-    - Class: autoware_rviz_plugins/BoundingBoxArray
+    - Class: autoware_rviz_plugins/DetectedObjects
       Enabled: true
       Name: Object Detections
       Namespaces:

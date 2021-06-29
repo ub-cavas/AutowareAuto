@@ -35,7 +35,7 @@ namespace off_map_obstacles_filter_nodes
 using bool8_t = autoware::common::types::bool8_t;
 using float64_t = autoware::common::types::float64_t;
 using HADMapService = autoware_auto_msgs::srv::HADMapService;
-using ObstacleMsg = autoware_auto_msgs::msg::BoundingBoxArray;
+using ObstacleMsg = autoware_auto_msgs::msg::DetectedObjects;
 using MarkerArray = visualization_msgs::msg::MarkerArray;
 
 OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions & options)

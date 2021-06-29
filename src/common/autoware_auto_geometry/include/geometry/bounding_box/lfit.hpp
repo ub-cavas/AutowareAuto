@@ -180,7 +180,7 @@ private:
 /// \return A bounding box that minimizes the LFit residual
 /// \tparam IT An iterator type dereferencable into a point with float members x and y
 template<typename IT>
-BoundingBox lfit_bounding_box_2d_impl(const IT begin, const IT end, const std::size_t size)
+DetectedObject lfit_bounding_box_2d_impl(const IT begin, const IT end, const std::size_t size)
 {
   // initialize M
   LFitWs ws{};
@@ -221,7 +221,7 @@ BoundingBox lfit_bounding_box_2d_impl(const IT begin, const IT end, const std::s
   if (is_ccw) {
     std::swap(best_normal, best_tangent);
   }
-  BoundingBox bbox = details::compute_bounding_box(best_normal, best_tangent, supports);
+  DetectedObject bbox = details::compute_bounding_box(best_normal, best_tangent, supports);
   bbox.value = min_eig;
 
   return bbox;
@@ -240,7 +240,7 @@ BoundingBox lfit_bounding_box_2d_impl(const IT begin, const IT end, const std::s
 /// \tparam IT An iterator type dereferencable into a point with float members x and y
 /// \throw std::domain_error If the number of points is too few
 template<typename IT, typename PointT>
-BoundingBox lfit_bounding_box_2d(
+DetectedObject lfit_bounding_box_2d(
   const IT begin,
   const IT end,
   const PointT hint,
@@ -265,7 +265,7 @@ BoundingBox lfit_bounding_box_2d(
 /// \param[in] end An iterator pointing to one past the last point in the point list
 /// \tparam IT An iterator type dereferencable into a point with float members x and y
 template<typename IT>
-BoundingBox lfit_bounding_box_2d(const IT begin, const IT end)
+DetectedObject lfit_bounding_box_2d(const IT begin, const IT end)
 {
   // use the principal component as the sorting direction
   const auto cov = details::covariance_2d(begin, end);

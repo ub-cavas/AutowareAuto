@@ -65,7 +65,7 @@ using ParkingPolytope = autoware::motion::planning::parking_planner::Polytope2D<
 using ParkingStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 
 using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_msgs::msg::DetectedObjects;
 using autoware_auto_msgs::msg::BoundingBox;
 using autoware_auto_msgs::msg::ObjectClassification;
 
@@ -171,7 +171,7 @@ void ParkingPlannerNode::init(
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
 
-  m_debug_start_end_publisher = this->create_publisher<autoware_auto_msgs::msg::BoundingBoxArray>(
+  m_debug_start_end_publisher = this->create_publisher<autoware_auto_msgs::msg::DetectedObjects>(
     "parking_debug_start_end",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }
@@ -290,7 +290,7 @@ void ParkingPlannerNode::debug_publish_start_and_end(
       return minimum_perimeter_bounding_box(vehicle_corners);
     };
 
-  BoundingBoxArray bbox_array;
+  DetectedObjects bbox_array;
   bbox_array.header.frame_id = "map";
   bbox_array.boxes.resize(2);
   bbox_array.boxes[0] = bbox_from_state(start);

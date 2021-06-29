@@ -71,8 +71,8 @@ autoware_auto_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
       bounding_box = autoware::common::geometry::bounding_box::minimum_area_bounding_box(
         points_vec.begin(), points_vec.end());
     }
-    for (size_t isec_idx = 0; isec_idx < bounding_box.corners.size(); ++isec_idx) {
-      const auto corner_point = bounding_box.corners[isec_idx];
+    for (size_t isec_idx = 0; isec_idx < bounding_box.shape.polygon.points.size(); ++isec_idx) {
+      const auto corner_point = bounding_box.shape.polygon.points[isec_idx];
       geometry_msgs::msg::Point32 pt;
       pt.x = corner_point.x;
       pt.y = corner_point.y;
@@ -99,9 +99,9 @@ autoware_auto_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
     detected_object_msg.classification.push_back(classification);
     detected_object_msg.shape.polygon = polygon;
     detected_object_msg.shape.height = 1.5;
-    detected_object_msg.kinematics.centroid_position.x = bounding_box.centroid.x;
-    detected_object_msg.kinematics.centroid_position.y = bounding_box.centroid.y;
-    detected_object_msg.kinematics.centroid_position.z = bounding_box.centroid.z;
+    detected_object_msg.kinematics.centroid_position.x = bounding_box.kinematics.centroid_position.x;
+    detected_object_msg.kinematics.centroid_position.y = bounding_box.kinematics.centroid_position.y;
+    detected_object_msg.kinematics.centroid_position.z = bounding_box.kinematics.centroid_position.z;
     detected_object_msg.kinematics.has_position_covariance = false;
     detected_object_msg.kinematics.has_twist = false;
     detected_object_msg.kinematics.has_twist_covariance = false;

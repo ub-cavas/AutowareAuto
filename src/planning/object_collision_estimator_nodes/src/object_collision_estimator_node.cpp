@@ -127,9 +127,9 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     });
 
   // Create subscriber and subscribe to the obstacles topic
-  m_obstacles_sub = Node::create_subscription<BoundingBoxArray>(
+  m_obstacles_sub = Node::create_subscription<DetectedObjects>(
     OBSTACLE_TOPIC, QoS{10},
-    [this](const BoundingBoxArray::SharedPtr msg) {this->on_bounding_box(msg);});
+    [this](const DetectedObjects::SharedPtr msg) {this->on_bounding_box(msg);});
 
   m_trajectory_bbox_pub =
     create_publisher<MarkerArray>("debug/trajectory_bounding_boxes", QoS{10});
@@ -141,7 +141,7 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
 }
 
-void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbox_array)
+void ObjectCollisionEstimatorNode::update_obstacles(const DetectedObjects & bbox_array)
 {
   const auto modified_obstacles = m_estimator->updateObstacles(bbox_array);
 
@@ -153,7 +153,7 @@ void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbo
   }
 }
 
-void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
+void ObjectCollisionEstimatorNode::on_bounding_box(const DetectedObjects::SharedPtr & msg)
 {
   // Update most recent bounding boxes internally
   if (msg->header.frame_id == m_target_frame_id) {

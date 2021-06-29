@@ -232,7 +232,7 @@ private:
 namespace details
 {
 using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 
 enum class BboxMethod
@@ -247,13 +247,13 @@ enum class BboxMethod
 ///                        clusters may get their points shuffled.
 /// \returns Bounding boxes
 EUCLIDEAN_CLUSTER_PUBLIC
-BoundingBoxArray compute_bounding_boxes(
+DetectedObjects compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method, const bool compute_height);
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
 /// \returns A DetectedObjects message with the bounding boxes inside
 EUCLIDEAN_CLUSTER_PUBLIC
-DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes);
+DetectedObjects convert_to_detected_objects(const DetectedObjects & boxes);
 }  // namespace details
 }  // namespace euclidean_cluster
 }  // namespace segmentation

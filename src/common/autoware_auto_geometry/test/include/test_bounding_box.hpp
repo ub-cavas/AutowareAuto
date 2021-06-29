@@ -26,7 +26,7 @@
 #include "geometry/bounding_box/rotating_calipers.hpp"
 #include "geometry/bounding_box/lfit.hpp"
 
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_msgs::msg::DetectedObject;
 using autoware::common::geometry::point_adapter::x_;
 using autoware::common::geometry::point_adapter::y_;
 using autoware::common::geometry::point_adapter::xr_;
@@ -37,7 +37,7 @@ class BoxTest : public ::testing::Test
 {
 protected:
   std::list<PointT> points;
-  BoundingBox box;
+  DetectedObject box;
 
   void minimum_area_bounding_box()
   {
@@ -82,8 +82,8 @@ protected:
     ASSERT_LT(fabsf(box.size.y - sy), TOL);
     ASSERT_LT(fabsf(box.value - val), TOL) << box.value;
 
-    ASSERT_LT(fabsf(box.centroid.x - cx), TOL);
-    ASSERT_LT(fabsf(box.centroid.y - cy), TOL);
+    ASSERT_LT(fabsf(box.kinematics.centroid_position.x - cx), TOL);
+    ASSERT_LT(fabsf(box.kinematics.centroid_position.y - cy), TOL);
   }
 
   void test_corners(
@@ -93,12 +93,12 @@ protected:
     for (uint32_t idx = 0U; idx < 4U; ++idx) {
       bool found = false;
       for (auto & p : expect) {
-        if (fabsf(x_(p) - box.corners[idx].x) < TOL && fabsf(y_(p) - box.corners[idx].y) < TOL) {
+        if (fabsf(x_(p) - box.shape.polygon.points[idx].x) < TOL && fabsf(y_(p) - box.shape.polygon.points[idx].y) < TOL) {
           found = true;
           break;
         }
       }
-      ASSERT_TRUE(found) << idx << ": " << box.corners[idx].x << ", " << box.corners[idx].y;
+      ASSERT_TRUE(found) << idx << ": " << box.shape.polygon.points[idx].x << ", " << box.shape.polygon.points[idx].y;
     }
   }
 
@@ -254,8 +254,8 @@ TYPED_TEST(BoxTest, Hull)
 
   // allow 10cm = 2% of size for tolerance
   const float TOL_M = 0.1F;
-  ASSERT_LT(fabsf(this->box.centroid.x - dx), TOL_M);
-  ASSERT_LT(fabsf(this->box.centroid.y - dy), TOL_M);
+  ASSERT_LT(fabsf(this->box.kinematics.centroid_position.x - dx), TOL_M);
+  ASSERT_LT(fabsf(this->box.kinematics.centroid_position.y - dy), TOL_M);
 
   this->test_corners(
     {this->make(dx + rx, dy + ry),

@@ -304,7 +304,7 @@ Visualization Manager:
       Value: false
     - Alpha: 0.699999988079071
       Car Color: 255; 255; 0
-      Class: autoware_rviz_plugins/BoundingBoxArray
+      Class: autoware_rviz_plugins/DetectedObjects
       Cyclist Color: 255; 165; 0
       Enabled: true
       Motorcycle Color: 0; 255; 0
@@ -323,7 +323,7 @@ Visualization Manager:
       Value: true
     - Alpha: 0.699999988079071
       Car Color: 255; 255; 0
-      Class: autoware_rviz_plugins/BoundingBoxArray
+      Class: autoware_rviz_plugins/DetectedObjects
       Cyclist Color: 255; 165; 0
       Enabled: true
       Motorcycle Color: 0; 255; 0
@@ -342,7 +342,7 @@ Visualization Manager:
       Value: true
     - Alpha: 0.699999988079071
       Car Color: 255; 255; 0
-      Class: autoware_rviz_plugins/BoundingBoxArray
+      Class: autoware_rviz_plugins/DetectedObjects
       Cyclist Color: 255; 165; 0
       Enabled: true
       Motorcycle Color: 0; 255; 0
@@ -437,7 +437,7 @@ Visualization Manager:
       Value: true
     - Alpha: 0.699999988079071
       Car Color: 255; 255; 0
-      Class: autoware_rviz_plugins/BoundingBoxArray
+      Class: autoware_rviz_plugins/DetectedObjects
       Cyclist Color: 255; 165; 0
       Enabled: true
       Motorcycle Color: 0; 255; 0

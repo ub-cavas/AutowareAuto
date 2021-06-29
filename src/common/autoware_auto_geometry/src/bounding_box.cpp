@@ -38,7 +38,7 @@ namespace details
 {
 ////////////////////////////////////////////////////////////////////////////////
 void size_2d(
-  const decltype(DetectedObject::corners) & corners,
+  const decltype(Polygon::points) & corners,
   geometry_msgs::msg::Point32 & ret)
 {
   ret.x = std::max(
@@ -53,7 +53,7 @@ void size_2d(
         corners[1U])), std::numeric_limits<float32_t>::epsilon());
 }
 ////////////////////////////////////////////////////////////////////////////////
-void finalize_box(const decltype(DetectedObject::corners) & corners, DetectedObject & box)
+void finalize_box(const decltype(Polygon::points) & corners, DetectedObject & box)
 {
   (void)std::copy(&corners[0U], &corners[corners.size()], &box.shape.polygon.points[0U]);
   // orientation: this is robust to lines
@@ -69,7 +69,7 @@ void finalize_box(const decltype(DetectedObject::corners) & corners, DetectedObj
 autoware_auto_msgs::msg::Shape make_shape(const DetectedObject & box)
 {
   autoware_auto_msgs::msg::Shape ret;
-  for (auto corner_pt : box.corners) {
+  for (auto corner_pt : box.shape.polygon.points) {
     corner_pt.z -= box.size.z;
     ret.polygon.points.push_back(corner_pt);
   }
@@ -81,9 +81,9 @@ autoware_auto_msgs::msg::DetectedObject make_detected_object(const DetectedObjec
 {
   autoware_auto_msgs::msg::DetectedObject ret;
 
-  ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
-  ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
-  ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
+  ret.kinematics.centroid_position.x = static_cast<double>(box.kinematics.centroid_position.x);
+  ret.kinematics.centroid_position.y = static_cast<double>(box.kinematics.centroid_position.y);
+  ret.kinematics.centroid_position.z = static_cast<double>(box.kinematics.centroid_position.z);
 
   ret.shape = make_shape(box);
 

@@ -12,7 +12,7 @@ The true solution would be to produce detections only for actual dynamic objects
 # Design
 This is a standard ROS-level wrapper for the pure `off_map_obstacles_filter` package.
 
-It fetches a lanelet map, and filters all incoming `BoundingBoxArray` messages. To calculate their overlap with the map, it also transforms them from their native frame into the map frame by asking `tf2_ros` for a transform with the same timestamp.
+It fetches a lanelet map, and filters all incoming `DetectedObjects` messages. To calculate their overlap with the map, it also transforms them from their native frame into the map frame by asking `tf2_ros` for a transform with the same timestamp.
 
 
 ## Assumptions / Known limits

@@ -30,8 +30,8 @@ namespace rviz_plugins
 
 using autoware_auto_msgs::msg::ObjectClassification;
 
-BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
-: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::BoundingBoxArray>(),
+DetectedObjectsDisplay::DetectedObjectsDisplay()
+: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::DetectedObjects>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
 {
   no_label_color_property_ = new rviz_common::properties::ColorProperty(
@@ -60,30 +60,30 @@ BoundingBoxArrayDisplay::BoundingBoxArrayDisplay()
   alpha_property_->setMax(1);
 }
 
-void BoundingBoxArrayDisplay::onInitialize()
+void DetectedObjectsDisplay::onInitialize()
 {
   RTDClass::onInitialize();
   m_marker_common->initialize(context_, scene_node_);
 
   topic_property_->setValue("lidar_bounding_boxes");
-  topic_property_->setDescription("BoundingBoxArray topic to subscribe to.");
+  topic_property_->setDescription("DetectedObjects topic to subscribe to.");
 }
 
-void BoundingBoxArrayDisplay::load(const rviz_common::Config & config)
+void DetectedObjectsDisplay::load(const rviz_common::Config & config)
 {
   Display::load(config);
   m_marker_common->load(config);
 }
 
-void BoundingBoxArrayDisplay::updateProperty()
+void DetectedObjectsDisplay::updateProperty()
 {
   if (msg_cache != nullptr) {
     processMessage(msg_cache);
   }
 }
 
-void BoundingBoxArrayDisplay::processMessage(
-  BoundingBoxArray::ConstSharedPtr msg)
+void DetectedObjectsDisplay::processMessage(
+  DetectedObjects::ConstSharedPtr msg)
 {
   msg_cache = msg;
   m_marker_common->clearMarkers();
@@ -96,7 +96,7 @@ void BoundingBoxArrayDisplay::processMessage(
   }
 }
 
-visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
+visualization_msgs::msg::Marker::SharedPtr DetectedObjectsDisplay::get_marker(
   const BoundingBox & box) const
 {
   auto marker = std::make_shared<Marker>();
@@ -130,9 +130,9 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
   marker->color.r = static_cast<float>(color.redF());
   marker->color.g = static_cast<float>(color.greenF());
   marker->color.b = static_cast<float>(color.blueF());
-  marker->pose.position.x = static_cast<float64_t>(box.centroid.x);
-  marker->pose.position.y = static_cast<float64_t>(box.centroid.y);
-  marker->pose.position.z = static_cast<float64_t>(box.centroid.z);
+  marker->pose.position.x = static_cast<float64_t>(box.kinematics.centroid_position.x);
+  marker->pose.position.y = static_cast<float64_t>(box.kinematics.centroid_position.y);
+  marker->pose.position.z = static_cast<float64_t>(box.kinematics.centroid_position.z);
   marker->pose.orientation.x = static_cast<float64_t>(box.orientation.x);
   marker->pose.orientation.y = static_cast<float64_t>(box.orientation.y);
   marker->pose.orientation.z = static_cast<float64_t>(box.orientation.z);
@@ -145,12 +145,12 @@ visualization_msgs::msg::Marker::SharedPtr BoundingBoxArrayDisplay::get_marker(
 }
 
 
-void BoundingBoxArrayDisplay::update(float32_t wall_dt, float32_t ros_dt)
+void DetectedObjectsDisplay::update(float32_t wall_dt, float32_t ros_dt)
 {
   m_marker_common->update(wall_dt, ros_dt);
 }
 
-void BoundingBoxArrayDisplay::reset()
+void DetectedObjectsDisplay::reset()
 {
   RosTopicDisplay::reset();
   m_marker_common->clearMarkers();
@@ -161,4 +161,4 @@ void BoundingBoxArrayDisplay::reset()
 
 // Export the plugin
 #include <pluginlib/class_list_macros.hpp>  // NOLINT
-PLUGINLIB_EXPORT_CLASS(autoware::rviz_plugins::BoundingBoxArrayDisplay, rviz_common::Display)
+PLUGINLIB_EXPORT_CLASS(autoware::rviz_plugins::DetectedObjectsDisplay, rviz_common::Display)

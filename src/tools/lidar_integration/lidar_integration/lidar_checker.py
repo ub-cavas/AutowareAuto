@@ -94,7 +94,7 @@ def make_box_checker(*,
     """
     Make a lidar_integration_listener to check the specified topic.
 
-    This checker expects the topic to be of type BoundingBoxArray
+    This checker expects the topic to be of type DetectedObjects
 
     :param size: The expected size of the bounding boxes
     :param period: The expected period of the incoming messages

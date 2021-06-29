@@ -35,16 +35,16 @@ void check_box(
   bool8_t found = false;
   for (auto & ebox : expect) {
     bool8_t close = true;
-    close &= fabsf(box.centroid.x - ebox.centroid.x) < TOL;
-    close &= fabsf(box.centroid.y - ebox.centroid.y) < TOL;
+    close &= fabsf(box.kinematics.centroid_position.x - ebox.kinematics.centroid_position.x) < TOL;
+    close &= fabsf(box.kinematics.centroid_position.y - ebox.kinematics.centroid_position.y) < TOL;
     close &= fabsf(box.size.x - ebox.size.x) < TOL;
     close &= fabsf(box.size.y - ebox.size.y) < TOL;
     // test corners
     for (uint32_t idx = 0U; idx < 4U; ++idx) {
       bool8_t found = false;
       for (uint32_t jdx = 0U; jdx < 4U; ++jdx) {
-        if (fabsf(box.corners[idx].x - ebox.corners[jdx].x) < TOL &&
-          fabsf(box.corners[idx].y - ebox.corners[jdx].y) < TOL)
+        if (fabsf(box.shape.polygon.points[idx].x - ebox.shape.polygon.points[jdx].x) < TOL &&
+          fabsf(box.shape.polygon.points[idx].y - ebox.shape.polygon.points[jdx].y) < TOL)
         {
           found = true;
           break;
@@ -61,12 +61,12 @@ void check_box(
   }
   if (!found) {
     std::cerr << "Box fail\n";
-    std::cout << box.centroid.x << ", " << box.centroid.y << "\n";
+    std::cout << box.kinematics.centroid_position.x << ", " << box.kinematics.centroid_position.y << "\n";
     std::cout << box.size.x << ", " << box.size.y << "\n";
-    std::cout << box.corners[0].x << ", " << box.corners[0].y << "\n";
-    std::cout << box.corners[1].x << ", " << box.corners[1].y << "\n";
-    std::cout << box.corners[2].x << ", " << box.corners[2].y << "\n";
-    std::cout << box.corners[3].x << ", " << box.corners[3].y << "\n";
+    std::cout << box.shape.polygon.points[0].x << ", " << box.shape.polygon.points[0].y << "\n";
+    std::cout << box.shape.polygon.points[1].x << ", " << box.shape.polygon.points[1].y << "\n";
+    std::cout << box.shape.polygon.points[2].x << ", " << box.shape.polygon.points[2].y << "\n";
+    std::cout << box.shape.polygon.points[3].x << ", " << box.shape.polygon.points[3].y << "\n";
   }
   EXPECT_TRUE(found);
 }
@@ -140,55 +140,55 @@ TEST(EuclideanSegmenter, Combined)
     std::vector<std::pair<float32_t, float32_t>> & dummy,
     const autoware_auto_msgs::msg::BoundingBox & box) -> void
     {
-      insert_point(cls, box.corners[0U].x, box.corners[0U].y);
-      insert_point(cls, box.corners[1U].x, box.corners[1U].y);
-      insert_point(cls, box.corners[2U].x, box.corners[2U].y);
-      insert_point(cls, box.corners[3U].x, box.corners[3U].y);
+      insert_point(cls, box.shape.polygon.points[0U].x, box.shape.polygon.points[0U].y);
+      insert_point(cls, box.shape.polygon.points[1U].x, box.shape.polygon.points[1U].y);
+      insert_point(cls, box.shape.polygon.points[2U].x, box.shape.polygon.points[2U].y);
+      insert_point(cls, box.shape.polygon.points[3U].x, box.shape.polygon.points[3U].y);
       insert_line(
-        dummy, cls, box.corners[0U].x, box.corners[0U].y,
-        box.corners[1U].x, box.corners[1U].y, 0.1F);
+        dummy, cls, box.shape.polygon.points[0U].x, box.shape.polygon.points[0U].y,
+        box.shape.polygon.points[1U].x, box.shape.polygon.points[1U].y, 0.1F);
       insert_line(
-        dummy, cls, box.corners[0U].x, box.corners[0U].y,
-        box.corners[3U].x, box.corners[3U].y, 0.1F);
+        dummy, cls, box.shape.polygon.points[0U].x, box.shape.polygon.points[0U].y,
+        box.shape.polygon.points[3U].x, box.shape.polygon.points[3U].y, 0.1F);
     };
 
   // box 1
-  box.centroid = make(15.0, 15.0);
+  box.kinematics.centroid_position = make(15.0, 15.0);
   box.size = make(6.0, 6.0);
   box.orientation.x = 1.0F;
-  box.corners = {make(12.0, 12.0), make(18, 12), make(18, 18), make(12, 18)};
+  box.shape.polygon.points = {make(12.0, 12.0), make(18, 12), make(18, 18), make(12, 18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
 
   // box 2
-  box.centroid = make(-15.0, 15.0);
+  box.kinematics.centroid_position = make(-15.0, 15.0);
   box.size = make(6.0, 6.0);
   box.orientation.x = 1.0F;
-  box.corners = {make(-12.0, 12.0), make(-18, 12), make(-18, 18), make(-12, 18)};
+  box.shape.polygon.points = {make(-12.0, 12.0), make(-18, 12), make(-18, 18), make(-12, 18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
 
   // box 3
-  box.centroid = make(-15.0, -15.0);
+  box.kinematics.centroid_position = make(-15.0, -15.0);
   box.size = make(6.0, 6.0);
   box.orientation.x = 1.0F;
-  box.corners = {make(-12.0, -12.0), make(-18, -12), make(-18, -18), make(-12, -18)};
+  box.shape.polygon.points = {make(-12.0, -12.0), make(-18, -12), make(-18, -18), make(-12, -18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
 
   // box 4
-  box.centroid = make(15.0, -15.0);
+  box.kinematics.centroid_position = make(15.0, -15.0);
   box.size = make(6.0, 6.0);
   box.orientation.x = 1.0F;
-  box.corners = {make(12.0, -12.0), make(18, -12), make(18, -18), make(12, -18)};
+  box.shape.polygon.points = {make(12.0, -12.0), make(18, -12), make(18, -18), make(12, -18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
 
   // box 5
-  box.centroid = make(0, 0);
+  box.kinematics.centroid_position = make(0, 0);
   box.size = make(6.0, 6.0);
   box.orientation.x = 1.0F;
-  box.corners = {make(3, -3), make(-3, -3), make(-3, 3), make(3, 3)};
+  box.shape.polygon.points = {make(3, -3), make(-3, -3), make(-3, 3), make(3, 3)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
 

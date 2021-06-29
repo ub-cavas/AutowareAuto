@@ -7,7 +7,7 @@ Panels:
         - /Global Options1
         - /Status1
         - /PointCloud21
-        - /BoundingBoxArray1
+        - /DetectedObjects1
       Splitter Ratio: 0.5
     Tree Height: 1161
   - Class: rviz_common/Selection
@@ -74,9 +74,9 @@ Visualization Manager:
       Use Fixed Frame: true
       Use rainbow: true
       Value: true
-    - Class: autoware_rviz_plugins/BoundingBoxArray
+    - Class: autoware_rviz_plugins/DetectedObjects
       Enabled: true
-      Name: BoundingBoxArray
+      Name: DetectedObjects
       Namespaces:
         bounding_box: true
       Topic: /lidars/lidar_bounding_boxes

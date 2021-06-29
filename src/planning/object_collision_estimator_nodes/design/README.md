@@ -22,7 +22,7 @@ The node implements a ROS2 interface to Object Collision Estimator Library. It h
 
 Inputs:
 
-- `BoundingBoxArray.msg`
+- `DetectedObjects.msg`
   - A list of bounding boxes of obstacles.
   - This is received on a topic determined by the node parameter `object_collision_estimator.obstacle_topic`
 - `Trajectory.msg`

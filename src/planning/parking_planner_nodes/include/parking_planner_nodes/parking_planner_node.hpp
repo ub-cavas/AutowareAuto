@@ -85,7 +85,7 @@ protected:
   // Debug topics
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_debug_obstacles_publisher;
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_debug_trajectory_publisher;
-  rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr
+  rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr
     m_debug_start_end_publisher;
 
 private:

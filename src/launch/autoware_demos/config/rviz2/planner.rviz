@@ -110,7 +110,7 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-    - Class: autoware_rviz_plugins/BoundingBoxArray
+    - Class: autoware_rviz_plugins/DetectedObjects
       Enabled: true
       Name: Trajectory bboxes
       Namespaces:
@@ -122,7 +122,7 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /planning/debug/trajectory_bounding_boxes
       Value: true
-    - Class: autoware_rviz_plugins/BoundingBoxArray
+    - Class: autoware_rviz_plugins/DetectedObjects
       Enabled: true
       Name: Parking start+end
       Namespaces:

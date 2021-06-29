@@ -341,7 +341,7 @@ Visualization Manager:
           Use Fixed Frame: true
           Use rainbow: true
           Value: false
-        - Class: autoware_rviz_plugins/BoundingBoxArray
+        - Class: autoware_rviz_plugins/DetectedObjects
           Enabled: false
           Name: Lidar Objects
           Namespaces:
@@ -353,7 +353,7 @@ Visualization Manager:
       Name: Perception
     - Class: rviz_common/Group
       Displays:
-        - Class: autoware_rviz_plugins/BoundingBoxArray
+        - Class: autoware_rviz_plugins/DetectedObjects
           Enabled: true
           Name: BB_Traj
           Namespaces:
@@ -361,7 +361,7 @@ Visualization Manager:
           Topic: /planning/debug/trajectory_boxes
           Unreliable: false
           Value: true
-        - Class: autoware_rviz_plugins/BoundingBoxArray
+        - Class: autoware_rviz_plugins/DetectedObjects
           Enabled: true
           Name: BB_collision
           Namespaces:
@@ -369,7 +369,7 @@ Visualization Manager:
           Topic: /planning/debug/collison_boxes
           Unreliable: false
           Value: true
-        - Class: autoware_rviz_plugins/BoundingBoxArray
+        - Class: autoware_rviz_plugins/DetectedObjects
           Enabled: true
           Name: RRP tfed_obstacle
           Namespaces:
