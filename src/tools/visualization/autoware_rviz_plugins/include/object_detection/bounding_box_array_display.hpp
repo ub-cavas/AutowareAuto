@@ -22,7 +22,8 @@
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_default_plugins/displays/marker/marker_common.hpp>
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <visibility_control.hpp>
 #include <common/types.hpp>
 #include <memory>
@@ -42,7 +43,7 @@ class AUTOWARE_RVIZ_PLUGINS_PUBLIC DetectedObjectsDisplay
 public:
   using MarkerCommon = rviz_default_plugins::displays::MarkerCommon;
   using Marker = visualization_msgs::msg::Marker;
-  using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
+  using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
   using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 
   DetectedObjectsDisplay();
@@ -58,7 +59,7 @@ private:
   // Convert boxes into markers, push them to the display queue
   void processMessage(DetectedObjects::ConstSharedPtr array) override;
   // Convert box message to a marker message
-  Marker::SharedPtr get_marker(const BoundingBox & box) const;
+  Marker::SharedPtr get_marker(const DetectedObject & box) const;
 
   std::unique_ptr<MarkerCommon> m_marker_common;
   DetectedObjects::ConstSharedPtr msg_cache{};

@@ -56,8 +56,10 @@ static lanelet::Polygon2d polygon_for_bbox(
 {
   // Create lanelet polygon from bounding box
   // We can neglect z here already, I had a peek into bounding_box.cpp and it's basically 2d only
-  const Eigen::Vector2f dx {0.5f * bbox.size.x, 0.0f};
-  const Eigen::Vector2f dy {0.0f, 0.5f * bbox.size.y};
+
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // const Eigen::Vector2f dx {0.5f * bbox.size.x, 0.0f};
+  // const Eigen::Vector2f dy {0.0f, 0.5f * bbox.size.y};
   const Eigen::Vector2f centroid {bbox.kinematics.centroid_position.x, bbox.kinematics.centroid_position.y};
   // Why the heck is this offset by π/2?
   const float32_t yaw =
