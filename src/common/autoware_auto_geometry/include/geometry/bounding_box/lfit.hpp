@@ -222,7 +222,8 @@ DetectedObject lfit_bounding_box_2d_impl(const IT begin, const IT end, const std
     std::swap(best_normal, best_tangent);
   }
   DetectedObject bbox = details::compute_bounding_box(best_normal, best_tangent, supports);
-  bbox.value = min_eig;
+  // NOTE(esteve): commented out because DetectedObject does not have a value field
+  // bbox.value = min_eig;
 
   return bbox;
 }

@@ -62,7 +62,10 @@ void finalize_box(const decltype(Polygon::points) & corners, DetectedObject & bo
   box.kinematics.orientation.w = cosf(yaw_rad_2);
   box.kinematics.orientation.z = sinf(yaw_rad_2);
   // centroid
-  box.kinematics.centroid_position = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
+  auto tmp_point = times_2d(plus_2d(corners[0U], corners[2U]), 0.5F);
+  box.kinematics.centroid_position.x = tmp_point.x;
+  box.kinematics.centroid_position.y = tmp_point.y;
+  box.kinematics.centroid_position.z = tmp_point.z;
 }
 
 
@@ -70,10 +73,13 @@ autoware_auto_msgs::msg::Shape make_shape(const DetectedObject & box)
 {
   autoware_auto_msgs::msg::Shape ret;
   for (auto corner_pt : box.shape.polygon.points) {
-    corner_pt.z -= box.size.z;
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // corner_pt.z -= box.size.z;
     ret.polygon.points.push_back(corner_pt);
   }
-  ret.height = 2.0F * box.size.z;
+
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // ret.height = 2.0F * box.size.z;
   return ret;
 }
 

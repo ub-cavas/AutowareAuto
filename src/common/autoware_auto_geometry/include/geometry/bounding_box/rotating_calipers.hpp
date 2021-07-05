@@ -155,6 +155,9 @@ void init_bbox(const IT begin, const IT end, Point4<IT> & support)
 template<typename IT, typename MetricF>
 DetectedObject rotating_calipers_impl(const IT begin, const IT end, const MetricF metric_fn)
 {
+  // NOTE(esteve): unused metric_fn
+  (void)metric_fn;
+
   using PointT = base_type<decltype(*begin)>;
   // sanity check TODO(c.ho) more checks (up to n = 2?)
   if (begin == end) {
@@ -180,8 +183,11 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
   DetectedObject bbox;
   decltype(Polygon::points) best_corners;
   compute_corners(best_corners, support, directions);
-  size_2d(best_corners, bbox.size);
-  bbox.value = metric_fn(bbox.size);
+
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // size_2d(best_corners, bbox.size);
+  // NOTE(esteve): commented out because DetectedObject does not have a value field
+  // bbox.value = metric_fn(bbox.size);
   // rotating calipers step: incrementally advance, update angles, points, compute area
   for (auto it = begin; it != end; ++it) {
     // find smallest angle to next, update directions
@@ -189,17 +195,24 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
     // recompute area
     decltype(Polygon::points) corners;
     compute_corners(corners, support, directions);
-    geometry_msgs::msg::Point32 tmp_size;
-    size_2d(corners, tmp_size);
-    const float32_t tmp_value = metric_fn(tmp_size);
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // geometry_msgs::msg::Point32 tmp_size;
+    // size_2d(corners, tmp_size);
+
+    // NOTE(esteve): commented out because DetectedObject does not have a value field
+    // const float32_t tmp_value = metric_fn(tmp_size);
+
     // update best if necessary
-    if (tmp_value < bbox.value) {
-      // corners: memcpy is fine since I know corners and best_corners are distinct
-      (void)std::memcpy(&best_corners[0U], &corners[0U], sizeof(corners));
-      // size
-      bbox.size = tmp_size;
-      bbox.value = tmp_value;
-    }
+    // NOTE(esteve): commented out because DetectedObject does not have a value field
+    // if (tmp_value < bbox.value) {
+    //   // corners: memcpy is fine since I know corners and best_corners are distinct
+    //   (void)std::memcpy(&best_corners[0U], &corners[0U], sizeof(corners));
+    //   // size
+    //   bbox.size = tmp_size;
+    //   bbox.value = tmp_value;
+    // }
+
     // Step to next iteration of calipers
     {
       // update smallest support

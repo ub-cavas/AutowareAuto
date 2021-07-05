@@ -75,12 +75,21 @@ protected:
     return ret;
   }
 
-  void check(const float cx, const float cy, const float sx, const float sy, const float val) const
+  void check(const float64_t cx, const float64_t cy, const float sx, const float sy, const float val) const
   {
+    // NOTE(esteve): ignored because DetectedObject does not have a size field
+    (void)sx;
+    (void)sy;
+    // NOTE(esteve): ignored because DetectedObject does not have a value field
+    (void)val;
+
     constexpr float32_t TOL = 1.0E-4F;
-    ASSERT_LT(fabsf(box.size.x - sx), TOL);
-    ASSERT_LT(fabsf(box.size.y - sy), TOL);
-    ASSERT_LT(fabsf(box.value - val), TOL) << box.value;
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // ASSERT_LT(fabsf(box.size.x - sx), TOL);
+    // ASSERT_LT(fabsf(box.size.y - sy), TOL);
+    // NOTE(esteve): commented out because DetectedObject does not have a value field
+    // ASSERT_LT(fabsf(box.value - val), TOL) << box.value;
 
     ASSERT_LT(fabsf(box.kinematics.centroid_position.x - cx), TOL);
     ASSERT_LT(fabsf(box.kinematics.centroid_position.y - cy), TOL);
@@ -119,7 +128,7 @@ protected:
     const float TOL = 1.0E-4F) const
   {
     bool found = false;
-    const float angle_deg = rad2deg(2.0F * asinf(box.orientation.z));
+    const float angle_deg = rad2deg(2.0F * asinf(box.kinematics.orientation.z));
     found |= fabsf(angle_distance_deg(angle_deg, ref_angle_deg)) < TOL;
     found |= fabsf(angle_distance_deg(angle_deg, ref_angle_deg + 90.0F)) < TOL;
     found |= fabsf(angle_distance_deg(angle_deg, ref_angle_deg + 180.0F)) < TOL;
@@ -236,18 +245,18 @@ TYPED_TEST(BoxTest, OrientedTriangle)
 TYPED_TEST(BoxTest, Hull)
 {
   const uint32_t FUZZ_SIZE = 1024U;
-  const float dx = 9.0F;
-  const float dy = 15.0F;
-  const float rx = 10.0F;
-  const float ry = 5.0F;
+  const float64_t dx = 9.0F;
+  const float64_t dy = 15.0F;
+  const float64_t rx = 10.0F;
+  const float64_t ry = 5.0F;
   const float dth = 0.0F;
 
   ASSERT_EQ(FUZZ_SIZE % 4U, 0U);
 
   // fuzz part 1
   for (uint32_t idx = 0U; idx < FUZZ_SIZE; ++idx) {
-    const float th = ((idx * autoware::common::types::TAU) / FUZZ_SIZE) + dth;
-    this->points.push_back(this->make(rx * cosf(th) + dx, ry * sinf(th) + dy));
+    const float64_t th = ((idx * autoware::common::types::TAU) / FUZZ_SIZE) + dth;
+    this->points.push_back(this->make(rx * cos(th) + dx, ry * sin(th) + dy));
   }
 
   this->minimum_area_bounding_box();
@@ -267,9 +276,11 @@ TYPED_TEST(BoxTest, Hull)
   this->test_orientation(this->rad2deg(dth), 1.0F);
   // allow 1 degree of tolerance
 
-  ASSERT_LT(fabsf(this->box.size.y - 2.0F * rx), TOL_M);
-  ASSERT_LT(fabsf(this->box.size.x - 2.0F * ry), TOL_M);
-  ASSERT_FLOAT_EQ(this->box.value, this->box.size.x * this->box.size.y);
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // ASSERT_LT(fabsf(this->box.size.y - 2.0F * rx), TOL_M);
+  // ASSERT_LT(fabsf(this->box.size.x - 2.0F * ry), TOL_M);
+  // NOTE(esteve): commented out because DetectedObject does not have a value field
+  // ASSERT_FLOAT_EQ(this->box.value, this->box.size.x * this->box.size.y);
 }
 
 //
