@@ -204,7 +204,7 @@ void EuclideanClusterNode::handle_clusters(
   // Also publish boxes for visualization
   uint32_t id_counter = 0;
   MarkerArray marker_array;
-  for (const auto & box : boxes.boxes) {
+  for (const auto & box : boxes.objects) {
     Marker m{};
     m.header.stamp = rclcpp::Time(0);
     m.header.frame_id = header.frame_id;
@@ -215,10 +215,10 @@ void EuclideanClusterNode::handle_clusters(
     m.pose.position.x = static_cast<float64_t>(box.kinematics.centroid_position.x);
     m.pose.position.y = static_cast<float64_t>(box.kinematics.centroid_position.y);
     m.pose.position.z = static_cast<float64_t>(box.kinematics.centroid_position.z);
-    m.pose.orientation.x = static_cast<float64_t>(box.orientation.x);
-    m.pose.orientation.y = static_cast<float64_t>(box.orientation.y);
-    m.pose.orientation.z = static_cast<float64_t>(box.orientation.z);
-    m.pose.orientation.w = static_cast<float64_t>(box.orientation.w);
+    m.pose.orientation.x = static_cast<float64_t>(box.kinematics.orientation.x);
+    m.pose.orientation.y = static_cast<float64_t>(box.kinematics.orientation.y);
+    m.pose.orientation.z = static_cast<float64_t>(box.kinematics.orientation.z);
+    m.pose.orientation.w = static_cast<float64_t>(box.kinematics.orientation.w);
     // X and Y scale are swapped between these two message types
     m.scale.x = static_cast<float64_t>(box.size.y);
     m.scale.y = static_cast<float64_t>(box.size.x);

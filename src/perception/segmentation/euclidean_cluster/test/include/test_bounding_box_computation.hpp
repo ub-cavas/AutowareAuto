@@ -129,8 +129,8 @@ TEST_F(BoundingBoxComputationTest, BasicLfit2d)
     {pt_vector, pt_vector});
 
   DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false);
-  ASSERT_EQ(boxes_msg.boxes.size(), 2U);
-  for (const auto & box : boxes_msg.boxes) {
+  ASSERT_EQ(boxes_msg.objects.size(), 2U);
+  for (const auto & box : boxes_msg.objects) {
     test_corners(box, lfit_expected_corners, 0.25F);
   }
 
@@ -146,8 +146,8 @@ TEST_F(BoundingBoxComputationTest, BasicEigen2d) {
     {pt_vector, pt_vector});
 
   DetectedObjects boxes_msg = compute_bounding_boxes(clusters, BboxMethod::Eigenbox, false);
-  ASSERT_EQ(boxes_msg.boxes.size(), 2U);
-  for (const auto & box : boxes_msg.boxes) {
+  ASSERT_EQ(boxes_msg.objects.size(), 2U);
+  for (const auto & box : boxes_msg.objects) {
     test_corners(box, eigen_expected_corners, 0.25F);
   }
 

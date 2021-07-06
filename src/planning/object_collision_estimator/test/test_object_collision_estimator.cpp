@@ -82,8 +82,8 @@ void object_collision_estimator_test(
     auto obstacle_point = trajectory.points[obstacle_bbox_idx];
     obstacle_bbox.kinematics.centroid_position = make_point(obstacle_point.x, obstacle_point.y);
     obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
-    obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
+    obstacle_bbox.kinematics.orientation.w = 1.0F / sqrtf(2.0F);
+    obstacle_bbox.kinematics.orientation.z = 1.0F / sqrtf(2.0F);
     obstacle_bbox.shape.polygon.points = {
       make_point(
         obstacle_point.x - obstacle_bbox.size.x / 2,
@@ -99,7 +99,7 @@ void object_collision_estimator_test(
         obstacle_point.y + obstacle_bbox.size.y / 2)
     };
 
-    bbox_array.boxes.push_back(obstacle_bbox);
+    bbox_array.objects.push_back(obstacle_bbox);
   }
 
   // call the estimator API

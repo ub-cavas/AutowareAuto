@@ -53,7 +53,7 @@ void check_box(
       close &= found;
     }
     // TODO(c.ho)
-    // close &= fabsf(box.orientation.x = 1.0F;
+    // close &= fabsf(box.kinematics.orientation.x = 1.0F;
     if (close) {
       found = true;
       break;
@@ -155,7 +155,7 @@ TEST(EuclideanSegmenter, Combined)
   // box 1
   box.kinematics.centroid_position = make(15.0, 15.0);
   box.size = make(6.0, 6.0);
-  box.orientation.x = 1.0F;
+  box.kinematics.orientation.x = 1.0F;
   box.shape.polygon.points = {make(12.0, 12.0), make(18, 12), make(18, 18), make(12, 18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
@@ -163,7 +163,7 @@ TEST(EuclideanSegmenter, Combined)
   // box 2
   box.kinematics.centroid_position = make(-15.0, 15.0);
   box.size = make(6.0, 6.0);
-  box.orientation.x = 1.0F;
+  box.kinematics.orientation.x = 1.0F;
   box.shape.polygon.points = {make(-12.0, 12.0), make(-18, 12), make(-18, 18), make(-12, 18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
@@ -171,7 +171,7 @@ TEST(EuclideanSegmenter, Combined)
   // box 3
   box.kinematics.centroid_position = make(-15.0, -15.0);
   box.size = make(6.0, 6.0);
-  box.orientation.x = 1.0F;
+  box.kinematics.orientation.x = 1.0F;
   box.shape.polygon.points = {make(-12.0, -12.0), make(-18, -12), make(-18, -18), make(-12, -18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
@@ -179,7 +179,7 @@ TEST(EuclideanSegmenter, Combined)
   // box 4
   box.kinematics.centroid_position = make(15.0, -15.0);
   box.size = make(6.0, 6.0);
-  box.orientation.x = 1.0F;
+  box.kinematics.orientation.x = 1.0F;
   box.shape.polygon.points = {make(12.0, -12.0), make(18, -12), make(18, -18), make(12, -18)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);
@@ -187,7 +187,7 @@ TEST(EuclideanSegmenter, Combined)
   // box 5
   box.kinematics.centroid_position = make(0, 0);
   box.size = make(6.0, 6.0);
-  box.orientation.x = 1.0F;
+  box.kinematics.orientation.x = 1.0F;
   box.shape.polygon.points = {make(3, -3), make(-3, -3), make(-3, 3), make(3, 3)};
   expect.push_back(box);
   box_fuzz(cls, dummy, box);

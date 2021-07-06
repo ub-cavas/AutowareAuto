@@ -58,7 +58,7 @@ MarkerArray toVisualizationMarkerArray(const DetectedObjects bboxes, const size_
   marker.action = Marker::ADD;
   marker.lifetime = time_utils::to_message(std::chrono::nanoseconds(100000));
 
-  for (std::size_t i = 0; i < bboxes.boxes.size(); ++i) {
+  for (std::size_t i = 0; i < bboxes.objects.size(); ++i) {
     marker.id = static_cast<int32_t>(i);
     marker.pose.orientation.w = 1.0;
     if (i < collision_idx) {
@@ -81,7 +81,7 @@ MarkerArray toVisualizationMarkerArray(const DetectedObjects bboxes, const size_
       marker.color.b = 0.7F;
     }
     marker.points.clear();
-    const auto box = bboxes.boxes.at(i);
+    const auto box = bboxes.objects.at(i);
     for (std::size_t j = 0; j < 4; ++j) {
       geometry_msgs::msg::Point point;
       point.x = static_cast<float64_t>(box.shape.polygon.points.at(j).x);

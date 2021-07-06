@@ -155,17 +155,17 @@ int32_t detectCollision(
 
   int32_t collision_index = -1;
 
-  waypoint_bboxes.boxes.clear();
+  waypoint_bboxes.objects.clear();
   for (std::size_t i = 0; i < trajectory.points.size(); ++i) {
-    waypoint_bboxes.boxes.push_back(
+    waypoint_bboxes.objects.push_back(
       waypointToBox(trajectory.points[i], vehicle_param, safety_factor));
   }
   for (std::size_t i = 0; (i < trajectory.points.size()) && (collision_index == -1); ++i) {
     // calculate a bounding box given a trajectory point
-    const auto & waypoint_bbox = waypoint_bboxes.boxes.at(i);
+    const auto & waypoint_bbox = waypoint_bboxes.objects.at(i);
 
     // Check for collisions with all perceived obstacles
-    for (const auto & obstacle_bbox : obstacles.boxes) {
+    for (const auto & obstacle_bbox : obstacles.objects) {
       if (!isTooFarAway(
           trajectory.points[i], obstacle_bbox,
           distance_threshold) && autoware::common::geometry::intersect(

@@ -64,20 +64,31 @@ static lanelet::Polygon2d polygon_for_bbox(
   // Why the heck is this offset by π/2?
   const float32_t yaw =
     std::atan2(
-    bbox.orientation.z,
-    bbox.orientation.w) * 2.0f + autoware::common::types::PI_2;
+    static_cast<float32_t>(bbox.kinematics.orientation.z),
+    static_cast<float32_t>(bbox.kinematics.orientation.w)) * 2.0f + autoware::common::types::PI_2;
 
   const Eigen::Rotation2D<float32_t> orientation {yaw};
 
+  // NOTE(esteve): dx and dy depend on bbox.size, which is not available in DetectedObject
+  // is this code still correct without dx and dy?
   // Construct the points in clockwise order – required by lanelet::Polygon2d
+  // const Eigen::Vector2f p0 = map_from_base_link * (centroid + orientation *
+  //   (Eigen::Vector2f::Zero() - dx - dy));
+  // const Eigen::Vector2f p1 = map_from_base_link * (centroid + orientation *
+  //   (Eigen::Vector2f::Zero() - dx + dy));
+  // const Eigen::Vector2f p2 = map_from_base_link * (centroid + orientation *
+  //   (Eigen::Vector2f::Zero() + dx + dy));
+  // const Eigen::Vector2f p3 = map_from_base_link * (centroid + orientation *
+  //   (Eigen::Vector2f::Zero() + dx - dy));
+
   const Eigen::Vector2f p0 = map_from_base_link * (centroid + orientation *
-    (Eigen::Vector2f::Zero() - dx - dy));
+    (Eigen::Vector2f::Zero()));
   const Eigen::Vector2f p1 = map_from_base_link * (centroid + orientation *
-    (Eigen::Vector2f::Zero() - dx + dy));
+    (Eigen::Vector2f::Zero()));
   const Eigen::Vector2f p2 = map_from_base_link * (centroid + orientation *
-    (Eigen::Vector2f::Zero() + dx + dy));
+    (Eigen::Vector2f::Zero()));
   const Eigen::Vector2f p3 = map_from_base_link * (centroid + orientation *
-    (Eigen::Vector2f::Zero() + dx - dy));
+    (Eigen::Vector2f::Zero()));
 
   lanelet::Polygon2d bbox_poly;
   bbox_poly.push_back(lanelet::Point2d{utils::getId(), p0.x(), p0.y()});
@@ -112,7 +123,7 @@ visualization_msgs::msg::MarkerArray OffMapObstaclesFilter::bboxes_in_map_frame_
 
   visualization_msgs::msg::MarkerArray array;
   int id = 0;
-  for (const auto & bbox : msg.boxes) {
+  for (const auto & bbox : msg.objects) {
     const auto polygon = polygon_for_bbox(map_from_base_link_isometry.cast<float32_t>(), bbox);
     visualization_msgs::msg::Marker marker;
     marker.header = msg.header;
@@ -225,16 +236,16 @@ void OffMapObstaclesFilter::remove_off_map_bboxes(
   autoware_auto_msgs::msg::DetectedObjects & msg) const
 {
   const Eigen::Isometry2d map_from_base_link_isometry = convert_2d_transform(map_from_base_link);
-  msg.boxes.erase(
+  msg.objects.erase(
     std::remove_if(
-      msg.boxes.begin(),
-      msg.boxes.end(),
+      msg.objects.begin(),
+      msg.objects.end(),
       [this, &map_from_base_link_isometry](const auto & bbox) {
         return !bbox_is_on_map(
           *this->m_map, map_from_base_link_isometry.cast<float32_t>(),
           this->m_overlap_threshold, bbox);
       }),
-    msg.boxes.end());
+    msg.objects.end());
 }
 
 }  // namespace off_map_obstacles_filter

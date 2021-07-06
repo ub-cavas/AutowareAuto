@@ -292,11 +292,11 @@ void ParkingPlannerNode::debug_publish_start_and_end(
 
   DetectedObjects bbox_array;
   bbox_array.header.frame_id = "map";
-  bbox_array.boxes.resize(2);
-  bbox_array.boxes[0] = bbox_from_state(start);
-  bbox_array.boxes[0].vehicle_label = ObjectClassification::CAR;
-  bbox_array.boxes[1] = bbox_from_state(end);
-  bbox_array.boxes[0].vehicle_label = ObjectClassification::CAR;
+  bbox_array.objects.resize(2);
+  bbox_array.objects[0] = bbox_from_state(start);
+  bbox_array.objects[0].vehicle_label = ObjectClassification::CAR;
+  bbox_array.objects[1] = bbox_from_state(end);
+  bbox_array.objects[0].vehicle_label = ObjectClassification::CAR;
 
   m_debug_start_end_publisher->publish(bbox_array);
 }
