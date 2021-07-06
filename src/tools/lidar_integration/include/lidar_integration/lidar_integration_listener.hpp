@@ -19,7 +19,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <lidar_integration/visibility_control.hpp>
 #include <common/types.hpp>
 #include <string>

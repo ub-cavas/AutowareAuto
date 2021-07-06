@@ -62,7 +62,7 @@ void compute_height(const IT begin, const IT end, DetectedObject & box)
   }
   box.kinematics.centroid_position.z = (max_z + min_z) * 0.5F;
   for (auto & corner : box.shape.polygon.points) {
-    corner.z = box.kinematics.centroid_position.z;
+    corner.z = static_cast<float32_t>(box.kinematics.centroid_position.z);
   }
   // TODO(esteve): how to adapt this to DetectedObject?
   // box.size.z = (max_z - min_z) * 0.5F;
