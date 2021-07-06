@@ -48,8 +48,8 @@ using geometry_msgs::msg::Point32;
 /// \param vehicle_param Ego vehicle parameter defining its dimensions
 /// \param safety_factor A factor to inflate the size of the vehicle so to avoid getting too close
 ///                      to obstacles.
-/// \return BoundingBox The box bounding the ego vehicle at the waypoint.
-BoundingBox waypointToBox(
+/// \return DetectedObject The box bounding the ego vehicle at the waypoint.
+DetectedObject waypointToBox(
   const TrajectoryPoint & pt,
   const VehicleConfig & vehicle_param,
   const float32_t safety_factor)
@@ -105,7 +105,7 @@ BoundingBox waypointToBox(
 /// \return bool8_t Return true if the bounding box of the obstacle is at least distance_threshold
 ///         away from the way point.
 bool8_t isTooFarAway(
-  const TrajectoryPoint & way_point, const BoundingBox & obstacle_bbox,
+  const TrajectoryPoint & way_point, const DetectedObject & obstacle_bbox,
   const float32_t distance_threshold)
 {
   bool is_too_far_away{true};

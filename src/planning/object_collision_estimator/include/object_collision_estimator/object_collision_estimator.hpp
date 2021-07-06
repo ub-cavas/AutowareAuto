@@ -17,8 +17,8 @@
 
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <motion_common/config.hpp>
 #include <trajectory_smoother/trajectory_smoother.hpp>
 #include <common/types.hpp>
