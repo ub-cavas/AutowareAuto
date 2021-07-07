@@ -220,9 +220,12 @@ void EuclideanClusterNode::handle_clusters(
     m.pose.orientation.z = static_cast<float64_t>(box.kinematics.orientation.z);
     m.pose.orientation.w = static_cast<float64_t>(box.kinematics.orientation.w);
     // X and Y scale are swapped between these two message types
-    m.scale.x = static_cast<float64_t>(box.size.y);
-    m.scale.y = static_cast<float64_t>(box.size.x);
-    m.scale.z = static_cast<float64_t>(box.size.z);
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // m.scale.x = static_cast<float64_t>(box.size.y);
+    // m.scale.y = static_cast<float64_t>(box.size.x);
+    // m.scale.z = static_cast<float64_t>(box.size.z);
+
     m.color.r = 1.0;
     m.color.g = 0.5;
     m.color.b = 0.0;
