@@ -24,10 +24,8 @@
 #include "gtest/gtest.h"
 
 using Clusters = autoware_auto_msgs::msg::PointClusters;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
+using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using Pt = autoware_auto_msgs::msg::PointXYZIF;
 
 using autoware::perception::segmentation::euclidean_cluster::details::compute_bounding_boxes;
@@ -58,22 +56,6 @@ protected:
       ret.cluster_boundary.push_back(boundary_idx);
     }
     return ret;
-  }
-
-  void test_corners(
-    const BoundingBox & box, const std::vector<Pt> & expect,
-    const float TOL = 1.0E-6F)
-  {
-    for (uint32_t idx = 0U; idx < 4U; ++idx) {
-      bool found = false;
-      for (auto & p : expect) {
-        if (fabsf(p.x - box.shape.polygon.points[idx].x) < TOL && fabsf(p.y - box.shape.polygon.points[idx].y) < TOL) {
-          found = true;
-          break;
-        }
-      }
-      ASSERT_TRUE(found) << idx << ": " << box.shape.polygon.points[idx].x << ", " << box.shape.polygon.points[idx].y;
-    }
   }
 
   void test_corners(

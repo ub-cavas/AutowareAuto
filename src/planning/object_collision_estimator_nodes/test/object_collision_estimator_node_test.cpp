@@ -28,8 +28,8 @@
 
 using motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode;
 using motion::motion_testing::constant_velocity_trajectory;
+using autoware_auto_msgs::msg::DetectedObject;
 using autoware_auto_msgs::msg::DetectedObjects;
-using autoware_auto_msgs::msg::BoundingBox;
 using motion::motion_common::VehicleConfig;
 using autoware_auto_msgs::msg::Trajectory;
 using autoware::common::types::float32_t;
