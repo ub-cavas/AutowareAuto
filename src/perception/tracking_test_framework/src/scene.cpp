@@ -16,7 +16,7 @@
 
 #include <tracking_test_framework/scene.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <geometry/bounding_box_2d.hpp>
 #include <time_utils/time_utils.hpp>
 
@@ -56,7 +56,7 @@ autoware_auto_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
   for (const auto & intersection_per_object : intersections_all_objects) {
     /// Fill Shape with all intersections of LiDAR and each object
     geometry_msgs::msg::Polygon polygon{};
-    autoware_auto_msgs::msg::BoundingBox bounding_box{};
+    autoware_auto_msgs::msg::DetectedObject bounding_box{};
     std::vector<autoware::common::types::PointXYZIF> points_vec{};
     /// Loop to convert point represented as Eigen::Vector2f to autoware::common::types::PointXYZIF
     for (const auto & point : intersection_per_object.points) {
