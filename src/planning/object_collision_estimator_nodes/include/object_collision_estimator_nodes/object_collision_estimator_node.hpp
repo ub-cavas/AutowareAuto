@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <autoware_auto_msgs/srv/modify_trajectory.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <tf2_ros/transform_listener.h>

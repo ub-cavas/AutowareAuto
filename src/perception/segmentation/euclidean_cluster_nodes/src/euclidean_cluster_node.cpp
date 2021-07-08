@@ -19,7 +19,6 @@
 
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>

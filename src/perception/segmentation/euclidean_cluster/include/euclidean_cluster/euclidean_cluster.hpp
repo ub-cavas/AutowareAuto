@@ -230,7 +230,6 @@ private:
 /// \brief Common euclidean cluster functions not intended for external use
 namespace details
 {
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
 

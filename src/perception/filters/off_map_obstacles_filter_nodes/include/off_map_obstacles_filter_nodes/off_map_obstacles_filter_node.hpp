@@ -24,7 +24,7 @@
 #include <memory>
 #include <string>
 
-#include "autoware_auto_msgs/msg/bounding_box_array.hpp"
+#include "autoware_auto_msgs/msg/detected_objects.hpp"
 #include "autoware_auto_msgs/srv/had_map_service.hpp"
 #include "off_map_obstacles_filter_nodes/visibility_control.hpp"
 #include "off_map_obstacles_filter/off_map_obstacles_filter.hpp"
