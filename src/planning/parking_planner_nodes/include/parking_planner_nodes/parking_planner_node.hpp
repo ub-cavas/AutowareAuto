@@ -26,8 +26,8 @@
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/detected_object.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <motion_common/motion_common.hpp>

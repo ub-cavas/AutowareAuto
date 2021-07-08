@@ -65,8 +65,8 @@ using ParkingPolytope = autoware::motion::planning::parking_planner::Polytope2D<
 using ParkingStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 
 using autoware_auto_msgs::msg::RoutePoint;
+using autoware_auto_msgs::msg::DetectedObject;
 using autoware_auto_msgs::msg::DetectedObjects;
-using autoware_auto_msgs::msg::BoundingBox;
 using autoware_auto_msgs::msg::ObjectClassification;
 
 using Point = geometry_msgs::msg::Point32;
@@ -249,7 +249,7 @@ void ParkingPlannerNode::debug_publish_start_and_end(
 )
 {
   const auto params = m_planner->get_parameters();
-  const auto bbox_from_state = [&params](const ParkerVehicleState & state) -> BoundingBox
+  const auto bbox_from_state = [&params](const ParkerVehicleState & state) -> DetectedObject
     {
       // Shorthands to keep the formulas sane
       const double h = state.get_heading();
@@ -294,9 +294,11 @@ void ParkingPlannerNode::debug_publish_start_and_end(
   bbox_array.header.frame_id = "map";
   bbox_array.objects.resize(2);
   bbox_array.objects[0] = bbox_from_state(start);
-  bbox_array.objects[0].vehicle_label = ObjectClassification::CAR;
+  // NOTE(esteve): using first entry in the classification vector
+  bbox_array.objects[0].classification[0].classification = ObjectClassification::CAR;
   bbox_array.objects[1] = bbox_from_state(end);
-  bbox_array.objects[0].vehicle_label = ObjectClassification::CAR;
+  // NOTE(esteve): using first entry in the classification vector
+  bbox_array.objects[1].classification[0].classification = ObjectClassification::CAR;
 
   m_debug_start_end_publisher->publish(bbox_array);
 }
