@@ -43,12 +43,13 @@ using autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode;
 class VoxelAlgorithm : public ::testing::Test
 {
 protected:
-  PointXYZI make(const float32_t x, const float32_t y, const float32_t z)
+  PointXYZIF make(const float32_t x, const float32_t y, const float32_t z, const uint16_t ring)
   {
     PointXYZI ret;
     ret.x = x;
     ret.y = y;
     ret.z = z;
+    ret.ring = ring;
     return ret;
   }
   std::unique_ptr<Config> cfg_ptr;
@@ -76,22 +77,22 @@ public:
     cfg_ptr = std::make_unique<Config>(min_point, max_point, voxel_size, m_capacity);
     // List of points
     obs_points1 = {
-      make(-1.0F, -1.0F, -1.0F),  // voxel 0
-      make(-0.5F, -0.5F, -0.5F),
-      make(1.0F, -1.0F, -1.0F),  // voxel 1
-      make(0.5F, -0.5F, -0.5F),
-      make(-1.0F, 1.0F, -1.0F),  // voxel 2
-      make(-0.5F, 0.5F, -0.5F),
-      make(1.0F, 1.0F, -1.0F),  // voxel 3
-      make(0.5F, 0.5F, -0.5F),
-      make(-1.0F, -1.0F, 1.0F),  // voxel 4
-      make(-0.5F, -0.5F, 0.5F),
-      make(1.0F, -1.0F, 1.0F),  // voxel 5
-      make(0.5F, -0.5F, 0.5F),
-      make(-1.0F, 1.0F, 1.0F),  // voxel 6
-      make(-0.5F, 0.5F, 0.5F),
-      make(1.0F, 1.0F, 1.0F),  // voxel 7
-      make(0.5F, 0.5F, 0.5F)
+      make(-1.0F, -1.0F, -1.0F, 0),  // voxel 0
+      make(-0.5F, -0.5F, -0.5F, 0),
+      make(1.0F, -1.0F, -1.0F, 1),  // voxel 1
+      make(0.5F, -0.5F, -0.5F, 1),
+      make(-1.0F, 1.0F, -1.0F, 2),  // voxel 2
+      make(-0.5F, 0.5F, -0.5F, 2),
+      make(1.0F, 1.0F, -1.0F, 3),  // voxel 3
+      make(0.5F, 0.5F, -0.5F, 3),
+      make(-1.0F, -1.0F, 1.0F, 4),  // voxel 4
+      make(-0.5F, -0.5F, 0.5F, 4),
+      make(1.0F, -1.0F, 1.0F, 5),  // voxel 5
+      make(0.5F, -0.5F, 0.5F, 5),
+      make(-1.0F, 1.0F, 1.0F, 6),  // voxel 6
+      make(-0.5F, 0.5F, 0.5F, 6),
+      make(1.0F, 1.0F, 1.0F, 7),  // voxel 7
+      make(0.5F, 0.5F, 0.5F, 7)
     };
   }
 };
@@ -146,14 +147,14 @@ public:
 
 TEST_F(CloudAlgorithm, Approximate)
 {
-  this->ref_points1[0U] = this->make(-0.5F, -0.5F, -0.5F);
-  this->ref_points1[1U] = this->make(0.5F, -0.5F, -0.5F);
-  this->ref_points1[2U] = this->make(-0.5F, 0.5F, -0.5F);
-  this->ref_points1[3U] = this->make(0.5F, 0.5F, -0.5F);
-  this->ref_points1[4U] = this->make(-0.5F, -0.5F, 0.5F);
-  this->ref_points1[5U] = this->make(0.5F, -0.5F, 0.5F);
-  this->ref_points1[6U] = this->make(-0.5F, 0.5F, 0.5F);
-  this->ref_points1[7U] = this->make(0.5F, 0.5F, 0.5F);
+  this->ref_points1[0U] = this->make(-0.5F, -0.5F, -0.5F, 0);
+  this->ref_points1[1U] = this->make(0.5F, -0.5F, -0.5F, 1);
+  this->ref_points1[2U] = this->make(-0.5F, 0.5F, -0.5F, 2);
+  this->ref_points1[3U] = this->make(0.5F, 0.5F, -0.5F, 3);
+  this->ref_points1[4U] = this->make(-0.5F, -0.5F, 0.5F, 4);
+  this->ref_points1[5U] = this->make(0.5F, -0.5F, 0.5F, 5);
+  this->ref_points1[6U] = this->make(-0.5F, 0.5F, 0.5F, 6);
+  this->ref_points1[7U] = this->make(0.5F, 0.5F, 0.5F, 7);
   // initialize
   alg_ptr = std::make_unique<VoxelCloudApproximate>(*cfg_ptr);
   // check initial
@@ -175,14 +176,14 @@ TEST_F(CloudAlgorithm, Approximate)
 
 TEST_F(CloudAlgorithm, Centroid)
 {
-  this->ref_points1[0U] = this->make(-0.75F, -0.75F, -0.75F);
-  this->ref_points1[1U] = this->make(0.75F, -0.75F, -0.75F);
-  this->ref_points1[2U] = this->make(-0.75F, 0.75F, -0.75F);
-  this->ref_points1[3U] = this->make(0.75F, 0.75F, -0.75F);
-  this->ref_points1[4U] = this->make(-0.75F, -0.75F, 0.75F);
-  this->ref_points1[5U] = this->make(0.75F, -0.75F, 0.75F);
-  this->ref_points1[6U] = this->make(-0.75F, 0.75F, 0.75F);
-  this->ref_points1[7U] = this->make(0.75F, 0.75F, 0.75F);
+  this->ref_points1[0U] = this->make(-0.75F, -0.75F, -0.75F, 0);
+  this->ref_points1[1U] = this->make(0.75F, -0.75F, -0.75F, 1);
+  this->ref_points1[2U] = this->make(-0.75F, 0.75F, -0.75F, 2);
+  this->ref_points1[3U] = this->make(0.75F, 0.75F, -0.75F, 3);
+  this->ref_points1[4U] = this->make(-0.75F, -0.75F, 0.75F, 4);
+  this->ref_points1[5U] = this->make(0.75F, -0.75F, 0.75F, 5);
+  this->ref_points1[6U] = this->make(-0.75F, 0.75F, 0.75F, 6);
+  this->ref_points1[7U] = this->make(0.75F, 0.75F, 0.75F, 7);
   // initialize
   alg_ptr = std::make_unique<VoxelCloudCentroid>(*cfg_ptr);
   // check empty
