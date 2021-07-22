@@ -17,7 +17,6 @@
 #include "tracking_nodes/multi_object_tracker_node.hpp"
 
 #include <rclcpp_components/register_node_macro.hpp>
-#include <time_utils/time_utils.hpp>
 
 #include <cstddef>
 #include <cstdint>
@@ -25,7 +24,6 @@
 #include <memory>
 #include <string>
 #include <utility>
-
 
 namespace autoware
 {
@@ -100,22 +98,62 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
   m_tracker(init_tracker(*this)),
   m_history_depth(static_cast<size_t>(this->declare_parameter("history_depth", 20))),
   m_use_ndt(this->declare_parameter("use_ndt", true)),
-  m_objects_sub(this, "detected_objects", rclcpp::QoS(m_history_depth).get_rmw_qos_profile()),
+  m_lidar_clusters_sub(create_subscription<autoware_auto_msgs::msg::DetectedObjects>(
+      "detected_objects", rclcpp::QoS(m_history_depth), [this]
+        (autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr msg) {
+        process_lidar_clusters(msg);
+      })),
   m_pub(create_publisher<TrackedObjects>("tracked_objects", m_history_depth))
 {
   if (m_use_ndt) {
-    m_sync = std::make_shared<message_filters::Synchronizer<OdomPolicy>>(
-      OdomPolicy(static_cast<uint32_t>(m_history_depth)),
-      m_objects_sub, m_odom_sub);
     m_odom_sub.subscribe(this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+    m_odom_cache_ptr = std::make_shared<OdomCache>(m_odom_sub, 20);
+    m_odom_cache_ptr->setCacheSize(static_cast<uint32_t>(m_history_depth));
   } else {
-    m_sync = std::make_shared<message_filters::Synchronizer<PosePolicy>>(
-      PosePolicy(static_cast<uint32_t>(m_history_depth)),
-      m_objects_sub, m_pose_sub);
     m_pose_sub.subscribe(this, "odometry", rclcpp::QoS(m_history_depth).get_rmw_qos_profile());
+    m_pose_cache_ptr = std::make_shared<PoseCache>(m_pose_sub, 20);
+    m_pose_cache_ptr->setCacheSize(static_cast<uint32_t>(m_history_depth));
   }
+}
 
-  mpark::visit(RegisterSyncCallback(this), m_sync);
+void MultiObjectTrackerNode::process_lidar_clusters(
+  const autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr & msg)
+{
+  rclcpp::Time msg_stamp(msg->header.stamp.sec, msg->header.stamp.nanosec);
+  const auto before = msg_stamp - std::chrono::milliseconds(30);
+  const auto after = msg_stamp + std::chrono::milliseconds(30);
+
+  if (m_use_ndt) {
+    const auto matched_msgs = m_odom_cache_ptr->getInterval(before, after);
+    if (matched_msgs.empty()) {
+      RCLCPP_WARN(get_logger(), "No matching odom msg received for obj msg");
+      return;
+    }
+    auto odom_msg = std::min_element(
+      matched_msgs.begin(), matched_msgs.end(), [&msg](const auto &
+      a, const auto & b) {
+        rclcpp::Time t1(a->header.stamp);
+        rclcpp::Time t2(b->header.stamp);
+        rclcpp::Time msg_t(msg->header.stamp);
+        return std::abs((t1 - msg_t).nanoseconds()) < std::abs((t2 - msg_t).nanoseconds());
+      });
+    process_using_odom(msg, *odom_msg);
+  } else {
+    const auto matched_msgs = m_pose_cache_ptr->getInterval(before, after);
+    if (matched_msgs.empty()) {
+      RCLCPP_WARN(get_logger(), "No matching pose msg received for obj msg");
+      return;
+    }
+    auto pose_msg = std::min_element(
+        matched_msgs.begin(), matched_msgs.end(), [&msg](const auto &
+        a, const auto & b) {
+          rclcpp::Time t1(a->header.stamp);
+          rclcpp::Time t2(b->header.stamp);
+          rclcpp::Time msg_t(msg->header.stamp);
+          return std::abs((t1 - msg_t).nanoseconds()) < std::abs((t2 - msg_t).nanoseconds());
+        });
+    process_using_pose(msg, *pose_msg);
+  }
 }
 
 void MultiObjectTrackerNode::process_using_odom(
@@ -145,27 +183,6 @@ void MultiObjectTrackerNode::process_using_pose(
   odom_msg->child_frame_id = "base_link";
   odom_msg->pose = pose->pose;
   process_using_odom(objs, odom_msg);
-}
-
-MultiObjectTrackerNode::RegisterSyncCallback::RegisterSyncCallback(
-  MultiObjectTrackerNode * class_ptr)
-{
-  m_class_ptr = class_ptr;
-}
-
-void MultiObjectTrackerNode::RegisterSyncCallback::operator()(
-  std::shared_ptr<message_filters::Synchronizer<OdomPolicy>> sync)
-{
-  sync->registerCallback(
-    std::bind(&MultiObjectTrackerNode::process_using_odom, m_class_ptr, _1, _2));
-}
-
-void MultiObjectTrackerNode::RegisterSyncCallback::operator()(
-  std::shared_ptr<message_filters::Synchronizer<PosePolicy>> sync)
-{
-  sync->registerCallback(
-    std::bind(&MultiObjectTrackerNode::process_using_pose, m_class_ptr, _1, _2));
-  sync->setMaxIntervalDuration(std::chrono::milliseconds(20));
 }
 
 }  // namespace tracking_nodes
