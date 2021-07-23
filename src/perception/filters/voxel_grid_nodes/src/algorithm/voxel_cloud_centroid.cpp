@@ -87,9 +87,11 @@ const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
   modifier.reserve(m_grid.size());
 
   for (const auto & it : m_grid) {
+    std::cout << "GET 3" << std::endl;
     const auto & pt = it.second.get();
     modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
   }
+  std::cout << "GET 6" << std::endl;
   m_grid.clear();
 
   return m_cloud;
