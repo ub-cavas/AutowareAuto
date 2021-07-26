@@ -206,22 +206,21 @@ TEST_F(CloudAlgorithm, Centroid)
   alg_ptr->insert(cloud1);
   std::cout << "### CENTROID 6 ==" << std::endl;
   // get
-  auto f = alg_ptr->get();
-  // EXPECT_TRUE(check(alg_ptr->get(), 4U));
+  EXPECT_TRUE(check(alg_ptr->get(), 4U));
   std::cout << "CENTROID 7" << std::endl;
   // // check empty
-  // EXPECT_EQ(alg_ptr->get().width, 0U);
+  EXPECT_EQ(alg_ptr->get().width, 0U);
   // std::cout << "CENTROID 8" << std::endl;
-  // // add more points
-  // alg_ptr->insert(cloud1);
-  // std::cout << "CENTROID 9" << std::endl;
-  // alg_ptr->insert(cloud2);
-  // std::cout << "CENTROID 10" << std::endl;
-  // // get again
-  // EXPECT_TRUE(check(alg_ptr->get(), ref_points1.size()));
-  // std::cout << "CENTROID 11" << std::endl;
-  // // check empty
-  // EXPECT_EQ(alg_ptr->get().width, 0U);
+  // add more points
+  alg_ptr->insert(cloud1);
+  std::cout << "CENTROID 9" << std::endl;
+  alg_ptr->insert(cloud2);
+  std::cout << "CENTROID 10" << std::endl;
+  // get again
+  EXPECT_TRUE(check(alg_ptr->get(), ref_points1.size()));
+  std::cout << "CENTROID 11" << std::endl;
+  // check empty
+  EXPECT_EQ(alg_ptr->get().width, 0U);
   std::cout << "CENTROID 12" << std::endl;
 }
 
