@@ -68,7 +68,6 @@ public:
       std::cout << "ground pc actual size = " << m_ground_points[i].data.size() << std::endl;
       std::cout << "ground pc expected size = " << expected_ground_pcl_size << std::endl;
     }
-    std::cout << "===== RET: " << ret <<  std::endl;
     return ret;
   }
 
