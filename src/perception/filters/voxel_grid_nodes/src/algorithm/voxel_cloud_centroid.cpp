@@ -59,6 +59,7 @@ void VoxelCloudCentroid::insert(
   if (!has_intensity_and_throw_if_no_xyz(msg)) {
     point_step = 3U * field_size;
   }
+  point_step += sizeof(decltype(autoware::common::types::PointXYZIF::id));
 
   // Iterate through the data, but skip intensity in case the point cloud does not have it.
   // For example:
@@ -87,11 +88,9 @@ const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
   modifier.reserve(m_grid.size());
 
   for (const auto & it : m_grid) {
-    std::cout << "GET 3" << std::endl;
     const auto & pt = it.second.get();
     modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
   }
-  std::cout << "GET 6" << std::endl;
   m_grid.clear();
 
   return m_cloud;
