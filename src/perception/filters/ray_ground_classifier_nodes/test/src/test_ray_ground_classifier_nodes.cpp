@@ -178,8 +178,13 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
     modifier2.push_back(pt);
   }
 
-  // expected size = 4 bytes * 4 fields * cloud_size
-  uint32_t expected_gnd_pcl_size = 4U * 4U * mini_cloud_size;
+  uint32_t expected_gnd_pcl_size = (
+    sizeof(decltype(autoware::common::types::PointXYZIF::x)) +
+    sizeof(decltype(autoware::common::types::PointXYZIF::y)) +
+    sizeof(decltype(autoware::common::types::PointXYZIF::z)) +
+    sizeof(decltype(autoware::common::types::PointXYZIF::intensity)) +
+    sizeof(decltype(autoware::common::types::PointXYZIF::id))
+    ) * mini_cloud_size;
   uint32_t expected_nongnd_pcl_size = 0U;  // no points will be classified as nonground
   uint32_t expected_num_received = 2U;
 
