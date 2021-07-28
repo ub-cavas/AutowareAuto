@@ -43,13 +43,13 @@ using autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode;
 class VoxelAlgorithm : public ::testing::Test
 {
 protected:
-  PointXYZIF make(const float32_t x, const float32_t y, const float32_t z, const uint16_t ring)
+  PointXYZIF make(const float32_t x, const float32_t y, const float32_t z, const uint16_t id)
   {
     PointXYZI ret;
     ret.x = x;
     ret.y = y;
     ret.z = z;
-    ret.id = ring;
+    ret.id = id;
     return ret;
   }
   std::unique_ptr<Config> cfg_ptr;

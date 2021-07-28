@@ -61,7 +61,7 @@ PointCloudMutationSpooferNode::PointCloudMutationSpooferNode(
     m_msg.fields[idx].count = 1U;
     m_msg.point_step += static_cast<uint32_t>(sizeof(float32_t));
   }
-  m_msg.fields[4U].name = "ring";
+  m_msg.fields[4U].name = "id";
   m_msg.fields[4U].offset = static_cast<uint32_t>(4U * sizeof(float32_t));
   m_msg.fields[4U].datatype = sensor_msgs::msg::PointField::UINT16;
   m_msg.fields[4U].count = 1U;
