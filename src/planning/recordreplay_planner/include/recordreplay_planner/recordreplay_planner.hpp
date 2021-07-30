@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,10 +66,13 @@ public:
   /// \return True if state was added to record buffer, False otherwise
   bool record_state(const State & state_to_record);
 
-  // Replay trajectory from stored plan. The current state of the vehicle is given
-  // and the trajectory will be chosen from the stored plan such that the starting
-  // point of the trajectory is as close as possible to this current state.
-  const Trajectory & plan(const State & current_state);
+  /**
+   * \brief Generates a trajectory from the recorded path
+   * \param current_state current state of the vehicle
+   * \param loop whether or not the stored path is a loop
+   * \return a trajectory that replays the stored path from the current point
+   */
+  const Trajectory & plan(const State & current_state, const bool loop);
 
   // Return the number of currently-recorded State messages
   std::size_t get_record_length() const noexcept;
@@ -88,7 +91,7 @@ public:
   /**
    * \brief Judges whether current_state has reached the last point in record buffer
    * \param current_state current state of the vehicle
-   * \param distance_thresh threshold of euclidean distance between the current statethe and the last point in meters
+   * \param distance_thresh threshold of euclidean distance between the current state the and the last point in meters
    * \param angle_thresh threshold of difference in the headings of the current_state and the last point in radians
    * \return true if both distance and angle conditions are satisfied
    */
@@ -96,9 +99,28 @@ public:
     const State & current_state, const float64_t & distance_thresh,
     const float64_t & angle_thresh) const;
 
+  /**
+   * \brief Judges whether the trajectory is a loop
+   * \param distance_thresh threshold of euclidean state between the first and last points in meters
+   * \return true if the distance threshold is met
+   */
+  bool8_t is_loop(
+    const float64_t & distance_thresh
+  ) const;
+
+  auto get_record_buffer()
+  {
+    return m_record_buffer;
+  }
+
 private:
   // Obtain a trajectory from the internally-stored recording buffer
-  RECORDREPLAY_PLANNER_LOCAL const Trajectory & from_record(const State & current_state);
+  RECORDREPLAY_PLANNER_LOCAL const Trajectory & from_record(
+    const State & current_state,
+    const bool loop);
+
+  // Find the index of the state in the record buffer
+  // closest to the current vehicle state
   RECORDREPLAY_PLANNER_LOCAL std::size_t get_closest_state(const State & current_state);
 
   // Weight of heading in computations of differences between states

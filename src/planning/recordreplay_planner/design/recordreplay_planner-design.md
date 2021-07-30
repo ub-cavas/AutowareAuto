@@ -7,7 +7,7 @@ This package provides a simple class for recording states, then playing them bac
 be used in both the simulator as well as in on-site tests of the controller: One can turn on recording, start
 driving a trajectory, then reset vehicle position, then start replay and see what the controller does.
 
-It also incorporates a limited capability to try and avoid collisions.
+The trajectories can be a loop , which is detected automatically if the final recorded point is sufficiently close to the first point. It also incorporates a limited capability to try and avoid collisions.
 
 
 # Design
@@ -34,6 +34,10 @@ to track the desired velocity going to zero in a single trajectory step.
 
 Making sure this assumption is satisfied by construction would involve creating a dynamically feasible
 velocity profile for stopping - this has not been done yet. 
+
+Loop detection is currently very simple, it relies on simple proximity of end and start points. 
+This could cause undesired behaviour if looping is not desired, or could cause issues if looping is desired but the
+recording goes past the start point. In future, loop detection could be significantly improved.
 
 ## Inputs / Outputs / API
 

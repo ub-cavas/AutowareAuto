@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -207,9 +207,9 @@ bool RecordReplayPlanner::record_state(const State & state_to_record)
   }
 }
 
-const Trajectory & RecordReplayPlanner::plan(const State & current_state)
+const Trajectory & RecordReplayPlanner::plan(const State & current_state, const bool loop)
 {
-  return from_record(current_state);
+  return from_record(current_state, loop);
 }
 
 
@@ -240,7 +240,7 @@ std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
 }
 
 
-const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
+const Trajectory & RecordReplayPlanner::from_record(const State & current_state, const bool loop)
 {
   // Find out where on the recorded buffer we should start replaying
   m_traj_start_idx = get_closest_state(current_state);
@@ -248,22 +248,66 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   // Determine how long the published trajectory will be
   auto & trajectory = m_trajectory;
   const auto record_length = get_record_length();
-  m_traj_end_idx =
-    std::min(
-    {record_length - m_traj_start_idx, trajectory.points.max_size()}) +
-    m_traj_start_idx;
+  size_t publication_len;
+
+  // Determine the final point in the trajectory and the length of the published trajectory
+  if (!loop) {
+    // If not a loop, we first determine how much we
+    // can record - this will either be the distance from
+    // the start index to the end of the recording, or
+    // the maximum length of recording, whichever is shorter.
+    publication_len =
+      std::min(
+      record_length - m_traj_start_idx, trajectory.points.max_size());
+  } else {
+    publication_len =
+      std::min(record_length, trajectory.points.max_size());
+  }
+
+  m_traj_end_idx = m_traj_start_idx + publication_len;
+
+  // We wrap the end index back to the front of the recording if necessary
+  if (m_traj_end_idx > record_length) {
+    m_traj_end_idx -= record_length;
+  }
+
+  trajectory.points.resize(publication_len);
 
   // Assemble the trajectory as desired
   trajectory.header = current_state.header;
-  const auto publication_len = m_traj_end_idx - m_traj_start_idx;
-  trajectory.points.resize(publication_len);
 
   const auto t0 = time_utils::from_message(m_record_buffer[m_traj_start_idx].header.stamp);
-  for (std::size_t i = {}; i < publication_len; ++i) {
-    // Make the time spacing of the points match the recorded timing
-    trajectory.points[i] = m_record_buffer[m_traj_start_idx + i].state;
-    trajectory.points[i].time_from_start = time_utils::to_message(
-      time_utils::from_message(m_record_buffer[m_traj_start_idx + i].header.stamp) - t0);
+
+  if (!loop || m_traj_start_idx < m_traj_end_idx) {
+    // If not looping, we simply copy points between start index and end index
+    // in record buffer into the return trajectory, adjusting timestamps
+    // such that they're relative to current time
+    for (std::size_t i = 0; i < publication_len; ++i) {
+      // Make the time spacing of the points match the recorded timing
+      trajectory.points[i] = m_record_buffer[m_traj_start_idx + i].state;
+      trajectory.points[i].time_from_start = time_utils::to_message(
+        time_utils::from_message(m_record_buffer[m_traj_start_idx + i].header.stamp) - t0);
+    }
+  } else {
+    // We need two loops here - first fills from current position to end of original traj,
+    // second from beginning of original traj to current pos
+    auto t1 = t0;  // This will be used to correct timings in the second loop
+
+    for (std::size_t i = m_traj_start_idx; i < record_length; ++i) {
+      auto idx = i - m_traj_start_idx;
+      trajectory.points[idx] = m_record_buffer[i].state;
+      t1 = time_utils::from_message(m_record_buffer[i].header.stamp);
+      trajectory.points[idx].time_from_start = time_utils::to_message(t1 - t0);
+    }
+    // At this stage, t1 is relative time of the final point in the record buffer
+
+    for (std::size_t i = 0; i < m_traj_end_idx; ++i) {
+      auto idx = i + (record_length - m_traj_start_idx);
+      trajectory.points[idx] = m_record_buffer[i].state;
+
+      // This should be updated to have similar timestamp modificaton
+      // but it is unclear what function the timestamps carry out
+    }
   }
 
   // Adjust time stamp from velocity
@@ -286,7 +330,7 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   // accelerations and velocities to zero. TODO(s.me) this is by no means
   // guaranteed to be dynamically feasible. One could implement a proper velocity
   // profile here in the future.
-  if (m_traj_end_idx > m_traj_start_idx) {
+  if (!loop && m_traj_end_idx > m_traj_start_idx) {
     const auto traj_last_idx = publication_len - 1U;
     trajectory.points[traj_last_idx].longitudinal_velocity_mps = 0.0;
     trajectory.points[traj_last_idx].lateral_velocity_mps = 0.0;
@@ -401,6 +445,28 @@ bool8_t RecordReplayPlanner::reached_goal(
     return true;
   }
   return false;
+}
+
+// Uses code similar to RecordReplayPlanner::reached_goal(),
+// but does not check the heading alignment
+bool8_t RecordReplayPlanner::is_loop(
+  const float64_t & distance_thresh) const
+{
+  bool retval = false;
+
+  // Can only be a loop if the path is longer than 1 in length
+  if (get_record_length() > 1) {
+    const auto & goal_state = m_record_buffer.front().state;
+    const auto & start_state = m_record_buffer.back().state;
+    const auto distance2d =
+      static_cast<float64_t>(std::hypot(
+        start_state.x - goal_state.x,
+        start_state.y - goal_state.y));
+
+    retval = distance2d < distance_thresh;
+  }
+
+  return retval;
 }
 
 }  // namespace recordreplay_planner

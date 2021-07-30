@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -78,7 +78,7 @@ TEST_P(SanityChecksTrajectoryProperties, Basicproperties)
   EXPECT_EQ(planner_.get_record_length(), static_cast<std::size_t>(N));
 
   // Test: Check that the plan returned has the expected time length
-  auto trajectory = planner_.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+  auto trajectory = planner_.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
   float64_t trajectory_time_length = trajectory.points[N - 1].time_from_start.sec + 1e-9F *
     trajectory.points[N - 1].time_from_start.nanosec;
   float64_t endpoint_sec = (1.0F * (N - 1) * time_increment).count() * 1.0e-3;
@@ -124,7 +124,7 @@ TEST_P(SanityChecksTrajectoryLength, Length)
 
   // Test: Check that the length is equal to the number of states we fed in
   EXPECT_EQ(planner_.get_record_length(), N);
-  auto trajectory = planner_.plan(dummy_state);
+  auto trajectory = planner_.plan(dummy_state, false);
 
   EXPECT_EQ(
     trajectory.points.size(),
@@ -169,7 +169,7 @@ TEST(RecordreplaySanityChecks, RecedingHorizonHappycase)
   // Call "plan" multiple times in sequence, expecting the states to come back out in order
   const auto t0 = system_clock::from_time_t({});
   for (uint32_t k = {}; k < N; ++k) {
-    auto trajectory = planner.plan(make_state(1.0F * k, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+    auto trajectory = planner.plan(make_state(1.0F * k, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
     // normally don't check float equality but we _just_ pushed this float so it ought not
     // to have changed
     EXPECT_EQ(1.0F * k, trajectory.points[0].pose.position.x);
@@ -268,7 +268,7 @@ TEST(RecordreplayWriteReadTrajectory, WriteReadTrajectory)
   EXPECT_EQ(planner.get_record_length(), static_cast<std::size_t>(5));
 
   const auto t0 = system_clock::from_time_t({});
-  auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+  auto trajectory = planner.plan(make_state(0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
 
   for (uint32_t k = {}; k < N; ++k) {
     EXPECT_EQ(1.0F * k, trajectory.points[k].pose.position.x);
@@ -306,7 +306,7 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state);
+    planner.plan(vehicle_state, false);
     EXPECT_FALSE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
 
@@ -317,7 +317,7 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state);
+    planner.plan(vehicle_state, false);
     EXPECT_FALSE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
 
@@ -328,7 +328,74 @@ TEST(RecordreplayReachGoal, checkReachGoalCondition)
     const auto vehicle_state = make_state(
       x, 0.0F, heading, 0.0F, 0.0F, 0.0F,
       system_clock::from_time_t({}));
-    planner.plan(vehicle_state);
+    planner.plan(vehicle_state, false);
     EXPECT_TRUE(planner.reached_goal(vehicle_state, distance_thresh, angle_thresh));
   }
+}
+
+TEST(RecordreplayLoopingTrajectories, maintainTrajectoryLength) {
+  // This test assumes that `trajectory.points.max_size() > 5
+  // As of 2021-08-12 it is 100
+  uint32_t N = 5;
+
+  // It doesn't matter that this trajectory isn't a real loop, we will treat it like one
+  auto planner = helper_create_and_record_example(N);
+
+
+  // We will start in the middle of this, and we expect
+  // that the return trajectory is of the full length
+  auto vehicle_state = make_state(
+    N / 2, 0.0F, 0.0F,
+    0.0F, 0.0F, 0.0F, system_clock::from_time_t({}));
+
+  auto traj = planner.plan(vehicle_state, true);
+  EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(N));
+}
+
+RecordReplayPlanner helper_create_and_record_pseudo_loop(uint32_t N)
+{
+  if (N < 2) {
+    return RecordReplayPlanner();
+  } else {
+    // Assume that helper_create_and_record_example(N)
+    // still creates a straight line trajectory from (0,0) to (N-1,0)
+    auto planner = helper_create_and_record_example(N - 1);
+
+    // The last argument could be made better by pulling the
+    // time associated with the last point in the trajectory
+    // but this isn't that important to testing loop functionality
+    planner.record_state(
+      make_state(
+        0.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F,
+        system_clock::from_time_t({})));
+
+    return planner;
+  }
+}
+
+TEST(RecordreplayLoopingTrajectories, correctLoopHandling) {
+  auto planner = helper_create_and_record_pseudo_loop(500);
+
+  // We will start in the middle of this, and we
+  // expect that the return trajectory is of the full length
+  auto record_buf = planner.get_record_buffer();
+
+  auto vehicle_trajectory_point = record_buf[record_buf.size() - 10].state;
+
+  autoware_auto_msgs::msg::VehicleKinematicState vehicle_state
+  {rosidl_runtime_cpp::MessageInitialization::ALL};
+
+  vehicle_state.state.x = vehicle_trajectory_point.x;
+  vehicle_state.state.y = vehicle_trajectory_point.y;
+  vehicle_state.state.heading = vehicle_trajectory_point.heading;
+  vehicle_state.state.longitudinal_velocity_mps =
+    vehicle_trajectory_point.longitudinal_velocity_mps;
+  vehicle_state.state.acceleration_mps2 = vehicle_trajectory_point.acceleration_mps2;
+  vehicle_state.state.heading_rate_rps = vehicle_trajectory_point.heading_rate_rps;
+  vehicle_state.state.lateral_velocity_mps = vehicle_trajectory_point.lateral_velocity_mps;
+  vehicle_state.header.stamp = time_utils::to_message(system_clock::from_time_t({}));
+
+  auto traj = planner.plan(vehicle_state, planner.is_loop(5));
+
+  EXPECT_EQ(traj.points.size(), static_cast<std::size_t>(100));
 }

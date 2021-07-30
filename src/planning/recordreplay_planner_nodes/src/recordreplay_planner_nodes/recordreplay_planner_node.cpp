@@ -1,4 +1,4 @@
-// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, Arm Ltd. Inspired by Christopher Ho's mpc code
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -210,8 +210,8 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_replaying()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
-    const auto & traj_raw = m_planner->plan(msg_world);
-    RCLCPP_INFO(this->get_logger(), "replaying");
+    const auto & traj_raw = m_planner->plan(*msg);
+
     // Request service to consider object collision if enabled
     if (m_modify_trajectory_client) {
       auto request = std::make_shared<ModifyTrajectory::Request>();
@@ -233,12 +233,16 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
       m_replaygoalhandle->publish_feedback(feedback_msg);
     }
 
+    // If we reach the destination and are not in a loop, terminate replay
     if (m_planner->reached_goal(
-        msg_world, m_goal_distance_threshold_m,
-        m_goal_angle_threshold_rad))
+        *msg, m_goal_distance_threshold_m, m_goal_angle_threshold_rad))
     {
-      m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
-      m_planner->stop_replaying();
+      if (!m_planner->is_loop(5 * m_goal_distance_threshold_m)) {
+        m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
+        m_planner->stop_replaying();
+      } else {
+        RCLCPP_INFO_ONCE(this->get_logger(), "Reaching the loop crossover point");
+      }
     }
   }
 }
