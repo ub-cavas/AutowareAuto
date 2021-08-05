@@ -228,17 +228,10 @@ DetectedObject compute_bounding_box(
 template<typename IT>
 DetectedObject eigenbox_2d(const IT begin, const IT end)
 {
-  // NOTE(esteve): commented out because DetectedObject does not have a value field
-  // compute covariance
-  // const details::Covariance2d cov = details::covariance_2d(begin, end);
-
   // compute eigenvectors
   using PointT = details::base_type<decltype(*begin)>;
   PointT eig1;
   PointT eig2;
-
-  // NOTE(esteve): commented out because DetectedObject does not have a value field
-  // const auto eigv = details::eig_2d(cov, eig1, eig2);
 
   // find extreme points
   details::Point4<IT> supports;
@@ -248,9 +241,6 @@ DetectedObject eigenbox_2d(const IT begin, const IT end)
     std::swap(eig1, eig2);
   }
   DetectedObject bbox = details::compute_bounding_box(eig1, eig2, supports);
-
-  // NOTE(esteve): commented out because DetectedObject does not have a value field
-  // bbox.value = eigv.first;
 
   return bbox;
 }

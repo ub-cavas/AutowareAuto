@@ -186,8 +186,6 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
 
   // NOTE(esteve): commented out because DetectedObject does not have a size field
   // size_2d(best_corners, bbox.size);
-  // NOTE(esteve): commented out because DetectedObject does not have a value field
-  // bbox.value = metric_fn(bbox.size);
   // rotating calipers step: incrementally advance, update angles, points, compute area
   for (auto it = begin; it != end; ++it) {
     // find smallest angle to next, update directions
@@ -199,19 +197,6 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
     // NOTE(esteve): commented out because DetectedObject does not have a size field
     // geometry_msgs::msg::Point32 tmp_size;
     // size_2d(corners, tmp_size);
-
-    // NOTE(esteve): commented out because DetectedObject does not have a value field
-    // const float32_t tmp_value = metric_fn(tmp_size);
-
-    // update best if necessary
-    // NOTE(esteve): commented out because DetectedObject does not have a value field
-    // if (tmp_value < bbox.value) {
-    //   // corners: memcpy is fine since I know corners and best_corners are distinct
-    //   (void)std::memcpy(&best_corners[0U], &corners[0U], sizeof(corners));
-    //   // size
-    //   bbox.size = tmp_size;
-    //   bbox.value = tmp_value;
-    // }
 
     // Step to next iteration of calipers
     {

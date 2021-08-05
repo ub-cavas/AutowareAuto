@@ -88,8 +88,6 @@ protected:
     // NOTE(esteve): commented out because DetectedObject does not have a size field
     // ASSERT_LT(fabsf(box.size.x - sx), TOL);
     // ASSERT_LT(fabsf(box.size.y - sy), TOL);
-    // NOTE(esteve): commented out because DetectedObject does not have a value field
-    // ASSERT_LT(fabsf(box.value - val), TOL) << box.value;
 
     ASSERT_LT(fabsf(box.kinematics.centroid_position.x - cx), TOL);
     ASSERT_LT(fabsf(box.kinematics.centroid_position.y - cy), TOL);
@@ -279,8 +277,6 @@ TYPED_TEST(BoxTest, Hull)
   // NOTE(esteve): commented out because DetectedObject does not have a size field
   // ASSERT_LT(fabsf(this->box.size.y - 2.0F * rx), TOL_M);
   // ASSERT_LT(fabsf(this->box.size.x - 2.0F * ry), TOL_M);
-  // NOTE(esteve): commented out because DetectedObject does not have a value field
-  // ASSERT_FLOAT_EQ(this->box.value, this->box.size.x * this->box.size.y);
 }
 
 //
