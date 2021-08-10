@@ -1,14 +1,25 @@
 repositories:
+  src/external/automotive_autonomy_msgs:
+    type: git
+    url: https://github.com/astuff/automotive_autonomy_msgs.git
+    version: 40fdb58a8aaddf2866f4ddd3da71dfd8e3a491ad
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
-    version: 79f16892e589ce46a7f594ab6bc03715a377a57b
+    version: fc7ce0954d82535d60df916c20f7880d674eb1cd
   src/external/casadi_vendor:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor.git
-    version: e244158a3dd6d181c01bd756b3603a39a09107e9
-  src/external/raptor_dbw_ros2:
+    version: 3.5.1
+  src/external/raptor-dbw-ros2:
     type: git
-    url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
-    version: 8bcb321103abdf1da603865ec8cf12e803f085bc
-
+    url: https://github.com/NewEagleRaptor/raptor-dbw-ros2
+    version: foxy-1.1.1
+  src/external/rosauth:
+    type: git
+    url: https://github.com/GT-RAIL/rosauth.git
+    version: 2.0.2
+  src/external/rosbridge_suite:
+    type: git
+    url: https://github.com/RobotWebTools/rosbridge_suite.git
+    version: 1a2c386455067b00a9e67fb70cc711add38c3582
