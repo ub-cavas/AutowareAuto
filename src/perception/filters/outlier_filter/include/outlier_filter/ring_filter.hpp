@@ -19,6 +19,14 @@
 #ifndef OUTLIER_FILTER__RING_FILTER_HPP_
 #define OUTLIER_FILTER__RING_FILTER_HPP_
 
+#include <vector>
+
+#include "common/types.hpp"
+#include "outlier_filter/visibility_control.hpp"
+
+#include "pcl/filters/voxel_grid.h"
+#include "pcl/search/pcl_search.h"
+
 namespace autoware
 {
 namespace perception
@@ -31,6 +39,56 @@ namespace outlier_filter
 namespace ring_filter
 {
 
+/** \class RingFilter
+ * \brief Library for using a ring based filtering algorithm to perform outlier filtering
+ */
+class OUTLIER_FILTER_PUBLIC RingFilter
+{
+public:
+  /** \brief Constructor for the RingFilter class
+   * \param distance_ratio
+   * \param object_length_threshold
+   * \param num_points_threshold
+   */
+  OUTLIER_FILTER_PUBLIC RingFilter(
+    common::types::float64_t distance_ratio,
+    common::types::float64_t object_length_threshold,
+    int num_points_threshold);
+
+  /** \brief Filter function that runs the ring based algorithm.
+   * \param input The input point cloud for filtering
+   * \param output The output point cloud
+   */
+  void OUTLIER_FILTER_PUBLIC filter(
+    const pcl::PointCloud<common::types::PointXYZIF> & input,
+    pcl::PointCloud<common::types::PointXYZIF> & output);
+
+  /** \brief Update dynamically configurable parameters
+   * \param distance_ratio Parameter that updates the distance_ratio_ member variable
+   * \param object_length_threshold Parameter that updates the object_length_threshold_ member variable
+   * \param num_points_threshold Parameter that updates the num_points_threshold_ member variable
+   */
+  void OUTLIER_FILTER_PUBLIC update_parameters(
+    common::types::float64_t distance_ratio,
+    common::types::float64_t object_length_threshold,
+    int num_points_threshold)
+  {
+    distance_ratio_ = distance_ratio;
+    object_length_threshold_ = object_length_threshold;
+    num_points_threshold_ = num_points_threshold;
+  }
+
+private:
+  /** \brief */
+  common::types::float64_t distance_ratio_;
+
+  /** \brief */
+  common::types::float64_t object_length_threshold_;
+
+  /** \brief */
+  int num_points_threshold_;
+
+};
 }  // namesapce ring_filter
 }  // namespace outlier_filter
 }  // namespace filters

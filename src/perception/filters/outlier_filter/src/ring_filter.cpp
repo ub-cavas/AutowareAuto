@@ -12,6 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "outlier_filter/ring_filter.hpp"
 
 namespace autoware
 {
@@ -23,6 +24,20 @@ namespace outlier_filter
 {
 namespace ring_filter
 {
+
+RingFilter::RingFilter(
+  common::types::float64_t distance_ratio,
+  common::types::float64_t object_length_threshold, int num_points_threshold)
+{
+
+}
+
+void RingFilter::filter(
+  const pcl::PointCloud<common::types::PointXYZIF> & input,
+  pcl::PointCloud<common::types::PointXYZIF> & output)
+{
+
+}
 
 }  // namesapce ring_filter
 }  // namespace outlier_filter
