@@ -31,11 +31,13 @@ include_directories(
 
 set(OUTLIER_FILTER_LIB_SRC
   src/radius_search_2d_filter.cpp
+  src/ring_filter.cpp
   src/voxel_grid_outlier_filter.cpp
 )
 
 set(OUTLIER_FILTER_LIB_HEADERS
   include/outlier_filter/radius_search_2d_filter.hpp
+  include/outlier_filter/ring_filter.hpp
   include/outlier_filter/voxel_grid_outlier_filter.hpp
   include/outlier_filter/visibility_control.hpp
 )
