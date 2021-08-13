@@ -46,18 +46,21 @@ void RingFilter::filter(
   const pcl::PointCloud<common::types::PointXYZIF> & input,
   pcl::PointCloud<pcl::PointXYZ> & output)
 {
-  std::vector<pcl::PointCloud<common::types::PointXYZIF>> pcl_input_ring_array;
+  std::vector<pcl::PointCloud<pcl::PointXYZ>> pcl_input_ring_array;
   pcl_input_ring_array.resize(128);  // TODO(j.eccleston): make parameter
+  pcl::PointXYZ tmp_p;
   for (const auto & p : input.points) {
     // ID field contains the ring information
-    pcl_input_ring_array.at(p.id).push_back(p);
+    tmp_p.x = p.x;
+    tmp_p.y = p.y;
+    tmp_p.z = p.z;
+    pcl_input_ring_array.at(p.id).push_back(tmp_p);
   }
 
   output.points.reserve(input.points.size());
 
   // Iterate each ring to filter
   pcl::PointCloud<pcl::PointXYZ> pcl_tmp;
-  pcl::PointXYZ p;
   for (const auto & ring_points : pcl_input_ring_array) {
     // If points are below minimal threshold ignore and don't filter
     if (ring_points.points.size() < 2) { // TODO(j.eccleston): make parameter
@@ -67,35 +70,31 @@ void RingFilter::filter(
     for (auto iter = std::begin(ring_points.points); iter != std::end(ring_points.points) - 1;
       ++iter)
     {
-      p.x = (iter)->x;
-      p.y = (iter)->y;
-      p.z = (iter)->z;
-      pcl_tmp.points.push_back(p);
-      // Calculate distance
+      pcl_tmp.points.push_back(*iter);
+      
+      if (!is_outlier(*iter, *(iter+1))) {
+
+      }
     }
   }
 }
 
-bool RingFilter::is_outlier() const
+bool RingFilter::is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const
 {
-  return true;
+  return is_max_dist_exceeded(pt1, pt2) && calc_azimuth_diff(pt1, pt2) < 100.0f;
 }
 
-bool RingFilter::is_max_dist_exceeded(pcl::PointXYZ & curr_point, pcl::PointXYZ & next_point) const {
+bool RingFilter::is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const {
   // TODO: convert to std::hypot(x,y,z) in C++17/Galactic
-  const common::types::float64_t curr_distance = std::sqrt(
-    curr_point.x * curr_point.x + curr_point.y * curr_point.y + curr_point.z *
-    curr_point.z);
-  const common::types::float64_t next_distance = std::sqrt(
-    next_point.x * next_point.x + next_point.y * next_point.y + next_point.z *
-    next_point.z);
+  const common::types::float64_t curr_distance = std::sqrt(pt1.x * pt1.x + pt1.y * pt1.y + pt1.z * pt1.z);
+  const common::types::float64_t next_distance = std::sqrt(pt2.x * pt2.x + pt2.y * pt2.y + pt2.z * pt2.z);
   const common::types::float64_t min_dist = std::min(curr_distance, next_distance);
   const common::types::float64_t max_dist = std::max(curr_distance, next_distance);
 
   return max_dist < min_dist * distance_ratio_;
 }
 
-float RingFilter::calc_azimuth_diff(pcl::PointXYZ pt1, pcl::PointXYZ pt2) const {
+float RingFilter::calc_azimuth_diff(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const {
   // Calculate pt2 and pt3 azimuth in degrees
   float pt1_azimuth = std::atan2(pt1.x, pt1.y) * (180.0f/common::types::PI);
   float pt2_azimuth = std::atan2(pt2.x, pt2.y) * (180.0f/common::types::PI);

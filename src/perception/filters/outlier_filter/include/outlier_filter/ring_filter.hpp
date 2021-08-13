@@ -90,11 +90,11 @@ private:
 
   /** \brief
    */
-  bool is_outlier() const;
+  bool is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 
-  bool is_max_dist_exceeded(pcl::PointXYZ & curr_point, pcl::PointXYZ & next_point) const;
+  bool is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 
-  float calc_azimuth_diff(pcl::PointXYZ pt1, pcl::PointXYZ pt2) const;
+  float calc_azimuth_diff(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 };
 }  // namesapce ring_filter
 }  // namespace outlier_filter
