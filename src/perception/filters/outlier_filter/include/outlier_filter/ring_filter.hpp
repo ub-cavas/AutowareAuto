@@ -61,7 +61,7 @@ public:
    */
   void OUTLIER_FILTER_PUBLIC filter(
     const pcl::PointCloud<common::types::PointXYZIF> & input,
-    pcl::PointCloud<common::types::PointXYZIF> & output);
+    pcl::PointCloud<pcl::PointXYZ> & output);
 
   /** \brief Update dynamically configurable parameters
    * \param distance_ratio Parameter that updates the distance_ratio_ member variable
@@ -88,6 +88,13 @@ private:
   /** \brief */
   int num_points_threshold_;
 
+  /** \brief
+   */
+  bool is_outlier() const;
+
+  bool is_max_dist_exceeded(pcl::PointXYZ & curr_point, pcl::PointXYZ & next_point) const;
+
+  float calc_azimuth_diff(pcl::PointXYZ pt1, pcl::PointXYZ pt2) const;
 };
 }  // namesapce ring_filter
 }  // namespace outlier_filter
