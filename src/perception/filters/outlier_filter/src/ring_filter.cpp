@@ -35,7 +35,7 @@ namespace ring_filter
 
 RingFilter::RingFilter(
   common::types::float64_t distance_ratio,
-  common::types::float32_t object_length_threshold, size_t num_points_threshold)
+  common::types::float32_t object_length_threshold, std::size_t num_points_threshold)
 : distance_ratio_(distance_ratio), object_length_threshold_(object_length_threshold),
   num_points_threshold_(num_points_threshold)
 {}
@@ -56,12 +56,13 @@ void RingFilter::filter(
   }
 
   output.points.reserve(input.points.size());
+  output.header = input.header;
 
   // Iterate each ring to filter
   pcl::PointCloud<pcl::PointXYZ> pcl_tmp;
   for (const auto & ring_points : pcl_input_ring_array) {
     // If points are below minimal threshold ignore and don't filter
-    if (ring_points.points.size() < 2) { // TODO(j.eccleston): make parameter
+    if (ring_points.points.size() < 2) {  // TODO(j.eccleston): make parameter
       continue;
     }
 
@@ -93,15 +94,19 @@ void RingFilter::filter(
   }
 }
 
-bool RingFilter::is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const
+common::types::bool8_t RingFilter::is_outlier(
+  const pcl::PointXYZ & pt1,
+  const pcl::PointXYZ & pt2) const
 {
   // TODO(j.eccleston): Should parameterise the 100.0f
   return is_max_dist_exceeded(pt1, pt2) && calc_azimuth_diff(pt1, pt2) < 100.0f;
 }
 
-bool RingFilter::is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const
+common::types::bool8_t RingFilter::is_max_dist_exceeded(
+  const pcl::PointXYZ & pt1,
+  const pcl::PointXYZ & pt2) const
 {
-  // TODO: convert to std::hypot(x,y,z) in C++17/Galactic
+  // TODO(j.eccleston): convert to std::hypot(x,y,z) in C++17/Galactic
   const common::types::float64_t curr_distance = std::sqrt(
     pt1.x * pt1.x + pt1.y * pt1.y + pt1.z * pt1.z);
   const common::types::float64_t next_distance = std::sqrt(
@@ -112,17 +117,19 @@ bool RingFilter::is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::Poin
   return max_dist < min_dist * distance_ratio_;
 }
 
-float RingFilter::calc_azimuth_diff(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const
+common::types::float32_t RingFilter::calc_azimuth_diff(
+  const pcl::PointXYZ & pt1,
+  const pcl::PointXYZ & pt2) const
 {
   // Calculate pt2 and pt3 azimuth in degrees
-  float pt1_azimuth = std::atan2(pt1.x, pt1.y) * (180.0f / common::types::PI);
-  float pt2_azimuth = std::atan2(pt2.x, pt2.y) * (180.0f / common::types::PI);
-  float azimuth_diff = pt1_azimuth - pt2_azimuth;
+  common::types::float32_t pt1_azimuth = std::atan2(pt1.x, pt1.y) * (180.0f / common::types::PI);
+  common::types::float32_t pt2_azimuth = std::atan2(pt2.x, pt2.y) * (180.0f / common::types::PI);
+  common::types::float32_t azimuth_diff = pt1_azimuth - pt2_azimuth;
   azimuth_diff = azimuth_diff < 0.f ? azimuth_diff + 360.f : azimuth_diff;
   return azimuth_diff;
 }
 
-bool RingFilter::is_object_threshold_exceeded(
+common::types::bool8_t RingFilter::is_object_threshold_exceeded(
   const pcl::PointXYZ & pt1,
   const pcl::PointXYZ & pt2) const
 {
@@ -130,7 +137,7 @@ bool RingFilter::is_object_threshold_exceeded(
          (pt1.z - pt2.z) >= object_length_threshold_ * object_length_threshold_;
 }
 
-}  // namesapce ring_filter
+}  // namespace ring_filter
 }  // namespace outlier_filter
 }  // namespace filters
 }  // namespace perception

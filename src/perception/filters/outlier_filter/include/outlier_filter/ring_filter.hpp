@@ -53,7 +53,7 @@ public:
   OUTLIER_FILTER_PUBLIC RingFilter(
     common::types::float64_t distance_ratio,
     common::types::float32_t object_length_threshold,
-    size_t num_points_threshold);
+    std::size_t num_points_threshold);
 
   /** \brief Filter function that runs the ring based algorithm.
    * \param input The input point cloud for filtering
@@ -71,7 +71,7 @@ public:
   void OUTLIER_FILTER_PUBLIC update_parameters(
     common::types::float64_t distance_ratio,
     common::types::float32_t object_length_threshold,
-    size_t num_points_threshold)
+    std::size_t num_points_threshold)
   {
     distance_ratio_ = distance_ratio;
     object_length_threshold_ = object_length_threshold;
@@ -86,19 +86,25 @@ private:
   common::types::float32_t object_length_threshold_;
 
   /** \brief */
-  size_t num_points_threshold_;
+  std::size_t num_points_threshold_;
 
   /** \brief
    */
-  bool is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+  common::types::bool8_t is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 
-  bool is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+  common::types::bool8_t is_max_dist_exceeded(
+    const pcl::PointXYZ & pt1,
+    const pcl::PointXYZ & pt2) const;
 
-  float calc_azimuth_diff(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+  common::types::float32_t calc_azimuth_diff(
+    const pcl::PointXYZ & pt1,
+    const pcl::PointXYZ & pt2) const;
 
-  bool is_object_threshold_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+  common::types::bool8_t is_object_threshold_exceeded(
+    const pcl::PointXYZ & pt1,
+    const pcl::PointXYZ & pt2) const;
 };
-}  // namesapce ring_filter
+}  // namespace ring_filter
 }  // namespace outlier_filter
 }  // namespace filters
 }  // namespace perception
