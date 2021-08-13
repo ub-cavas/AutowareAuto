@@ -53,7 +53,7 @@ public:
   OUTLIER_FILTER_PUBLIC RingFilter(
     common::types::float64_t distance_ratio,
     common::types::float32_t object_length_threshold,
-    int num_points_threshold);
+    size_t num_points_threshold);
 
   /** \brief Filter function that runs the ring based algorithm.
    * \param input The input point cloud for filtering
@@ -71,7 +71,7 @@ public:
   void OUTLIER_FILTER_PUBLIC update_parameters(
     common::types::float64_t distance_ratio,
     common::types::float32_t object_length_threshold,
-    int num_points_threshold)
+    size_t num_points_threshold)
   {
     distance_ratio_ = distance_ratio;
     object_length_threshold_ = object_length_threshold;
@@ -86,7 +86,7 @@ private:
   common::types::float32_t object_length_threshold_;
 
   /** \brief */
-  int num_points_threshold_;
+  size_t num_points_threshold_;
 
   /** \brief
    */
