@@ -52,7 +52,7 @@ public:
    */
   OUTLIER_FILTER_PUBLIC RingFilter(
     common::types::float64_t distance_ratio,
-    common::types::float64_t object_length_threshold,
+    common::types::float32_t object_length_threshold,
     int num_points_threshold);
 
   /** \brief Filter function that runs the ring based algorithm.
@@ -70,7 +70,7 @@ public:
    */
   void OUTLIER_FILTER_PUBLIC update_parameters(
     common::types::float64_t distance_ratio,
-    common::types::float64_t object_length_threshold,
+    common::types::float32_t object_length_threshold,
     int num_points_threshold)
   {
     distance_ratio_ = distance_ratio;
@@ -83,7 +83,7 @@ private:
   common::types::float64_t distance_ratio_;
 
   /** \brief */
-  common::types::float64_t object_length_threshold_;
+  common::types::float32_t object_length_threshold_;
 
   /** \brief */
   int num_points_threshold_;
@@ -95,6 +95,8 @@ private:
   bool is_max_dist_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 
   float calc_azimuth_diff(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+
+  bool is_object_threshold_exceeded(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
 };
 }  // namesapce ring_filter
 }  // namespace outlier_filter
