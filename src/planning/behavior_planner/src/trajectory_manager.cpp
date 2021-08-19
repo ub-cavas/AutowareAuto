@@ -24,6 +24,7 @@ namespace autoware
 namespace behavior_planner
 {
 
+using autoware::common::geometry::distance_2d;
 using autoware::common::geometry::minus_2d;
 using autoware::common::geometry::norm_2d;
 using motion::motion_common::to_angle;
@@ -131,30 +132,7 @@ size_t TrajectoryManager::get_remaining_length(const State & state)
   return remaining_length;
 }
 
-Trajectory TrajectoryManager::crop_from_current_state(
-  const Trajectory & trajectory,
-  const State & state)
-{
-  if (trajectory.points.empty()) {return trajectory;}
-  auto index = get_closest_state(state, trajectory);
-
-  // we always want trajectory to start from front of vehicle so increment index
-  if (index + 1 < trajectory.points.size()) {
-    index += 1;
-  }
-
-  Trajectory output;
-  output.header = trajectory.header;
-  auto current_state = state.state;
-  current_state.longitudinal_velocity_mps = trajectory.points.at(index).longitudinal_velocity_mps;
-  output.points.push_back(current_state);
-  for (size_t i = index; i < trajectory.points.size(); i++) {
-    output.points.push_back(trajectory.points.at(i));
-  }
-  return output;
-}
-
-void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
+void TrajectoryManager::set_time_from_start(Trajectory * trajectory, const size_t start_index)
 {
   if (trajectory->points.empty()) {
     return;
@@ -163,11 +141,11 @@ void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
   float32_t t = 0.0;
 
   // special operation for first point
-  auto & first_point = trajectory->points.at(0);
+  auto & first_point = trajectory->points.at(start_index);
   first_point.time_from_start.sec = 0;
   first_point.time_from_start.nanosec = 0;
 
-  for (std::size_t i = 1; i < trajectory->points.size(); ++i) {
+  for (std::size_t i = start_index + 1; i < trajectory->points.size(); ++i) {
     auto & p0 = trajectory->points[i - 1];
     auto & p1 = trajectory->points[i];
     auto v = 0.5f * (p0.longitudinal_velocity_mps + p1.longitudinal_velocity_mps);
@@ -177,6 +155,45 @@ void TrajectoryManager::set_time_from_start(Trajectory * trajectory)
     trajectory->points[i].time_from_start.sec = static_cast<int32_t>(t_s);
     trajectory->points[i].time_from_start.nanosec = static_cast<uint32_t>(t_ns);
   }
+}
+
+std::vector<TrajectoryPoint> TrajectoryManager::generate_previous_points(const size_t from_index)
+{
+  std::vector<TrajectoryPoint> points;
+  TrajectoryPoint prev_point =
+    m_sub_trajectories[m_selected_trajectory].points[from_index];
+  bool8_t end_reached = false;
+  float32_t dist = 0.0;
+  size_t current_traj_idx = m_selected_trajectory;
+  size_t current_point_idx = from_index;
+  // start from the point before the given index
+  while(current_point_idx == 0) {
+    --current_traj_idx;
+    current_point_idx = m_sub_trajectories[current_traj_idx].points.size();
+  }
+  --current_point_idx;
+
+  while (!end_reached && dist < m_config.prepend_distance) {
+    const auto & curr_point = m_sub_trajectories[current_traj_idx].points[current_point_idx];
+    dist += distance_2d<float32_t>(prev_point, curr_point);
+    points.push_back(curr_point);
+    prev_point = curr_point;
+
+    // Reached the first point of the sub trajectory
+    while (current_point_idx == 0) {
+      // Reached the last sub trajectory: no more previous points
+      if (current_traj_idx == 0) {
+        end_reached = true;
+        break;
+      }
+      --current_traj_idx;
+      current_point_idx = m_sub_trajectories[current_traj_idx].points.size();
+    }
+
+    --current_point_idx;
+  }
+  std::reverse(points.begin(), points.end());
+  return points;
 }
 
 Trajectory TrajectoryManager::get_trajectory(const State & state)
@@ -194,10 +211,33 @@ Trajectory TrajectoryManager::get_trajectory(const State & state)
   }
 
   // TODO(mitsudome-r) implement trajectory refine functions if needed to integrate with controller
-  const auto & input = m_sub_trajectories.at(m_selected_trajectory);
-  auto output = crop_from_current_state(input, state);
-  set_time_from_start(&output);
-  return output;
+  const Trajectory & sub_trajectory = m_sub_trajectories[m_selected_trajectory];
+  Trajectory output_trajectory;
+  output_trajectory.header = sub_trajectory.header;
+  const size_t closest_state_index = get_closest_state(state, sub_trajectory);
+
+  if (m_config.prepend_distance > 0 && (closest_state_index > 0 || m_selected_trajectory > 0)) {
+    auto previous_points = generate_previous_points(closest_state_index);
+    output_trajectory.points.insert(
+      output_trajectory.points.begin(),
+      previous_points.begin(), previous_points.end());
+  }
+
+  if (m_config.include_current_state) {
+    output_trajectory.points.push_back(state.state);
+    output_trajectory.points.back().longitudinal_velocity_mps =
+      sub_trajectory.points.at(closest_state_index).longitudinal_velocity_mps;
+  }
+  const size_t start_index = output_trajectory.points.size();
+  // add trajectory points after the current state
+  for (size_t i = closest_state_index + 1; i < sub_trajectory.points.size(); i++) {
+    output_trajectory.points.push_back(sub_trajectory.points[i]);
+  }
+
+  set_time_from_start(
+    &output_trajectory,
+    std::min(start_index, output_trajectory.points.size() - 1));
+  return output_trajectory;
 }
 
 }  // namespace behavior_planner

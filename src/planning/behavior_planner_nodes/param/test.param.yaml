@@ -6,6 +6,8 @@
     stop_velocity_thresh: 2.0
     subroute_goal_offset_lane2parking: 7.6669
     subroute_goal_offset_parking2lane: 7.6669
+    include_current_state: true  # if true, the current ego state will be one of the trajectory point
+    prepend_distance: 0.0        # [m] length of trajectory to keep behind ego
     vehicle:
       cg_to_front_m: 1.228
       cg_to_rear_m: 1.5618
