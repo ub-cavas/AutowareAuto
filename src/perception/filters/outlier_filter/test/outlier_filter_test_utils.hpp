@@ -32,8 +32,9 @@ namespace
 // Helper methods
 // TODO(jilada): refactor in #1150
 // Note: this method is slightly different to accommodate for the PCL point cloud type
-pcl::PointCloud<pcl::PointXYZ> make_pc(
-  std::vector<pcl::PointXYZ> points,
+template<typename PointT>
+pcl::PointCloud<PointT> make_pc(
+  std::vector<PointT> points,
   builtin_interfaces::msg::Time stamp)
 {
   using autoware::common::types::PointXYZIF;
@@ -51,7 +52,7 @@ pcl::PointCloud<pcl::PointXYZ> make_pc(
   }
 
   msg.header.stamp = stamp;
-  pcl::PointCloud<pcl::PointXYZ> pcl_cloud;
+  pcl::PointCloud<PointT> pcl_cloud;
   pcl::moveFromROSMsg(msg, pcl_cloud);
 
   return pcl_cloud;
