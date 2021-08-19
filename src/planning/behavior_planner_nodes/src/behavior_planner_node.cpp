@@ -56,7 +56,9 @@ void BehaviorPlannerNode::init()
     static_cast<float32_t>(declare_parameter("heading_weight").get<float64_t>()),
     static_cast<float32_t>(declare_parameter("subroute_goal_offset_lane2parking").get<float64_t>()),
     static_cast<float32_t>(declare_parameter("subroute_goal_offset_parking2lane").get<float64_t>()),
-    cg_to_vehicle_center
+    cg_to_vehicle_center,
+    declare_parameter("include_current_state").get<bool8_t>(),
+    static_cast<float32_t>(declare_parameter("prepend_distance").get<float64_t>())
   };
 
   m_planner = std::make_unique<behavior_planner::BehaviorPlanner>(config);
@@ -109,7 +111,8 @@ void BehaviorPlannerNode::init()
     RCLCPP_INFO(get_logger(), "Waiting for service...");
   }
 
-  if (declare_parameter("enable_object_collision_estimator").get<bool>()) {
+  if (declare_parameter("enable_object_collision_estimator").get<bool8_t>()) {
+    std::cout << "Setup collision estimator" << std::endl;
     m_modify_trajectory_client = this->create_client<ModifyTrajectory>("estimate_collision");
     while (!m_modify_trajectory_client->wait_for_service(1s)) {
       if (!rclcpp::ok()) {
