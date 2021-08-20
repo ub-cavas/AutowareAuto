@@ -31,6 +31,7 @@ ament_auto_find_build_dependencies(REQUIRED
 )
 
 set(TRACKING_LIB_SRC
+  src/box_shape_tracker.cpp
   src/detected_object_associator.cpp
   src/greedy_roi_associator.cpp
   src/multi_object_tracker.cpp
@@ -43,6 +44,7 @@ set(TRACKING_LIB_HEADERS
   include/tracking/detected_object_associator.hpp
   include/tracking/greedy_roi_associator.hpp
   include/tracking/multi_object_tracker.hpp
+  include/tracking/box_shape_tracker.hpp
   include/tracking/track_creator.hpp
   include/tracking/tracked_object.hpp
   include/tracking/tracker_types.hpp
@@ -70,6 +72,7 @@ if(BUILD_TESTING)
     test/test_multi_object_tracker.cpp
     test/test_projection.cpp
     test/test_classification_tracker.cpp
+    test/test_box_shape_tracker.cpp
     test/test_track_creation.cpp
     test/test_tracked_object.cpp
   )
