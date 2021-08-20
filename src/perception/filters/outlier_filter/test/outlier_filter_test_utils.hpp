@@ -15,6 +15,7 @@
 #ifndef OUTLIER_FILTER_TEST_UTILS_HPP_
 #define OUTLIER_FILTER_TEST_UTILS_HPP_
 
+#include <cstdint>
 #include <vector>
 
 #include "gtest/gtest.h"
@@ -34,7 +35,7 @@ namespace
 // Note: this method is slightly different to accommodate for the PCL point cloud type
 template<typename PointT>
 pcl::PointCloud<PointT> make_pc(
-  std::vector<PointT> points,
+  std::vector<autoware::common::types::PointXYZIF> points,
   builtin_interfaces::msg::Time stamp)
 {
   using autoware::common::types::PointXYZIF;
@@ -59,12 +60,14 @@ pcl::PointCloud<PointT> make_pc(
 }
 
 // TODO(jilada): refactor in #1150
-pcl::PointXYZ make_point(float x, float y, float z)
+autoware::common::types::PointXYZIF make_point(float x, float y, float z, uint16_t id = 0)
 {
-  pcl::PointXYZ p;
+  autoware::common::types::PointXYZIF p;
   p.x = x;
   p.y = y;
   p.z = z;
+  p.intensity = 1.0;
+  p.id = id;
   return p;
 }
 
@@ -90,7 +93,7 @@ builtin_interfaces::msg::Time to_msg_time(
 // TODO(jilada): refactor in #1150
 // Note: this method is slightly different to accommodate for the PCL point cloud type
 void check_pc(
-  std::vector<pcl::PointXYZ> new_points,
+  std::vector<autoware::common::types::PointXYZIF> new_points,
   pcl::PointCloud<pcl::PointXYZ> & filtered_pc)
 {
   // Check that points are of equal size
@@ -105,7 +108,6 @@ void check_pc(
     ASSERT_FLOAT_EQ(pc_it->x, p_it->x);
     ASSERT_FLOAT_EQ(pc_it->y, p_it->y);
     ASSERT_FLOAT_EQ(pc_it->z, p_it->z);
-
     // Update iterators
     pc_it++;
     p_it++;

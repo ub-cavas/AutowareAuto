@@ -33,11 +33,11 @@ using RadiusSearch2DFilter =
  */
 TEST(RadiusSearch2DFilter, TestSinglePoint) {
   auto filter = std::make_shared<RadiusSearch2DFilter>(1.0, 5);
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(0.0f, 0.0f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
@@ -55,7 +55,7 @@ TEST(RadiusSearch2DFilter, TestSinglePoint) {
  */
 TEST(RadiusSearch2DFilter, TestSimpleCloud) {
   auto filter = std::make_shared<RadiusSearch2DFilter>(1.0, 5);
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(0.0f, 0.0f, 0.0f),
     make_point(0.2f, 0.0f, 0.0f),
     make_point(0.0f, 0.2f, 0.0f),
@@ -63,7 +63,7 @@ TEST(RadiusSearch2DFilter, TestSimpleCloud) {
     make_point(0.0f, -0.2f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
@@ -81,7 +81,7 @@ TEST(RadiusSearch2DFilter, TestSimpleCloud) {
  */
 TEST(RadiusSearch2DFilter, TestOutlierPoint) {
   auto filter = std::make_shared<RadiusSearch2DFilter>(0.5, 5);
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(0.0f, 0.0f, 0.0f),
     make_point(0.2f, 0.0f, 0.0f),
     make_point(0.0f, 0.2f, 0.0f),
@@ -90,7 +90,7 @@ TEST(RadiusSearch2DFilter, TestOutlierPoint) {
     make_point(0.8f, 0.2f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
@@ -110,7 +110,7 @@ TEST(RadiusSearch2DFilter, TestOutlierPoint) {
  */
 TEST(RadiusSearch2DFilter, TestIncreaseMinNeighbours) {
   auto filter = std::make_shared<RadiusSearch2DFilter>(1.0, 10);
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(0.0f, 0.0f, 0.0f),
     make_point(0.2f, 0.0f, 0.0f),
     make_point(0.0f, 0.2f, 0.0f),
@@ -118,7 +118,7 @@ TEST(RadiusSearch2DFilter, TestIncreaseMinNeighbours) {
     make_point(0.0f, -0.2f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
@@ -136,7 +136,7 @@ TEST(RadiusSearch2DFilter, TestIncreaseMinNeighbours) {
  */
 TEST(RadiusSearch2DFilter, TestDecreaseSearchRadius) {
   auto filter = std::make_shared<RadiusSearch2DFilter>(0.1, 5);
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(0.0f, 0.0f, 0.0f),
     make_point(0.2f, 0.0f, 0.0f),
     make_point(0.0f, 0.2f, 0.0f),
@@ -144,7 +144,7 @@ TEST(RadiusSearch2DFilter, TestDecreaseSearchRadius) {
     make_point(0.0f, -0.2f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;

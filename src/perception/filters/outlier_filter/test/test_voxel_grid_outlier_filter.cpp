@@ -36,14 +36,14 @@ using VoxelGridOutlierFilter =
 TEST(VoxelGridOutlierFilterTest, TestFourEquispacedPoints) {
   auto filter =
     std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(1));
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-1.0f, -1.0f, 0.0f),
     make_point(1.0f, 1.0f, 0.0f),
     make_point(1.0f, -1.0f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
@@ -65,7 +65,7 @@ TEST(VoxelGridOutlierFilterTest, TestFourEquispacedPoints) {
 TEST(VoxelGridOutlierFilterTest, TestTwoClosePoints) {
   auto filter =
     std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-0.8f, 1.0f, 0.0f),
     make_point(-1.0f, -1.0f, 0.0f),
@@ -73,14 +73,14 @@ TEST(VoxelGridOutlierFilterTest, TestTwoClosePoints) {
     make_point(1.0f, -1.0f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
   filter->filter(input, output);
 
   // Perform the check
-  std::vector<pcl::PointXYZ> filter_points = {
+  std::vector<autoware::common::types::PointXYZIF> filter_points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-0.8f, 1.0f, 0.0f)
   };
@@ -97,7 +97,7 @@ TEST(VoxelGridOutlierFilterTest, TestTwoClosePoints) {
 TEST(VoxelGridOutlierFilterTest, TestLine) {
   auto filter =
     std::make_shared<VoxelGridOutlierFilter>(1.0f, 1.0f, 1.0f, static_cast<uint32_t>(2));
-  std::vector<pcl::PointXYZ> points = {
+  std::vector<autoware::common::types::PointXYZIF> points = {
     make_point(-1.0f, 1.0f, 0.0f),
     make_point(-0.8f, 1.0f, 0.0f),
     make_point(-0.6f, 1.0f, 0.0f),
@@ -111,7 +111,7 @@ TEST(VoxelGridOutlierFilterTest, TestLine) {
     make_point(1.0f, 1.0f, 0.0f)};
   auto time0 = std::chrono::system_clock::now();
   auto t0 = to_msg_time(time0);
-  auto input = make_pc(points, t0);
+  auto input = make_pc<pcl::PointXYZ>(points, t0);
 
   // Run the filter
   pcl::PointCloud<pcl::PointXYZ> output;
