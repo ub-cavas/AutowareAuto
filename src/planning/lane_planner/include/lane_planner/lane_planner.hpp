@@ -70,6 +70,7 @@ LANE_PLANNER_PUBLIC float32_t calculate_curvature(
 struct LANE_PLANNER_PUBLIC LanePlannerConfig
 {
   float32_t trajectory_resolution;
+  bool8_t include_start_point;
 };
 
 /// \brief A class for recording trajectories and replaying them as plans
