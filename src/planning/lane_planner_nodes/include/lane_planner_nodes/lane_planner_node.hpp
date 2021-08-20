@@ -35,6 +35,7 @@ namespace lane_planner_nodes
 using trajectory_planner_node_base::TrajectoryPlannerNodeBase;
 using motion::motion_common::VehicleConfig;
 using motion::motion_common::Real;
+using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 

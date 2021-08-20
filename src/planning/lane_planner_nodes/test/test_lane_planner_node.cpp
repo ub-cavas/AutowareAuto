@@ -111,6 +111,7 @@ public:
     node_options.append_parameter_override("gaussian_smoother.kernel_size", 5);
 
     node_options.append_parameter_override("lane_planner.trajectory_resolution", 1.0F);
+    node_options.append_parameter_override("lane_planner.include_start_point", true);
 
     m_planner_ptr = std::make_shared<autoware::lane_planner_nodes::LanePlannerNode>(node_options);
     m_lane_id = lanelet::utils::getId();
