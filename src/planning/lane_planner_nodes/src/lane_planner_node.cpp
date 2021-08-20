@@ -46,7 +46,8 @@ LanePlannerNode::LanePlannerNode(const rclcpp::NodeOptions & node_options)
   };
   const lane_planner::LanePlannerConfig planner_config{
     static_cast<float32_t>(
-      declare_parameter("lane_planner.trajectory_resolution").get<float64_t>())
+      declare_parameter("lane_planner.trajectory_resolution").get<float64_t>()),
+    declare_parameter("lane_planner.include_start_point").get<bool8_t>(),
   };
 
   m_planner = std::make_unique<lane_planner::LanePlanner>(vehicle_param, config, planner_config);

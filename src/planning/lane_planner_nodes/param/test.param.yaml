@@ -3,6 +3,7 @@
     heading_weight: 0.1
     lane_planner:
       trajectory_resolution: 2.0
+      include_start_point: true
     vehicle:
       cg_to_front_m: 1.0
       cg_to_rear_m: 1.0
