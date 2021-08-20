@@ -137,6 +137,8 @@ public:
   void send_horn_command(const autoware_auto_vehicle_msgs::msg::HornCommand & msg) override;
   /// Send wipers command data.
   void send_wipers_command(const autoware_auto_vehicle_msgs::msg::WipersCommand & msg) override;
+  /// Send hazard_lights command data.
+  void send_hazard_lights_command(const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & msg) override;
 
 private:
   // Mappings from Autoware to LGSVL values
