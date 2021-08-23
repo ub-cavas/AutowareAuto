@@ -87,7 +87,7 @@ private:
 
   /// \brief Create an extrapolated point behind the trajectory
   /// \param [in] first_index first index of the trajectory
-  /// \param [in] previous_point points before the first point of the trajectory
+  /// \param [in] previous_points points before the first point of the trajectory
   /// \param [in] extra_dist distance to extrapolate
   /// \param [out] extra_point resulting extrapolated point
   /// \return true if the extrapolation was successful, false otherwise
