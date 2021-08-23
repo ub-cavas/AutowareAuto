@@ -157,9 +157,11 @@ void TrajectoryManager::set_time_from_start(Trajectory * trajectory, const size_
   }
 }
 
-std::vector<TrajectoryPoint> TrajectoryManager::generate_previous_points(const size_t from_index)
+float32_t TrajectoryManager::generate_previous_points(
+  const size_t from_index,
+  std::vector<TrajectoryPoint> & previous_points)
 {
-  std::vector<TrajectoryPoint> points;
+  previous_points.clear();
   TrajectoryPoint prev_point =
     m_sub_trajectories[m_selected_trajectory].points[from_index];
   bool8_t end_reached = false;
@@ -167,7 +169,7 @@ std::vector<TrajectoryPoint> TrajectoryManager::generate_previous_points(const s
   size_t current_traj_idx = m_selected_trajectory;
   size_t current_point_idx = from_index;
   // start from the point before the given index
-  while(current_point_idx == 0) {
+  while (current_point_idx == 0) {
     --current_traj_idx;
     current_point_idx = m_sub_trajectories[current_traj_idx].points.size();
   }
@@ -176,7 +178,7 @@ std::vector<TrajectoryPoint> TrajectoryManager::generate_previous_points(const s
   while (!end_reached && dist < m_config.prepend_distance) {
     const auto & curr_point = m_sub_trajectories[current_traj_idx].points[current_point_idx];
     dist += distance_2d<float32_t>(prev_point, curr_point);
-    points.push_back(curr_point);
+    previous_points.push_back(curr_point);
     prev_point = curr_point;
 
     // Reached the first point of the sub trajectory
@@ -192,8 +194,39 @@ std::vector<TrajectoryPoint> TrajectoryManager::generate_previous_points(const s
 
     --current_point_idx;
   }
-  std::reverse(points.begin(), points.end());
-  return points;
+  return dist;
+}
+
+bool TrajectoryManager::extrapolate(
+  const size_t first_index,
+  const std::vector<TrajectoryPoint> & previous_points,
+  const float32_t extra_dist, TrajectoryPoint & extra_point)
+{
+  TrajectoryPoint first;
+  TrajectoryPoint second;
+  // First point: first previous point or point from first_index
+  if (previous_points.size() > 0) {
+    first = previous_points[0];
+  } else {
+    first = m_sub_trajectories[m_selected_trajectory].points[first_index];
+  }
+  // Second point: second previous point or point after first_index
+  if (previous_points.size() > 1) {
+    second = previous_points[1];
+  } else {
+    if (m_sub_trajectories[m_selected_trajectory].points.size() > first_index + 1) {
+      second = m_sub_trajectories[m_selected_trajectory].points[first_index + 1];
+    } else if (m_sub_trajectories.size() > m_selected_trajectory + 1) {
+      second = m_sub_trajectories[m_selected_trajectory + 1].points[0];
+    } else {
+      return false;
+    }
+  }
+  const auto dist = norm_2d(minus_2d(first, second));
+  extra_point = first;
+  extra_point.x = first.x - (extra_dist / dist) * (second.x - first.x);
+  extra_point.y = first.y - (extra_dist / dist) * (second.y - first.y);
+  return true;
 }
 
 Trajectory TrajectoryManager::get_trajectory(const State & state)
@@ -216,11 +249,22 @@ Trajectory TrajectoryManager::get_trajectory(const State & state)
   output_trajectory.header = sub_trajectory.header;
   const size_t closest_state_index = get_closest_state(state, sub_trajectory);
 
-  if (m_config.prepend_distance > 0 && (closest_state_index > 0 || m_selected_trajectory > 0)) {
-    auto previous_points = generate_previous_points(closest_state_index);
+  if (m_config.prepend_distance > 0) {
+    std::vector<TrajectoryPoint> previous_points;
+    float32_t remaining_prep_dist = m_config.prepend_distance;
+    if (closest_state_index > 0 || m_selected_trajectory > 0) {
+      remaining_prep_dist -= generate_previous_points(closest_state_index, previous_points);
+    }
+    // if there are not enough points to reach the desired distance, extrapolate
+    if (remaining_prep_dist > 0) {
+      TrajectoryPoint extra_point;
+      if (extrapolate(closest_state_index, previous_points, remaining_prep_dist, extra_point)) {
+        previous_points.push_back(extra_point);
+      }
+    }
     output_trajectory.points.insert(
       output_trajectory.points.begin(),
-      previous_points.begin(), previous_points.end());
+      previous_points.rbegin(), previous_points.rend());
   }
 
   if (m_config.include_current_state) {
