@@ -231,6 +231,8 @@ bool TrajectoryManager::extrapolate(
 
 Trajectory TrajectoryManager::get_trajectory(const State & state)
 {
+
+  const size_t capacity = static_cast<size_t>(Trajectory::CAPACITY);
   // select new sub_trajectory when vehicle is at stop
   if (std::abs(state.state.longitudinal_velocity_mps) < m_config.stop_velocity_thresh) {
     const auto & last_point = m_sub_trajectories.at(m_selected_trajectory).points.back();
@@ -262,19 +264,22 @@ Trajectory TrajectoryManager::get_trajectory(const State & state)
         previous_points.push_back(extra_point);
       }
     }
+    previous_points.resize(std::min(previous_points.size(), capacity));
     output_trajectory.points.insert(
       output_trajectory.points.begin(),
       previous_points.rbegin(), previous_points.rend());
   }
 
-  if (m_config.include_current_state) {
+  if (m_config.include_current_state && output_trajectory.points.size() < capacity) {
     output_trajectory.points.push_back(state.state);
     output_trajectory.points.back().longitudinal_velocity_mps =
       sub_trajectory.points.at(closest_state_index).longitudinal_velocity_mps;
   }
   const size_t start_index = output_trajectory.points.size();
   // add trajectory points after the current state
-  for (size_t i = closest_state_index + 1; i < sub_trajectory.points.size(); i++) {
+  for (size_t i = closest_state_index + 1;
+    i < sub_trajectory.points.size() && output_trajectory.points.size() < capacity; i++)
+  {
     output_trajectory.points.push_back(sub_trajectory.points[i]);
   }
 
