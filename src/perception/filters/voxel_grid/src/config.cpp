@@ -59,9 +59,9 @@ uint64_t Config::check_basis_direction(
 }
 ////////////////////////////////////////////////////////////////////////////////
 Config::Config(
-  const PointXYZF & min_point,
-  const PointXYZF & max_point,
-  const PointXYZF & voxel_size,
+  const PointXYZ & min_point,
+  const PointXYZ & max_point,
+  const PointXYZ & voxel_size,
   const uint64_t capacity)
 : m_min_point(min_point),
   m_max_point(max_point),
@@ -102,17 +102,17 @@ Config::Config(
   m_max_point.z -= std::numeric_limits<float32_t>::epsilon();
 }
 ////////////////////////////////////////////////////////////////////////////////
-const PointXYZF & Config::get_min_point() const
+const PointXYZ & Config::get_min_point() const
 {
   return m_min_point;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const PointXYZF & Config::get_max_point() const
+const PointXYZ & Config::get_max_point() const
 {
   return m_max_point;
 }
 ////////////////////////////////////////////////////////////////////////////////
-const PointXYZF & Config::get_voxel_size() const
+const PointXYZ & Config::get_voxel_size() const
 {
   return m_voxel_size;
 }

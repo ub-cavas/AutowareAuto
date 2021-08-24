@@ -22,13 +22,13 @@
 #include <limits>
 #include "voxel_grid/voxel_grid.hpp"
 
-using autoware::common::types::PointXYZF;
+using autoware::perception::filters::voxel_grid::PointXYZ;
 using autoware::perception::filters::voxel_grid::Config;
 using autoware::perception::filters::voxel_grid::Voxel;
 using autoware::perception::filters::voxel_grid::ApproximateVoxel;
 using autoware::perception::filters::voxel_grid::CentroidVoxel;
 using autoware::perception::filters::voxel_grid::VoxelGrid;
-using autoware::common::types::PointXYZIF;
+using autoware::perception::filters::voxel_grid::PointXYZIF;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 
@@ -56,9 +56,9 @@ public:
   }
 
 protected:
-  PointXYZF min_point;
-  PointXYZF max_point;
-  PointXYZF voxel_size;
+  PointXYZ min_point;
+  PointXYZ max_point;
+  PointXYZ voxel_size;
   uint64_t capacity;
   std::unique_ptr<Config> cfg_ptr;
 };
@@ -82,7 +82,7 @@ protected:
 };
 
 // Instantiate tests for given types, add more types here as they are used
-using PointTypes = ::testing::Types<PointXYZF, PointXYZIF>;
+using PointTypes = ::testing::Types<PointXYZ, PointXYZIF>;
 // cppcheck-suppress syntaxError
 TYPED_TEST_CASE(TypedVoxelTest, PointTypes, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
@@ -122,7 +122,7 @@ TEST_F(VoxelTest, Basic)
 TEST_F(VoxelTest, BadCases)
 {
   // Min leaf size
-  PointXYZF tmp;
+  PointXYZ tmp;
   tmp = voxel_size;
   tmp.x = Config::MIN_VOXEL_SIZE_M - 0.00001F;
   EXPECT_THROW(Config(min_point, max_point, tmp, capacity), std::domain_error);
@@ -144,7 +144,7 @@ TEST_F(VoxelTest, BadCases)
   EXPECT_THROW(Config(tmp, max_point, voxel_size, capacity), std::domain_error);
   // Overflow: y stride
   tmp = min_point;
-  PointXYZF tmp2 = max_point;
+  PointXYZ tmp2 = max_point;
   constexpr float32_t min = -1.0E13F;
   constexpr float32_t max = 1.0E13F;
   tmp.x = min;
@@ -574,7 +574,7 @@ protected:
 
 // TODO(c.ho) move to another file
 // TYPED_TEST_CASE(TypedVoxelGridTest, PointTypes);
-TYPED_TEST_CASE(TypedVoxelGridTest, PointXYZF, );
+TYPED_TEST_CASE(TypedVoxelGridTest, PointXYZ, );
 
 /// basic i/o for voxel grid
 TYPED_TEST(TypedVoxelGridTest, centroid_voxel_grid)

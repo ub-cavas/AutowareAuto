@@ -27,9 +27,9 @@ namespace voxel_grid
 {
 ////////////////////////////////////////////////////////////////////////////////
 // Instantiation of common types
-template class VoxelGrid<ApproximateVoxel<PointXYZF>>;
+template class VoxelGrid<ApproximateVoxel<PointXYZ>>;
 template class VoxelGrid<ApproximateVoxel<autoware::common::types::PointXYZIF>>;
-template class VoxelGrid<CentroidVoxel<PointXYZF>>;
+template class VoxelGrid<CentroidVoxel<PointXYZ>>;
 template class VoxelGrid<CentroidVoxel<autoware::common::types::PointXYZIF>>;
 }  // namespace voxel_grid
 }  // namespace filters

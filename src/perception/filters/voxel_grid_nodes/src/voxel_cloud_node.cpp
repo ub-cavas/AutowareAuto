@@ -30,7 +30,6 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::uchar8_t;
 using autoware::common::types::float32_t;
-using autoware::common::types::PointXYZF;
 
 namespace autoware
 {
@@ -70,15 +69,15 @@ VoxelCloudNode::VoxelCloudNode(
   m_has_failed{false}
 {
   // Build config manually (messages only have default constructors)
-  PointXYZF min_point;
+  voxel_grid::PointXYZ min_point;
   min_point.x = static_cast<float32_t>(declare_parameter("config.min_point.x").get<float32_t>());
   min_point.y = static_cast<float32_t>(declare_parameter("config.min_point.y").get<float32_t>());
   min_point.z = static_cast<float32_t>(declare_parameter("config.min_point.z").get<float32_t>());
-  PointXYZF max_point;
+  voxel_grid::PointXYZ max_point;
   max_point.x = static_cast<float32_t>(declare_parameter("config.max_point.x").get<float32_t>());
   max_point.y = static_cast<float32_t>(declare_parameter("config.max_point.y").get<float32_t>());
   max_point.z = static_cast<float32_t>(declare_parameter("config.max_point.z").get<float32_t>());
-  PointXYZF voxel_size;
+  voxel_grid::PointXYZ voxel_size;
   voxel_size.x = static_cast<float32_t>(declare_parameter("config.voxel_size.x").get<float32_t>());
   voxel_size.y = static_cast<float32_t>(declare_parameter("config.voxel_size.y").get<float32_t>());
   voxel_size.z = static_cast<float32_t>(declare_parameter("config.voxel_size.z").get<float32_t>());
