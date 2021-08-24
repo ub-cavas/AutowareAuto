@@ -40,7 +40,7 @@ VoxelCloudApproximate::VoxelCloudApproximate(const voxel_grid::Config & cfg)
   m_grid(cfg)
 {
   // frame id is arbitrary, not the responsibility of this component
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{m_cloud, "base_link"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{m_cloud, "base_link"};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
