@@ -18,6 +18,7 @@
 
 #include <algorithm>
 #include <limits>
+#include <vector>
 
 namespace autoware
 {
@@ -231,7 +232,6 @@ bool TrajectoryManager::extrapolate(
 
 Trajectory TrajectoryManager::get_trajectory(const State & state)
 {
-
   const size_t capacity = static_cast<size_t>(Trajectory::CAPACITY);
   // select new sub_trajectory when vehicle is at stop
   if (std::abs(state.state.longitudinal_velocity_mps) < m_config.stop_velocity_thresh) {
