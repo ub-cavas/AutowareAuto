@@ -109,7 +109,7 @@ protected:
   }
   bool8_t check(const sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZI> cloud_view{cloud};
+    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> cloud_view{cloud};
     bool8_t ret = true;
     constexpr float32_t TOL = 1.0E-6F;
     for (const auto & msg_point_ref : cloud_view) {
