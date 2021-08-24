@@ -21,7 +21,6 @@
 #define VOXEL_GRID__CONFIG_HPP_
 
 #include <voxel_grid/visibility_control.hpp>
-#include <geometry_msgs/msg/point32.hpp>
 #include <geometry/common_2d.hpp>
 #include <common/types.hpp>
 #include <cmath>
@@ -44,7 +43,7 @@ inline T clamp(const T val, const T min, const T max)
   return (val < min) ? min : ((val > max) ? max : val);
 }
 
-using PointXYZ = geometry_msgs::msg::Point32;
+using autoware::common::types::PointXYZF;
 
 
 /// \brief A configuration class for the VoxelGrid data structure, also includes some helper
@@ -59,19 +58,19 @@ public:
   /// \param[in] voxel_size The size of each voxel
   /// \param[in] capacity The preallocated size of the voxel grid
   Config(
-    const PointXYZ & min_point,
-    const PointXYZ & max_point,
-    const PointXYZ & voxel_size,
+    const PointXYZF & min_point,
+    const PointXYZF & max_point,
+    const PointXYZF & voxel_size,
     const uint64_t capacity);
   /// \brief Gets the minimum corner of the voxel grid
   /// \return Fixed value
-  const PointXYZ & get_min_point() const;
+  const PointXYZF & get_min_point() const;
   /// \brief Gets the maximum corner of the voxel grid
   /// \return Fixed value
-  const PointXYZ & get_max_point() const;
+  const PointXYZF & get_max_point() const;
   /// \brief Gets the voxel size of the voxel grid
   /// \return Fixed value
-  const PointXYZ & get_voxel_size() const;
+  const PointXYZF & get_voxel_size() const;
   /// \brief Gets the capacity of the voxel grid
   /// \return Fixed value
   uint64_t get_capacity() const;
@@ -138,10 +137,10 @@ private:
     const float32_t max,
     const float32_t size) const;
 
-  PointXYZ m_min_point;
-  PointXYZ m_max_point;
-  PointXYZ m_voxel_size;
-  PointXYZ m_voxel_size_inv;
+  PointXYZF m_min_point;
+  PointXYZF m_max_point;
+  PointXYZF m_voxel_size;
+  PointXYZF m_voxel_size_inv;
   uint64_t m_y_stride;
   uint64_t m_z_stride;
   uint64_t m_capacity;

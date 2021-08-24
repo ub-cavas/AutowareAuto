@@ -26,12 +26,13 @@
 #include <memory>
 #include <vector>
 
-using autoware::perception::filters::voxel_grid::PointXYZ;
+using autoware::common::types::PointXYZF;
 using autoware::perception::filters::voxel_grid::Config;
 
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudBase;
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudApproximate;
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudCentroid;
+using autoware::common::types::PointXYZIF;
 
 using autoware::common::types::PointXYZI;
 using autoware::common::types::bool8_t;
@@ -60,15 +61,15 @@ public:
   : m_capacity(10U)
   {
     // Initialize config
-    PointXYZ min_point;
+    PointXYZF min_point;
     min_point.x = -1.0F;
     min_point.y = -1.0F;
     min_point.z = -1.0F;
-    PointXYZ max_point;
+    PointXYZF max_point;
     max_point.x = 1.0F;
     max_point.y = 1.0F;
     max_point.z = 1.0F;
-    PointXYZ voxel_size;
+    PointXYZF voxel_size;
     voxel_size.x = 1.0F;
     voxel_size.y = 1.0F;
     voxel_size.z = 1.0F;
