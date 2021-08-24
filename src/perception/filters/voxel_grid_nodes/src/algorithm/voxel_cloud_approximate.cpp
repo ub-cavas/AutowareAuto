@@ -82,8 +82,8 @@ void VoxelCloudApproximate::insert(
 ////////////////////////////////////////////////////////////////////////////////
 const sensor_msgs::msg::PointCloud2 & VoxelCloudApproximate::get()
 {
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_cloud};
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{m_cloud};
   modifier.clear();
   modifier.reserve(m_grid.size());
 
