@@ -187,7 +187,7 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
       static_cast<float32_t>(traffic_rules_ptr->speedLimit(lanelet).speedLimit.value());
 
     float64_t start_length = 0;
-    if (i == start_index && m_planner_config.include_start_point) {
+    if (i == start_index) {
       const auto start_point = convertToLaneletPoint(trajectory_start_point);
       start_length =
         lanelet::geometry::toArcCoordinates(to2D(centerline), to2D(start_point)).length;
