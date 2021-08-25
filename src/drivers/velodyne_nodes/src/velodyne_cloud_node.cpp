@@ -102,8 +102,8 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
     output, m_frame_id}.reserve(m_cloud_size);
 }
 
