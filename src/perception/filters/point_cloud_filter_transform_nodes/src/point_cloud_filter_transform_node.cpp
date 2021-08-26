@@ -16,7 +16,6 @@
 
 #include <common/types.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
@@ -141,9 +140,9 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
       }
     }
   }
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{
-    m_filtered_transformed_msg, m_output_frame_id};
-  modifier.reserve(m_pcl_size);
+  common::lidar_utils::init_pcl_msg(
+    m_filtered_transformed_msg,
+    m_output_frame_id.c_str(), m_pcl_size);
 }
 
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
