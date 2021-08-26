@@ -78,6 +78,11 @@ if(BUILD_TESTING)
   )
 
   add_ros_test(
+    test/ring_filter_node_launch.test.py
+    TIMEOUT "30"
+  )
+
+  add_ros_test(
     test/voxel_grid_outlier_filter_node_launch.test.py
     TIMEOUT "30"
   )
