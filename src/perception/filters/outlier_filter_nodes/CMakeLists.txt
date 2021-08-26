@@ -32,11 +32,13 @@ include_directories(
 
 set(OUTLIER_FILTER_NODES_SRC
   src/radius_search_2d_filter_node.cpp
+  src/ring_filter_node.cpp
   src/voxel_grid_outlier_filter_node.cpp
 )
 
 set(OUTLIER_FILTER_NODES_HEADERS
   include/outlier_filter_nodes/radius_search_2d_filter_node.hpp
+  include/outlier_filter_nodes/ring_filter_node.hpp
   include/outlier_filter_nodes/voxel_grid_outlier_filter_node.hpp
 )
 
@@ -53,6 +55,11 @@ target_link_libraries(${PROJECT_NAME}
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::perception::filters::outlier_filter_nodes::RadiusSearch2DFilterNode"
   EXECUTABLE radius_search_2d_filter_node_exe
+)
+
+rclcpp_components_register_node(${PROJECT_NAME}
+  PLUGIN "autoware::perception::filters::outlier_filter_nodes::RingFilterNode"
+  EXECUTABLE ring_filter_node_exe
 )
 
 rclcpp_components_register_node(${PROJECT_NAME}
