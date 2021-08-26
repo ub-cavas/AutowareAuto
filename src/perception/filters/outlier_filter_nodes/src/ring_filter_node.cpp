@@ -84,7 +84,9 @@ rcl_interfaces::msg::SetParametersResult RingFilterNode::get_node_parameters(
     if (get_param<float64_t>(p, "object_length_threshold", object_length_threshold_)) {
       result.successful = false;
       result.reason += "Failed to retrieve object_length_threshold parameter. ";
-      RCLCPP_DEBUG(get_logger(), "Setting new object length threshold to: %f.", object_length_threshold_);
+      RCLCPP_DEBUG(
+        get_logger(), "Setting new object length threshold to: %f.",
+        object_length_threshold_);
     }
     if (get_param<std::int64_t>(p, "num_points_threshold", num_points_threshold_)) {
       result.successful = false;
