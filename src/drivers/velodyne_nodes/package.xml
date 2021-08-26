@@ -15,7 +15,6 @@
     <build_depend>velodyne_driver</build_depend>
 
     <depend>autoware_auto_common</depend>
-    <depend>point_cloud_msg_wrapper</depend>
     <depend>rclcpp</depend>
     <depend>rclcpp_components</depend>
     <depend>udp_driver</depend>
