@@ -83,9 +83,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
       "points_nonground", rclcpp::QoS(10)))
 {
   // initialize messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
     m_ground_msg, m_frame_id}.reserve(m_pcl_size);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
     m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
