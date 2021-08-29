@@ -28,7 +28,59 @@ namespace interactive_trajectory_spoofer
 InteractiveTrajectorySpooferNode::InteractiveTrajectorySpooferNode(
   const rclcpp::NodeOptions & node_options)
 : Node{"interactive_trajectory_spoofer_node", node_options}
-{}
+{
+  // interactive markers server
+  m_server_ptr = std::make_shared<interactive_markers::InteractiveMarkerServer>(
+    "interactive_trajectory_spoofer", this);
+  // original interactive marker and callback to process changes
+  m_server_ptr->insert(makeMarker("origin", 0.0, 0.0));  // , std::bind(&InteractiveTrajectorySpooferNode::processMarkerFeedback, std::placeholders::_1, get_logger()));
+
+  // 'commit' changes and send to all clients
+  m_server_ptr->applyChanges();
+}
+
+void InteractiveTrajectorySpooferNode::processMarkerFeedback(
+  const MarkerFeedback::ConstSharedPtr & feedback)
+{
+  switch (feedback->event_type) {
+    case MarkerFeedback::POSE_UPDATE:
+      updateControlPoint(feedback->marker_name, feedback->pose);
+      break;
+  }
+}
+
+InteractiveMarker InteractiveTrajectorySpooferNode::makeMarker(
+  const std::string & name,
+  const float64_t x, const float64_t y)
+{
+  InteractiveMarker int_marker;
+  int_marker.name = name;
+  int_marker.header.frame_id = "base_link";
+  int_marker.pose.position.x = x;
+  int_marker.pose.position.y = y;
+  int_marker.scale = 1;
+
+  addControlPoint(name, int_marker.pose);
+  return int_marker;
+}
+
+void InteractiveTrajectorySpooferNode::addControlPoint(
+  const std::string & name,
+  const geometry_msgs::msg::Pose & pose)
+{
+  ControlPoint p;
+  p.x = pose.position.x;
+  p.y = pose.position.y;
+  m_control_points_map[name] = p;
+}
+
+void InteractiveTrajectorySpooferNode::updateControlPoint(
+  const std::string & name,
+  const geometry_msgs::msg::Pose & pose)
+{
+  m_control_points_map[name].x = pose.position.x;
+  m_control_points_map[name].y = pose.position.y;
+}
 }  // namespace interactive_trajectory_spoofer
 }  // namespace autoware
 

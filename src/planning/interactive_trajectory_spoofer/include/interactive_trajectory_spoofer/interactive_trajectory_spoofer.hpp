@@ -41,6 +41,12 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
 
+struct INTERACTIVE_TRAJECTORY_SPOOFER_PUBLIC ControlPoint
+{
+  float64_t x;
+  float64_t y;
+};
+
 class INTERACTIVE_TRAJECTORY_SPOOFER_PUBLIC InteractiveTrajectorySpoofer
 {
 };

@@ -22,19 +22,28 @@
 #include <interactive_trajectory_spoofer/interactive_trajectory_spoofer.hpp>
 #include <interactive_trajectory_spoofer/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <common/types.hpp>
-#include <rclcpp/rclcpp.hpp>
+#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "common/types.hpp"
+#include "geometry_msgs/msg/pose.hpp"
+#include "interactive_markers/interactive_marker_server.hpp"
+#include "rclcpp/rclcpp.hpp"
+#include "visualization_msgs/msg/interactive_marker.hpp"
+#include "visualization_msgs/msg/interactive_marker_control.hpp"
 
 #include <memory>
+#include <unordered_map>
 #include <string>
 
 namespace autoware
 {
 namespace interactive_trajectory_spoofer
 {
+using InteractiveMarker = visualization_msgs::msg::InteractiveMarker;
+using MarkerFeedback = visualization_msgs::msg::InteractiveMarkerFeedback;
 using Trajectory = autoware_auto_msgs::msg::Trajectory;
 using std::placeholders::_1;
+using autoware::common::types::bool8_t;
+using autoware::common::types::float64_t;
 
 /// \class InteractiveTrajectorySpooferNode
 /// \brief ROS 2 Node for creating interactive fake trajectories
@@ -44,7 +53,45 @@ class INTERACTIVE_TRAJECTORY_SPOOFER_PUBLIC InteractiveTrajectorySpooferNode
 public:
   explicit InteractiveTrajectorySpooferNode(const rclcpp::NodeOptions & node_options);
 
+  /**
+   * @brief callback to handle changes in the interactive markers
+   * @param [in] feedback feedback message
+   */
+  void processMarkerFeedback(
+    const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr & feedback);
+
+
 private:
+  std::shared_ptr<interactive_markers::InteractiveMarkerServer> m_server_ptr;
+  std::unordered_map<std::string, ControlPoint> m_control_points_map;
+
+  /**
+   * @brief create an interactive marker with the given name and (x,y) coordinates
+   * @param [in] name name of the marker
+   * @param [in] x x position of the marker
+   * @param [in] y y position of the marker
+   * @return created interactive marker
+   */
+  InteractiveMarker makeMarker(const std::string & name, const float64_t x, const float64_t y);
+
+  /**
+   * @brief add a control point
+   * @param [in] name name of the interactive marker associated with the control point
+   */
+  void addControlPoint(const std::string & name, const geometry_msgs::msg::Pose & pose);
+
+  /**
+   * @brief update the given control point with the given pose
+   * @param [in] name name of the interactive marker associated with the control point
+   * @param [in] pose new pose of the control point
+   */
+  void updateControlPoint(const std::string & name, const geometry_msgs::msg::Pose & pose);
+
+  /**
+   * @brief delete the given control point
+   * @param [in] name name of the interactive marker associated with the control point
+   */
+  void deleteControlPoint(const std::string & name);
 };
 
 }  // namespace interactive_trajectory_spoofer
