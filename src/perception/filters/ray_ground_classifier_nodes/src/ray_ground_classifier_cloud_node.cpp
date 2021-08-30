@@ -84,9 +84,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
 {
   // initialize messages
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_ground_msg, m_frame_id}.reserve(m_pcl_size);
+    m_ground_msg, m_frame_id}.resize(m_pcl_size);
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
+    m_nonground_msg, m_frame_id}.resize(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
 void
