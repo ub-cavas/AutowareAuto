@@ -16,6 +16,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
