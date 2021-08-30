@@ -26,6 +26,7 @@
 #include "common/types.hpp"
 #include "geometry_msgs/msg/pose.hpp"
 #include "interactive_markers/interactive_marker_server.hpp"
+#include "interactive_markers/menu_handler.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/interactive_marker.hpp"
 #include "visualization_msgs/msg/interactive_marker_control.hpp"
@@ -57,13 +58,17 @@ public:
    * @brief callback to handle changes in the interactive markers
    * @param [in] feedback feedback message
    */
-  void processMarkerFeedback(
-    const visualization_msgs::msg::InteractiveMarkerFeedback::ConstSharedPtr & feedback);
-
+  void processMarkerFeedback(MarkerFeedback::ConstSharedPtr feedback);
 
 private:
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> m_server_ptr;
+  interactive_markers::MenuHandler m_menu_handler;
   std::unordered_map<std::string, ControlPoint> m_control_points_map;
+
+  rclcpp::Publisher<Trajectory>::SharedPtr m_traj_pub;
+  rclcpp::TimerBase::SharedPtr m_timer_traj_cb;
+
+  bool8_t m_publishing = false;
 
   /**
    * @brief create an interactive marker with the given name and (x,y) coordinates
@@ -92,6 +97,17 @@ private:
    * @param [in] name name of the interactive marker associated with the control point
    */
   void deleteControlPoint(const std::string & name);
+
+  /**
+   * @brief callback for the checkbox to publish or not the trajectory
+   * @param [in] feedback menu feedback
+   */
+  void pubMenuCb(MarkerFeedback::ConstSharedPtr feedback);
+
+  /**
+   * @brief timer callback to publish the trajectory
+   */
+  void timerTrajCb();
 };
 
 }  // namespace interactive_trajectory_spoofer
