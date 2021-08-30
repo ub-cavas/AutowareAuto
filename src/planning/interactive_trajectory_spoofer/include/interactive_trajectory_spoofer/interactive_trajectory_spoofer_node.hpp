@@ -32,8 +32,9 @@
 #include "visualization_msgs/msg/interactive_marker_control.hpp"
 
 #include <memory>
-#include <unordered_map>
+#include <sstream>
 #include <string>
+#include <vector>
 
 namespace autoware
 {
@@ -63,7 +64,7 @@ public:
 private:
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> m_server_ptr;
   interactive_markers::MenuHandler m_menu_handler;
-  std::unordered_map<std::string, ControlPoint> m_control_points_map;
+  std::vector<ControlPoint> m_control_points;
 
   rclcpp::Publisher<Trajectory>::SharedPtr m_traj_pub;
   rclcpp::TimerBase::SharedPtr m_timer_traj_cb;
@@ -81,9 +82,9 @@ private:
 
   /**
    * @brief add a control point
-   * @param [in] name name of the interactive marker associated with the control point
+   * @param [in] pose pose of the control point
    */
-  void addControlPoint(const std::string & name, const geometry_msgs::msg::Pose & pose);
+  void addControlPoint(const geometry_msgs::msg::Pose & pose);
 
   /**
    * @brief update the given control point with the given pose
@@ -98,6 +99,11 @@ private:
    */
   void deleteControlPoint(const std::string & name);
 
+  /**
+   * @brief callback for the "add" menu button
+   * @param [in] feedback menu feedback
+   */
+  void addMenuCb(MarkerFeedback::ConstSharedPtr feedback);
   /**
    * @brief callback for the checkbox to publish or not the trajectory
    * @param [in] feedback menu feedback
