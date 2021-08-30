@@ -21,6 +21,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
