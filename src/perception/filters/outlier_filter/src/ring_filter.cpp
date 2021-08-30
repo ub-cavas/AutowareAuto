@@ -17,10 +17,8 @@
 
 #include "common/types.hpp"
 #include "outlier_filter/ring_filter.hpp"
-
-#include "pcl/kdtree/kdtree_flann.h"
-#include "pcl/search/kdtree.h"
-#include "pcl/segmentation/segment_differences.h"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace autoware
 {
@@ -41,70 +39,69 @@ RingFilter::RingFilter(
 {}
 
 void RingFilter::filter(
-  const pcl::PointCloud<common::types::PointXYZIF> & input,
-  pcl::PointCloud<pcl::PointXYZ> & output)
+  const sensor_msgs::msg::PointCloud2 & input,
+  sensor_msgs::msg::PointCloud2 & output)
 {
-  std::vector<pcl::PointCloud<pcl::PointXYZ>> pcl_input_ring_array;
-  pcl_input_ring_array.resize(128);  // TODO(j.eccleston): make parameter
-  pcl::PointXYZ tmp_p;
-  for (const auto & p : input.points) {
-    // ID field contains the ring information
-    tmp_p.x = p.x;
-    tmp_p.y = p.y;
-    tmp_p.z = p.z;
-    pcl_input_ring_array.at(p.id).push_back(tmp_p);
+  // Declare the pointcloud msg wrapper view here
+  // common::types::PointXYZIF
+  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> input_view{input};
+  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZI> output_modifier{output};
+
+  std::vector<std::vector<autoware::common::types::PointXYZI>> input_ring_array;
+  input_ring_array.resize(128);  // TODO(j.eccleston): make parameter
+  for (const auto & p : input_view) {
+    input_ring_array.at(p.id).push_back({p.x, p.y, p.z, p.intensity});
   }
 
-  output.points.reserve(input.points.size());
-  output.header = input.header;
+  output_modifier.reserve(input_view.size());
 
-  // Iterate each ring to filter
-  pcl::PointCloud<pcl::PointXYZ> pcl_tmp;
-  for (const auto & ring_points : pcl_input_ring_array) {
+  // // Iterate each ring to filter
+  std::vector<autoware::common::types::PointXYZI> tmp_pointcloud_array;
+  for (const auto & ring_points : input_ring_array) {
     // If points are below minimal threshold ignore and don't filter
-    if (ring_points.points.size() < 2) {  // TODO(j.eccleston): make parameter
+    if (ring_points.size() < 2) {  // TODO(j.eccleston): make parameter
       continue;
     }
 
-    for (auto iter = std::begin(ring_points.points); iter != std::end(ring_points.points) - 1;
+    // TODO(j.eccleston): there must be a way to simplify this logic... seems unnecessary (what are we really trying to achieve here)
+    for (auto iter = ring_points.begin(); iter != ring_points.end() - 1;
       ++iter)
     {
-      pcl_tmp.points.push_back(*iter);
-
+      tmp_pointcloud_array.push_back(*iter);
       if (!is_outlier(*iter, *(iter + 1))) {
-        if (pcl_tmp.points.size() > num_points_threshold_ ||
-          is_object_threshold_exceeded(pcl_tmp.points.front(), pcl_tmp.points.back()))
+        if (tmp_pointcloud_array.size() > num_points_threshold_ ||
+          is_object_threshold_exceeded(tmp_pointcloud_array.front(), tmp_pointcloud_array.back()))
         {
-          for (const auto & p : pcl_tmp.points) {
-            output.points.push_back(p);
+          for (const auto & p : tmp_pointcloud_array) {
+            output_modifier.push_back(p);
           }
         }
-        pcl_tmp.points.clear();
+        tmp_pointcloud_array.clear();
       }
     }
 
-    if (pcl_tmp.points.size() > num_points_threshold_ ||
-      is_object_threshold_exceeded(pcl_tmp.points.front(), pcl_tmp.points.back()))
+    if (tmp_pointcloud_array.size() > num_points_threshold_ ||
+      is_object_threshold_exceeded(tmp_pointcloud_array.front(), tmp_pointcloud_array.back()))
     {
-      for (const auto & p : pcl_tmp.points) {
-        output.points.push_back(p);
+      for (const auto & p : tmp_pointcloud_array) {
+        output_modifier.push_back(p);
       }
     }
-    pcl_tmp.points.clear();
+    tmp_pointcloud_array.clear();
   }
 }
 
 common::types::bool8_t RingFilter::is_outlier(
-  const pcl::PointXYZ & pt1,
-  const pcl::PointXYZ & pt2) const
+  const autoware::common::types::PointXYZI & pt1,
+  const autoware::common::types::PointXYZI & pt2) const
 {
   // TODO(j.eccleston): Should parameterise the 100.0f
   return is_max_dist_exceeded(pt1, pt2) && calc_azimuth_diff(pt1, pt2) < 100.0f;
 }
 
 common::types::bool8_t RingFilter::is_max_dist_exceeded(
-  const pcl::PointXYZ & pt1,
-  const pcl::PointXYZ & pt2) const
+  const autoware::common::types::PointXYZI & pt1,
+  const autoware::common::types::PointXYZI & pt2) const
 {
   // TODO(j.eccleston): convert to std::hypot(x,y,z) in C++17/Galactic
   const common::types::float64_t curr_distance = std::sqrt(
@@ -118,8 +115,8 @@ common::types::bool8_t RingFilter::is_max_dist_exceeded(
 }
 
 common::types::float32_t RingFilter::calc_azimuth_diff(
-  const pcl::PointXYZ & pt1,
-  const pcl::PointXYZ & pt2) const
+  const autoware::common::types::PointXYZI & pt1,
+  const autoware::common::types::PointXYZI & pt2) const
 {
   // Calculate pt2 and pt3 azimuth in degrees
   common::types::float32_t pt1_azimuth = std::atan2(pt1.x, pt1.y) * (180.0f / common::types::PI);
@@ -130,8 +127,8 @@ common::types::float32_t RingFilter::calc_azimuth_diff(
 }
 
 common::types::bool8_t RingFilter::is_object_threshold_exceeded(
-  const pcl::PointXYZ & pt1,
-  const pcl::PointXYZ & pt2) const
+  const autoware::common::types::PointXYZI & pt1,
+  const autoware::common::types::PointXYZI & pt2) const
 {
   return (pt1.x - pt2.x) * (pt1.x - pt2.x) + (pt1.y - pt2.y) * (pt1.y - pt2.y) + (pt1.z - pt2.z) *
          (pt1.z - pt2.z) >= object_length_threshold_ * object_length_threshold_;

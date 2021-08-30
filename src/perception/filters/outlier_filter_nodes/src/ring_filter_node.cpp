@@ -18,8 +18,6 @@
 #include "common/types.hpp"
 #include "outlier_filter_nodes/ring_filter_node.hpp"
 
-#include "pcl_conversions/pcl_conversions.h"
-
 
 namespace autoware
 {
@@ -53,17 +51,11 @@ RingFilterNode::RingFilterNode(const rclcpp::NodeOptions & options)
 }
 
 void RingFilterNode::filter(
-  const sensor_msgs::msg::PointCloud2 &,
+  const sensor_msgs::msg::PointCloud2 & input,
   sensor_msgs::msg::PointCloud2 & output)
 {
-  pcl::PointCloud<common::types::PointXYZIF> pcl_input;
-  pcl::PointCloud<pcl::PointXYZ> pcl_output;
-  // pcl::fromROSMsg(input, pcl_input);
-
   // Perform filtering
-  ring_filter_->filter(pcl_input, pcl_output);
-
-  pcl::toROSMsg(pcl_output, output);
+  ring_filter_->filter(input, output);
 }
 
 rcl_interfaces::msg::SetParametersResult RingFilterNode::get_node_parameters(

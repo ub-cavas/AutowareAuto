@@ -3,7 +3,7 @@
 <package format="3">
   <name>outlier_filter</name>
   <version>1.0.0</version>
-  <description>Collection of outlier-filter implementations</description>
+  <description>Collection of outlier filter implementations</description>
   <maintainer email="jilada.eccleston@tier4.jp">Jilada Eccleston</maintainer>
   <license>Apache 2.0</license>
 
@@ -12,6 +12,7 @@
   <build_depend>libpcl-all-dev</build_depend>
 
   <depend>autoware_auto_common</depend>
+  <depend>point_cloud_msg_wrapper</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>sensor_msgs</depend>

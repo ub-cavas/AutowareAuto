@@ -23,9 +23,8 @@
 
 #include "common/types.hpp"
 #include "outlier_filter/visibility_control.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
-#include "pcl/filters/voxel_grid.h"
-#include "pcl/search/pcl_search.h"
 
 namespace autoware
 {
@@ -60,8 +59,8 @@ public:
    * \param output The output point cloud
    */
   void OUTLIER_FILTER_PUBLIC filter(
-    const pcl::PointCloud<common::types::PointXYZIF> & input,
-    pcl::PointCloud<pcl::PointXYZ> & output);
+    const sensor_msgs::msg::PointCloud2 & input,
+    sensor_msgs::msg::PointCloud2 & output);
 
   /** \brief Update dynamically configurable parameters
    * \param distance_ratio Parameter that updates the distance_ratio_ member variable
@@ -90,19 +89,19 @@ private:
 
   /** \brief
    */
-  common::types::bool8_t is_outlier(const pcl::PointXYZ & pt1, const pcl::PointXYZ & pt2) const;
+  common::types::bool8_t is_outlier(const autoware::common::types::PointXYZI & pt1, const autoware::common::types::PointXYZI & pt2) const;
 
   common::types::bool8_t is_max_dist_exceeded(
-    const pcl::PointXYZ & pt1,
-    const pcl::PointXYZ & pt2) const;
+    const autoware::common::types::PointXYZI & pt1,
+    const autoware::common::types::PointXYZI & pt2) const;
 
   common::types::float32_t calc_azimuth_diff(
-    const pcl::PointXYZ & pt1,
-    const pcl::PointXYZ & pt2) const;
+    const autoware::common::types::PointXYZI & pt1,
+    const autoware::common::types::PointXYZI & pt2) const;
 
   common::types::bool8_t is_object_threshold_exceeded(
-    const pcl::PointXYZ & pt1,
-    const pcl::PointXYZ & pt2) const;
+    const autoware::common::types::PointXYZI & pt1,
+    const autoware::common::types::PointXYZI & pt2) const;
 };
 }  // namespace ring_filter
 }  // namespace outlier_filter
