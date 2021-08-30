@@ -141,9 +141,9 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
       }
     }
   }
-  common::lidar_utils::init_pcl_msg(
-    m_filtered_transformed_msg,
-    m_output_frame_id.c_str(), m_pcl_size);
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
+    m_filtered_transformed_msg, m_output_frame_id}.resize(m_pcl_size);
 }
 
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
