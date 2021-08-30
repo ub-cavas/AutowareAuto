@@ -18,6 +18,7 @@
 #include <gtest/gtest.h>
 #include <lidar_integration/lidar_integration.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <velodyne_nodes/velodyne_cloud_node.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
@@ -77,7 +78,9 @@ sensor_msgs::msg::PointCloud2 make_pc(
   builtin_interfaces::msg::Time stamp)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  autoware::common::lidar_utils::init_pcl_msg(msg, "base_link", seeds.size());
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{msg, "base_link"};
+  modifier.resize(seeds.size());
 
   uint32_t pidx = 0;
   for (auto seed : seeds) {
@@ -300,7 +303,9 @@ TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
 
   std::vector<std::vector<PointXYZIF>> expected_filter_output_points(1);
   PointCloud2 raw_msg;
-  autoware::common::lidar_utils::init_pcl_msg(raw_msg, "lidar_front", 5);
+  using autoware::common::types::PointXYZI;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{raw_msg, "lidar_front"};
+  modifier.resize(5);
 
   PointXYZIF pt;
   pt.x = 1.; pt.y = 2.; pt.z = 3.;
