@@ -22,6 +22,8 @@
   <depend>state_estimation</depend>
   <depend>state_vector</depend>
   <depend>tracking_test_framework</depend>
+  <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
 
   <build_depend>eigen</build_depend>
   <build_depend>measurement_conversion</build_depend>

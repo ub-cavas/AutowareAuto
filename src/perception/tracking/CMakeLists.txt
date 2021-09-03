@@ -37,6 +37,7 @@ set(TRACKING_LIB_SRC
   src/track_creator.cpp
   src/tracked_object.cpp
   src/projection.cpp
+  src/projection_debugger.cpp
 )
 
 set(TRACKING_LIB_HEADERS
@@ -45,6 +46,8 @@ set(TRACKING_LIB_HEADERS
   include/tracking/multi_object_tracker.hpp
   include/tracking/track_creator.hpp
   include/tracking/tracked_object.hpp
+    include/tracking/projection.hpp
+    include/tracking/projection_debugger.hpp
   include/tracking/tracker_types.hpp
   include/tracking/visibility_control.hpp
 )
@@ -57,6 +60,11 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 target_include_directories(${PROJECT_NAME} SYSTEM PUBLIC ${EIGEN3_INCLUDE_DIR})
 autoware_set_compile_options(${PROJECT_NAME})
 ament_target_dependencies(${PROJECT_NAME} Eigen3)
+
+rclcpp_components_register_node(${PROJECT_NAME}
+    PLUGIN "autoware::perception::tracking::ProjectionDebuggerNode"
+    EXECUTABLE projection_debugger_node_exe
+    )
 
 # Testing
 if(BUILD_TESTING)
