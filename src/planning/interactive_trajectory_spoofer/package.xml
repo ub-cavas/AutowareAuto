@@ -17,6 +17,8 @@
   <depend>rclcpp_components</depend>
   <depend>interactive_markers</depend>
 
+  <build_depend>eigen</build_depend>
+
   <exec_depend>launch_ros</exec_depend>
 
   <test_depend>ament_cmake_gtest</test_depend>

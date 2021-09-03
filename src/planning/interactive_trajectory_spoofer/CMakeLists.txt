@@ -22,7 +22,9 @@ ament_auto_find_build_dependencies()
 set(INTERACTIVE_TRAJECTORY_SPOOFER_LIB "interactive_trajectory_spoofer")
 ament_auto_add_library(${INTERACTIVE_TRAJECTORY_SPOOFER_LIB} SHARED
   src/interactive_trajectory_spoofer.cpp
+  src/bezier.cpp
   include/interactive_trajectory_spoofer/interactive_trajectory_spoofer.hpp
+  include/interactive_trajectory_spoofer/bezier.hpp
 )
 autoware_set_compile_options(${INTERACTIVE_TRAJECTORY_SPOOFER_LIB})
 target_compile_options(${INTERACTIVE_TRAJECTORY_SPOOFER_LIB} PRIVATE)
