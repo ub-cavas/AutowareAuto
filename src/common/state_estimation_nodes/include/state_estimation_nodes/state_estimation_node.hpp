@@ -33,6 +33,7 @@
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp/subscription.hpp>
 #include <state_estimation_nodes/kalman_filter_wrapper.hpp>
+#include <state_estimation_nodes/generic_subscription_group.hpp>
 #include <state_estimation_nodes/visibility_control.hpp>
 
 #include <tf2/buffer_core.h>
@@ -80,6 +81,12 @@ private:
 
   template<std::int32_t kDim>
   using VectorT = Eigen::Matrix<autoware::common::types::float32_t, kDim, 1>;
+
+  template<typename MsgPtrT>
+  void trigger_callback(MsgPtrT msg)
+  {
+    std::cout << msg->header.frame_id;
+  }
 
   /// Gets called when a new pose message arrives.
   ///
@@ -131,6 +138,8 @@ private:
   // TODO(igor): we can replace the unique_ptr here with std::variant or alike at a later time to
   // allow configuring which filter to use at runtime.
   std::unique_ptr<FilterWrapperT> m_ekf{};
+
+  std::unique_ptr<TriggerSubscriptionGroup> m_trigger_subscription_group;
 
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;

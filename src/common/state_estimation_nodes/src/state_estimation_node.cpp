@@ -159,6 +159,26 @@ StateEstimationNode::StateEstimationNode(
   if (publish_ft) {
     m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>("/tf", kDefaultHistory);
   }
+
+  auto generic_trigger_callback = [this](auto msg_ptr) {
+      this->trigger_callback(msg_ptr);
+    };
+
+  const auto num_triggers = declare_parameter("num_triggers").get<std::size_t>();
+
+  std::vector<GenericSubscriptionConfig> trigger_sub_configs;
+
+  for (auto i = 0U; i < num_triggers; ++i) {
+    const auto param_prefix = "trigger_" + std::to_string(i);
+    const auto trigger_type = declare_parameter(param_prefix + ".type").get<std::string>();
+    const auto topic = declare_parameter(param_prefix + ".topic").get<std::string>();
+    trigger_sub_configs.emplace_back(trigger_type, topic, rclcpp::QoS{kDefaultHistory});
+  }
+
+  m_trigger_subscription_group = std::make_unique<TriggerSubscriptionGroup>(
+    *this,
+    trigger_sub_configs,
+    generic_trigger_callback);
 }
 
 void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
