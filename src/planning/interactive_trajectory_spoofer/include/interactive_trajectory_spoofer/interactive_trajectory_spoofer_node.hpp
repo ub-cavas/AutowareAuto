@@ -19,17 +19,21 @@
 #ifndef INTERACTIVE_TRAJECTORY_SPOOFER__INTERACTIVE_TRAJECTORY_SPOOFER_NODE_HPP_
 #define INTERACTIVE_TRAJECTORY_SPOOFER__INTERACTIVE_TRAJECTORY_SPOOFER_NODE_HPP_
 
-#include <interactive_trajectory_spoofer/interactive_trajectory_spoofer.hpp>
+#include <interactive_trajectory_spoofer/bezier.hpp>
 #include <interactive_trajectory_spoofer/visibility_control.hpp>
 
 #include "autoware_auto_msgs/msg/trajectory.hpp"
 #include "common/types.hpp"
-#include "geometry_msgs/msg/pose.hpp"
+#include "geometry_msgs/msg/point_stamped.hpp"
 #include "interactive_markers/interactive_marker_server.hpp"
 #include "interactive_markers/menu_handler.hpp"
+#include "motion_common/motion_common.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/interactive_marker.hpp"
 #include "visualization_msgs/msg/interactive_marker_control.hpp"
+#include "tf2_ros/buffer.h"
+#include "tf2_ros/transform_listener.h"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #include <memory>
 #include <sstream>
@@ -64,12 +68,26 @@ public:
 private:
   std::shared_ptr<interactive_markers::InteractiveMarkerServer> m_server_ptr;
   interactive_markers::MenuHandler m_menu_handler;
-  std::vector<ControlPoint> m_control_points;
+  Bezier m_curve;
+  Trajectory m_trajectory;
 
   rclcpp::Publisher<Trajectory>::SharedPtr m_traj_pub;
+  rclcpp::Publisher<Trajectory>::SharedPtr m_preview_pub;
   rclcpp::TimerBase::SharedPtr m_timer_traj_cb;
 
+  // Buffer, listener, and transform to convert from base_link to map
+  tf2_ros::Buffer m_tf_buffer;
+  tf2_ros::TransformListener m_tf_listener;
+
+
   bool8_t m_publishing = false;
+  bool8_t m_publishing_preview = false;
+  bool8_t m_initialized = false;
+
+  /**
+   * @brief initialize the control points of the curve and corresponding interactive markers
+   */
+  void initializeControlPoints();
 
   /**
    * @brief create an interactive marker with the given name and (x,y) coordinates
@@ -81,34 +99,29 @@ private:
   InteractiveMarker makeMarker(const std::string & name, const float64_t x, const float64_t y);
 
   /**
-   * @brief add a control point
-   * @param [in] pose pose of the control point
-   */
-  void addControlPoint(const geometry_msgs::msg::Pose & pose);
-
-  /**
    * @brief update the given control point with the given pose
    * @param [in] name name of the interactive marker associated with the control point
-   * @param [in] pose new pose of the control point
+   * @param [in] x x position of the map
+   * @param [in] y y position of the map
    */
-  void updateControlPoint(const std::string & name, const geometry_msgs::msg::Pose & pose);
+  void updateControlPoint(const std::string & name, const float64_t x, const float64_t y);
 
-  /**
-   * @brief delete the given control point
-   * @param [in] name name of the interactive marker associated with the control point
-   */
-  void deleteControlPoint(const std::string & name);
-
-  /**
-   * @brief callback for the "add" menu button
-   * @param [in] feedback menu feedback
-   */
-  void addMenuCb(MarkerFeedback::ConstSharedPtr feedback);
   /**
    * @brief callback for the checkbox to publish or not the trajectory
    * @param [in] feedback menu feedback
    */
   void pubMenuCb(MarkerFeedback::ConstSharedPtr feedback);
+
+  /**
+   * @brief callback for the checkbox to publish or not the trajectory preview
+   * @param [in] feedback menu feedback
+   */
+  void previewMenuCb(MarkerFeedback::ConstSharedPtr feedback);
+
+  /**
+   * @brief generate the trajectory for the current curve
+   */
+  void generateTrajectory();
 
   /**
    * @brief timer callback to publish the trajectory

@@ -39,24 +39,27 @@ typedef Eigen::Matrix<float64_t, 2, 1> Point;
 typedef Eigen::Matrix<float64_t, 3, 1> PointWithHeading;
 
 // Coefficients for matrix calculation of the quintic Bézier curve.
-static const Eigen::Matrix<float64_t, 6, 6> quintic_bezier_coefficients((Eigen::Matrix<float64_t, 6, 6>()
-  << 1,  0,    0,   0,  0, 0,
-    -5,  5,    0,   0,  0, 0,
-    10, -20,  10,   0,  0, 0,
-   -10,  30, -30,  10,  0, 0,
-     5, -20,  30, -20,  5, 0,
-    -1,   5, -10,  10, -5, 1).finished());
-const Eigen::Matrix<float64_t, 5, 6> quintic_bezier_velocity_coefficients((Eigen::Matrix<float64_t, 5, 6>()
-  << quintic_bezier_coefficients.row(1) * 1,
-     quintic_bezier_coefficients.row(2) * 2,
-     quintic_bezier_coefficients.row(3) * 3,
-     quintic_bezier_coefficients.row(4) * 4,
-     quintic_bezier_coefficients.row(5) * 5).finished());
-const Eigen::Matrix<float64_t, 4, 6> quintic_bezier_acceleration_coefficients((Eigen::Matrix<float64_t, 4, 6>()
-  << quintic_bezier_velocity_coefficients.row(1) * 1,
-     quintic_bezier_velocity_coefficients.row(2) * 2,
-     quintic_bezier_velocity_coefficients.row(3) * 3,
-     quintic_bezier_velocity_coefficients.row(4) * 4).finished());
+static const Eigen::Matrix<float64_t, 6, 6> quintic_bezier_coefficients((Eigen::Matrix<float64_t, 6,
+  6>() <<
+  1, 0, 0, 0, 0, 0,
+  -5, 5, 0, 0, 0, 0,
+  10, -20, 10, 0, 0, 0,
+  -10, 30, -30, 10, 0, 0,
+  5, -20, 30, -20, 5, 0,
+  -1, 5, -10, 10, -5, 1).finished());
+const Eigen::Matrix<float64_t, 5, 6> quintic_bezier_velocity_coefficients((Eigen::Matrix<float64_t,
+  5, 6>() <<
+  quintic_bezier_coefficients.row(1) * 1,
+  quintic_bezier_coefficients.row(2) * 2,
+  quintic_bezier_coefficients.row(3) * 3,
+  quintic_bezier_coefficients.row(4) * 4,
+  quintic_bezier_coefficients.row(5) * 5).finished());
+const Eigen::Matrix<float64_t, 4, 6> quintic_bezier_acceleration_coefficients(
+  (Eigen::Matrix<float64_t, 4, 6>() <<
+    quintic_bezier_velocity_coefficients.row(1) * 1,
+    quintic_bezier_velocity_coefficients.row(2) * 2,
+    quintic_bezier_velocity_coefficients.row(3) * 3,
+    quintic_bezier_velocity_coefficients.row(4) * 4).finished());
 
 /// \class Quintic Bezier curve
 /// \brief Class representing quintic Bezier curves defined by 6 control points
@@ -65,12 +68,16 @@ class INTERACTIVE_TRAJECTORY_SPOOFER_PUBLIC Bezier
   Eigen::Matrix<float64_t, 6, 2> m_control_points;
 
 public:
+  //@brief empty constructor
+  Bezier() = default;
   //@brief constructor from a matrix
   Bezier(const Eigen::Matrix<float64_t, 6, 2> & control_points);
   //@brief constructor from a set of control points
   Bezier(const std::vector<Point> & control_points);
   //@brief return the control points
-  const Eigen::Matrix<float64_t, 6, 2> getControlPoints() const;
+  Eigen::Matrix<float64_t, 6, 2> getControlPoints() const;
+  //@brief update the ith control points
+  void updateControlPoint(int64_t i, Point new_point);
   //@brief return the curve in cartersian frame with the desired resolution
   std::vector<Point> cartesian(const float64_t resolution) const;
   //@brief return the curve in cartersian frame with the desired number of points
