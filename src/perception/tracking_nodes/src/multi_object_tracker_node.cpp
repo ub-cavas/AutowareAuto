@@ -51,7 +51,7 @@ using std::placeholders::_2;
 
 namespace
 {
-constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{30};
+constexpr std::chrono::milliseconds kMaxLidarEgoStateStampDiff{100};
 constexpr std::chrono::milliseconds kMaxVisionEgoStateStampDiff{100};
 constexpr std::int64_t kDefaultHistoryDepth{20};
 constexpr std::int64_t kDefaultPoseHistoryDepth{100};
@@ -85,7 +85,9 @@ geometry_msgs::msg::Transform get_tf_camera_from_base_link_from_params(rclcpp::N
   return tf_camera_from_base_link;
 }
 
-MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
+MultiObjectTracker init_tracker(
+  rclcpp::Node & node, const bool8_t use_vision, tf2::BufferCore &
+  tf_buffer)
 {
   const float32_t max_distance =
     static_cast<float32_t>(node.declare_parameter(
@@ -155,7 +157,7 @@ MultiObjectTracker init_tracker(rclcpp::Node & node, const bool8_t use_vision)
   MultiObjectTrackerOptions options{
     {max_distance, max_area_ratio, consider_edge_for_big_detections}, vision_config,
     creator_config, pruning_time_threshold, pruning_ticks_threshold, frame};
-  return MultiObjectTracker{options};
+  return MultiObjectTracker{options, tf_buffer};
 }
 
 std::string status_to_string(TrackerUpdateStatus status)
@@ -211,11 +213,11 @@ T get_closest_match(const std::vector<T> & matched_msgs, const rclcpp::Time & st
 MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & options)
 :  Node("multi_object_tracker_node", options),
   m_use_vision{this->declare_parameter("use_vision", true)},
-  m_tracker{init_tracker(*this, m_use_vision)},
+  m_tf_listener{m_tf_buffer},
+  m_tracker{init_tracker(*this, m_use_vision, m_tf_buffer)},
   m_history_depth{static_cast<size_t>(declare_parameter("history_depth", kDefaultHistoryDepth))},
   m_use_ndt{this->declare_parameter("use_ndt", true)},
-  m_pub{create_publisher<TrackedObjects>("tracked_objects", m_history_depth)},
-  m_tf_listener{m_tf_buffer}
+  m_pub{create_publisher<TrackedObjects>("tracked_objects", m_history_depth)}
 {
   const auto pose_history_depth =
     static_cast<size_t>(declare_parameter("pose_history_depth", kDefaultPoseHistoryDepth));
@@ -260,6 +262,9 @@ void MultiObjectTrackerNode::process(
   if (result.status == TrackerUpdateStatus::Ok) {
     // The tracker returns its result in a unique_ptr, so the more efficient publish(unique_ptr<T>)
     // overload can be used.
+    if (!result.objects->objects.empty()) {
+      RCLCPP_WARN(get_logger(), "Got non empty track msg!!!!");
+    }
     m_pub->publish(std::move(result.objects));
   } else {
     RCLCPP_WARN(

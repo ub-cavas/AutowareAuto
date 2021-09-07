@@ -42,6 +42,7 @@
 #include "state_estimation/kalman_filter/kalman_filter.hpp"
 #include "motion_model/linear_motion_model.hpp"
 #include "state_estimation/noise_model/wiener_noise.hpp"
+#include "tf2/buffer_core.h"
 #include "tracking/visibility_control.hpp"
 
 
@@ -112,7 +113,7 @@ private:
 
 public:
   /// Constructor
-  explicit MultiObjectTracker(MultiObjectTrackerOptions options);
+  explicit MultiObjectTracker(MultiObjectTrackerOptions options, tf2::BufferCore & tf2_buffer);
 
   /// \brief Update the tracks with the specified detections and return the tracks at the current
   /// timestamp.
@@ -161,6 +162,8 @@ private:
 
   /// Creator for creating tracks based on unassociated observations
   TrackCreator m_track_creator;
+
+  tf2::BufferCore & m_tf_buffer;
 };
 
 }  // namespace tracking

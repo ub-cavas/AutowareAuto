@@ -60,13 +60,6 @@ bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
   return true;
 }
 
-geometry_msgs::msg::Transform invert(const geometry_msgs::msg::Transform & transform)
-{
-  tf2::Transform t;
-  tf2::fromMsg(transform, t);
-  return tf2::toMsg(t.inverse());
-}
-
 geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry & odometry)
 {
   geometry_msgs::msg::TransformStamped tfs;
@@ -81,10 +74,13 @@ geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry 
 }  // anonymous namespace
 
 
-MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options)
+MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options, tf2::BufferCore & buffer)
 : m_options(options), m_object_associator(options.object_association_config),
   m_vision_associator{options.vision_association_config},
-  m_track_creator(options.track_creator_config) {}
+  m_track_creator(options.track_creator_config, buffer),
+  m_tf_buffer(buffer)
+{
+}
 
 TrackerUpdateResult MultiObjectTracker::update(
   DetectedObjectsMsg detections,
@@ -138,9 +134,16 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Initialize new tracks
   // ==================================
-  m_track_creator.add_objects(
-    detections, association,
-    invert(to_transform(detection_frame_odometry).transform));
+  geometry_msgs::msg::TransformStamped tf_camera_from_detections;
+  try {
+    tf_camera_from_detections = m_tf_buffer.lookupTransform(
+      "camera", detections.header.frame_id, tf2::TimePointZero);
+  } catch (std::exception & e) {
+    std::cerr << e.what();
+    result.status = TrackerUpdateStatus::TrackerFrameMismatch;
+    return result;
+  }
+  m_track_creator.add_objects(detections, association);
   {
     auto && ret = m_track_creator.create_tracks();
     m_objects.insert(
@@ -177,6 +180,9 @@ void MultiObjectTracker::update(
 {
   const auto association = m_vision_associator.assign(rois, m_objects, tf_camera_from_track);
 
+//  std::cerr << "Track - vision association: Num vision: " << rois.rois.size() <<
+//    " num associated: " << m_objects.size() - association.unassigned_track_indices.size() <<
+//    std::endl;
   for (size_t i = 0U; i < m_objects.size(); ++i) {
     const auto & maybe_roi_idx = association.track_assignments[i];
     if (maybe_roi_idx != AssociatorResult::UNASSIGNED) {
