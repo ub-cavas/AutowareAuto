@@ -89,9 +89,11 @@ public:
   /// \param clusters DetectedObjects msg output by the lidar clustering algorithm
   /// \param associator_result Struct containing indices of clusters that do not have track
   ///                          association
+  /// \param tf_base_link_from_object Transform from the cluster frame to the base_link frame.
   virtual void add_objects(
     const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) = 0;
+    const AssociatorResult & associator_result,
+    const geometry_msgs::msg::Transform & tf_base_link_from_object) = 0;
   /// \brief Keep tracks of all unassigned vision detections
   /// \param vision_rois msg output by the vision detector
   /// \param associator_result Struct containing indices of detections that do not have track
@@ -124,7 +126,8 @@ public:
 
   void add_objects(
     const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) override;
+    const AssociatorResult & associator_result,
+    const geometry_msgs::msg::Transform & tf_base_link_from_object) override;
 
   inline void add_objects(
     const autoware_auto_msgs::msg::ClassifiedRoiArray &,
@@ -148,7 +151,8 @@ public:
 
   void add_objects(
     const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) override;
+    const AssociatorResult & associator_result,
+    const geometry_msgs::msg::Transform & tf_base_link_from_object) override;
 
   void add_objects(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
@@ -163,6 +167,7 @@ private:
   using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
   std::shared_ptr<VisionCache> m_vision_rois_cache_ptr = nullptr;
   autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
+  geometry_msgs::msg::Transform m_tf_base_link_from_object;
 };
 
 /// \brief Class to create new tracks based on a predefined policy and unassociated detections

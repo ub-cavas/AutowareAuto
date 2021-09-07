@@ -111,7 +111,7 @@ TEST(TrackCreatorTest, TestLidarOnly)
   AssociatorResult result;
   result.unassigned_detection_indices = {0, 2, 4};
 
-  creator.add_objects(objs, result);
+  creator.add_objects(objs, result, geometry_msgs::msg::Transform{});
 
   EXPECT_EQ(creator.create_tracks().tracks.size(), 3U);
   EXPECT_EQ(creator.create_tracks().detections_leftover.objects.size(), 0U);
@@ -124,6 +124,9 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
     this->vision_policy_cfg}};
   auto now_time = time_utils::to_message(
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
+
+  geometry_msgs::msg::Transform identity{};
+  identity.rotation.w = 1.0;
 
   // Add lidar
   DetectedObject lidar_detection;
@@ -138,7 +141,7 @@ TEST_F(TestTrackCreator, TestLidarIfVision2NewTracks)
   lidar_detections.objects[4] = this->unmatched_objects[1];
   AssociatorResult lidar_track_assn;
   lidar_track_assn.unassigned_detection_indices = {0, 2, 4};
-  creator.add_objects(lidar_detections, lidar_track_assn);
+  creator.add_objects(lidar_detections, lidar_track_assn, identity);
 
   // Add vision
   ClassifiedRoi vision_detection;
@@ -184,6 +187,9 @@ TEST_F(TestTrackCreator, TestLidarIfVisionNoNewTrack)
   auto now_time = time_utils::to_message(
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
 
+  geometry_msgs::msg::Transform identity{};
+  identity.rotation.w = 1.0;
+
   // Add lidar
   DetectedObject lidar_detection;
   DetectedObjects lidar_detections;
@@ -198,7 +204,7 @@ TEST_F(TestTrackCreator, TestLidarIfVisionNoNewTrack)
   lidar_detections.objects[0] = this->object_roi_pairs[0].first;
   lidar_detections.objects[2] = this->object_roi_pairs[1].first;
   lidar_detections.objects[4] = this->object_roi_pairs[2].first;
-  creator.add_objects(lidar_detections, lidar_track_assn);
+  creator.add_objects(lidar_detections, lidar_track_assn, identity);
 
   // Add vision
   ClassifiedRoi vision_detection;
@@ -229,6 +235,9 @@ TEST_F(TestTrackCreator, TestLidarIfVisionOutOfTimeRange)
   auto now_time = time_utils::to_message(
     std::chrono::system_clock::time_point{std::chrono::system_clock::now()});
 
+  geometry_msgs::msg::Transform identity{};
+  identity.rotation.w = 1.0;
+
   // Add lidar
   DetectedObject lidar_detection;
   DetectedObjects lidar_detections;
@@ -240,7 +249,7 @@ TEST_F(TestTrackCreator, TestLidarIfVisionOutOfTimeRange)
   }
   AssociatorResult lidar_track_assn;
   lidar_track_assn.unassigned_detection_indices = {0, 2, 4};
-  creator.add_objects(lidar_detections, lidar_track_assn);
+  creator.add_objects(lidar_detections, lidar_track_assn, identity);
 
   // Add vision
   ClassifiedRoi vision_detection;

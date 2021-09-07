@@ -60,6 +60,13 @@ bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
   return true;
 }
 
+geometry_msgs::msg::Transform invert(const geometry_msgs::msg::Transform & transform)
+{
+  tf2::Transform t;
+  tf2::fromMsg(transform, t);
+  return tf2::toMsg(t.inverse());
+}
+
 geometry_msgs::msg::TransformStamped to_transform(const nav_msgs::msg::Odometry & odometry)
 {
   geometry_msgs::msg::TransformStamped tfs;
@@ -131,7 +138,9 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Initialize new tracks
   // ==================================
-  m_track_creator.add_objects(detections, association);
+  m_track_creator.add_objects(
+    detections, association,
+    invert(to_transform(detection_frame_odometry).transform));
   {
     auto && ret = m_track_creator.create_tracks();
     m_objects.insert(

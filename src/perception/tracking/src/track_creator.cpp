@@ -16,7 +16,7 @@
 
 #include <time_utils/time_utils.hpp>
 #include <tracking/track_creator.hpp>
-
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <functional>
 #include <memory>
 #include <set>
@@ -29,6 +29,20 @@ namespace perception
 {
 namespace tracking
 {
+namespace
+{
+geometry_msgs::msg::Transform operator*(
+  const geometry_msgs::msg::Transform & transform1,
+  const geometry_msgs::msg::Transform & transform2
+)
+{
+  tf2::Transform t1;
+  tf2::fromMsg(transform1, t1);
+  tf2::Transform t2;
+  tf2::fromMsg(transform2, t2);
+  return tf2::toMsg(t1 * t2);
+}
+}  // namespace
 
 CreationPolicyBase::CreationPolicyBase(
   const float64_t default_variance,
@@ -49,9 +63,11 @@ autoware_auto_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned
 }
 void LidarClusterIfVisionPolicy::add_objects(
   const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
+  const AssociatorResult & associator_result,
+  const geometry_msgs::msg::Transform & tf_base_link_from_object)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
+  m_tf_base_link_from_object = tf_base_link_from_object;
 }
 
 LidarOnlyPolicy::LidarOnlyPolicy(const float64_t default_variance, const float64_t noise_variance)
@@ -59,7 +75,8 @@ LidarOnlyPolicy::LidarOnlyPolicy(const float64_t default_variance, const float64
 
 void LidarOnlyPolicy::add_objects(
   const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
+  const AssociatorResult & associator_result,
+  const geometry_msgs::msg::Transform &)
 {
   m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
 }
@@ -117,9 +134,9 @@ TracksAndLeftovers LidarClusterIfVisionPolicy::create()
   std::cerr << "Got matching vision msg for creating tracks" << std::endl;
 
   const auto & vision_msg = *vision_msg_matches.back();
-
+  const auto tf_camera_from_object = m_cfg.tf_camera_from_base_link * m_tf_base_link_from_object;
   const auto result = m_associator.assign(
-    vision_msg, m_lidar_clusters, m_cfg.tf_camera_from_base_link);
+    vision_msg, m_lidar_clusters, tf_camera_from_object);
   std::set<size_t, std::greater<>> lidar_idx_to_erase;
 
   std::cerr << "Unassigned lidar " << m_lidar_clusters.objects.size() << " vision " <<
