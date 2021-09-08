@@ -272,6 +272,7 @@ void MultiObjectTrackerNode::process(
       objs->header.stamp.sec, objs->header.stamp.nanosec,
       status_to_string(result.status).c_str());
   }
+  // TODO(niosus): republish the objects that failed to match.
 }
 
 void MultiObjectTrackerNode::process(
@@ -280,6 +281,7 @@ void MultiObjectTrackerNode::process(
 {
   const auto tf_camera_from_track = compute_tf_camera_from_odom(*odom);
   m_tracker.update(*rois, tf_camera_from_track);
+  // TODO(niosus): should we publish the tracks here too?
 }
 
 geometry_msgs::msg::Transform MultiObjectTrackerNode::compute_tf_camera_from_odom(

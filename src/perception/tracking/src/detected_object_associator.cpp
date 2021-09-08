@@ -50,6 +50,7 @@ DetectedObjectAssociator::DetectedObjectAssociator(const DataAssociationConfig &
 
 AssociatorResult DetectedObjectAssociator::assign(
   const autoware_auto_msgs::msg::DetectedObjects & detections,
+  const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
   const std::vector<TrackedObject> & tracks)
 {
   reset();
@@ -65,7 +66,7 @@ AssociatorResult DetectedObjectAssociator::assign(
       static_cast<assigner_idx_t>(detections.objects.size()),
       static_cast<assigner_idx_t>(tracks.size()));
   }
-  compute_weights(detections, tracks);
+  compute_weights(detections, tf_tracker_frame_from_detection_frame, tracks);
   // TODO(gowtham.ranganathan): Revisit this after #979 since till then assigner will always
   //  return true
   (void)m_assigner.assign();
@@ -85,6 +86,7 @@ void DetectedObjectAssociator::reset()
 
 void DetectedObjectAssociator::compute_weights(
   const autoware_auto_msgs::msg::DetectedObjects & detections,
+  const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
   const std::vector<TrackedObject> & tracks)
 {
   for (size_t det_idx = 0U; det_idx < detections.objects.size(); ++det_idx) {
@@ -93,7 +95,7 @@ void DetectedObjectAssociator::compute_weights(
       const auto & detection = detections.objects[det_idx];
 
       try {
-        if (consider_associating(detection, track)) {
+        if (consider_associating(detection, tf_tracker_frame_from_detection_frame, track)) {
           Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM, 1> sample;
           sample(0, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.x);
           sample(1, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.y);
@@ -120,6 +122,7 @@ void DetectedObjectAssociator::compute_weights(
 
 bool DetectedObjectAssociator::consider_associating(
   const autoware_auto_msgs::msg::DetectedObject & detection,
+  const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
   const TrackedObject & track) const
 {
   const auto get_shortest_edge_size_squared = [&]() -> float32_t {
@@ -154,6 +157,14 @@ bool DetectedObjectAssociator::consider_associating(
   track_centroid.x = track.centroid().x();
   track_centroid.y = track.centroid().y();
 
+  auto detection_centroid = detection.kinematics.centroid_position;
+  const Eigen::Vector3d detection_centroid_in_tracker_frame =
+    tf_tracker_frame_from_detection_frame *
+    Eigen::Vector3d{detection_centroid.x, detection_centroid.y, detection_centroid.z};
+  detection_centroid.x = detection_centroid_in_tracker_frame.x();
+  detection_centroid.y = detection_centroid_in_tracker_frame.y();
+  detection_centroid.z = detection_centroid_in_tracker_frame.z();
+
   const auto compute_distance_threshold = [&get_shortest_edge_size_squared, this]() -> float32_t {
       if (m_association_cfg.consider_edge_for_big_detections()) {
         return std::max(
@@ -164,9 +175,8 @@ bool DetectedObjectAssociator::consider_associating(
       }
     };
 
-  if (common::geometry::squared_distance_2d(
-      detection.kinematics.centroid_position,
-      track_centroid) > compute_distance_threshold())
+  if (common::geometry::squared_distance_2d(detection_centroid, track_centroid) >
+    compute_distance_threshold())
   {
     return false;
   }

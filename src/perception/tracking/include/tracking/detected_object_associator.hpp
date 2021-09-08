@@ -19,8 +19,10 @@
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <hungarian_assigner/hungarian_assigner.hpp>
-#include <tracking/tracker_types.hpp>
 #include <tracking/tracked_object.hpp>
+#include <tracking/tracker_types.hpp>
+
+#include <Eigen/Geometry>
 
 #include <experimental/optional>
 #include <map>
@@ -70,7 +72,7 @@ private:
 };
 
 /// \brief Class to perform data association between existing tracks and new detections using
-///        mahalanobis distance and hungarian assigner
+///        mahalanobis distance and Hungarian assigner
 class TRACKING_PUBLIC DetectedObjectAssociator
 {
 public:
@@ -84,8 +86,9 @@ public:
   /// \param tracks List of tracks
   /// \return Returns Associator result struct
   AssociatorResult assign(
-    const autoware_auto_msgs::msg::DetectedObjects & detections, const
-    std::vector<TrackedObject> & tracks);
+    const autoware_auto_msgs::msg::DetectedObjects & detections,
+    const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
+    const std::vector<TrackedObject> & tracks);
 
 private:
   /// \brief Reset internal states of the associator
@@ -94,11 +97,14 @@ private:
   /// \brief Loop through all detections and tracks and set weights between them in the assigner
   void compute_weights(
     const autoware_auto_msgs::msg::DetectedObjects & detections,
+    const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
     const std::vector<TrackedObject> & tracks);
 
   /// \brief Check if the given track and detection are similar enough to compute weight
   bool consider_associating(
-    const autoware_auto_msgs::msg::DetectedObject & detection, const TrackedObject & track) const;
+    const autoware_auto_msgs::msg::DetectedObject & detection,
+    const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame,
+    const TrackedObject & track) const;
 
   /// Set weight in the assigner (Has to determine which idx is row and which is column)
   void set_weight(const float32_t weight, const size_t det_idx, const size_t track_idx);

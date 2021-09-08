@@ -83,19 +83,14 @@ MultiObjectTracker::MultiObjectTracker(MultiObjectTrackerOptions options, tf2::B
 }
 
 TrackerUpdateResult MultiObjectTracker::update(
-  DetectedObjectsMsg detections,
-  const nav_msgs::msg::Odometry & detection_frame_odometry)
+  const DetectedObjectsMsg & detections,
+  const Eigen::Isometry3d & tf_track_from_detection)
 {
   TrackerUpdateResult result;
-  result.status = this->validate(detections, detection_frame_odometry);
-  if (result.status != TrackerUpdateStatus::Ok) {
-    return result;
-  }
-
-  // ==================================
-  // Transform detections
-  // ==================================
-  this->transform(detections, detection_frame_odometry);
+  // result.status = this->validate(detections, detection_frame_odometry);
+  // if (result.status != TrackerUpdateStatus::Ok) {
+  //   return result;
+  // }
 
   // ==================================
   // Predict tracks forward
@@ -111,7 +106,7 @@ TrackerUpdateResult MultiObjectTracker::update(
   // Associate observations with tracks
   // ==================================
   AssociatorResult association;
-  association = m_object_associator.assign(detections, this->m_objects);
+  association = m_object_associator.assign(detections, tf_track_from_detection, this->m_objects);
   if (association.had_errors) {
     result.status = TrackerUpdateStatus::InvalidShape;
   }
@@ -125,7 +120,7 @@ TrackerUpdateResult MultiObjectTracker::update(
       continue;
     }
     const auto & detection = detections.objects[detection_idx];
-    m_objects[track_idx].update(detection);
+    m_objects[track_idx].update(detection, tf_track_from_detection);
   }
   for (const size_t track_idx : association.unassigned_track_indices) {
     m_objects[track_idx].no_update();
@@ -134,15 +129,6 @@ TrackerUpdateResult MultiObjectTracker::update(
   // ==================================
   // Initialize new tracks
   // ==================================
-  geometry_msgs::msg::TransformStamped tf_camera_from_detections;
-  try {
-    tf_camera_from_detections = m_tf_buffer.lookupTransform(
-      "camera", detections.header.frame_id, tf2::TimePointZero);
-  } catch (std::exception & e) {
-    std::cerr << e.what();
-    result.status = TrackerUpdateStatus::TrackerFrameMismatch;
-    return result;
-  }
   m_track_creator.add_objects(detections, association);
   {
     auto && ret = m_track_creator.create_tracks();
@@ -176,7 +162,7 @@ TrackerUpdateResult MultiObjectTracker::update(
 
 void MultiObjectTracker::update(
   const ClassifiedRoiArrayMsg & rois,
-  const geometry_msgs::msg::Transform & tf_camera_from_track)
+  const Eigen::Isometry3d & tf_camera_from_track)
 {
   const auto association = m_vision_associator.assign(rois, m_objects, tf_camera_from_track);
 

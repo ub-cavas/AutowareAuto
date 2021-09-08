@@ -16,14 +16,17 @@
 
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
-#include <helper_functions/template_utils.hpp>
-#include <geometry/intersection.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/intersection.hpp>
+#include <helper_functions/template_utils.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
-#include <tracking/tracker_types.hpp>
-#include <tracking/tracked_object.hpp>
 #include <tracking/projection.hpp>
+#include <tracking/tracked_object.hpp>
+#include <tracking/tracker_types.hpp>
 #include <tracking/visibility_control.hpp>
+
+#include <Eigen/Geometry>
+
 #include <unordered_set>
 #include <vector>
 
@@ -81,7 +84,7 @@ public:
   AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const std::vector<TrackedObject> & tracks,
-    const geometry_msgs::msg::Transform & tf_camera_from_track
+    const Eigen::Isometry3d & tf_camera_from_track
   ) const;
 
   /// \brief Assign the objects to the ROIs. The assignment is done by first projecting the
@@ -95,8 +98,7 @@ public:
   AssociatorResult assign(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
     const autoware_auto_msgs::msg::DetectedObjects & objects,
-    const geometry_msgs::msg::Transform & tf_camera_from_object
-  ) const;
+    const Eigen::Isometry3d & tf_camera_from_object) const;
 
 private:
   // Scan the ROIs to find the best matching roi for a given shape by projecting it onto image
@@ -117,7 +119,7 @@ namespace details
 class TRACKING_PUBLIC ShapeTransformer
 {
 public:
-  explicit ShapeTransformer(const geometry_msgs::msg::Transform & tf);
+  explicit ShapeTransformer(const Eigen::Isometry3d & tf);
   using Point32 = geometry_msgs::msg::Point32;
   /// \brief Transform the bottom and top face vertices of the given shape. No order is preserved.
   /// \param shape Shape msg.
@@ -125,7 +127,7 @@ public:
   std::vector<Point32> operator()(const autoware_auto_msgs::msg::Shape & shape) const;
 
 private:
-  common::lidar_utils::StaticTransformer m_transformer;
+  Eigen::Isometry3d m_tf;
 };
 }  // namespace details
 }  // namespace tracking

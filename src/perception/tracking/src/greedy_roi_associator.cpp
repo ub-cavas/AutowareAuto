@@ -17,6 +17,7 @@
 #include <common/types.hpp>
 #include <tracking/detected_object_associator.hpp>
 #include <tracking/greedy_roi_associator.hpp>
+
 #include <algorithm>
 #include <unordered_set>
 #include <vector>
@@ -31,6 +32,19 @@ using autoware::common::types::float32_t;
 
 namespace
 {
+
+geometry_msgs::msg::Point32 operator*(
+  const Eigen::Isometry3f & tf,
+  const geometry_msgs::msg::Point32 & pt)
+{
+  const auto eigen_res = tf * Eigen::Vector3f{pt.x, pt.y, pt.z};
+  geometry_msgs::msg::Point32 result;
+  result.x = eigen_res.x();
+  result.y = eigen_res.y();
+  result.z = eigen_res.z();
+  return result;
+}
+
 AssociatorResult create_and_init_result(
   const std::size_t rois_size,
   const std::size_t objects_size)
@@ -76,7 +90,7 @@ GreedyRoiAssociator::GreedyRoiAssociator(
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
   const std::vector<TrackedObject> & tracks,
-  const geometry_msgs::msg::Transform & tf_camera_from_track
+  const Eigen::Isometry3d & tf_camera_from_track
 ) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.size());
@@ -94,7 +108,7 @@ AssociatorResult GreedyRoiAssociator::assign(
 AssociatorResult GreedyRoiAssociator::assign(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
   const autoware_auto_msgs::msg::DetectedObjects & objects,
-  const geometry_msgs::msg::Transform & tf_camera_from_object
+  const Eigen::Isometry3d & tf_camera_from_object
 ) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), objects.objects.size());
@@ -134,10 +148,8 @@ std::size_t GreedyRoiAssociator::project_and_match_detection(
 
 namespace details
 {
-ShapeTransformer::ShapeTransformer(const geometry_msgs::msg::Transform & tf)
-: m_transformer{tf}
-{
-}
+ShapeTransformer::ShapeTransformer(const Eigen::Isometry3d & tf)
+: m_tf{tf} {}
 
 std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
   const autoware_auto_msgs::msg::Shape & shape) const
@@ -148,12 +160,9 @@ std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
   for (const auto & pt : shape.polygon.points) {
     Point32 pt_transformed{};
     // Transform the vertices on the bottom face
-    m_transformer.transform(pt, pt_transformed);
-    result.emplace_back(pt_transformed);
-
+    result.emplace_back(m_tf.cast<float>() * pt);
     // Transform the vertices on the top face
-    m_transformer.transform(Point32{pt}.set__z(pt.z + shape.height), pt_transformed);
-    result.emplace_back(pt_transformed);
+    result.emplace_back(m_tf.cast<float>() * Point32{pt}.set__z(pt.z + shape.height));
   }
 
   return result;

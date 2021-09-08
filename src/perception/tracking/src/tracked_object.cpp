@@ -130,12 +130,16 @@ void TrackedObject::predict(std::chrono::nanoseconds dt)
   m_time_since_last_seen += dt;
 }
 
-void TrackedObject::update(const DetectedObjectMsg & detection)
+void TrackedObject::update(
+  const DetectedObjectMsg & detection,
+  const Eigen::Isometry3d & tf_tracker_frame_from_detection_frame)
 {
   m_time_since_last_seen = std::chrono::nanoseconds::zero();
   m_ticks_alive++;
   m_ticks_since_last_seen = 0;
-  // Update the shape
+
+  // TODO(igor): before the shape is in local coordinates each point must be modified by the
+  // transformation.
   m_msg.shape = {detection.shape};
 
   // It needs to be determined which parts of the DetectedObject message are set, and can be used
@@ -145,13 +149,20 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   position.position.y = detection.kinematics.centroid_position.y;
   position.position.z = detection.kinematics.centroid_position.z;
   position.covariance = detection.kinematics.position_covariance;
-  auto pose_measurement =
-    convert_to<Stamped<PoseMeasurementXYZ64>>::from(position).measurement;
+  auto detection_centroid = convert_to<PoseMeasurementXYZ64>::from(position);
   if (!detection.kinematics.has_position_covariance) {
-    pose_measurement.covariance() = m_default_variance *
+    detection_centroid.covariance() = m_default_variance *
       PoseMeasurementXYZ64::State::Matrix::Identity();
   }
-  m_ekf.correct(pose_measurement);
+  detection_centroid.state().vector() =
+    tf_tracker_frame_from_detection_frame * detection_centroid.state().vector();
+  if (detection.kinematics.has_position_covariance) {
+    detection_centroid.covariance() =
+      tf_tracker_frame_from_detection_frame.rotation() *
+      detection_centroid.covariance() *
+      tf_tracker_frame_from_detection_frame.rotation().transpose();
+  }
+  m_ekf.correct(detection_centroid);
 }
 
 void TrackedObject::update(const ObjectClassifications & classification)
