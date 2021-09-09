@@ -47,13 +47,13 @@ sensor_msgs::msg::PointCloud2 make_pc(
   std::vector<int32_t> seeds,
   builtin_interfaces::msg::Time stamp)
 {
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   sensor_msgs::msg::PointCloud2 msg;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
-  modifier.reserve(seeds.size());
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{msg, "base_link"};
+  // modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {
-    PointXYZIF pt;
+    PointXYZI pt;
     pt.x = seed;
     pt.y = seed;
     pt.z = seed;
