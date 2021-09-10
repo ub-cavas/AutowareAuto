@@ -78,18 +78,17 @@ sensor_msgs::msg::PointCloud2 make_pc(
   builtin_interfaces::msg::Time stamp)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{msg, "base_link"};
-  modifier.resize(seeds.size());
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
+  modifier.reserve(seeds.size());
 
-  uint32_t pidx = 0;
   for (auto seed : seeds) {
-    autoware::common::types::PointXYZIF pt;
+    PointXYZIF pt;
     pt.x = seed;
     pt.y = seed;
     pt.z = seed;
     pt.intensity = seed;
-    autoware::common::lidar_utils::add_point_to_cloud(msg, pt, pidx);
+    modifier.push_back(pt);
   }
 
   msg.header.stamp = stamp;
@@ -303,9 +302,9 @@ TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
 
   std::vector<std::vector<PointXYZIF>> expected_filter_output_points(1);
   PointCloud2 raw_msg;
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{raw_msg, "lidar_front"};
-  modifier.resize(5);
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{raw_msg, "lidar_front"};
+  modifier.reserve(5);
 
   PointXYZIF pt;
   pt.x = 1.; pt.y = 2.; pt.z = 3.;
