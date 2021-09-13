@@ -47,6 +47,11 @@ done < <(printf '%s\n' "$all_modified_files")
 PKGS=${all_modified_pkgs[@]}
 echo "Modified packages: ${PKGS[@]}"
 
+OPTS=("--config-file" ".lcovrc" "--base-directory" "${PWD}" "--no-external" "--capture")
+for pkg in ${PKGS[@]}; do
+  OPTS+=( "--directory" "build/$pkg" )
+done
+
 set -ex
 
 if [ ${SKIP_BUILD} -eq 0 ]; then
@@ -57,7 +62,7 @@ if [ ${SKIP_BUILD} -eq 0 ]; then
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
     --cmake-args \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo
-  lcov --config-file .lcovrc --base-directory ${PWD} --capture --directory build -o lcov.base --initial > log/latest_lcov_stdout.logs
+  lcov ${OPTS[@]} -o lcov.base --initial > log/latest_lcov_stdout.logs
 fi
 
 if [ ${SKIP_TEST} -eq 0 ]; then
@@ -67,9 +72,9 @@ if [ ${SKIP_TEST} -eq 0 ]; then
     --packages-skip $(grep -h -r -o -P '(?<=\<name\>).*(?=\<\/name\>)' $(find src/external -name package.xml) | sort)
 
   mv log/latest_lcov_stdout.logs log/latest/lcov_stdout.logs  # 'latest' will be the latest test job
-  lcov --config-file .lcovrc --base-directory ${PWD} --capture --directory build -o lcov.test >> log/latest/lcov_stdout.logs
-  lcov --config-file .lcovrc -a lcov.base -a lcov.test -o lcov.total >> log/latest/lcov_stdout.logs
-  lcov --config-file .lcovrc -r lcov.total \
+  lcov ${OPTS[@]} --capture -o lcov.test >> log/latest/lcov_stdout.logs
+  lcov -a lcov.base -a lcov.test -o lcov.total >> log/latest/lcov_stdout.logs
+  lcov -r lcov.total \
     "${AA_PATH}/build/*" \
     "${AA_PATH}/install/*" \
     "${AA_PATH}/src/*/test/*" \
