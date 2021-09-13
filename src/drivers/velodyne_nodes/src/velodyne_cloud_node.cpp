@@ -114,8 +114,8 @@ bool8_t VelodyneCloudNode<T>::convert(
   sensor_msgs::msg::PointCloud2 & output)
 {
   // This handles the case when the below loop exited due to containing extra points
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{output};
+  using autoware::common::types::PointXYZIF;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{output};
   if (m_published_cloud) {
     // reset the pointcloud
     modifier.clear();
