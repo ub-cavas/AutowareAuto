@@ -40,10 +40,18 @@ while IFS= read -r file; do
 		match=`echo $file | grep $pkg_path/`  # add / to guarantee an exact subpath match
 		if [ ! -z ${match} ]; then
 			pkg_name=$(echo ${pkg} | awk '{print $1}')
+      echo ${pkg}
+      echo ${match}
+      echo ${pkg_name}
 			all_modified_pkgs+=( $pkg_name )
 		fi
 	done < <(printf '%s\n' "$all_pkgs")
 done < <(printf '%s\n' "$all_modified_files")
+
+if [ ${#all_modified_pkgs[@]} -eq 0 ]; then
+    echo "No modified packages. Skipping coverage."
+    exit 0
+fi
 PKGS=${all_modified_pkgs[@]}
 echo "Modified packages: ${PKGS[@]}"
 
