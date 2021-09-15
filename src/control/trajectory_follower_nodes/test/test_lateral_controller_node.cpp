@@ -15,6 +15,7 @@
 
 #include <trajectory_follower_nodes/lateral_controller_node.hpp>
 
+#include <future>
 #include <memory>
 #include <vector>
 
@@ -27,6 +28,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "gtest/gtest.h"
 #include "fake_test_node/fake_test_node.hpp"
+#include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 #include "trajectory_follower_test_utils.hpp"
@@ -58,7 +60,7 @@ std::shared_ptr<LateralController> makeNode()
   return node;
 }
 
-TEST_F(FakeNodeFixture, no_input)
+TEST_F(FakeNodeFixture, noInput)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -88,7 +90,7 @@ TEST_F(FakeNodeFixture, no_input)
   EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
 }
 
-TEST_F(FakeNodeFixture, empty_trajectory)
+TEST_F(FakeNodeFixture, emptyTrajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -132,7 +134,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, straight_trajectory)
+TEST_F(FakeNodeFixture, straightTrajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -194,7 +196,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, right_turn)
+TEST_F(FakeNodeFixture, rightTurn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -258,7 +260,7 @@ TEST_F(FakeNodeFixture, right_turn)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, left_turn)
+TEST_F(FakeNodeFixture, leftTurn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -389,12 +391,21 @@ TEST_F(FakeNodeFixture, stopped)
 }
 
 
-TEST_F(FakeNodeFixture, set_param_smoke_test)
+TEST_F(FakeNodeFixture, setParamSmokeTest)
 {
+  using rcl_interfaces::msg::SetParametersResult;
   // Node
   std::shared_ptr<LateralController> node = makeNode();
 
   // Change some parameter value
-  auto result = node->set_parameter(rclcpp::Parameter("mpc_prediction_horizon", 10));
-  EXPECT_TRUE(result.successful);
+  const rclcpp::Parameter param("mpc_prediction_horizon", 10);
+  std::packaged_task<SetParametersResult()> task(std::bind(
+      &LateralController::set_parameter, node,
+      param));
+  std::future<SetParametersResult> result = task.get_future();
+  rclcpp::spin_some(node);
+  task();
+  rclcpp::spin_some(node);
+  ASSERT_TRUE(result.valid());
+  EXPECT_TRUE(result.get().successful);
 }
