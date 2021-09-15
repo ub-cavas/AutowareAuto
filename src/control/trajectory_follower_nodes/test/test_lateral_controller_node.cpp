@@ -15,7 +15,6 @@
 
 #include <trajectory_follower_nodes/lateral_controller_node.hpp>
 
-#include <future>
 #include <memory>
 #include <vector>
 
@@ -28,7 +27,6 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "gtest/gtest.h"
 #include "fake_test_node/fake_test_node.hpp"
-#include "rcl_interfaces/msg/set_parameters_result.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "rclcpp/time.hpp"
 #include "trajectory_follower_test_utils.hpp"
@@ -393,17 +391,12 @@ TEST_F(FakeNodeFixture, stopped)
 
 TEST_F(FakeNodeFixture, setParamSmokeTest)
 {
-  using rcl_interfaces::msg::SetParametersResult;
   // Node
   std::shared_ptr<LateralController> node = makeNode();
 
   // Change some parameter value
-  const rclcpp::Parameter param("mpc_prediction_horizon", 10);
-  std::packaged_task<SetParametersResult()> task(std::bind(&LateralController::set_parameter, node, param));
-  std::future<SetParametersResult> result = task.get_future();
   rclcpp::spin_some(node);
-  task();
+  auto result = node->set_parameter(rclcpp::Parameter("mpc_prediction_horizon", 10));
   rclcpp::spin_some(node);
-  ASSERT_TRUE(result.valid());
-  EXPECT_TRUE(result.get().successful);
+  EXPECT_TRUE(result.successful);
 }
