@@ -121,15 +121,9 @@ void NDTMapPublisherNode::init(
       m_downsampled_pc, map_frame};
     m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_viz_map_config_ptr);
 
-    // Periodic publishing is a temp. hack until the rviz in ade has transient_local qos support.
-    // TODO(yunus.caliskan): Remove the loop and publish only once after #380
-    m_visualization_timer = create_wall_timer(
-      std::chrono::seconds(1),
-      [this]() {
-        if (m_downsampled_pc.width > 0U) {
-          m_viz_pub->publish(m_downsampled_pc);
-        }
-      });
+    if (m_downsampled_pc.width > 0U) {
+      m_viz_pub->publish(m_downsampled_pc);
+    }
   }
 
   m_pub_earth_map = create_publisher<tf2_msgs::msg::TFMessage>(
