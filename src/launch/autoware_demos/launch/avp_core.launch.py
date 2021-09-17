@@ -214,7 +214,8 @@ def generate_launch_description():
         ],
         remappings=[
             ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
-        ]
+        ],
+        output="own_log",
     )
     behavior_planner = Node(
         package='behavior_planner_nodes',
