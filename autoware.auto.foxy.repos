@@ -1,8 +1,13 @@
 repositories:
   src/external/autoware_auto_msgs:
     type: git
+<<<<<<< HEAD
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
     version: 34d98a6173ae02572fef10ebc47a2916c2b0d395
+=======
+    url: https://gitlab.com/robotecai-public/autoware_auto_msgs.git
+    version: port_parking_planner
+>>>>>>> Porting freespace planner into Autoware Auto
   src/external/rosbridge_suite:
     type: git
     url: https://github.com/RobotWebTools/rosbridge_suite.git

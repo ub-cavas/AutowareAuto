@@ -37,18 +37,22 @@
 #include <string>
 #include <vector>
 
-#include "astar_search/astar_search.hpp"
-#include "tf2_ros/buffer.h"
-#include "tf2_ros/transform_listener.h"
-#include "rclcpp/rclcpp.hpp"
+#include <freespace_planner/visibility_control.hpp>
+#include <astar_search/astar_search.hpp>
 
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-#include "autoware_planning_msgs/msg/route.hpp"
-#include "autoware_planning_msgs/msg/scenario.hpp"
-#include "autoware_planning_msgs/msg/trajectory.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
+#include <tf2_ros/buffer.h>
+#include <rclcpp/rclcpp.hpp>
+#include <tf2_ros/transform_listener.h>
+#include <rclcpp_action/rclcpp_action.hpp>
+#include <motion_common/motion_common.hpp>
+
+#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <autoware_planning_msgs/msg/route.hpp>
+#include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <autoware_auto_msgs/srv/planner_costmap.hpp>
+#include <autoware_auto_msgs/action/plan_trajectory.hpp>
 
 struct NodeParam
 {
@@ -68,18 +72,16 @@ public:
   explicit FreespacePlannerNode(const rclcpp::NodeOptions & node_options);
 
 private:
-  // ros
-  rclcpp::Publisher<autoware_planning_msgs::msg::Trajectory>::SharedPtr trajectory_pub_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr debug_pose_array_pub_;
-  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr debug_partial_pose_array_pub_;
+  using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
+  using GoalHandle = rclcpp_action::ServerGoalHandle<PlanTrajectoryAction>;
+  using PlannerCostmap = autoware_auto_msgs::srv::PlannerCostmap;
 
-  rclcpp::Subscription<autoware_planning_msgs::msg::Route>::SharedPtr route_sub_;
-  rclcpp::Subscription<nav_msgs::msg::OccupancyGrid>::SharedPtr occupancy_grid_sub_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Scenario>::SharedPtr scenario_sub_;
-  rclcpp::Subscription<geometry_msgs::msg::TwistStamped>::SharedPtr twist_sub_;
+  // ros communication
+  rclcpp::Client<PlannerCostmap>::SharedPtr map_client_;
+  rclcpp_action::Server<PlanTrajectoryAction>::SharedPtr plan_trajectory_srv_;
+  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr trajectory_debug_pub_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
-
+  // TODO probably will be deleted
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
@@ -89,36 +91,24 @@ private:
 
   // variables
   std::unique_ptr<AstarSearch> astar_;
-  geometry_msgs::msg::PoseStamped current_pose_;
+  std::shared_ptr<GoalHandle> goal_handle_{nullptr};
+  geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
+  autoware_auto_msgs::msg::Trajectory trajectory_;
+  nav_msgs::msg::OccupancyGrid::SharedPtr occupancy_grid_;
 
-  autoware_planning_msgs::msg::Trajectory trajectory_;
-  autoware_planning_msgs::msg::Trajectory partial_trajectory_;
-  std::vector<size_t> reversing_indices_;
-  size_t prev_target_index_;
-  size_t target_index_;
-  bool is_completed_ = false;
+  // callbacks
+  rclcpp_action::GoalResponse handleGoal(
+    const rclcpp_action::GoalUUID & uuid,
+    const std::shared_ptr<const PlanTrajectoryAction::Goal> goal);
+  rclcpp_action::CancelResponse handleCancel(
+    const std::shared_ptr<GoalHandle> goal_handle);
+  void handleAccepted(const std::shared_ptr<GoalHandle> goal_handle);
+  void onOccupancyGrid(rclcpp::Client<PlannerCostmap>::SharedFuture future);
 
-  autoware_planning_msgs::msg::Route::ConstSharedPtr route_;
-  nav_msgs::msg::OccupancyGrid::ConstSharedPtr occupancy_grid_;
-  autoware_planning_msgs::msg::Scenario::ConstSharedPtr scenario_;
-  geometry_msgs::msg::TwistStamped::ConstSharedPtr twist_;
-
-  std::deque<geometry_msgs::msg::TwistStamped::ConstSharedPtr> twist_buffer_;
-
-  // functions, callback
-  void onRoute(const autoware_planning_msgs::msg::Route::ConstSharedPtr msg);
-  void onOccupancyGrid(const nav_msgs::msg::OccupancyGrid::ConstSharedPtr msg);
-  void onScenario(const autoware_planning_msgs::msg::Scenario::ConstSharedPtr msg);
-  void onTwist(const geometry_msgs::msg::TwistStamped::ConstSharedPtr msg);
-
-  void onTimer();
-
+  // functions
   void reset();
-  bool isPlanRequired();
   void planTrajectory();
-  void updateTargetIndex();
-
   geometry_msgs::msg::TransformStamped getTransform(
     const std::string & from, const std::string & to);
 };
