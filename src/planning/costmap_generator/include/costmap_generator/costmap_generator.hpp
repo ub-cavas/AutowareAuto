@@ -49,9 +49,6 @@
 #include <string>
 #include <vector>
 
-#include "costmap_generator/objects_to_costmap.hpp"
-#include "costmap_generator/points_to_costmap.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
 #include "rclcpp/rclcpp.hpp"
@@ -60,11 +57,14 @@
 #include "tf2_ros/transform_listener.h"
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "grid_map_ros/grid_map_ros.hpp"
+#include "lanelet2_core/primitives/Lanelet.h"
 
-#include "autoware_lanelet2_msgs/msg/map_bin.hpp"
-#include "autoware_perception_msgs/msg/dynamic_object_array.hpp"
-#include "autoware_planning_msgs/msg/scenario.hpp"
+#include "std_msgs/msg/bool.hpp"
 #include "grid_map_msgs/msg/grid_map.h"
+#include "autoware_auto_msgs/srv/had_map_service.hpp"
+#include "visualization_msgs/msg/marker.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
+
 
 class CostmapGenerator : public rclcpp::Node
 {
@@ -72,13 +72,9 @@ public:
   explicit CostmapGenerator(const rclcpp::NodeOptions & node_options);
 
 private:
-  bool use_objects_;
-  bool use_points_;
   bool use_wayarea_;
 
   lanelet::LaneletMapPtr lanelet_map_;
-  autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr objects_;
-  sensor_msgs::msg::PointCloud2::ConstSharedPtr points_;
 
   std::string costmap_frame_;
   std::string vehicle_frame_;
@@ -94,21 +90,15 @@ private:
   double grid_position_x_;
   double grid_position_y_;
 
-  double maximum_lidar_height_thres_;
-  double minimum_lidar_height_thres_;
-
-  double expand_polygon_size_;
-  int size_of_expansion_kernel_;
-
   grid_map::GridMap costmap_;
 
   rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr pub_costmap_;
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr pub_occupancy_grid_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_viz_pub;
 
-  rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr sub_points_;
-  rclcpp::Subscription<autoware_perception_msgs::msg::DynamicObjectArray>::SharedPtr sub_objects_;
-  rclcpp::Subscription<autoware_lanelet2_msgs::msg::MapBin>::SharedPtr sub_lanelet_bin_map_;
-  rclcpp::Subscription<autoware_planning_msgs::msg::Scenario>::SharedPtr sub_scenario_;
+  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_trigger_;
+
+  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_client;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -117,38 +107,19 @@ private:
 
   std::vector<std::vector<geometry_msgs::msg::Point>> area_points_;
 
-  PointsToCostmap points2costmap_;
-  ObjectsToCostmap objects2costmap_;
-
-  autoware_planning_msgs::msg::Scenario::ConstSharedPtr scenario_;
+  bool trigger_{false};
 
   struct LayerName
   {
-    static constexpr const char * objects = "objects";
-    static constexpr const char * points = "points";
     static constexpr const char * wayarea = "wayarea";
     static constexpr const char * combined = "combined";
   };
 
-  /// \brief wait for lanelet2 map to load and build routing graph
-  void initLaneletMap();
-
-  /// \brief callback for loading lanelet2 map
-  void onLaneletMapBin(const autoware_lanelet2_msgs::msg::MapBin::ConstSharedPtr msg);
-
-  /// \brief callback for DynamicObjectArray
-  /// \param[in] in_objects input DynamicObjectArray usually from prediction or perception
-  /// component
-  void onObjects(const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr msg);
-
-  /// \brief callback for sensor_msgs::PointCloud2
-  /// \param[in] in_points input sensor_msgs::PointCloud2. Assuming ground-filtered pointcloud
-  /// by default
-  void onPoints(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg);
-
-  void onScenario(const autoware_planning_msgs::msg::Scenario::ConstSharedPtr msg);
+  void onTrigger(const std_msgs::msg::Bool::ConstSharedPtr msg);
 
   void onTimer();
+
+  void mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future);
 
   /// \brief initialize gridmap parameters based on rosparam
   void initGridmap();
@@ -171,21 +142,13 @@ private:
     const lanelet::LaneletMapPtr lanelet_map,
     std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
 
-  /// \brief calculate cost from pointcloud data
-  /// \param[in] in_points: subscribed pointcloud data
-  grid_map::Matrix generatePointsCostmap(
-    const sensor_msgs::msg::PointCloud2::ConstSharedPtr & in_points);
-
-  /// \brief calculate cost from DynamicObjectArray
-  /// \param[in] in_objects: subscribed DynamicObjectArray
-  grid_map::Matrix generateObjectsCostmap(
-    const autoware_perception_msgs::msg::DynamicObjectArray::ConstSharedPtr in_objects);
-
   /// \brief calculate cost from lanelet2 map
   grid_map::Matrix generateWayAreaCostmap();
 
   /// \brief calculate cost for final output
   grid_map::Matrix generateCombinedCostmap();
+
+  void vizLanelet(std::shared_ptr<lanelet::LaneletMap> & map);
 };
 
 #endif  // COSTMAP_GENERATOR__COSTMAP_GENERATOR_HPP_
