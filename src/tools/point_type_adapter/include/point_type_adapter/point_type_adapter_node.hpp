@@ -44,7 +44,7 @@ public:
   explicit PointTypeAdapterNode(const rclcpp::NodeOptions & options);
 
   /// \brief Converts CloudX to CloudXYZI
-  sensor_msgs::msg::PointCloud2::SharedPtr cloud_in_to_cloud_xyzi(
+  sensor_msgs::msg::PointCloud2::SharedPtr cloud_in_to_cloud_xyzif(
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud_in) const;
 
 private:

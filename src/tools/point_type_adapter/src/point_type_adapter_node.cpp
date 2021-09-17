@@ -55,7 +55,7 @@ PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
 void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg_ptr)
 {
   try {
-    PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzi(msg_ptr);
+    PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzif(msg_ptr);
     pub_ptr_cloud_output_->publish(*cloud_out);
   } catch (std::exception & ex) {
     RCLCPP_ERROR(
@@ -65,10 +65,11 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
   }
 }
 
-PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
+PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
   const PointCloud2::ConstSharedPtr cloud_in) const
 {
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using autoware::common::types::PointXYZIF;
+  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
 
   auto fields_contain_field_with_name_and_datatype = [this](
@@ -123,9 +124,9 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
     iter_z != iter_z.end() ||
     !intensity_iter_wrapper.is_end())
   {
-    PointXYZI point_xyzi{*iter_x, *iter_y, *iter_z,
+    PointXYZIF point_xyzif{*iter_x, *iter_y, *iter_z,
       intensity_iter_wrapper.get_current_value<float32_t>()};
-    cloud_modifier_out.push_back(point_xyzi);
+    cloud_modifier_out.push_back(point_xyzif);
     iter_x += 1;
     iter_y += 1;
     iter_z += 1;

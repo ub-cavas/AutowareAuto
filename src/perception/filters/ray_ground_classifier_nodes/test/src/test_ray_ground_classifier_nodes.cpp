@@ -158,11 +158,11 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
 
   using autoware::common::types::PointXYZI;
 
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier1{test_pc1, "base_link"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier1{test_pc1, "base_link"};
   modifier1.clear();
   modifier1.reserve(mini_cloud_size);
 
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier2{test_pc2, "base_link"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier2{test_pc2, "base_link"};
   modifier2.clear();
   modifier2.reserve(mini_cloud_size);
 

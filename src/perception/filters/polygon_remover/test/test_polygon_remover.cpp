@@ -20,7 +20,6 @@
 #include "gtest/gtest.h"
 #include "polygon_remover/polygon_remover.hpp"
 
-using PointXYZI = autoware::common::types::PointXYZI;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
 using Polygon = geometry_msgs::msg::Polygon;
 using autoware::common::types::float32_t;
@@ -53,7 +52,8 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
   const float32_t bound_y_max)
 {
   PointCloud2::SharedPtr cloud_input_ptr = std::make_shared<PointCloud2>();
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using autoware::common::types::PointXYZIF;
+  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
   CloudModifier cloud_modifier_input(*cloud_input_ptr, "");
 
   // Populate it with random points within a selected area
@@ -69,11 +69,11 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
 
   auto generate_random_point_within_rect =
     [&dist_within_x, &dist_within_y, &dist_within_z, &mt]() {
-      PointXYZI point_xyzi;
-      point_xyzi.x = dist_within_x(mt);
-      point_xyzi.y = dist_within_y(mt);
-      point_xyzi.z = dist_within_z(mt);
-      return point_xyzi;
+      PointXYZIF point_xyzif;
+      point_xyzif.x = dist_within_x(mt);
+      point_xyzif.y = dist_within_y(mt);
+      point_xyzif.z = dist_within_z(mt);
+      return point_xyzif;
     };
 
   std::uniform_real_distribution<float> dist_big_scope(-100.0F, 100.0F);
@@ -96,11 +96,11 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
       bound_y_max,
       &dist_within_z,
       &mt]() {
-      PointXYZI point_xyzi;
-      point_xyzi.x = get_value_outside_bounds(bound_x_min, bound_x_max);
-      point_xyzi.y = get_value_outside_bounds(bound_y_min, bound_y_max);
-      point_xyzi.z = dist_within_z(mt);
-      return point_xyzi;
+      PointXYZIF point_xyzif;
+      point_xyzif.x = get_value_outside_bounds(bound_x_min, bound_x_max);
+      point_xyzif.y = get_value_outside_bounds(bound_y_min, bound_y_max);
+      point_xyzif.z = dist_within_z(mt);
+      return point_xyzif;
     };
 
   // generate random points within the rectangle
@@ -176,7 +176,8 @@ TEST(TestPolygonRemover, ShapeToPolylinePolygon) {
 
   PointCloud2::SharedPtr cloud_filtered_ptr =
     polygon_remover.remove_updated_polygon_from_cloud(cloud_input_ptr);
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using autoware::common::types::PointXYZIF;
+  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
   CloudModifier cloud_modifier_filtered(*cloud_filtered_ptr);
   EXPECT_EQ(cloud_modifier_filtered.size(), count_points_outside_rect);
 }

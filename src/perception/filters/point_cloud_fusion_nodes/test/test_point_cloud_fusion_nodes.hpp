@@ -49,7 +49,7 @@ sensor_msgs::msg::PointCloud2 make_pc(
 {
   using autoware::common::types::PointXYZI;
   sensor_msgs::msg::PointCloud2 msg;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{msg, "base_link"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
   // modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {

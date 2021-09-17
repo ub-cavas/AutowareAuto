@@ -245,7 +245,7 @@ TEST_F(NDTMapTest, MapRepresentationBadInput) {
 
   // initialize the messages
   // Message with the missing fields
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> pc_view_with_wrong_point{
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> pc_view_with_wrong_point{
     invalid_pc1, "map"};
   pc_view_with_wrong_point.resize(100U);
   // Correct message format, but empty
@@ -361,7 +361,7 @@ sensor_msgs::msg::PointCloud2 make_pcl(const std::vector<Eigen::Vector3d> & pts)
 {
   sensor_msgs::msg::PointCloud2 cloud;
   using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{cloud, "map"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud, "map"};
   for (const auto & pt : pts) {
     autoware::common::types::PointXYZI ptF{};
     ptF.x = static_cast<float>(pt(0U));
@@ -397,7 +397,7 @@ autoware::common::types::PointXYZI get_point_from_vector(const Eigen::Vector3d &
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance
 void add_cell(
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> & msg_wrapper,
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> & msg_wrapper,
   const Eigen::Vector3d & center, float64_t fixed_deviation)
 {
   msg_wrapper.push_back(get_point_from_vector(center));

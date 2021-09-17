@@ -53,7 +53,7 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
   const float32_t bound_y_max)
 {
   PointCloud2::SharedPtr cloud_input_ptr = std::make_shared<PointCloud2>();
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>;
+  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
   CloudModifier cloud_modifier_input(*cloud_input_ptr, "");
 
   // Populate it with random points within a selected area
@@ -169,7 +169,7 @@ TEST(TestPolygonRemoverNodes, TestRemoveRectangle) {
   auto callback_cloud_polygon_removed =
     [&test_completed, &count_points_outside_rect](
     const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-      using CloudView = point_cloud_msg_wrapper::PointCloud2View<PointXYZI>;
+      using CloudView = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
       CloudView cloud_view_input(*msg);
       EXPECT_EQ(cloud_view_input.size(), count_points_outside_rect);
       test_completed = true;

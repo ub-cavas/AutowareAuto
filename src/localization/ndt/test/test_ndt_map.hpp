@@ -59,7 +59,7 @@ PointXYZI get_point_from_vector(const Eigen::Vector3d & v);
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance
 void add_cell(
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> & msg_wrapper,
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> & msg_wrapper,
   const Eigen::Vector3d & center, double fixed_deviation);
 
 using PointXYZ = geometry_msgs::msg::Point32;
@@ -76,7 +76,7 @@ protected:
   void build_pc(const autoware::perception::filters::voxel_grid::Config & cfg);
 
   sensor_msgs::msg::PointCloud2 m_pc;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> m_pc_wrapper;
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> m_pc_wrapper;
   std::map<uint64_t, Eigen::Vector3d> m_voxel_centers;
   static constexpr std::uint32_t NUM_POINTS{50U};
   PointXYZ m_min_point;

@@ -192,7 +192,7 @@ private:
 
     m_previous_transform.transform.rotation.set__w(1.0);
     m_previous_transform.header.frame_id = m_map_ptr->frame_id();
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> msg_initializer{m_cached_increment,
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> msg_initializer{m_cached_increment,
       map_frame_id};
   }
 
@@ -274,7 +274,7 @@ private:
     const Cloud & observation,
     const PoseWithCovarianceStamped & registered_pose)
   {
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZI> obs_view{observation};
+    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> obs_view{observation};
     reset_cached_msg(obs_view.size());
     // Convert pose to transform for `doTransform()`
     geometry_msgs::msg::TransformStamped tf;
@@ -301,7 +301,7 @@ private:
   /// Clear the cached pc2 message used for storing the transformed point clouds
   void reset_cached_msg(std::size_t size)
   {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> inc_modifier{m_cached_increment};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> inc_modifier{m_cached_increment};
     inc_modifier.clear();
     inc_modifier.resize(size);
   }

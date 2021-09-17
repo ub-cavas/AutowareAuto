@@ -41,7 +41,7 @@ sensor_msgs::msg::PointCloud2 create_xz_plane_point_cloud(
   const float step)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> msg_modifier{msg, "map"};
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> msg_modifier{msg, "map"};
   const auto intensity = 1.0F;
   msg_modifier.push_back({corner.x, corner.y, corner.z, intensity});
   for (auto coord = step; coord < size; coord += step) {
