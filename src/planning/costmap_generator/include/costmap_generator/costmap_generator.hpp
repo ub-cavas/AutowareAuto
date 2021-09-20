@@ -52,6 +52,7 @@
 #include "message_filters/subscriber.h"
 #include "message_filters/time_synchronizer.h"
 #include "rclcpp/rclcpp.hpp"
+#include "rclcpp_action/rclcpp_action.hpp"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
@@ -60,11 +61,24 @@
 #include "lanelet2_core/primitives/Lanelet.h"
 
 #include "std_msgs/msg/bool.hpp"
-#include "grid_map_msgs/msg/grid_map.h"
 #include "autoware_auto_msgs/srv/had_map_service.hpp"
+#include "autoware_auto_msgs/action/planner_costmap.hpp"
 #include "visualization_msgs/msg/marker.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
+
+namespace autoware
+{
+namespace planning
+{
+namespace costmap_generator
+{
+
+enum class CostmapGeneratorState
+{
+  IDLE,
+  GENERATING
+};
 
 class CostmapGenerator : public rclcpp::Node
 {
@@ -73,8 +87,6 @@ public:
 
 private:
   bool use_wayarea_;
-
-  lanelet::LaneletMapPtr lanelet_map_;
 
   std::string costmap_frame_;
   std::string vehicle_frame_;
@@ -92,13 +104,13 @@ private:
 
   grid_map::GridMap costmap_;
 
-  rclcpp::Publisher<grid_map_msgs::msg::GridMap>::SharedPtr pub_costmap_;
-  rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr pub_occupancy_grid_;
-  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_viz_pub;
+  rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_occupancy_grid_publisher_;
+  rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr debug_local_had_map_publisher_;
 
-  rclcpp::Subscription<std_msgs::msg::Bool>::SharedPtr sub_trigger_;
+  rclcpp_action::Server<autoware_auto_msgs::action::PlannerCostmap>::SharedPtr costmap_action_server_;
+  std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>> goal_handle_{nullptr};
 
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_client;
+  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr map_client_;
 
   rclcpp::TimerBase::SharedPtr timer_;
 
@@ -107,15 +119,20 @@ private:
 
   std::vector<std::vector<geometry_msgs::msg::Point>> area_points_;
 
-  bool trigger_{false};
-
   struct LayerName
   {
     static constexpr const char * wayarea = "wayarea";
     static constexpr const char * combined = "combined";
   };
 
-  void onTrigger(const std_msgs::msg::Bool::ConstSharedPtr msg);
+  // action
+  rclcpp_action::GoalResponse handle_goal(
+      const rclcpp_action::GoalUUID &,
+      std::shared_ptr<const autoware_auto_msgs::action::PlannerCostmap::Goal>);
+  rclcpp_action::CancelResponse handle_cancel(
+      std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
+  void handle_accepted(
+      std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
 
   void onTimer();
 
@@ -132,14 +149,14 @@ private:
   /// \param [in] input lanelet_map
   /// \param [out] calculated area_points of lanelet polygons
   void loadRoadAreasFromLaneletMap(
-    const lanelet::LaneletMapPtr lanelet_map,
+    lanelet::LaneletMapPtr lanelet_map,
     std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
 
   /// \brief set area_points from parking-area polygons
   /// \param [in] input lanelet_map
   /// \param [out] calculated area_points of lanelet polygons
   void loadParkingAreasFromLaneletMap(
-    const lanelet::LaneletMapPtr lanelet_map,
+    lanelet::LaneletMapPtr lanelet_map,
     std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
 
   /// \brief calculate cost from lanelet2 map
@@ -148,7 +165,17 @@ private:
   /// \brief calculate cost for final output
   grid_map::Matrix generateCombinedCostmap();
 
-  void vizLanelet(std::shared_ptr<lanelet::LaneletMap> & map);
+  void publishLaneletVisualization(std::shared_ptr<lanelet::LaneletMap> & map);
+
+  CostmapGeneratorState state_;
+  bool is_idle() const { return state_ == CostmapGeneratorState::IDLE; }
+  bool is_generating() const { return state_ == CostmapGeneratorState::GENERATING; }
+  void set_idle_state() { state_ = CostmapGeneratorState::IDLE; }
+  void set_generating_state() { state_ = CostmapGeneratorState::GENERATING; }
 };
+
+}  // namespace autoware
+}  // namespace planning
+}  // namespace costmap_generator
 
 #endif  // COSTMAP_GENERATOR__COSTMAP_GENERATOR_HPP_

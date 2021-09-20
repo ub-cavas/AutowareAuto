@@ -28,7 +28,7 @@ ament_auto_add_library(costmap_generator_node SHARED
 )
 
 rclcpp_components_register_node(costmap_generator_node
-  PLUGIN "CostmapGenerator"
+  PLUGIN "autoware::planning::costmap_generator::CostmapGenerator"
   EXECUTABLE costmap_generator
 )
 
