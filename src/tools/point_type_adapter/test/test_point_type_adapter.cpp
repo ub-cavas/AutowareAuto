@@ -78,7 +78,7 @@ TEST(TestPointTypeAdapter, TestCloudConverter) {
   CloudViewXyzif cloud_view_xyzif(*cloud_xyzif_ptr);
   EXPECT_EQ(cloud_xyzif_ptr->header, cloud_svl_ptr->header);
   EXPECT_EQ(cloud_xyzif_ptr->width, cloud_svl_ptr->width);
-  EXPECT_EQ(cloud_xyzif_ptr->fields.size(), 4UL);
+  EXPECT_EQ(cloud_xyzif_ptr->fields.size(), 5UL);
   EXPECT_EQ(cloud_view_xyzif.at(0), point_xyzif_0);
   EXPECT_EQ(cloud_view_xyzif.at(1), point_xyzif_1);
 }

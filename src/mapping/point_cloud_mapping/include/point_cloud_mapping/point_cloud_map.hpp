@@ -126,8 +126,8 @@ public:
 
     MapUpdateSummary ret{MapUpdateType::NO_CHANGE, 0U};
 
-    using autoware::common::types::PointXYZI;
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZI> observation_view{observation};
+    using autoware::common::types::PointXYZIF;
+    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> observation_view{observation};
 
     ret.update_type = m_grid.empty() ? MapUpdateType::NEW : MapUpdateType::UPDATE;
     auto obs_idx = 0U;
@@ -209,7 +209,7 @@ public:
 private:
   perception::filters::voxel_grid::Config m_grid_config;
   std::unordered_map<uint64_t,
-    perception::filters::voxel_grid::CentroidVoxel<common::types::PointXYZI>> m_grid;
+    perception::filters::voxel_grid::CentroidVoxel<common::types::PointXYZIF>> m_grid;
   std::string m_frame_id;
   LocalizerMapT m_localizer_map;
 };
