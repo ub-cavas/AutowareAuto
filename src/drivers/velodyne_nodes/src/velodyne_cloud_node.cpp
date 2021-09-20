@@ -114,7 +114,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   sensor_msgs::msg::PointCloud2 & output)
 {
   // This handles the case when the below loop exited due to containing extra points
-  using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{output};
   if (m_published_cloud) {
     // reset the pointcloud
@@ -126,7 +126,7 @@ bool8_t VelodyneCloudNode<T>::convert(
     m_published_cloud = false;
     for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
       const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-      modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
+      modifier.push_back(pt);
       m_point_cloud_idx++;
     }
   }
@@ -134,7 +134,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
     const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
     if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
-      modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
+      modifier.push_back(pt);
       m_point_cloud_idx++;
       if (modifier.size() >= m_cloud_size) {
         m_published_cloud = true;

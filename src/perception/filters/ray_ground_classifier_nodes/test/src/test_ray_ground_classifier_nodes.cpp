@@ -156,7 +156,7 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
   sensor_msgs::msg::PointCloud2 test_pc1;
   sensor_msgs::msg::PointCloud2 test_pc2;
 
-  using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
 
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier1{test_pc1, "base_link"};
   modifier1.clear();
@@ -173,7 +173,7 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
     float32_t x = std::cos(angle) * radius_ring_1;
     float32_t y = std::sin(angle) * radius_ring_1;
     float32_t z = 0;
-    PointXYZI pt{x, y, z};
+    PointXYZIF pt{x, y, z};
     modifier1.push_back(pt);
     modifier2.push_back(pt);
   }

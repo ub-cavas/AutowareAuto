@@ -37,7 +37,7 @@ namespace ndt_nodes
 /// Clear the given pointcloud message
 void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
 {
-  using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{msg}.clear();
 }
 
@@ -89,7 +89,7 @@ void NDTMapPublisherNode::init(
 {
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
 
-  using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> initializer{
     m_source_pc, map_frame};
 

@@ -52,9 +52,9 @@ sensor_msgs::msg::PointField make_pf(
 void populate_pc(
   sensor_msgs::msg::PointCloud2 & pc,
   size_t num_points);
-using PointXYZI = autoware::common::types::PointXYZI;
+using autoware::common::types::PointXYZIF;
 
-PointXYZI get_point_from_vector(const Eigen::Vector3d & v);
+PointXYZIF get_point_from_vector(const Eigen::Vector3d & v);
 
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance

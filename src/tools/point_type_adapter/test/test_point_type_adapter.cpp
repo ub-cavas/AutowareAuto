@@ -70,15 +70,15 @@ TEST(TestPointTypeAdapter, TestCloudConverter) {
   node_options.parameter_overrides(params);
   autoware::tools::point_type_adapter::PointTypeAdapterNode point_type_adapter_node(node_options);
 
-  PointCloud2::SharedPtr cloud_xyzi_ptr = point_type_adapter_node.cloud_in_to_cloud_xyzif(
+  PointCloud2::SharedPtr cloud_xyzif_ptr = point_type_adapter_node.cloud_in_to_cloud_xyzif(
     cloud_svl_ptr);
   rclcpp::shutdown();
 
   using CloudViewXyzif = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
-  CloudViewXyzif cloud_view_xyzi(*cloud_xyzi_ptr);
-  EXPECT_EQ(cloud_xyzi_ptr->header, cloud_svl_ptr->header);
-  EXPECT_EQ(cloud_xyzi_ptr->width, cloud_svl_ptr->width);
-  EXPECT_EQ(cloud_xyzi_ptr->fields.size(), 4UL);
-  EXPECT_EQ(cloud_view_xyzi.at(0), point_xyzif_0);
-  EXPECT_EQ(cloud_view_xyzi.at(1), point_xyzif_1);
+  CloudViewXyzif cloud_view_xyzif(*cloud_xyzif_ptr);
+  EXPECT_EQ(cloud_xyzif_ptr->header, cloud_svl_ptr->header);
+  EXPECT_EQ(cloud_xyzif_ptr->width, cloud_svl_ptr->width);
+  EXPECT_EQ(cloud_xyzif_ptr->fields.size(), 4UL);
+  EXPECT_EQ(cloud_view_xyzif.at(0), point_xyzif_0);
+  EXPECT_EQ(cloud_view_xyzif.at(1), point_xyzif_1);
 }

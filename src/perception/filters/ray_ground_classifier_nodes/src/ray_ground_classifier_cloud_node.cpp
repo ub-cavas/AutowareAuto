@@ -154,7 +154,7 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
             m_aggregator.end_of_scan();
           }
         } else {
-          nonground_msg_modifier.push_back(PointXYZI{pt->x, pt->y, pt->z, pt->intensity});
+          nonground_msg_modifier.push_back(*pt);
         }
       } catch (const std::runtime_error & e) {
         m_has_failed = true;

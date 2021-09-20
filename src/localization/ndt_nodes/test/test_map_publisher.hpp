@@ -33,11 +33,10 @@
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::PointXYZIF;
-using autoware::common::types::PointXYZI;
 
-PointXYZI get_point_from_vector(const Eigen::Vector3d & v)
+PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
 {
-  return PointXYZI{
+  return PointXYZIF{
     static_cast<float32_t>(v(0)),
     static_cast<float32_t>(v(1)),
     static_cast<float32_t>(v(2)),

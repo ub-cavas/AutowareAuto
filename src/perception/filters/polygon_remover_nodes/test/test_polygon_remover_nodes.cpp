@@ -21,8 +21,8 @@
 #include "gtest/gtest.h"
 #include "polygon_remover_nodes/polygon_remover_node.hpp"
 
-using autoware::common::types::PointXYZI;
-using PointCloud2 = sensor_msgs::msg::PointCloud2;
+using autoware::common::types::PointXYZIF;
+using sensor_msgs::msg::PointCloud2;
 using autoware::common::types::float32_t;
 
 geometry_msgs::msg::Point32 make_point_geo(float x, float y, float z)
@@ -69,11 +69,12 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
 
   auto generate_random_point_within_rect =
     [&dist_within_x, &dist_within_y, &dist_within_z, &mt]() {
-      PointXYZI point_xyzi;
-      point_xyzi.x = dist_within_x(mt);
-      point_xyzi.y = dist_within_y(mt);
-      point_xyzi.z = dist_within_z(mt);
-      return point_xyzi;
+      using autoware::common::types::PointXYZIF;
+      PointXYZIF point_xyzif;
+      point_xyzif.x = dist_within_x(mt);
+      point_xyzif.y = dist_within_y(mt);
+      point_xyzif.z = dist_within_z(mt);
+      return point_xyzif;
     };
 
   std::uniform_real_distribution<float> dist_big_scope(-100.0F, 100.0F);
@@ -96,11 +97,11 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
       bound_y_max,
       &dist_within_z,
       &mt]() {
-      PointXYZI point_xyzi;
-      point_xyzi.x = get_value_outside_bounds(bound_x_min, bound_x_max);
-      point_xyzi.y = get_value_outside_bounds(bound_y_min, bound_y_max);
-      point_xyzi.z = dist_within_z(mt);
-      return point_xyzi;
+      PointXYZIF point_xyzif;
+      point_xyzif.x = get_value_outside_bounds(bound_x_min, bound_x_max);
+      point_xyzif.y = get_value_outside_bounds(bound_y_min, bound_y_max);
+      point_xyzif.z = dist_within_z(mt);
+      return point_xyzif;
     };
 
   // generate random points within the rectangle
@@ -163,7 +164,7 @@ TEST(TestPolygonRemoverNodes, TestRemoveRectangle) {
   bool test_completed = false;
 
   auto pub_ptr_cloud_raw = node_polygon_remover->create_publisher<sensor_msgs::msg::PointCloud2>(
-    "points_xyzi",
+    "points_xyzif",
     rclcpp::QoS(10));
 
   auto callback_cloud_polygon_removed =

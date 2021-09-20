@@ -65,7 +65,7 @@ public:
   using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
   using Cloud = sensor_msgs::msg::PointCloud2;
   using RegistrationSummary = localization::localization_common::OptimizedRegistrationSummary;
-  using PointXYZI = common::types::PointXYZI;
+  using PointXYZIF = autoware::common::types::PointXYZIF;
   // Static asserts to make sure the policies are valid
   static_assert(
     std::is_base_of<mapping::point_cloud_mapping::TriggerPolicyBase<WriteTriggerPolicyT>,
@@ -192,6 +192,7 @@ private:
 
     m_previous_transform.transform.rotation.set__w(1.0);
     m_previous_transform.header.frame_id = m_map_ptr->frame_id();
+    using autoware::common::types::PointXYZIF;
     point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> msg_initializer{m_cached_increment,
       map_frame_id};
   }

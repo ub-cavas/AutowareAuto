@@ -360,10 +360,10 @@ sensor_msgs::msg::PointCloud2 make_pcl(
 sensor_msgs::msg::PointCloud2 make_pcl(const std::vector<Eigen::Vector3d> & pts)
 {
   sensor_msgs::msg::PointCloud2 cloud;
-  using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud, "map"};
   for (const auto & pt : pts) {
-    autoware::common::types::PointXYZI ptF{};
+    autoware::common::types::PointXYZIF ptF{};
     ptF.x = static_cast<float>(pt(0U));
     ptF.y = static_cast<float>(pt(1U));
     ptF.z = static_cast<float>(pt(2U));
@@ -385,9 +385,9 @@ sensor_msgs::msg::PointField make_pf(
   return pf;
 }
 
-autoware::common::types::PointXYZI get_point_from_vector(const Eigen::Vector3d & v)
+autoware::common::types::PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
 {
-  autoware::common::types::PointXYZI ptF{};
+  autoware::common::types::PointXYZIF ptF{};
   ptF.x = static_cast<float32_t>(v(0));
   ptF.y = static_cast<float32_t>(v(1));
   ptF.z = static_cast<float32_t>(v(2));

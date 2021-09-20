@@ -31,7 +31,7 @@ def generate_launch_description():
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
                 name='lgsvl_cloud_converter_node_front',
                 remappings=[('/points_raw', '/lidar_front/points_raw'),
-                            ('/points_xyzi', '/lidar_front/points_xyzi')], )
+                            ('/points_xyzif', '/lidar_front/points_xyzif')], )
         ],
         output='screen',
     )
@@ -46,7 +46,7 @@ def generate_launch_description():
                 plugin='autoware::tools::point_type_adapter::PointTypeAdapterNode',
                 name='lgsvl_cloud_converter_node_rear',
                 remappings=[('/points_raw', '/lidar_rear/points_raw'),
-                            ('/points_xyzi', '/lidar_rear/points_xyzi')], )
+                            ('/points_xyzif', '/lidar_rear/points_xyzif')], )
         ],
         output='screen',
     )

@@ -191,7 +191,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
   const auto timeout = std::chrono::milliseconds(10);
   const auto max_cycle_time = std::chrono::milliseconds(11);
   const auto port_num = 3445U;
-  const auto topic_name = "points_xyzi";
+  const auto topic_name = "points_xyzif";
   // Node
   std::vector<rclcpp::Parameter> velodyne_params;
   velodyne_params.emplace_back("ip", m_ip);
@@ -229,7 +229,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
   params.emplace_back("expected_num_subscribers", 0);
   params.emplace_back("pcl_size", 55000);
 
-  rclcpp::NodeOptions options = rclcpp::NodeOptions().arguments({"points_in:=points_xyzi"});
+  rclcpp::NodeOptions options = rclcpp::NodeOptions().arguments({"points_in:=points_xyzif"});
   options.parameter_overrides(params);
   const auto pc2_filter_ptr = std::make_shared<PointCloud2FilterTransformNode>(options);
 
@@ -242,7 +242,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
     0.1F  // size tolerance
   );
   const auto raw_listen_ptr = std::make_shared<LidarIntegrationPclListener>(
-    "points_xyzi",
+    "points_xyzif",
     100,
     29000,
     0.7,  // period tolerance

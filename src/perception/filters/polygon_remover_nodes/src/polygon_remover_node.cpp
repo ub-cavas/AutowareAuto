@@ -47,7 +47,7 @@ PolygonRemoverNode::PolygonRemoverNode(const rclcpp::NodeOptions & options)
   },
   sub_cloud_ptr_{
     this->create_subscription<sensor_msgs::msg::PointCloud2>(
-      "points_xyzi",
+      "points_xyzif",
       rclcpp::QoS(rclcpp::KeepLast(1)),
       std::bind(
         &PolygonRemoverNode::callback_cloud,
