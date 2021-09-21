@@ -251,6 +251,11 @@ ade_arm64_foxy:
     - .ade_base
 
 build_barebones_amd64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   variables:
     ARCH: amd64
   tags:
@@ -258,11 +263,21 @@ build_barebones_amd64_foxy:
   extends: .build_barebones_base
 
 build_barebones_arm64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   extends: 
     - .arm64
     - .build_barebones_base
 
 build_amd64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   variables:
     ARCH: amd64
   tags:
@@ -272,6 +287,11 @@ build_amd64_foxy:
     - job: ade_amd64_foxy
 
 build_arm64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   extends: 
     - .arm64
     - .build_base
@@ -279,6 +299,11 @@ build_arm64_foxy:
     - job: ade_arm64_foxy
 
 test_amd64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   variables:
     ARCH: amd64
   tags:
@@ -288,6 +313,11 @@ test_amd64_foxy:
     - build_amd64_foxy
 
 test_arm64_foxy:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   extends: 
     - .arm64
     - .test_base
@@ -295,6 +325,11 @@ test_arm64_foxy:
     - build_arm64_foxy
 
 coverage:
+  cache:
+    key: $CI_JOB_NAME
+    paths:
+      - /opt/AutowareAuto/build
+      - /opt/AutowareAuto/install
   stage: test
   image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   tags:
