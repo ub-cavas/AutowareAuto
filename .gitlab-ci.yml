@@ -294,12 +294,12 @@ test_arm64_foxy:
   needs:
     - build_arm64_foxy
 
-coverage:
+.coverage_base:
   stage: test
   image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
   tags:
     - shared
-  script:
+  before_script:
     - 'apt-get update && apt-get -y --no-install-recommends install
           clang-tidy
           git
@@ -308,7 +308,6 @@ coverage:
     - 'git lfs install'
     - 'git lfs pull --include="*" --exclude=""'
     - 'vcs import < autoware.auto.$ROS_DISTRO.repos'
-    - './tools/coverage/diff_coverage.sh -u'
   after_script:
     - colcon test-result --verbose
   artifacts:
@@ -319,6 +318,20 @@ coverage:
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   needs:
     - ade_amd64_foxy
+
+coverage:
+  extends: .coverage_base
+  only:
+    - master
+  script:
+    - './tools/coverage/coverage.sh -u'
+
+diff_coverage:
+  extends: .coverage_base
+  except:
+    - master
+  script:
+    - './tools/coverage/diff_coverage.sh -u'
 
 docs:
   stage: build
