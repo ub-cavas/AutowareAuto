@@ -145,7 +145,7 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
       this->get_node_clock_interface(),
       this->get_node_logging_interface(),
       this->get_node_waitables_interface(),
-      "calculate_costmap",
+      "generate_costmap",
       [this](auto uuid, auto goal) {return this->handle_goal(uuid, goal);},
       [this](auto goal_handle) {return this->handle_cancel(goal_handle);},
       [this](auto goal_handle) {return this->handle_accepted(goal_handle);});

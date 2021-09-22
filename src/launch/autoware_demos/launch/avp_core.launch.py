@@ -48,8 +48,8 @@ def generate_launch_description():
 
     lane_planner_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/lane_planner.param.yaml')
-    parking_planner_param_file = os.path.join(
-        autoware_launch_pkg_prefix, 'param/parking_planner.param.yaml')
+    # parking_planner_param_file = os.path.join(
+    #     autoware_launch_pkg_prefix, 'param/parking_planner.param.yaml')
     object_collision_estimator_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/object_collision_estimator.param.yaml')
     behavior_planner_param_file = os.path.join(
@@ -95,11 +95,11 @@ def generate_launch_description():
         default_value=lane_planner_param_file,
         description='Path to parameter file for lane planner'
     )
-    parking_planner_param = DeclareLaunchArgument(
-        'parking_planner_param_file',
-        default_value=parking_planner_param_file,
-        description='Path to parameter file for parking planner'
-    )
+    # parking_planner_param = DeclareLaunchArgument(
+    #     'parking_planner_param_file',
+    #     default_value=parking_planner_param_file,
+    #     description='Path to parameter file for parking planner'
+    # )
     object_collision_estimator_param = DeclareLaunchArgument(
         'object_collision_estimator_param_file',
         default_value=object_collision_estimator_param_file,
@@ -191,17 +191,17 @@ def generate_launch_description():
         ],
         remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
     )
-    parking_planner = Node(
-        package='parking_planner_nodes',
-        name='parking_planner_node',
-        namespace='planning',
-        executable='parking_planner_node_exe',
-        parameters=[
-            LaunchConfiguration('parking_planner_param_file'),
-            LaunchConfiguration('vehicle_characteristics_param_file'),
-        ],
-        remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
-    )
+    # parking_planner = Node(
+    #     package='parking_planner_nodes',
+    #     name='parking_planner_node',
+    #     namespace='planning',
+    #     executable='parking_planner_node_exe',
+    #     parameters=[
+    #         LaunchConfiguration('parking_planner_param_file'),
+    #         LaunchConfiguration('vehicle_characteristics_param_file'),
+    #     ],
+    #     remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
+    # )
     object_collision_estimator = Node(
         package='object_collision_estimator_nodes',
         name='object_collision_estimator_node',
@@ -256,7 +256,7 @@ def generate_launch_description():
         with_obstacles_param,
         lanelet2_map_provider_param,
         lane_planner_param,
-        parking_planner_param,
+        # parking_planner_param,
         object_collision_estimator_param,
         behavior_planner_param,
         off_map_obstacles_filter_param,
@@ -269,7 +269,7 @@ def generate_launch_description():
         lanelet2_map_visualizer,
         global_planner,
         lane_planner,
-        parking_planner,
+        # parking_planner,
         object_collision_estimator,
         behavior_planner,
         off_map_obstacles_filter,

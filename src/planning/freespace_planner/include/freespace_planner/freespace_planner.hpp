@@ -37,6 +37,7 @@
 #include <string>
 #include <vector>
 
+
 #include <freespace_planner/visibility_control.hpp>
 #include <astar_search/astar_search.hpp>
 
@@ -51,8 +52,23 @@
 #include <autoware_planning_msgs/msg/route.hpp>
 #include <autoware_auto_msgs/msg/trajectory.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-#include <autoware_auto_msgs/srv/planner_costmap.hpp>
+#include <autoware_auto_msgs/action/planner_costmap.hpp>
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
+
+
+namespace autoware
+{
+namespace planning
+{
+namespace freespace_planner
+{
+
+enum class FreespacePlannerState
+{
+  IDLE,
+  PLANNING
+};
+
 
 struct NodeParam
 {
@@ -66,6 +82,7 @@ struct NodeParam
   bool replan_when_course_out;
 };
 
+
 class FreespacePlannerNode : public rclcpp::Node
 {
 public:
@@ -74,10 +91,13 @@ public:
 private:
   using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
   using GoalHandle = rclcpp_action::ServerGoalHandle<PlanTrajectoryAction>;
-  using PlannerCostmap = autoware_auto_msgs::srv::PlannerCostmap;
+  using PlannerCostmapAction = autoware_auto_msgs::action::PlannerCostmap;
+  using PlannerCostmapGoalHandle = rclcpp_action::ClientGoalHandle<PlannerCostmapAction>;
+
+
 
   // ros communication
-  rclcpp::Client<PlannerCostmap>::SharedPtr map_client_;
+  rclcpp_action::Client<PlannerCostmapAction>::SharedPtr map_client_;
   rclcpp_action::Server<PlanTrajectoryAction>::SharedPtr plan_trajectory_srv_;
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr trajectory_debug_pub_;
 
@@ -88,10 +108,11 @@ private:
   // params
   NodeParam node_param_;
   AstarParam astar_param_;
+  FreespacePlannerState state_;
 
   // variables
   std::unique_ptr<AstarSearch> astar_;
-  std::shared_ptr<GoalHandle> goal_handle_{nullptr};
+  std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
   autoware_auto_msgs::msg::Trajectory trajectory_;
@@ -104,13 +125,25 @@ private:
   rclcpp_action::CancelResponse handleCancel(
     const std::shared_ptr<GoalHandle> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandle> goal_handle);
-  void onOccupancyGrid(rclcpp::Client<PlannerCostmap>::SharedFuture future);
+
+  void goalResponseCallback(std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future);
+  void feedbackCallback(
+    PlannerCostmapGoalHandle::SharedPtr goal_handle,
+    const std::shared_ptr<const PlannerCostmapAction::Feedback> feedback);
+  void resultCallback(const PlannerCostmapGoalHandle::WrappedResult & result);
 
   // functions
   void reset();
+  bool isPlanning() const;
+  void startPlanning();
+  void stopPlanning();
   void planTrajectory();
   geometry_msgs::msg::TransformStamped getTransform(
     const std::string & from, const std::string & to);
 };
+
+}  // namespace freespace_planner
+}  // namespace planning
+}  // namespace autoware
 
 #endif  // FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_

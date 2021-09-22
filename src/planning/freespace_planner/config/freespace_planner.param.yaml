@@ -16,8 +16,8 @@
     only_behind_solutions: false
     time_limit: 30000.0
     # robot configs # TODO replace by vehicle_info
-    robot_length: 4.5
-    robot_width: 1.75
+    robot_length: 1.0
+    robot_width: 1.0
     robot_base2back: 1.0
     minimum_turning_radius: 9.0
     maximum_turning_radius: 9.0

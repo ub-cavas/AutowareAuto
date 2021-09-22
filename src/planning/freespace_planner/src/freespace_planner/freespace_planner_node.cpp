@@ -37,12 +37,19 @@
 #include <utility>
 #include <vector>
 
+namespace autoware
+{
+namespace planning
+{
+namespace freespace_planner
+{
+
 namespace
 {
 
 using motion::motion_common::to_quat;
 using motion::motion_common::from_quat;
-using autoware_auto_msgs::srv::PlannerCostmap;
+using autoware_auto_msgs::action::PlannerCostmap;
 
 
 geometry_msgs::msg::Pose transformPose(
@@ -143,27 +150,33 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
       create_publisher<autoware_auto_msgs::msg::Trajectory>("~/output/trajectory", qos);
   }
 
-  // Service
+  // Action client
   {
-    map_client_ = create_client<PlannerCostmap>("costmap_generator_service");
-    while (!map_client_->wait_for_service(1s)) {
+    map_client_ = rclcpp_action::create_client<PlannerCostmapAction>(
+    this->get_node_base_interface(),
+    this->get_node_graph_interface(),
+    this->get_node_logging_interface(),
+    this->get_node_waitables_interface(),
+    "generate_costmap");
+
+    while (!map_client_->wait_for_action_server(1s)) {
     if (!rclcpp::ok()) {
       RCLCPP_ERROR(get_logger(), "Interrupted while waiting for map server.");
       rclcpp::shutdown();
       return;
     }
-    RCLCPP_INFO(get_logger(), "Waiting for costmap generator service...");
+    RCLCPP_INFO(get_logger(), "Waiting for costmap generator action service...");
     }
   }
 
-  // Action
+  // Action service
   {
     plan_trajectory_srv_ =rclcpp_action::create_server<PlanTrajectoryAction>(
       this->get_node_base_interface(),
       this->get_node_clock_interface(),
       this->get_node_logging_interface(),
       this->get_node_waitables_interface(),
-      "plan_parking_trajectory",
+      "/planning/plan_parking_trajectory",  // TODO: add namespace in launch instead of here
       [this](auto uuid, auto goal) {return this->handleGoal(uuid, goal);},
       [this](auto goal_handle) {return this->handleCancel(goal_handle);},
       [this](auto goal_handle) {return this->handleAccepted(goal_handle);});
@@ -183,7 +196,13 @@ rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
 {
   (void) uuid;
   (void) goal;
+  if (isPlanning())
+  {
+    RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
+    return rclcpp_action::GoalResponse::REJECT;
+  }
   RCLCPP_INFO(this->get_logger(), "Received new goal");
+  startPlanning();
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -191,7 +210,7 @@ rclcpp_action::CancelResponse FreespacePlannerNode::handleCancel(
   const std::shared_ptr<GoalHandle> goal_handle)
 {
   RCLCPP_INFO(this->get_logger(), "Cancelling trajectory planning");
-
+  stopPlanning();
   auto result = std::make_shared<PlanTrajectoryAction::Result>();
   result->result = PlanTrajectoryAction::Result::FAIL;
   goal_handle->canceled(result);
@@ -202,9 +221,12 @@ rclcpp_action::CancelResponse FreespacePlannerNode::handleCancel(
 void FreespacePlannerNode::handleAccepted(
   const std::shared_ptr<GoalHandle> goal_handle)
 {
+  using std::placeholders::_1;
+  using std::placeholders::_2;
+
   RCLCPP_DEBUG(this->get_logger(), "Planning");
 
-  goal_handle_ = goal_handle;
+  planning_goal_handle_ = goal_handle;
 
   // acquire start and goal position from action request
   start_pose_.header = goal_handle->get_goal()->sub_route.header;
@@ -219,36 +241,84 @@ void FreespacePlannerNode::handleAccepted(
     to_quat<geometry_msgs::msg::Quaternion>(
     goal_handle->get_goal()->sub_route.goal_point.heading);
 
-  // request costmap and plan trajectory inside callback
-  auto costmap_request = std::make_shared<PlannerCostmap::Request>();
-  costmap_request->route = goal_handle->get_goal()->sub_route;
-  auto result =
-    map_client_->async_send_request(
-    costmap_request,
-    std::bind(&FreespacePlannerNode::onOccupancyGrid, this, std::placeholders::_1));
+  // request costmap and plan trajectory
+  auto action_goal = PlannerCostmapAction::Goal();
+  action_goal.route = goal_handle->get_goal()->sub_route;
+
+  auto send_goal_options = rclcpp_action::Client<PlannerCostmapAction>::SendGoalOptions();
+  send_goal_options.goal_response_callback = std::bind(
+    &FreespacePlannerNode::goalResponseCallback,
+    this,
+    _1);
+  send_goal_options.feedback_callback = std::bind(
+    &FreespacePlannerNode::feedbackCallback,
+    this,
+    _1,
+    _2);
+  send_goal_options.result_callback = std::bind(
+    &FreespacePlannerNode::resultCallback,
+    this,
+    _1);
+
+  map_client_->async_send_goal(action_goal, send_goal_options);
+  RCLCPP_INFO(get_logger(), "Costmap generator action goal sent.");
 }
 
-void FreespacePlannerNode::onOccupancyGrid(rclcpp::Client<PlannerCostmap>::SharedFuture future)
+void FreespacePlannerNode::goalResponseCallback(
+  std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future)
 {
-  *occupancy_grid_ = future.get()->costmap;
+  if (!future.get()) {
+    RCLCPP_ERROR(get_logger(), "Costmap generator goal was rejected by server");
+    auto result = std::make_shared<PlanTrajectoryAction::Result>();
+    result->result = PlanTrajectoryAction::Result::FAIL;
+    planning_goal_handle_->abort(result);
+    stopPlanning();
+    return;
+  }
+  RCLCPP_INFO(get_logger(), "Costmap generator action goal accepted.");
+}
+
+void FreespacePlannerNode::feedbackCallback(
+  PlannerCostmapGoalHandle::SharedPtr goal_handle,
+  const std::shared_ptr<const PlannerCostmapAction::Feedback> feedback)
+{
+  // feedback is not needed atm
+  (void) goal_handle;
+  (void) feedback;
+}
+
+void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::WrappedResult & costmap_result)
+{
+  auto planning_result = std::make_shared<PlanTrajectoryAction::Result>();
+
+  if (costmap_result.result->costmap.data.empty())
+  {
+    RCLCPP_ERROR(get_logger(), "Costmap generator failed to produce map");
+    planning_result->result = PlanTrajectoryAction::Result::FAIL;
+    planning_goal_handle_->abort(planning_result);
+    return;
+  }
+
+  RCLCPP_INFO(get_logger(), "Costmap received. Planning started");
+
+  occupancy_grid_ = std::make_shared<nav_msgs::msg::OccupancyGrid>(costmap_result.result->costmap);
 
   planTrajectory();
 
-  // return action result
-  auto result = std::make_shared<PlanTrajectoryAction::Result>();
   if (trajectory_.points.size() != 0) {
     RCLCPP_INFO(this->get_logger(), "Planning successfull");
     trajectory_debug_pub_->publish(trajectory_);
-    result->result = PlanTrajectoryAction::Result::SUCCESS;
-    result->trajectory = trajectory_;
-    goal_handle_->succeed(result);
+    planning_result->result = PlanTrajectoryAction::Result::SUCCESS;
+    planning_result->trajectory = trajectory_;
+    planning_goal_handle_->succeed(planning_result);
   } else {
     RCLCPP_INFO(this->get_logger(), "Planning unsuccessfull");
-    result->result = PlanTrajectoryAction::Result::FAIL;
-    goal_handle_->abort(result);
+    planning_result->result = PlanTrajectoryAction::Result::FAIL;
+    planning_goal_handle_->abort(planning_result);
   }
-}
 
+  stopPlanning();
+}
 
 void FreespacePlannerNode::planTrajectory()
 {
@@ -263,13 +333,13 @@ void FreespacePlannerNode::planTrajectory()
   extended_robot_shape.base2back += margin / 2;
 
   // initialize vector for A* search, this runs only once
-  astar_.reset(new AstarSearch(astar_param_));
+  astar_ = std::make_unique<AstarSearch>(astar_param_);
   astar_->setRobotShape(extended_robot_shape);
-  astar_->initializeNodes(*occupancy_grid_);
+  astar_->initializeNodes(*occupancy_grid_.get());
 
   // Calculate poses in costmap frame
   // TODO check if behavioral planner pose is already in map frame (in avp or code analysis)
-  const auto current_pose_in_costmap_frame = transformPose(
+  const auto start_pose_in_costmap_frame = transformPose(
     start_pose_.pose,
     getTransform(occupancy_grid_->header.frame_id, start_pose_.header.frame_id));
 
@@ -278,7 +348,7 @@ void FreespacePlannerNode::planTrajectory()
 
   // execute astar search
   const rclcpp::Time start = get_clock()->now();
-  const bool result = astar_->makePlan(current_pose_in_costmap_frame, goal_pose_in_costmap_frame);
+  const bool result = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
   const rclcpp::Time end = get_clock()->now();
 
   RCLCPP_INFO(get_logger(), "Astar planning: %f [s]", (end - start).seconds());
@@ -291,6 +361,19 @@ void FreespacePlannerNode::planTrajectory()
     RCLCPP_INFO(get_logger(), "Can't find goal...");
     reset();
   }
+}
+
+bool FreespacePlannerNode::isPlanning() const
+{
+  return state_ == FreespacePlannerState::PLANNING;
+}
+void FreespacePlannerNode::startPlanning()
+{
+  state_ = FreespacePlannerState::PLANNING;
+}
+void FreespacePlannerNode::stopPlanning()
+{
+  state_ = FreespacePlannerState::IDLE;
 }
 
 void FreespacePlannerNode::reset()
@@ -312,5 +395,8 @@ geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
   return tf;
 }
 
+}  // namespace freespace_planner
+}  // namespace planning
+}  // namespace autoware
 #include "rclcpp_components/register_node_macro.hpp"
-RCLCPP_COMPONENTS_REGISTER_NODE(FreespacePlannerNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::planning::freespace_planner::FreespacePlannerNode)
