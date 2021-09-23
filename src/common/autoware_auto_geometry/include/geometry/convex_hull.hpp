@@ -27,9 +27,10 @@
 //lint -e537 NOLINT pclint vs cpplint
 #include <algorithm>
 //lint -e537 NOLINT pclint vs cpplint
-#include <list>
 #include <limits>
+#include <list>
 #include <utility>
+#include <vector>
 
 using autoware::common::types::float32_t;
 
@@ -185,6 +186,72 @@ template<typename PointT>
 typename std::list<PointT>::const_iterator convex_hull(std::list<PointT> & list)
 {
   return (list.size() <= 3U) ? list.end() : details::convex_hull_impl(list);
+}
+
+///
+/// @brief      Calculates the convex hull using the gift-wrapping (aka Jarvis march) algorithm.
+///
+/// @details    If the points appear on one line while constructing the convex hull, the furthest
+///             one will be picked to reduce the number of steps taken.
+///
+/// @param[in]  points        The points from which the convex hull is to be computed
+///
+/// @tparam     ContainerT    The array container type for the points.
+/// @tparam     HullIndicesT  A container for the output indices.
+///
+/// @return     An array of indices of the original points that form the convex hull.
+///
+template<typename ContainerT, typename HullIndicesT = std::vector<std::size_t>>
+HullIndicesT compute_2d_convex_hull_gift_wrapping(const ContainerT & points)
+{
+  using point_adapter::x_;
+  HullIndicesT resulting_hull;
+  if (points.size() < 3UL) {
+    resulting_hull.reserve(points.size());
+    for (auto i = 0U; i < points.size(); ++i) {
+      resulting_hull.push_back(i);
+    }
+    return resulting_hull;
+  }
+
+  const auto find_left_most_point_index = [](const auto & points) {
+      std::size_t left_most_point_index = 0UL;
+      for (auto i = 0UL; i < points.size(); ++i) {
+        if (x_(points[i]) < x_(points[left_most_point_index])) {left_most_point_index = i;}
+      }
+      return left_most_point_index;
+    };
+
+  const auto starting_index = find_left_most_point_index(points);
+  auto current_point_index = starting_index;
+  do {
+    resulting_hull.push_back(current_point_index);
+    auto next_most_ccw_point_index = (current_point_index + 1UL) % points.size();
+    for (auto i = 0UL; i < points.size(); ++i) {
+      if ((current_point_index == i) || (next_most_ccw_point_index == i)) {continue;}
+      const auto cross_product = cross_2d(
+        minus_2d(points[current_point_index], points[next_most_ccw_point_index]),
+        minus_2d(points[current_point_index], points[i]));
+      const auto found_counter_clockwise_point = cross_product < 0.0F;
+      if (found_counter_clockwise_point) {
+        next_most_ccw_point_index = i;
+        continue;
+      }
+      const auto found_point_on_same_line = comparison::abs_eq_zero(cross_product, 0.00001F);
+      if (found_point_on_same_line) {
+        const auto new_point_is_further =
+          squared_distance_2d(points[current_point_index], points[i]) >
+          squared_distance_2d(points[current_point_index], points[next_most_ccw_point_index]);
+        if (new_point_is_further) {
+          next_most_ccw_point_index = i;
+          continue;
+        }
+      }
+    }
+    current_point_index = next_most_ccw_point_index;
+  } while (current_point_index != starting_index);
+
+  return resulting_hull;
 }
 
 }  // namespace geometry

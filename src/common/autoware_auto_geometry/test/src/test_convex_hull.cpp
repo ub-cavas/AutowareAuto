@@ -14,15 +14,20 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <gtest/gtest.h>
+#include <geometry/convex_hull.hpp>
+
 #include <geometry_msgs/msg/point32.hpp>
+
+#include <gtest/gtest.h>
+
 #include <list>
 #include <vector>
-#include "geometry/convex_hull.hpp"
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
+using geometry_msgs::msg::Point32;
+using geometry_msgs::build;
 
 template<typename PointT>
 class TypedConvexHullTest : public ::testing::Test
@@ -103,6 +108,7 @@ TYPED_TEST(TypedConvexHullTest, Triangle)
   ASSERT_FLOAT_EQ(it->x, 2); ++it;  // node 3
   ASSERT_EQ(it, last);
 }
+
 /*
   2       1
 
@@ -367,6 +373,93 @@ TYPED_TEST(TypedConvexHullTest, Root)
   ASSERT_EQ(it, last);
   EXPECT_NE(last, this->list.cend());
   EXPECT_EQ(last->z, 6);
+}
+
+
+TEST(ConvexHullTest, GiftWrappingTrivialCases)
+{
+  using autoware::common::geometry::compute_2d_convex_hull_gift_wrapping;
+  std::vector<Point32> points;
+
+  const auto empty_hull = compute_2d_convex_hull_gift_wrapping(points);
+  ASSERT_EQ(empty_hull.size(), 0UL);
+  ASSERT_TRUE(empty_hull.empty());
+
+  points.push_back(build<Point32>().x(1.0F).y(0.0F).z(0.0F));
+  const auto one_point_hull = compute_2d_convex_hull_gift_wrapping(points);
+  ASSERT_EQ(one_point_hull.size(), 1UL);
+  EXPECT_EQ(one_point_hull[0UL], 0UL);
+
+  points.push_back(build<Point32>().x(0.0F).y(1.0F).z(0.0F));
+  const auto two_point_hull = compute_2d_convex_hull_gift_wrapping(points);
+  ASSERT_EQ(two_point_hull.size(), 2UL);
+  EXPECT_EQ(two_point_hull[0UL], 0UL);
+  EXPECT_EQ(two_point_hull[1UL], 1UL);
+}
+
+// This is computing a hull of the following point constellation:
+//
+//              1
+//
+//         3    2    0
+//
+//              4
+//
+TEST(ConvexHullTest, GiftWrappingSimpleTest)
+{
+  std::vector<Point32> points{
+    build<Point32>().x(1.0F).y(0.0F).z(0.0F),   // Right point
+    build<Point32>().x(0.0F).y(1.0F).z(0.0F),   // Top point
+    build<Point32>().x(0.0F).y(0.0F).z(0.0F),   // Middle points, should not be part of the hull
+    build<Point32>().x(-1.0F).y(0.0F).z(0.0F),  // Left point
+    build<Point32>().x(0.0F).y(-1.0F).z(0.0F)   // Bottom point
+  };
+
+  const auto hull = autoware::common::geometry::compute_2d_convex_hull_gift_wrapping(points);
+  ASSERT_EQ(hull.size(), 4UL);
+  // Check that the points are actually counter-clockwise.
+  EXPECT_EQ(hull[0UL], 3UL);
+  EXPECT_EQ(hull[1UL], 4UL);
+  EXPECT_EQ(hull[2UL], 0UL);
+  EXPECT_EQ(hull[3UL], 1UL);
+}
+
+
+// This is computing a hull of the following point constellation:
+//
+//         0    1    2
+//
+//         7    9    8
+//
+//         3   4/5   6
+//
+TEST(ConvexHullTest, GiftWrappingMultiplePointsOnLine)
+{
+  std::vector<Point32> points{
+    // Top side
+    build<Point32>().x(-1.0F).y(1.0F).z(0.0F),
+    build<Point32>().x(0.0F).y(1.0F).z(0.0F),
+    build<Point32>().x(1.0F).y(1.0F).z(0.0F),
+    // Bottom side
+    build<Point32>().x(-1.0F).y(-1.0F).z(0.0F),
+    build<Point32>().x(0.0F).y(-1.0F).z(0.0F),
+    build<Point32>().x(0.0F).y(-1.0F).z(0.0F),  // Duplicate point
+    build<Point32>().x(1.0F).y(-1.0F).z(0.0F),
+    // Left mid-point
+    build<Point32>().x(-1.0F).y(0.0F).z(0.0F),
+    // Right mid-point
+    build<Point32>().x(1.0F).y(0.0F).z(0.0F),
+    // Center point
+    build<Point32>().x(0.0F).y(0.0F).z(0.0F),
+  };
+
+  const auto hull = autoware::common::geometry::compute_2d_convex_hull_gift_wrapping(points);
+  ASSERT_EQ(hull.size(), 4UL);
+  // Check that the points are actually counter-clockwise.
+  EXPECT_EQ(hull[0UL], 0UL);
+  EXPECT_EQ(hull[1UL], 3UL);
+  EXPECT_EQ(hull[2UL], 6UL);
+  EXPECT_EQ(hull[3UL], 2UL);
 }
 
 // TODO(c.ho) random input, fuzzing, stress tests
