@@ -327,7 +327,7 @@ void FreespacePlannerNode::planTrajectory()
 
   // Extend robot shape
   RobotShape extended_robot_shape = astar_param_.robot_shape;
-  constexpr double margin = 1.0;
+  constexpr double margin = 0.0;
   extended_robot_shape.length += margin;
   extended_robot_shape.width += margin;
   extended_robot_shape.base2back += margin / 2;

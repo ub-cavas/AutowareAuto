@@ -400,8 +400,8 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index)
   const RobotShape & robot_shape = astar_param_.robot_shape;
 
   // Define the robot as rectangle
-  const double back = -1.0 * robot_shape.base2back;
-  const double front = robot_shape.length - robot_shape.base2back;
+  const double back = -1.0 * robot_shape.length / 2.0;
+  const double front = robot_shape.length / 2.0;
   const double right = -1.0 * robot_shape.width / 2.0;
   const double left = robot_shape.width / 2.0;
 
