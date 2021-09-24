@@ -74,10 +74,10 @@ def generate_launch_description():
         ])
 
     vision_detections = Node(
-            name='vision_detections',
-            executable='ground_truth_detections_node_exe',
-            package='ground_truth_detections',
-            on_exit=Shutdown()
+        name='vision_detections',
+        executable='ground_truth_detections_node_exe',
+        package='ground_truth_detections',
+        on_exit=Shutdown()
     )
 
     # point cloud filter transform param file shared by front and rear instances
@@ -155,7 +155,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/vehicle/odom_pose"),
-            ("classified_rois", "/perception/ground_truth_detections_2d")
+            ("classified_rois", "/perception/ground_truth_detections_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=LaunchConfigurationEquals('use_ndt', 'False')
     )
@@ -176,7 +177,8 @@ def generate_launch_description():
         remappings=[
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/localization/odometry"),
-            ("classified_rois", "/perception/ground_truth_detections_2d")
+            ("classified_rois", "/perception/ground_truth_detections_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )

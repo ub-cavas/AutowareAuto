@@ -22,6 +22,8 @@
       consider_edge_for_big_detection: True
     # Parameter to allow the tracker to use vision detections for improving tracking.
     use_vision: True    # Parameters for associating the vision detections
+    use_raw_clusters: True
+    use_detected_objects: False
     vision_association:
       # The IoU threshold for a RoI and projection of another detection to be considered matches
       iou_threshold: 0.4

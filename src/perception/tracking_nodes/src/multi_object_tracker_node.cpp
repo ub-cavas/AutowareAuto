@@ -194,9 +194,19 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
       std::bind(&MultiObjectTrackerNode::pose_callback, this, std::placeholders::_1));
   }
 
-  m_detected_objects_subscription = create_subscription<DetectedObjects>(
-    "detected_objects", rclcpp::QoS{m_history_depth},
-    std::bind(&MultiObjectTrackerNode::detected_objects_callback, this, std::placeholders::_1));
+  const auto use_detected_objects = this->declare_parameter("use_detected_objects", true);
+  if (use_detected_objects) {
+    m_detected_objects_subscription = create_subscription<DetectedObjects>(
+      "detected_objects", rclcpp::QoS{m_history_depth},
+      std::bind(&MultiObjectTrackerNode::detected_objects_callback, this, std::placeholders::_1));
+  }
+
+  const auto use_raw_clusters = this->declare_parameter("use_raw_clusters", true);
+  if (use_raw_clusters) {
+    m_clusters_subscription = create_subscription<ClustersMsg>(
+      "clusters", rclcpp::QoS{m_history_depth},
+      std::bind(&MultiObjectTrackerNode::clusters_callback, this, std::placeholders::_1));
+  }
 
   // Initialize vision callbacks if vision is configured to be used:
   if (m_use_vision) {
@@ -205,6 +215,30 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
       std::bind(&MultiObjectTrackerNode::classified_roi_callback, this, std::placeholders::_1));
   }
 }
+
+void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr msg)
+{
+  const rclcpp::Time msg_stamp{msg->header.stamp.sec, msg->header.stamp.nanosec};
+  const auto earliest_time = msg_stamp - kMaxLidarEgoStateStampDiff;
+  const auto latest_time = msg_stamp + kMaxLidarEgoStateStampDiff;
+  const auto matched_msgs = m_odom_cache->getInterval(earliest_time, latest_time);
+  if (matched_msgs.empty()) {
+    RCLCPP_WARN(get_logger(), "No matching odom msg received for obj msg");
+    return;
+  }
+  const TrackerUpdateResult result = m_tracker.update(
+    *msg, *get_closest_match(matched_msgs, msg->header.stamp));
+  if (result.status == TrackerUpdateStatus::Ok) {
+    m_track_publisher->publish(result.tracks);
+    m_leftover_publisher->publish(result.unassigned_clusters);
+  } else {
+    RCLCPP_WARN(
+      get_logger(), "Tracker update for cluster detection at time %d.%d failed. Reason: %s",
+      msg->header.stamp.sec, msg->header.stamp.nanosec,
+      status_to_string(result.status).c_str());
+  }
+}
+
 
 void MultiObjectTrackerNode::odometry_callback(const OdometryMsg::ConstSharedPtr odom)
 {
@@ -233,7 +267,7 @@ void MultiObjectTrackerNode::detected_objects_callback(const DetectedObjects::Co
     m_leftover_publisher->publish(result.unassigned_clusters);
   } else {
     RCLCPP_WARN(
-      get_logger(), "Tracker update for vision detection at time %d.%d failed. Reason: %s",
+      get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
       objs->header.stamp.sec, objs->header.stamp.nanosec,
       status_to_string(result.status).c_str());
   }

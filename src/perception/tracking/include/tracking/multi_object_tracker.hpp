@@ -107,6 +107,7 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
+  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
   using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
@@ -124,6 +125,10 @@ public:
   /// \return A result object containing tracks, unless an error occurred.
   TrackerUpdateResult update(
     const DetectedObjectsMsg & detections,
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
+
+  TrackerUpdateResult update(
+    const ClustersMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// \brief Update the tracks with the specified detections

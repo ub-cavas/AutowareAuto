@@ -17,7 +17,9 @@
 #include <tracking/multi_object_tracker.hpp>
 
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
+#include <geometry/bounding_box/bounding_box_common.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
+#include <lidar_utils/cluster_utils/point_clusters_view.hpp>
 #include <tf2_eigen/tf2_eigen.h>
 #include <time_utils/time_utils.hpp>
 
@@ -25,7 +27,6 @@
 #include <cmath>
 #include <memory>
 
-using autoware::common::types::float64_t;
 
 namespace autoware
 {
@@ -35,6 +36,10 @@ namespace tracking
 {
 namespace
 {
+
+using autoware::common::types::float64_t;
+using geometry_msgs::build;
+using geometry_msgs::msg::Point32;
 
 bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
 {
@@ -82,6 +87,58 @@ MultiObjectTracker::MultiObjectTracker(
   m_track_creator{options.track_creator_config, buffer}
 {
   m_tracks.frame_id = m_options.frame;
+}
+
+TrackerUpdateResult MultiObjectTracker::update(
+  const ClustersMsg & clusters,
+  const nav_msgs::msg::Odometry & detection_frame_odometry)
+{
+  common::lidar_utils::PointClustersView clusters_msg_view{clusters};
+
+  DetectedObjectsMsg detections_from_clusters;
+  detections_from_clusters.header = clusters.header;
+  detections_from_clusters.objects.reserve(clusters_msg_view.size());
+
+  for (const auto & cluster_view : clusters_msg_view) {
+    autoware_auto_msgs::msg::DetectedObject detected_object;
+    detected_object.existence_probability = 1.0F;
+    // Set shape as a convex hull of the cluster.
+
+    std::list<ClustersMsg::_points_type::value_type> point_list{
+      cluster_view.begin(), cluster_view.end()};
+    const auto hull_end_iter = common::geometry::convex_hull(point_list);
+
+    for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
+      const auto & hull_point = *iter;
+      detected_object.shape.polygon.points.push_back(
+        build<Point32>().x(hull_point.x).y(hull_point.y).z(0.0F));
+    }
+    common::geometry::bounding_box::compute_height(
+      cluster_view.begin(),
+      cluster_view.end(),
+      detected_object.shape);
+
+    // Compute the centroid
+    geometry_msgs::msg::Point32 sum;
+    for (const auto & point : detected_object.shape.polygon.points) {
+      sum = common::geometry::plus_2d(sum, point);
+    }
+    const auto centroid = common::geometry::times_2d(
+      sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
+    detected_object.kinematics.centroid_position.x = static_cast<double>(centroid.x);
+    detected_object.kinematics.centroid_position.y = static_cast<double>(centroid.y);
+    detected_object.kinematics.centroid_position.z = static_cast<double>(centroid.z);
+
+    // Compute the classification
+    autoware_auto_msgs::msg::ObjectClassification label;
+    label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+    label.probability = 1.0F;
+    detected_object.classification.emplace_back(label);
+
+    detections_from_clusters.objects.push_back(detected_object);
+  }
+
+  return update(detections_from_clusters, detection_frame_odometry);
 }
 
 TrackerUpdateResult MultiObjectTracker::update(

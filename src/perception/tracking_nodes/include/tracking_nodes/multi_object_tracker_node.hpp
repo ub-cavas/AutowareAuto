@@ -22,6 +22,7 @@
 #define TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <message_filters/cache.h>
@@ -53,6 +54,7 @@ class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
   using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
   using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
+  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
   using OdometryMsg = nav_msgs::msg::Odometry;
   using PoseMsg = geometry_msgs::msg::PoseWithCovarianceStamped;
   using OdomCache = message_filters::Cache<OdometryMsg>;
@@ -62,6 +64,7 @@ public:
   explicit MultiObjectTrackerNode(const rclcpp::NodeOptions & options);
 
 private:
+  void TRACKING_NODES_LOCAL clusters_callback(const ClustersMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL odometry_callback(const OdometryMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL pose_callback(const PoseMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL detected_objects_callback(const DetectedObjects::ConstSharedPtr msg);
@@ -79,6 +82,7 @@ private:
 
   rclcpp::Subscription<PoseMsg>::SharedPtr m_pose_subscription{};
   rclcpp::Subscription<OdometryMsg>::SharedPtr m_odom_subscription{};
+  rclcpp::Subscription<ClustersMsg>::SharedPtr m_clusters_subscription{};
   rclcpp::Subscription<DetectedObjects>::SharedPtr m_detected_objects_subscription{};
   rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr m_vision_subcription{};
 
