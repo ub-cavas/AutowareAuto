@@ -35,6 +35,8 @@ ament_auto_add_library(behavior_planner_node SHARED
 )
 set(NODE_NAME behavior_planner_node_exe)
 autoware_set_compile_options(behavior_planner_node)
+target_compile_options(behavior_planner_node PRIVATE -Wno-old-style-cast)
+
 rclcpp_components_register_node(behavior_planner_node
   PLUGIN "autoware::behavior_planner_nodes::BehaviorPlannerNode"
   EXECUTABLE ${NODE_NAME}

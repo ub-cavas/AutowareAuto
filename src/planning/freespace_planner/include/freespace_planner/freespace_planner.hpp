@@ -54,6 +54,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_msgs/action/planner_costmap.hpp>
 #include <autoware_auto_msgs/action/plan_trajectory.hpp>
+#include <geometry_msgs/msg/pose_array.hpp>
 
 
 namespace autoware
@@ -100,6 +101,7 @@ private:
   rclcpp_action::Client<PlannerCostmapAction>::SharedPtr map_client_;
   rclcpp_action::Server<PlanTrajectoryAction>::SharedPtr plan_trajectory_srv_;
   rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr trajectory_debug_pub_;
+  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr pose_array_trajectory_debug_pub_;
 
   // TODO probably will be deleted
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -140,6 +142,8 @@ private:
   void planTrajectory();
   geometry_msgs::msg::TransformStamped getTransform(
     const std::string & from, const std::string & to);
+
+  void visualize_trajectory();
 };
 
 }  // namespace freespace_planner

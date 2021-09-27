@@ -148,6 +148,8 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     qos.transient_local();  // latch
     trajectory_debug_pub_ =
       create_publisher<autoware_auto_msgs::msg::Trajectory>("~/output/trajectory", qos);
+    pose_array_trajectory_debug_pub_ =
+        create_publisher<geometry_msgs::msg::PoseArray>("~/output/trajectory_pose_array", qos);
   }
 
   // Action client
@@ -307,6 +309,9 @@ void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::Wrappe
 
   if (trajectory_.points.size() != 0) {
     RCLCPP_INFO(this->get_logger(), "Planning successfull");
+
+    visualize_trajectory();
+
     trajectory_debug_pub_->publish(trajectory_);
     planning_result->result = PlanTrajectoryAction::Result::SUCCESS;
     planning_result->trajectory = trajectory_;
@@ -393,6 +398,24 @@ geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
     RCLCPP_ERROR(get_logger(), "%s", ex.what());
   }
   return tf;
+}
+
+void FreespacePlannerNode::visualize_trajectory() {
+  auto debug_pose_array_trajectory = geometry_msgs::msg::PoseArray();
+
+  debug_pose_array_trajectory.header = trajectory_.header;
+
+  for (const auto & trajectory_pose : trajectory_.points)
+  {
+    auto pose = geometry_msgs::msg::Pose();
+    pose.position.x = trajectory_pose.x;
+    pose.position.y = trajectory_pose.y;
+    pose.position.z = trajectory_pose.z;
+    pose.orientation = to_quat<geometry_msgs::msg::Quaternion>(trajectory_pose.heading);
+    debug_pose_array_trajectory.poses.push_back(pose);
+  }
+
+  pose_array_trajectory_debug_pub_->publish(debug_pose_array_trajectory);
 }
 
 }  // namespace freespace_planner
