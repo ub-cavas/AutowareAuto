@@ -10,6 +10,7 @@ across the Autoware.Auto system.
 
 - @subpage autoware-auto-tf2-design
 - @subpage autoware-rviz-plugins
+- @subpage geometry-convex-polygon-intersection-2d
 - @subpage covariance-insertion-nodes-design
 - @subpage geometry-interval
 - @subpage geometry-spatial-hash

@@ -1,13 +1,13 @@
-Projection {#projection}
+Projection {#tracking-projection}
 ============
 
-Projection of a 3D point onto the image plane can be estimated using the geometric proportions 
+Projection of a 3D point onto the image plane can be estimated using the geometric proportions
 derived from the 3D location of the point and the intrinsics of the camera.
 
 # Purpose / Use cases
 
-The pixel correspondence of a 3D point can be estimated by projecting it to the respective 
-image plane. This is useful for associating the geometric structures in the space with the ones 
+The pixel correspondence of a 3D point can be estimated by projecting it to the respective
+image plane. This is useful for associating the geometric structures in the space with the ones
 on captured on an image.
 
 # Design
@@ -27,12 +27,12 @@ Z\\
 \end{bmatrix}
 \f}
 
-\f$(X, Y, Z)\f$ are the the 3D coordinated of the point and \f$(x_p, y_p)\f$ are the pixel 
-coordinates of the projection. \f$\lambda\f$ is the depth of the point with respect to the 
+\f$(X, Y, Z)\f$ are the the 3D coordinated of the point and \f$(x_p, y_p)\f$ are the pixel
+coordinates of the projection. \f$\lambda\f$ is the depth of the point with respect to the
 camera frame.
 
 
-\f$P\f$ can be computed using the intrinsic matrix \f$K\f$ and the `ego-to-camera` transform 
+\f$P\f$ can be computed using the intrinsic matrix \f$K\f$ and the `ego-to-camera` transform
 \f$T\f$ as per the equation \f$P = KT\f$. Intrinsic matrix is defined as below:
 
 \f{aligned}{
@@ -43,8 +43,8 @@ f_x & s & o_x\\
 \end{bmatrix}
 \f}
 
-\f$f_x\f$ and \f$f_y\f$ are the focal length on the x and y axes in pixels. \f$s\f$ is the 
-pixel skew factor. \f$o_x\f$ and \f$o_y\f$ are the pixel principal point offsets. These 
+\f$f_x\f$ and \f$f_y\f$ are the focal length on the x and y axes in pixels. \f$s\f$ is the
+pixel skew factor. \f$o_x\f$ and \f$o_y\f$ are the pixel principal point offsets. These
 parameters can be measured by calibrating the specific camera that generates the images.
 
 ## Inner-workings / Algorithms
@@ -70,4 +70,4 @@ Outputs:
 
 ## Related issues
 
-- #983: Integrate vision detections in object tracker 
+- #983: Integrate vision detections in object tracker
