@@ -89,11 +89,9 @@ LgsvlInterface::LgsvlInterface(
   Table1D && throttle_table,
   Table1D && brake_table,
   Table1D && steer_table,
-  rclcpp::Publisher<HeadlightsReport>::SharedPtr headlights_report_pub,
   bool publish_tf,
   bool publish_pose)
-: m_headlights_report_pub{headlights_report_pub},
-  m_throttle_table{throttle_table},
+: m_throttle_table{throttle_table},
   m_brake_table{brake_table},
   m_steer_table{steer_table},
   m_logger{node.get_logger()}

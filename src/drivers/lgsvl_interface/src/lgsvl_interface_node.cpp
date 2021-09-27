@@ -68,14 +68,6 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
   const bool pub_tf = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_tf_param.get_type() ?
     NO_PUBLISH : pub_tf_param.get<bool>();
 
-  m_headlights_report_pub = create_publisher<autoware_auto_msgs::msg::HeadlightsReport>(
-    "/vehicle/headlights_report", rclcpp::QoS{10U});
-
-  m_headlights_report_sub = create_subscription<autoware_auto_msgs::msg::HeadlightsReport>(
-    "/lgsvl/headlights_report", rclcpp::QoS{10U},
-    [this](autoware_auto_msgs::msg::HeadlightsReport::SharedPtr msg)
-    {m_headlights_report_pub->publish(*msg);});
-
   // Set up interface
   set_interface(
     std::make_unique<LgsvlInterface>(
@@ -90,7 +82,6 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       table("throttle"),
       table("brake"),
       table("steer"),
-      m_headlights_report_pub,
       pub_tf,
       pub_pose
   ));

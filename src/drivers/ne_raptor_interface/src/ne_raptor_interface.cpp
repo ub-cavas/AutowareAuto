@@ -21,8 +21,6 @@
 #include <stdexcept>
 #include <iostream>
 
-#include "autoware_auto_msgs/msg/hazard_lights_command.hpp"
-
 namespace autoware
 {
 namespace ne_raptor_interface
@@ -242,7 +240,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     case VehicleStateCommand::BLINKER_RIGHT:
       m_misc_cmd.cmd.value = TurnSignal::RIGHT;
       break;
-    case HazardLightsCommand::ENABLE:
+    case VehicleStateCommand::BLINKER_HAZARD:
       m_misc_cmd.cmd.value = TurnSignal::HAZARDS;
       break;
     default:
