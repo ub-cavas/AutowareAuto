@@ -140,24 +140,32 @@ void object_collision_estimator_node_test(
     DetectedObject obstacle_bbox{};
 
     auto obstacle_point = trajectory.points[obstacle_bbox_idx];
-    obstacle_bbox.kinematics.centroid_position = make_point(obstacle_point.x, obstacle_point.y);
-    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    obstacle_bbox.kinematics.centroid_position.x = obstacle_point.x;
+    obstacle_bbox.kinematics.centroid_position.y = obstacle_point.y;
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    // NOTE(esteve): avoid unused variable error
+    (void)generated_obstacle_size;
+
     obstacle_bbox.kinematics.orientation.w = 1.0F / sqrtf(2.0F);
     obstacle_bbox.kinematics.orientation.z = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.shape.polygon.points = {
-      make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2)
-    };
+
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // obstacle_bbox.shape.polygon.points = {
+    //   make_point(
+    //     obstacle_point.x - obstacle_bbox.size.x / 2,
+    //     obstacle_point.y - obstacle_bbox.size.y / 2),
+    //   make_point(
+    //     obstacle_point.x + obstacle_bbox.size.x / 2,
+    //     obstacle_point.y - obstacle_bbox.size.y / 2),
+    //   make_point(
+    //     obstacle_point.x + obstacle_bbox.size.x / 2,
+    //     obstacle_point.y + obstacle_bbox.size.y / 2),
+    //   make_point(
+    //     obstacle_point.x - obstacle_bbox.size.x / 2,
+    //     obstacle_point.y + obstacle_bbox.size.y / 2)
+    // };
 
     bbox_array.objects.push_back(obstacle_bbox);
   }

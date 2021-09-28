@@ -256,36 +256,42 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
 std::vector<DetectedObject> ObjectCollisionEstimator::updateObstacles(
   const DetectedObjects & detected_objects) noexcept
 {
-  m_obstacles = bounding_boxes;
+  m_obstacles = detected_objects;
 
-  std::vector<BoundingBox> modified_obstacles;
-  for (auto & box : m_obstacles.boxes) {
-    if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
-      Point32 heading;
-      heading.x = box.orientation.w;
-      heading.y = box.orientation.z;
-      // Double the quaternion's angle to get the heading, which is a unit vector colinear to the
-      // y-axis.
-      rotate_2d(heading, heading.x, heading.y);
+  std::vector<DetectedObject> modified_obstacles;
+  for (auto & box : m_obstacles.objects) {
+    (void)box;
+    // NOTE(esteve): commented out because DetectedObject does not have a size field
+    // if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
+    //   Point32 heading;
+    //   heading.x = box.kinematics.orientation.w;
+    //   heading.y = box.kinematics.orientation.z;
+    //   // Double the quaternion's angle to get the heading, which is a unit vector colinear to the
+    //   // y-axis.
+    //   rotate_2d(heading, heading.x, heading.y);
 
-      // Compute base vectors of the new bounding box. Those vectors have the new desired length so
-      // that the corners are scaled at an equal distance on each side.
-      box.size.x = std::max(box.size.x, m_config.min_obstacle_dimension_m);
-      box.size.y = std::max(box.size.y, m_config.min_obstacle_dimension_m);
-      auto vect_x = times_2d(minus_2d(get_normal(heading)), box.size.x / 2);
-      auto vect_y = times_2d(heading, box.size.y / 2);
+    //   // Compute base vectors of the new bounding box. Those vectors have the new desired length so
+    //   // that the corners are scaled at an equal distance on each side.
+    //   box.size.x = std::max(box.size.x, m_config.min_obstacle_dimension_m);
+    //   box.size.y = std::max(box.size.y, m_config.min_obstacle_dimension_m);
+    //   auto vect_x = times_2d(minus_2d(get_normal(heading)), box.size.x / 2);
+    //   auto vect_y = times_2d(heading, box.size.y / 2);
 
-      // Bottom left corner: -x-y
-      box.corners[0] = plus_2d(box.centroid, minus_2d(plus_2d(vect_x, vect_y)));
-      // Bottom right corner: x-y
-      box.corners[1] = plus_2d(box.centroid, minus_2d(vect_x, vect_y));
-      // Top right corner: x+y
-      box.corners[2] = plus_2d(box.centroid, plus_2d(vect_x, vect_y));
-      // Top left corner: -x+y
-      box.corners[3] = plus_2d(box.centroid, minus_2d(vect_y, vect_x));
+    //   // Bottom left corner: -x-y
+    //   box.shape.polygon.points[0] = plus_2d(
+    //     box.kinematics.centroid_position, minus_2d(plus_2d(vect_x, vect_y)));
+    //   // Bottom right corner: x-y
+    //   box.shape.polygon.points[1] = plus_2d(
+    //     box.kinematics.centroid_position, minus_2d(vect_x, vect_y));
+    //   // Top right corner: x+y
+    //   box.shape.polygon.points[2] = plus_2d(
+    //     box.kinematics.centroid_position, plus_2d(vect_x, vect_y));
+    //   // Top left corner: -x+y
+    //   box.shape.polygon.points[3] = plus_2d(
+    //     box.kinematics.centroid_position, minus_2d(vect_y, vect_x));
 
-      modified_obstacles.push_back(box);
-    }
+    //   modified_obstacles.push_back(box);
+    // }
   }
 
   return modified_obstacles;

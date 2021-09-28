@@ -69,8 +69,8 @@ private:
   rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_bbox_pub{nullptr};
 
   /// \brief Helper function to handle modified bounding boxes when updating the obstacles.
-  /// \param[in] bbox_array An array of bounding boxes representing a list of obstacles
-  void update_obstacles(const BoundingBoxArray & bbox_array);
+  /// \param[in] detected_objects An array of bounding boxes representing a list of obstacles
+  void update_obstacles(const DetectedObjects & detected_objects);
 
   /// \brief Callback function for the obstacles topic
   /// \param[in] msg ROS2 message from the obstacle topic containing an array of bounding boxes

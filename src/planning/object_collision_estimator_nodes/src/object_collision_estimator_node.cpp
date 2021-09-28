@@ -145,12 +145,13 @@ void ObjectCollisionEstimatorNode::update_obstacles(const DetectedObjects & bbox
 {
   const auto modified_obstacles = m_estimator->updateObstacles(bbox_array);
 
-  for (const auto & modified_obstacle : modified_obstacles) {
-    RCLCPP_WARN(
-      this->get_logger(), "Obstacle was too small, increased to: %f x %fm.",
-      static_cast<float64_t>(modified_obstacle.size.x),
-      static_cast<float64_t>(modified_obstacle.size.y));
-  }
+  // NOTE(esteve): commented out because DetectedObject does not have a size field
+  // for (const auto & modified_obstacle : modified_obstacles) {
+  //   RCLCPP_WARN(
+  //     this->get_logger(), "Obstacle was too small, increased to: %f x %fm.",
+  //     static_cast<float64_t>(modified_obstacle.size.x),
+  //     static_cast<float64_t>(modified_obstacle.size.y));
+  // }
 }
 
 void ObjectCollisionEstimatorNode::on_bounding_box(const DetectedObjects::SharedPtr & msg)
