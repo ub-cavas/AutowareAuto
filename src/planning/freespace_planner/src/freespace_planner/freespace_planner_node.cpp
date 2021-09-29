@@ -50,6 +50,7 @@ namespace
 using motion::motion_common::to_quat;
 using motion::motion_common::from_quat;
 using autoware_auto_msgs::action::PlannerCostmap;
+using autoware_auto_msgs::msg::Trajectory;
 
 
 geometry_msgs::msg::Pose transformPose(
@@ -63,15 +64,46 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
+AstarWaypoints adjustWaypointsSize(const AstarWaypoints & astar_waypoints)
+{
+  auto max_length = Trajectory::CAPACITY;
+  auto input_length = astar_waypoints.waypoints.size();
+
+  if (input_length > max_length)
+  {
+    AstarWaypoints resized_vector;
+    resized_vector.header = astar_waypoints.header;
+
+    // input_length substraction to handle handle max_length multiplicity
+    auto elements_to_skip_per_step = static_cast<int64_t>(std::floor(input_length / max_length));
+    // must be +1 to actually skip an element
+    auto stride = elements_to_skip_per_step + 1;
+
+    auto waypoints_iter = astar_waypoints.waypoints.begin();
+    auto points_to_skip = static_cast<int64_t>(input_length - max_length);
+    int64_t skipped_points_count = 0;
+    // substract by elements_to_skip_per_step to prevent from skipping too many points
+    while (skipped_points_count < points_to_skip) {
+      resized_vector.waypoints.push_back(*waypoints_iter);
+      waypoints_iter += std::min(stride, points_to_skip - skipped_points_count + 1);
+      skipped_points_count += elements_to_skip_per_step;
+    }
+
+    // copy rest of waypoints
+    resized_vector.waypoints.insert(resized_vector.waypoints.end(), waypoints_iter, astar_waypoints.waypoints.end());
+    return resized_vector;
+  }
+  return astar_waypoints;
+
+}
+
 autoware_auto_msgs::msg::Trajectory createTrajectory(
   const geometry_msgs::msg::PoseStamped & current_pose, const AstarWaypoints & astar_waypoints,
   const double & velocity)
 {
-  autoware_auto_msgs::msg::Trajectory trajectory;
+  Trajectory trajectory;
   trajectory.header = astar_waypoints.header;
 
-  // TODO trajectory can be only 100 points long - find solution
-  // TODO make sure which fields must be filled regarding behavioral planner
   for (const auto & awp : astar_waypoints.waypoints) {
     autoware_auto_msgs::msg::TrajectoryPoint point;
 
@@ -343,7 +375,6 @@ void FreespacePlannerNode::planTrajectory()
   astar_->initializeNodes(*occupancy_grid_.get());
 
   // Calculate poses in costmap frame
-  // TODO check if behavioral planner pose is already in map frame (in avp or code analysis)
   const auto start_pose_in_costmap_frame = transformPose(
     start_pose_.pose,
     getTransform(occupancy_grid_->header.frame_id, start_pose_.header.frame_id));
@@ -360,8 +391,9 @@ void FreespacePlannerNode::planTrajectory()
 
   if (result) {
     RCLCPP_INFO(get_logger(), "Found goal!");
+    auto waypoints = adjustWaypointsSize(astar_->getWaypoints());
     trajectory_ =
-      createTrajectory(start_pose_, astar_->getWaypoints(), node_param_.waypoints_velocity);
+      createTrajectory(start_pose_, waypoints, node_param_.waypoints_velocity);
   } else {
     RCLCPP_INFO(get_logger(), "Can't find goal...");
     reset();
