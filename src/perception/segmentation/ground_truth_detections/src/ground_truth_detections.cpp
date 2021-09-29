@@ -16,11 +16,15 @@
 
 #include "ground_truth_detections/ground_truth_detections.hpp"
 #include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -42,23 +46,33 @@ geometry_msgs::msg::Polygon make_polygon_around_origin(
 {
   // Polygon is 2D rectangle
   geometry_msgs::msg::Polygon polygon;
-  auto & points = polygon.points;
-  points.resize(4);
+  auto & polygon_points = polygon.points;
+  polygon_points.resize(4);
 
   // origin of reference system: centroid of bbox
   const auto size = ::convert<geometry_msgs::msg::Point32>(detection.bbox.size);
-  points[0].x = -0.5F * size.x;
-  points[0].y = -0.5F * size.y;
-  points[0].z = 0.0F;
+  std::vector<geometry_msgs::msg::Point32> zero_origin_points{4};
+  zero_origin_points[0].x = 0.F - 0.5F * size.x;
+  zero_origin_points[0].y = 0.F - 0.5F * size.y;
+  zero_origin_points[0].z = 0.F;
 
-  points[1] = points[0];
-  points[1].y += size.y;
+  zero_origin_points[1] = zero_origin_points[0];
+  zero_origin_points[1].y += size.y;
 
-  points[2] = points[1];
-  points[2].x += size.x;
+  zero_origin_points[2] = zero_origin_points[1];
+  zero_origin_points[2].x += size.x;
 
-  points[3] = points[2];
-  points[3].y -= size.y;
+  zero_origin_points[3] = zero_origin_points[2];
+  zero_origin_points[3].y -= size.y;
+
+  geometry_msgs::msg::TransformStamped tf;
+  tf.transform.rotation = detection.bbox.position.orientation;
+  tf.transform.translation.x = detection.bbox.position.position.x;
+  tf.transform.translation.y = detection.bbox.position.position.y;
+  tf.transform.translation.z = detection.bbox.position.position.z;
+  for (size_t i = 0U; i < 4U; ++i) {
+    tf2::doTransform(zero_origin_points[i], polygon_points[i], tf);
+  }
 
   return polygon;
 }
