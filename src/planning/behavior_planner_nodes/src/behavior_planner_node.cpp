@@ -291,7 +291,7 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
   if (desired_gear != m_current_gear) {
     auto& clock = *this->get_clock();
     RCLCPP_INFO_THROTTLE(get_logger(), clock, 3000,
-                         "Trying to change gear, current gear is: %d, desired gear is: %d.",
+                         "Trying to change gear, current gear is %d, desired gear is %d.",
                          static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
 
     VehicleStateCommand gear_command;

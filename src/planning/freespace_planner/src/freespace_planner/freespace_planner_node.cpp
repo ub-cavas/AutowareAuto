@@ -235,7 +235,7 @@ rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
     RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
     return rclcpp_action::GoalResponse::REJECT;
   }
-  RCLCPP_INFO(this->get_logger(), "Received new goal");
+  RCLCPP_INFO(this->get_logger(), "Received new goal.");
   startPlanning();
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
@@ -243,7 +243,7 @@ rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
 rclcpp_action::CancelResponse FreespacePlannerNode::handleCancel(
   const std::shared_ptr<GoalHandle> goal_handle)
 {
-  RCLCPP_INFO(this->get_logger(), "Cancelling trajectory planning");
+  RCLCPP_INFO(this->get_logger(), "Cancelling trajectory planning.");
   stopPlanning();
   auto result = std::make_shared<PlanTrajectoryAction::Result>();
   result->result = PlanTrajectoryAction::Result::FAIL;
@@ -258,7 +258,7 @@ void FreespacePlannerNode::handleAccepted(
   using std::placeholders::_1;
   using std::placeholders::_2;
 
-  RCLCPP_DEBUG(this->get_logger(), "Planning");
+  RCLCPP_DEBUG(this->get_logger(), "Planning.");
 
   planning_goal_handle_ = goal_handle;
 
@@ -302,7 +302,7 @@ void FreespacePlannerNode::goalResponseCallback(
   std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future)
 {
   if (!future.get()) {
-    RCLCPP_ERROR(get_logger(), "Costmap generator goal was rejected by server");
+    RCLCPP_ERROR(get_logger(), "Costmap generator goal was rejected by server.");
     auto result = std::make_shared<PlanTrajectoryAction::Result>();
     result->result = PlanTrajectoryAction::Result::FAIL;
     planning_goal_handle_->abort(result);
@@ -327,29 +327,25 @@ void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::Wrappe
 
   if (costmap_result.result->costmap.data.empty())
   {
-    RCLCPP_ERROR(get_logger(), "Costmap generator failed to produce map");
+    RCLCPP_ERROR(get_logger(), "Costmap generator failed to produce map.");
     planning_result->result = PlanTrajectoryAction::Result::FAIL;
     planning_goal_handle_->abort(planning_result);
     return;
   }
 
-  RCLCPP_INFO(get_logger(), "Costmap received. Planning started");
+  RCLCPP_INFO(get_logger(), "Costmap received, planning started.");
 
   occupancy_grid_ = std::make_shared<nav_msgs::msg::OccupancyGrid>(costmap_result.result->costmap);
 
   planTrajectory();
 
-  if (trajectory_.points.size() != 0) {
-    RCLCPP_INFO(this->get_logger(), "Planning successfull");
-
+  if (!trajectory_.points.empty()) {
     visualize_trajectory();
-
     trajectory_debug_pub_->publish(trajectory_);
     planning_result->result = PlanTrajectoryAction::Result::SUCCESS;
     planning_result->trajectory = trajectory_;
     planning_goal_handle_->succeed(planning_result);
   } else {
-    RCLCPP_INFO(this->get_logger(), "Planning unsuccessfull");
     planning_result->result = PlanTrajectoryAction::Result::FAIL;
     planning_goal_handle_->abort(planning_result);
   }
@@ -384,18 +380,38 @@ void FreespacePlannerNode::planTrajectory()
 
   // execute astar search
   const rclcpp::Time start = get_clock()->now();
-  const bool result = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
+  bool success;
+  SearchStatus search_status;
+  std::tie(success, search_status) = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
   const rclcpp::Time end = get_clock()->now();
 
-  RCLCPP_INFO(get_logger(), "Astar planning: %f [s]", (end - start).seconds());
+  RCLCPP_INFO(get_logger(), "Astar planning took %f [s]", (end - start).seconds());
 
-  if (result) {
-    RCLCPP_INFO(get_logger(), "Found goal!");
+
+  if (success) {
+    RCLCPP_INFO(get_logger(), "Plan found.");
     auto waypoints = adjustWaypointsSize(astar_->getWaypoints());
     trajectory_ =
       createTrajectory(start_pose_, waypoints, node_param_.waypoints_velocity);
   } else {
-    RCLCPP_INFO(get_logger(), "Can't find goal...");
+    switch (search_status) {
+      case FAILURE_COLLISION_AT_START:
+        RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in start position.");
+        break;
+      case FAILURE_COLLISION_AT_GOAL:
+        RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in goal position.");
+        break;
+      case FAILURE_TIMEOUT_EXCEEDED:
+        RCLCPP_ERROR(get_logger(), "Cannot find plan because timeout exceeded.");
+        break;
+      case FAILURE_NO_PATH_FOUND:
+        RCLCPP_ERROR(get_logger(), "Cannot find plan.");
+        break;
+      default:
+        RCLCPP_ERROR(get_logger(), "SearchStatus not handled.");
+        break;
+    }
+
     reset();
   }
 }

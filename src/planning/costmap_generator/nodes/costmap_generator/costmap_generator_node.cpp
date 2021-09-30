@@ -124,14 +124,13 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
   // Setup Map Service
   map_client_ = this->create_client<autoware_auto_msgs::srv::HADMapService>("~/client/HAD_Map_Service");
 
-  using namespace std::literals::chrono_literals;
   while (!map_client_->wait_for_service(std::chrono::seconds(1))) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for map server.");
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for HAD map server.");
       rclcpp::shutdown();
       return;
     }
-    RCLCPP_INFO(get_logger(), "Waiting for map service...");
+    RCLCPP_INFO(get_logger(), "Waiting for HAD map service...");
   }
 
   // Publishers
@@ -172,7 +171,7 @@ rclcpp_action::GoalResponse CostmapGenerator::handle_goal(
     return rclcpp_action::GoalResponse::REJECT;
   }
 
-  RCLCPP_INFO(get_logger(), "Received new request.");
+  RCLCPP_INFO(get_logger(), "Received new costmap request.");
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
@@ -197,6 +196,8 @@ void CostmapGenerator::handle_accepted(
   auto result = map_client_->async_send_request(
       map_request,
       std::bind(&CostmapGenerator::mapResponse, this, std::placeholders::_1));
+
+  RCLCPP_INFO(get_logger(), "Requested HAD map.");
 }
 
 void CostmapGenerator::loadRoadAreasFromLaneletMap(
@@ -209,7 +210,6 @@ void CostmapGenerator::loadRoadAreasFromLaneletMap(
   {
     auto poly = autoware::common::had_map_utils::lanelet2Polygon(ll);
     area_points->push_back(poly2vector(poly));
-    RCLCPP_DEBUG(get_logger(), "Pushing road area!");
   }
 }
 
@@ -229,7 +229,6 @@ void CostmapGenerator::loadParkingAreasFromLaneletMap(
   {
     auto poly = autoware::common::had_map_utils::area2Polygon(ll_parking_area);
     area_points->push_back(poly2vector(poly));
-    RCLCPP_DEBUG(get_logger(), "Pushing parking area!");
   }
 
   // Parking spaces
@@ -237,7 +236,6 @@ void CostmapGenerator::loadParkingAreasFromLaneletMap(
   {
     auto poly = autoware::common::had_map_utils::area2Polygon(ll_parking_access_area);
     area_points->push_back(poly2vector(poly));
-    RCLCPP_DEBUG(get_logger(), "Pushing parking access area!");
   }
 }
 
@@ -281,16 +279,12 @@ CostmapGenerator::create_map_request(const autoware_auto_msgs::msg::HADMapRoute 
   // z (ignored)
   request.geom_lower_bound.push_back(0.0);
 
-  RCLCPP_INFO(get_logger(), "Bounding the request, lb: (%f, %f, %f), ub: (%f, %f, %f).",
-              request.geom_lower_bound[0], request.geom_lower_bound[1], request.geom_lower_bound[2],
-              request.geom_upper_bound[0], request.geom_upper_bound[1], request.geom_upper_bound[2]);
-
   return request;
 }
 
 void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future)
 {
-  RCLCPP_INFO(get_logger(), "Got map response!");
+  RCLCPP_INFO(get_logger(), "Received HAD map.");
 
   auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
 
@@ -345,14 +339,13 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
   auto subcostmap = costmap_.getSubmap(position, length, success);
 
   if (!success) {
-    RCLCPP_INFO(get_logger(), "Extracting submap failed, proceeding with whole costmap.");
+    RCLCPP_WARN(get_logger(), "Extracting submap failed, proceeding with whole costmap.");
     subcostmap = costmap_;
   }
 
   // Publish visualizations
   publishLaneletVisualization(lanelet_map_ptr);
   publishCostmap(subcostmap);
-  RCLCPP_INFO(get_logger(), "Publishing local lanelet and costmap visualization!");
 
   // Conversion
   nav_msgs::msg::OccupancyGrid out_occupancy_grid;
@@ -369,8 +362,9 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
   }
 
   result->costmap = out_occupancy_grid;
-
   goal_handle_->succeed(result);
+
+  RCLCPP_INFO(get_logger(), "Costmap generation succeeded.");
 
   set_idle_state();
 }

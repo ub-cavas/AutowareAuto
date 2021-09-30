@@ -145,6 +145,14 @@ struct AstarParam
   double distance_heuristic_weight;  // obstacle threshold on grid [0,255]
 };
 
+enum SearchStatus {
+  SUCCESS,
+  FAILURE_COLLISION_AT_START,
+  FAILURE_COLLISION_AT_GOAL,
+  FAILURE_TIMEOUT_EXCEEDED,
+  FAILURE_NO_PATH_FOUND
+};
+
 class AstarSearch
 {
 public:
@@ -154,14 +162,14 @@ public:
 
   void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
   void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
-  bool makePlan(
+  std::tuple<bool, SearchStatus> makePlan(
     const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory);
 
   const AstarWaypoints & getWaypoints() const {return waypoints_;}
 
 private:
-  bool search();
+  std::tuple<bool, SearchStatus> search();
   void setPath(const AstarNode & goal);
   bool setStartNode();
   bool setGoalNode();
