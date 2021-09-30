@@ -107,6 +107,7 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
   grid_position_x_ = this->declare_parameter<double>("grid_position_x", 20);
   grid_position_y_ = this->declare_parameter<double>("grid_position_y", 0);
   use_wayarea_ = this->declare_parameter<bool>("use_wayarea", true);
+  route_box_padding_ = this->declare_parameter<double>("route_box_padding_m", 10.0);
 
   // Wait for first tf
   // We want to do this before creating subscriptions
@@ -189,11 +190,8 @@ void CostmapGenerator::handle_accepted(
 
   goal_handle_ = goal_handle;
 
-  auto map_request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
-  // TODO: make request with boundries based on the route
-  *map_request = autoware_auto_msgs::srv::HADMapService::Request();
-  map_request->requested_primitives.push_back(
-      autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
+  auto map_request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>(
+      create_map_request(goal_handle_->get_goal()->route));
 
   // TODO: If synchronized service request is available, replace it with synchronized implementation
   auto result = map_client_->async_send_request(
@@ -249,14 +247,70 @@ void CostmapGenerator::onTimer()
   return;
 }
 
-void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future) {
+autoware_auto_msgs::srv::HADMapService::Request
+CostmapGenerator::create_map_request(const autoware_auto_msgs::msg::HADMapRoute & route) const
+{
+  auto request = autoware_auto_msgs::srv::HADMapService::Request();
+
+  request.requested_primitives.push_back(
+      autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
+
+  // x
+  request.geom_upper_bound.push_back(
+      std::fmax(
+          static_cast<float32_t>(route.start_point.position.x),
+          static_cast<float32_t>(route.goal_point.position.x)) + route_box_padding_);
+  // y
+  request.geom_upper_bound.push_back(
+      std::fmax(
+          static_cast<float32_t>(route.start_point.position.y),
+          static_cast<float32_t>(route.goal_point.position.y)) + route_box_padding_);
+  // z (ignored)
+  request.geom_upper_bound.push_back(0.0);
+
+  // x
+  request.geom_lower_bound.push_back(
+      std::fmin(
+          static_cast<float32_t>(route.start_point.position.x),
+          static_cast<float32_t>(route.goal_point.position.x)) - route_box_padding_);
+  // y
+  request.geom_lower_bound.push_back(
+      std::fmin(
+          static_cast<float32_t>(route.start_point.position.y),
+          static_cast<float32_t>(route.goal_point.position.y)) - route_box_padding_);
+  // z (ignored)
+  request.geom_lower_bound.push_back(0.0);
+
+  RCLCPP_INFO(get_logger(), "Bounding the request, lb: (%f, %f, %f), ub: (%f, %f, %f).",
+              request.geom_lower_bound[0], request.geom_lower_bound[1], request.geom_lower_bound[2],
+              request.geom_upper_bound[0], request.geom_upper_bound[1], request.geom_upper_bound[2]);
+
+  return request;
+}
+
+void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future)
+{
   RCLCPP_INFO(get_logger(), "Got map response!");
+
+  auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
 
   auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
   autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, lanelet_map_ptr);
 
   loadRoadAreasFromLaneletMap(lanelet_map_ptr, &area_points_);
   loadParkingAreasFromLaneletMap(lanelet_map_ptr, &area_points_);
+
+  // Get bounding box of area_points_
+  grid_map::Position had_map_min_point = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
+  grid_map::Position had_map_max_point = {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()};
+  for (const auto &area : area_points_) {
+    for (const auto &point : area) {
+      had_map_max_point.x() = std::max(had_map_max_point.x(), point.x);
+      had_map_max_point.y() = std::max(had_map_max_point.y(), point.y);
+      had_map_min_point.x() = std::min(had_map_min_point.x(), point.x);
+      had_map_min_point.y() = std::min(had_map_min_point.y(), point.y);
+    }
+  }
 
   // Get current pose
   geometry_msgs::msg::TransformStamped tf;
@@ -274,22 +328,38 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
   p.y() = tf.transform.translation.y;
   costmap_.setPosition(p);
 
+  // Calculate layers
   if (use_wayarea_) {
     costmap_[LayerName::wayarea] = generateWayAreaCostmap();
   }
 
   costmap_[LayerName::combined] = generateCombinedCostmap();
 
-  RCLCPP_INFO(get_logger(), "Publishing local lanelet and costmap visualization!");
+  // Get subcostmap based on bouding box of received had map
+  auto success = false;
+  auto length = grid_map::Length(had_map_max_point.x() - had_map_min_point.x(),
+                                 had_map_max_point.y() - had_map_min_point.y());
+  auto position = grid_map::Position((had_map_max_point.x() + had_map_min_point.x()) / 2,
+                                     (had_map_max_point.y() + had_map_min_point.y()) / 2);
+
+  auto subcostmap = costmap_.getSubmap(position, length, success);
+
+  if (!success) {
+    RCLCPP_INFO(get_logger(), "Extracting submap failed, proceeding with whole costmap.");
+    subcostmap = costmap_;
+  }
+
+  // Publish visualizations
   publishLaneletVisualization(lanelet_map_ptr);
-  publishCostmap(costmap_);
+  publishCostmap(subcostmap);
+  RCLCPP_INFO(get_logger(), "Publishing local lanelet and costmap visualization!");
 
   // Conversion
   nav_msgs::msg::OccupancyGrid out_occupancy_grid;
   {
     // Convert to OccupancyGrid
     grid_map::GridMapRosConverter::toOccupancyGrid(
-        costmap_, LayerName::combined, grid_min_value_, grid_max_value_, out_occupancy_grid);
+        subcostmap, LayerName::combined, grid_min_value_, grid_max_value_, out_occupancy_grid);
 
     // Set header
     std_msgs::msg::Header header;
@@ -298,7 +368,6 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
     out_occupancy_grid.header = header;
   }
 
-  auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
   result->costmap = out_occupancy_grid;
 
   goal_handle_->succeed(result);

@@ -102,6 +102,8 @@ private:
   double grid_position_x_;
   double grid_position_y_;
 
+  double route_box_padding_;
+
   grid_map::GridMap costmap_;
 
   rclcpp::Publisher<nav_msgs::msg::OccupancyGrid>::SharedPtr debug_occupancy_grid_publisher_;
@@ -135,6 +137,9 @@ private:
       std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
 
   void onTimer();
+
+  autoware_auto_msgs::srv::HADMapService::Request
+  create_map_request(const autoware_auto_msgs::msg::HADMapRoute &) const;
 
   void mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future);
 

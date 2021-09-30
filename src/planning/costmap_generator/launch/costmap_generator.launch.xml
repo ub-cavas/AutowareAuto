@@ -29,5 +29,8 @@
     <param name="grid_length_y" value="70.0" />
     <param name="grid_position_x" value="0.0" />
     <param name="grid_position_y" value="0.0" />
+
+    <!--  padding of bounding box for route that determines costmap size  -->
+    <param name="route_box_padding_m" value="10.0" />
   </node>
 </launch>
