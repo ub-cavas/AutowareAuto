@@ -291,7 +291,7 @@ def generate_launch_description():
         remappings=[
             ("/projections", "/track_creating_projections"),
             ("/rois", "perception/ground_truth_detections_2d"),
-            ("/image_with_detections", "/image_with_detections")
+            ("/clouds", "/lidar_front/points_raw")
         ]
     )
 

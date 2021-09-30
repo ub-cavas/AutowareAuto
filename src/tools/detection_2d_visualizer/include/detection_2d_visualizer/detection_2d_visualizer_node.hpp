@@ -24,12 +24,15 @@
 #include <autoware_auto_msgs/msg/classified_roi_array.hpp>
 #include <detection_2d_visualizer/visibility_control.hpp>
 #include <message_filters/subscriber.h>
-#include <message_filters/synchronizer.h>
 #include <message_filters/sync_policies/approximate_time.h>
 #include <message_filters/sync_policies/exact_time.h>
+#include <message_filters/synchronizer.h>
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/compressed_image.hpp>
 #include <sensor_msgs/msg/image.hpp>
+#include <sensor_msgs/msg/point_cloud2.hpp>
+#include <tf2/buffer_core.h>
+#include <tf2_ros/transform_listener.h>
 
 #include <memory>
 
@@ -49,29 +52,32 @@ public:
   /// Convert compressed image to raw image and draw the boxes over the image
   /// \param img_msg CompressedImage
   /// \param roi_msg boxes to draw over the image
-  /// \param projection_msg Projections of clusters that correspond with the captured image
+  /// \param cloud_msg Projections of clusters that correspond with the captured image
   void process(
     sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg,
     autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg,
-    autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr projection_msg);
+    sensor_msgs::msg::PointCloud2::ConstSharedPtr cloud_msg);
 
 private:
-  using ApproximatePolicy = message_filters::sync_policies::ApproximateTime<sensor_msgs::msg
-      ::CompressedImage,
-      autoware_auto_msgs::msg::ClassifiedRoiArray,
-      autoware_auto_msgs::msg::ClassifiedRoiArray>;
+  using ApproximatePolicy = message_filters::sync_policies::ApproximateTime<
+    sensor_msgs::msg::CompressedImage,
+    autoware_auto_msgs::msg::ClassifiedRoiArray,
+    sensor_msgs::msg::PointCloud2>;
 
-  using ExactPolicy = message_filters::sync_policies::ExactTime<sensor_msgs::msg
-      ::CompressedImage,
-      autoware_auto_msgs::msg::ClassifiedRoiArray,
-      autoware_auto_msgs::msg::ClassifiedRoiArray>;
+  using ExactPolicy = message_filters::sync_policies::ExactTime<
+    sensor_msgs::msg::CompressedImage,
+    autoware_auto_msgs::msg::ClassifiedRoiArray,
+    sensor_msgs::msg::PointCloud2>;
 
   message_filters::Subscriber<sensor_msgs::msg::CompressedImage> m_image_sub;
   message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray> m_roi_sub;
-  message_filters::Subscriber<autoware_auto_msgs::msg::ClassifiedRoiArray> m_projection_sub;
+  message_filters::Subscriber<sensor_msgs::msg::PointCloud2> m_cloud_sub;
   std::unique_ptr<message_filters::Synchronizer<ApproximatePolicy>> m_approximate_sync_ptr{};
   std::unique_ptr<message_filters::Synchronizer<ExactPolicy>> m_exact_sync_ptr{};
   rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr m_image_pub;
+
+  tf2::BufferCore m_tf_buffer;
+  tf2_ros::TransformListener m_tf_listener;
 };
 }  // namespace detection_2d_visualizer
 }  // namespace autoware
