@@ -185,7 +185,9 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
   compute_corners(best_corners, support, directions);
 
   // NOTE(esteve): commented out because DetectedObject does not have a size field
-  // size_2d(best_corners, bbox.size);
+  auto bbox_size = size_2d(best_corners);
+  (void)bbox_size;
+
   // rotating calipers step: incrementally advance, update angles, points, compute area
   for (auto it = begin; it != end; ++it) {
     // find smallest angle to next, update directions
@@ -195,8 +197,8 @@ DetectedObject rotating_calipers_impl(const IT begin, const IT end, const Metric
     compute_corners(corners, support, directions);
 
     // NOTE(esteve): commented out because DetectedObject does not have a size field
-    // geometry_msgs::msg::Point32 tmp_size;
-    // size_2d(corners, tmp_size);
+    auto tmp_size = size_2d(corners);
+    (void)tmp_size;
 
     // Step to next iteration of calipers
     {

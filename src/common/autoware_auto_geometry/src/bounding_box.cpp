@@ -37,10 +37,10 @@ namespace bounding_box
 namespace details
 {
 ////////////////////////////////////////////////////////////////////////////////
-void size_2d(
-  const decltype(Polygon::points) & corners,
-  geometry_msgs::msg::Point32 & ret)
+geometry_msgs::msg::Point32 size_2d(
+  const decltype(Polygon::points) & corners)
 {
+  geometry_msgs::msg::Point32 ret;
   ret.x = std::max(
     norm_2d(
       minus_2d(
@@ -51,6 +51,7 @@ void size_2d(
       minus_2d(
         corners[2U],
         corners[1U])), std::numeric_limits<float32_t>::epsilon());
+  return ret;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void finalize_box(const decltype(Polygon::points) & corners, DetectedObject & box)
@@ -74,12 +75,12 @@ autoware_auto_msgs::msg::Shape make_shape(const DetectedObject & box)
   autoware_auto_msgs::msg::Shape ret;
   for (auto corner_pt : box.shape.polygon.points) {
     // NOTE(esteve): commented out because DetectedObject does not have a size field
-    // corner_pt.z -= box.size.z;
+    corner_pt.z -= box.height;
     ret.polygon.points.push_back(corner_pt);
   }
 
   // NOTE(esteve): commented out because DetectedObject does not have a size field
-  // ret.height = 2.0F * box.size.z;
+  ret.height = 2.0F * box.height;
   return ret;
 }
 

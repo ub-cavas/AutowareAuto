@@ -65,7 +65,7 @@ void compute_height(const IT begin, const IT end, DetectedObject & box)
     corner.z = static_cast<float32_t>(box.kinematics.centroid_position.z);
   }
   // TODO(esteve): how to adapt this to DetectedObject?
-  // box.size.z = (max_z - min_z) * 0.5F;
+  box.shape.height = (max_z - min_z) * 0.5F;
 }
 
 /// \brief Computes height of bounding box given a full list of points
@@ -116,11 +116,10 @@ struct array_size<std::array<T, N>>
 };
 
 /// \brief Compute length, width, area of bounding box
-/// \param[in] corners Corners of the current bounding box
-/// \param[out] ret A point struct used to hold size of box defined by corners
-void GEOMETRY_PUBLIC size_2d(
-  const decltype(Polygon::points) & corners,
-  geometry_msgs::msg::Point32 & ret);
+/// \param corners Corners of the current bounding box
+/// \return A point struct used to hold size of box defined by corners
+geometry_msgs::msg::Point32 GEOMETRY_PUBLIC size_2d(
+  const decltype(Polygon::points) & corners);
 /// \brief Computes centroid and orientation of a box given corners
 /// \param[in] corners Array of final corners of bounding box
 /// \param[out] box Message to have corners, orientation, and centroid updated
