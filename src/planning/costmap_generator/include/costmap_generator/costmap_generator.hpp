@@ -92,8 +92,6 @@ private:
   std::string vehicle_frame_;
   std::string map_frame_;
 
-  double update_rate_;
-
   double grid_min_value_;
   double grid_max_value_;
   double grid_resolution_;
@@ -114,8 +112,6 @@ private:
 
   rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr map_client_;
 
-  rclcpp::TimerBase::SharedPtr timer_;
-
   tf2_ros::Buffer tf_buffer_;
   tf2_ros::TransformListener tf_listener_;
 
@@ -123,60 +119,65 @@ private:
 
   struct LayerName
   {
-    static constexpr const char * wayarea = "wayarea";
-    static constexpr const char * combined = "combined";
+    static constexpr const char * WAYAREA = "wayarea";
+    static constexpr const char * COMBINED = "combined";
   };
 
   // action
-  rclcpp_action::GoalResponse handle_goal(
+  rclcpp_action::GoalResponse handleGoal(
       const rclcpp_action::GoalUUID &,
       std::shared_ptr<const autoware_auto_msgs::action::PlannerCostmap::Goal>);
-  rclcpp_action::CancelResponse handle_cancel(
+  rclcpp_action::CancelResponse handleCancel(
       std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
-  void handle_accepted(
+  void handleAccepted(
       std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>);
 
-  void onTimer();
+  void setCostmapPositionAtVehiclePosition();
 
+  std::tuple<grid_map::Position, grid_map::Position> calculateAreaPointsBoundingBox() const;
+
+  grid_map::GridMap boundCostmap(const grid_map::Position &, const grid_map::Position &) const;
+
+  /// \brief create map request for driveable area with bounds that are based on route
   autoware_auto_msgs::srv::HADMapService::Request
-  create_map_request(const autoware_auto_msgs::msg::HADMapRoute &) const;
+  createMapRequest(const autoware_auto_msgs::msg::HADMapRoute &) const;
 
+  /// \brief callback for HAD map that composes costmap and successes action
   void mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future);
 
   /// \brief initialize gridmap parameters based on rosparam
   void initGridmap();
 
-  /// \brief publish ros msg: grid_map::GridMap, and nav_msgs::OccupancyGrid
-  /// \param[in] gridmap with calculated cost
-  void publishCostmap(const grid_map::GridMap & costmap);
+  /// \brief create occupancy grid based on input grid map and parameters
+  /// \param [in] input grid map
+  /// \param [out] converted occupancy grid
+  nav_msgs::msg::OccupancyGrid createOccupancyGrid(const grid_map::GridMap &) const;
 
-  /// \brief set area_points from lanelet polygons
+  /// \brief set area_points_ from lanelet polygons
   /// \param [in] input lanelet_map
-  /// \param [out] calculated area_points of lanelet polygons
-  void loadRoadAreasFromLaneletMap(
-    lanelet::LaneletMapPtr lanelet_map,
-    std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
+  void loadRoadAreasFromLaneletMap(lanelet::LaneletMapPtr);
 
-  /// \brief set area_points from parking-area polygons
+  /// \brief set area_points_ from parking areas
   /// \param [in] input lanelet_map
-  /// \param [out] calculated area_points of lanelet polygons
-  void loadParkingAreasFromLaneletMap(
-    lanelet::LaneletMapPtr lanelet_map,
-    std::vector<std::vector<geometry_msgs::msg::Point>> * area_points);
+  void loadParkingAreasFromLaneletMap(lanelet::LaneletMapPtr);
 
   /// \brief calculate cost from lanelet2 map
-  grid_map::Matrix generateWayAreaCostmap();
+  grid_map::Matrix generateWayAreaCostmap() const;
 
   /// \brief calculate cost for final output
-  grid_map::Matrix generateCombinedCostmap();
+  grid_map::Matrix generateCombinedCostmap() const;
 
+  /// \brief generate all layers of costmap
+  void generateCostmapLayers();
+
+  /// \brief publish visualization of received part of the HAD map
   void publishLaneletVisualization(std::shared_ptr<lanelet::LaneletMap> & map);
 
   CostmapGeneratorState state_;
-  bool is_idle() const { return state_ == CostmapGeneratorState::IDLE; }
-  bool is_generating() const { return state_ == CostmapGeneratorState::GENERATING; }
-  void set_idle_state() { state_ = CostmapGeneratorState::IDLE; }
-  void set_generating_state() { state_ = CostmapGeneratorState::GENERATING; }
+  bool isIdle() const { return state_ == CostmapGeneratorState::IDLE; }
+  bool isGenerating() const { return state_ == CostmapGeneratorState::GENERATING; }
+  void setIdleState() { state_ = CostmapGeneratorState::IDLE; }
+  void setGeneratingState() { state_ = CostmapGeneratorState::GENERATING; }
 };
 
 }  // namespace autoware

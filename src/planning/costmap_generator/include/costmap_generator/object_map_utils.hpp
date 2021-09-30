@@ -61,7 +61,7 @@ namespace object_map
  * @param[in] in_tf_source_frame Source frame, where the points are located
  * @param[in] in_tf_listener Valid listener to obtain the transformation
  */
-void FillPolygonAreas(
+void fillPolygonAreas(
   grid_map::GridMap & out_grid_map,
   const std::vector<std::vector<geometry_msgs::msg::Point>> & in_area_points,
   const std::string & in_grid_layer_name, const int in_layer_background_value,

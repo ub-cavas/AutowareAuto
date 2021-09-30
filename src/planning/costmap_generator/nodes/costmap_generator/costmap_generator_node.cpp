@@ -58,8 +58,6 @@
 #include "costmap_generator/object_map_utils.hpp"
 
 
-namespace
-{
 // Convert from Point32 to Point
 std::vector<geometry_msgs::msg::Point> poly2vector(const geometry_msgs::msg::Polygon & poly)
 {
@@ -82,7 +80,6 @@ void insertMarkerArray(visualization_msgs::msg::MarkerArray & a1, const visualiz
   }
 }
 
-}  // namespace
 
 namespace autoware
 {
@@ -98,13 +95,12 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
   costmap_frame_ = this->declare_parameter<std::string>("costmap_frame", "map");
   vehicle_frame_ = this->declare_parameter<std::string>("vehicle_frame", "base_link");
   map_frame_ = this->declare_parameter<std::string>("map_frame", "map");
-  update_rate_ = this->declare_parameter<double>("update_rate", 10.0);
   grid_min_value_ = this->declare_parameter<double>("grid_min_value", 0.0);
   grid_max_value_ = this->declare_parameter<double>("grid_max_value", 1.0);
   grid_resolution_ = this->declare_parameter<double>("grid_resolution", 0.2);
   grid_length_x_ = this->declare_parameter<double>("grid_length_x", 50);
-  grid_length_y_ = this->declare_parameter<double>("grid_length_y", 30);
-  grid_position_x_ = this->declare_parameter<double>("grid_position_x", 20);
+  grid_length_y_ = this->declare_parameter<double>("grid_length_y", 50);
+  grid_position_x_ = this->declare_parameter<double>("grid_position_x", 0);
   grid_position_y_ = this->declare_parameter<double>("grid_position_y", 0);
   use_wayarea_ = this->declare_parameter<bool>("use_wayarea", true);
   route_box_padding_ = this->declare_parameter<double>("route_box_padding_m", 10.0);
@@ -146,27 +142,19 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
       this->get_node_logging_interface(),
       this->get_node_waitables_interface(),
       "generate_costmap",
-      [this](auto uuid, auto goal) {return this->handle_goal(uuid, goal);},
-      [this](auto goal_handle) {return this->handle_cancel(goal_handle);},
-      [this](auto goal_handle) {return this->handle_accepted(goal_handle);});
-
-  // Timer
-  auto timer_callback = std::bind(&CostmapGenerator::onTimer, this);
-  const auto period = rclcpp::Rate(update_rate_).period();
-  timer_ = std::make_shared<rclcpp::GenericTimer<decltype(timer_callback)>>(
-    this->get_clock(), period, std::move(timer_callback),
-    this->get_node_base_interface()->get_context());
-  this->get_node_timers_interface()->add_timer(timer_, nullptr);
+      [this](auto uuid, auto goal) {return this->handleGoal(uuid, goal);},
+      [this](auto goal_handle) {return this->handleCancel(goal_handle);},
+      [this](auto goal_handle) {return this->handleAccepted(goal_handle);});
 
   // Initialize
   initGridmap();
 }
 
-rclcpp_action::GoalResponse CostmapGenerator::handle_goal(
+rclcpp_action::GoalResponse CostmapGenerator::handleGoal(
     const rclcpp_action::GoalUUID &,
     const std::shared_ptr<const autoware_auto_msgs::action::PlannerCostmap::Goal>)
 {
-  if (!is_idle()) {
+  if (!isIdle()) {
     RCLCPP_WARN(get_logger(), "Costmap generator is not in idle. Rejecting new request.");
     return rclcpp_action::GoalResponse::REJECT;
   }
@@ -175,22 +163,22 @@ rclcpp_action::GoalResponse CostmapGenerator::handle_goal(
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
 }
 
-rclcpp_action::CancelResponse CostmapGenerator::handle_cancel(
+rclcpp_action::CancelResponse CostmapGenerator::handleCancel(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>>)
 {
   RCLCPP_WARN(get_logger(), "Received action cancellation, rejecting.");
   return rclcpp_action::CancelResponse::REJECT;
 }
 
-void CostmapGenerator::handle_accepted(
+void CostmapGenerator::handleAccepted(
     const std::shared_ptr<rclcpp_action::ServerGoalHandle<autoware_auto_msgs::action::PlannerCostmap>> goal_handle)
 {
-  set_generating_state();
+  setGeneratingState();
 
   goal_handle_ = goal_handle;
 
   auto map_request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>(
-      create_map_request(goal_handle_->get_goal()->route));
+      createMapRequest(goal_handle_->get_goal()->route));
 
   // TODO: If synchronized service request is available, replace it with synchronized implementation
   auto result = map_client_->async_send_request(
@@ -200,53 +188,43 @@ void CostmapGenerator::handle_accepted(
   RCLCPP_INFO(get_logger(), "Requested HAD map.");
 }
 
-void CostmapGenerator::loadRoadAreasFromLaneletMap(
-  const lanelet::LaneletMapPtr lanelet_map,
-  std::vector<std::vector<geometry_msgs::msg::Point>> * area_points)
+void CostmapGenerator::loadRoadAreasFromLaneletMap(const lanelet::LaneletMapPtr lanelet_map)
 {
-  auto lls = autoware::common::had_map_utils::getConstLaneletLayer(lanelet_map);
+  auto road_lanelets = autoware::common::had_map_utils::getConstLaneletLayer(lanelet_map);
 
-  for (const auto & ll : lls)
+  for (const auto & road_lanelet : road_lanelets)
   {
-    auto poly = autoware::common::had_map_utils::lanelet2Polygon(ll);
-    area_points->push_back(poly2vector(poly));
+    auto road_poly = autoware::common::had_map_utils::lanelet2Polygon(road_lanelet);
+    area_points_.push_back(poly2vector(road_poly));
   }
 }
 
-void CostmapGenerator::loadParkingAreasFromLaneletMap(
-  const lanelet::LaneletMapPtr lanelet_map,
-  std::vector<std::vector<geometry_msgs::msg::Point>> * area_points)
+void CostmapGenerator::loadParkingAreasFromLaneletMap(const lanelet::LaneletMapPtr lanelet_map)
 {
-  // for parking spots defined as areas (LaneletOSM definition)
-  auto ll_areas = autoware::common::had_map_utils::getAreaLayer(lanelet_map);
-  auto ll_parking_areas = autoware::common::had_map_utils::subtypeAreas(ll_areas, "parking_spot");
-  auto ll_parking_access_areas = autoware::common::had_map_utils::subtypeAreas(
-      ll_areas,
+  // Extract parking areas
+  auto areas = autoware::common::had_map_utils::getAreaLayer(lanelet_map);
+  auto parking_spot_areas = autoware::common::had_map_utils::subtypeAreas(areas, "parking_spot");
+  auto parking_access_areas = autoware::common::had_map_utils::subtypeAreas(
+      areas,
       "parking_access");
 
-  // Parking lots
-  for (const auto & ll_parking_area : ll_parking_areas)
+  // Collect points from parking spots
+  for (const auto & parking_spot_area : parking_spot_areas)
   {
-    auto poly = autoware::common::had_map_utils::area2Polygon(ll_parking_area);
-    area_points->push_back(poly2vector(poly));
+    auto parking_spot_poly = autoware::common::had_map_utils::area2Polygon(parking_spot_area);
+    area_points_.push_back(poly2vector(parking_spot_poly));
   }
 
-  // Parking spaces
-  for (const auto & ll_parking_access_area : ll_parking_access_areas)
+  // Collect points from parking spaces
+  for (const auto & parking_access_area : parking_access_areas)
   {
-    auto poly = autoware::common::had_map_utils::area2Polygon(ll_parking_access_area);
-    area_points->push_back(poly2vector(poly));
+    auto parking_access_poly = autoware::common::had_map_utils::area2Polygon(parking_access_area);
+    area_points_.push_back(poly2vector(parking_access_poly));
   }
-}
-
-void CostmapGenerator::onTimer()
-{
-  // TODO: remove timer?
-  return;
 }
 
 autoware_auto_msgs::srv::HADMapService::Request
-CostmapGenerator::create_map_request(const autoware_auto_msgs::msg::HADMapRoute & route) const
+CostmapGenerator::createMapRequest(const autoware_auto_msgs::msg::HADMapRoute & route) const
 {
   auto request = autoware_auto_msgs::srv::HADMapService::Request();
 
@@ -282,21 +260,24 @@ CostmapGenerator::create_map_request(const autoware_auto_msgs::msg::HADMapRoute 
   return request;
 }
 
-void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future)
+void CostmapGenerator::setCostmapPositionAtVehiclePosition()
 {
-  RCLCPP_INFO(get_logger(), "Received HAD map.");
+  // Get current pose
+  geometry_msgs::msg::TransformStamped tf = tf_buffer_.lookupTransform(
+      costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration::from_seconds(1.0));
 
-  auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
+  // Set grid center
+  grid_map::Position p;
+  p.x() = tf.transform.translation.x;
+  p.y() = tf.transform.translation.y;
+  costmap_.setPosition(p);
+}
 
-  auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
-  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, lanelet_map_ptr);
-
-  loadRoadAreasFromLaneletMap(lanelet_map_ptr, &area_points_);
-  loadParkingAreasFromLaneletMap(lanelet_map_ptr, &area_points_);
-
-  // Get bounding box of area_points_
+std::tuple<grid_map::Position, grid_map::Position> CostmapGenerator::calculateAreaPointsBoundingBox() const
+{
   grid_map::Position had_map_min_point = {std::numeric_limits<double>::max(), std::numeric_limits<double>::max()};
   grid_map::Position had_map_max_point = {std::numeric_limits<double>::lowest(), std::numeric_limits<double>::lowest()};
+
   for (const auto &area : area_points_) {
     for (const auto &point : area) {
       had_map_max_point.x() = std::max(had_map_max_point.x(), point.x);
@@ -306,67 +287,91 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
     }
   }
 
-  // Get current pose
-  geometry_msgs::msg::TransformStamped tf;
-  try {
-    tf = tf_buffer_.lookupTransform(
-      costmap_frame_, vehicle_frame_, rclcpp::Time(0), rclcpp::Duration::from_seconds(1.0));
-  } catch (tf2::TransformException & ex) {
-    RCLCPP_ERROR(this->get_logger(), "%s", ex.what());
-    return;
-  }
+  return {had_map_min_point, had_map_max_point};
+}
 
-  // Set grid center
-  grid_map::Position p;
-  p.x() = tf.transform.translation.x;
-  p.y() = tf.transform.translation.y;
-  costmap_.setPosition(p);
-
-  // Calculate layers
-  if (use_wayarea_) {
-    costmap_[LayerName::wayarea] = generateWayAreaCostmap();
-  }
-
-  costmap_[LayerName::combined] = generateCombinedCostmap();
-
-  // Get subcostmap based on bouding box of received had map
+grid_map::GridMap
+CostmapGenerator::boundCostmap(const grid_map::Position &min_point, const grid_map::Position &max_point) const {
   auto success = false;
-  auto length = grid_map::Length(had_map_max_point.x() - had_map_min_point.x(),
-                                 had_map_max_point.y() - had_map_min_point.y());
-  auto position = grid_map::Position((had_map_max_point.x() + had_map_min_point.x()) / 2,
-                                     (had_map_max_point.y() + had_map_min_point.y()) / 2);
+  auto length = grid_map::Length(max_point.x() - min_point.x(),
+                                 max_point.y() - min_point.y());
+  auto position = grid_map::Position((max_point.x() + min_point.x()) / 2,
+                                     (max_point.y() + min_point.y()) / 2);
 
   auto subcostmap = costmap_.getSubmap(position, length, success);
 
   if (!success) {
     RCLCPP_WARN(get_logger(), "Extracting submap failed, proceeding with whole costmap.");
-    subcostmap = costmap_;
+    return costmap_;
   }
+
+  return subcostmap;
+}
+
+void CostmapGenerator::generateCostmapLayers()
+{
+  if (use_wayarea_) {
+    costmap_[LayerName::WAYAREA] = generateWayAreaCostmap();
+  }
+
+  costmap_[LayerName::COMBINED] = generateCombinedCostmap();
+}
+
+void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture future)
+{
+  RCLCPP_INFO(get_logger(), "Received HAD map.");
+
+  auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
+  autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, lanelet_map_ptr);
+
+  loadRoadAreasFromLaneletMap(lanelet_map_ptr);
+  loadParkingAreasFromLaneletMap(lanelet_map_ptr);
+
+  grid_map::Position had_map_min_point, had_map_max_point;
+  std::tie(had_map_min_point, had_map_max_point) = calculateAreaPointsBoundingBox();
+
+  try {
+    setCostmapPositionAtVehiclePosition();
+  } catch (tf2::TransformException & ex) {
+    RCLCPP_ERROR(this->get_logger(), "%s", ex.what());
+    return;
+  }
+
+  generateCostmapLayers();
+
+  auto costmap = boundCostmap(had_map_min_point, had_map_max_point);
+
+  // Create result
+  auto result = std::make_shared<autoware_auto_msgs::action::PlannerCostmap::Result>();
+  auto out_occupancy_grid = createOccupancyGrid(costmap);
+  result->costmap = out_occupancy_grid;
 
   // Publish visualizations
   publishLaneletVisualization(lanelet_map_ptr);
-  publishCostmap(subcostmap);
+  debug_occupancy_grid_publisher_->publish(out_occupancy_grid);
 
-  // Conversion
-  nav_msgs::msg::OccupancyGrid out_occupancy_grid;
-  {
-    // Convert to OccupancyGrid
-    grid_map::GridMapRosConverter::toOccupancyGrid(
-        subcostmap, LayerName::combined, grid_min_value_, grid_max_value_, out_occupancy_grid);
-
-    // Set header
-    std_msgs::msg::Header header;
-    header.frame_id = costmap_frame_;
-    header.stamp = this->now();
-    out_occupancy_grid.header = header;
-  }
-
-  result->costmap = out_occupancy_grid;
   goal_handle_->succeed(result);
 
   RCLCPP_INFO(get_logger(), "Costmap generation succeeded.");
 
-  set_idle_state();
+  setIdleState();
+}
+
+nav_msgs::msg::OccupancyGrid CostmapGenerator::createOccupancyGrid(const grid_map::GridMap & costmap) const
+{
+  nav_msgs::msg::OccupancyGrid occupancy_grid;
+
+  // Convert to OccupancyGrid
+  grid_map::GridMapRosConverter::toOccupancyGrid(
+      costmap, LayerName::COMBINED, grid_min_value_, grid_max_value_, occupancy_grid);
+
+  // Set header
+  std_msgs::msg::Header header;
+  header.frame_id = costmap_frame_;
+  header.stamp = this->now();
+  occupancy_grid.header = header;
+
+  return occupancy_grid;
 }
 
 void CostmapGenerator::initGridmap()
@@ -376,47 +381,32 @@ void CostmapGenerator::initGridmap()
     grid_map::Length(grid_length_x_, grid_length_y_), grid_resolution_,
     grid_map::Position(grid_position_x_, grid_position_y_));
 
-  costmap_.add(LayerName::wayarea, grid_min_value_);
-  costmap_.add(LayerName::combined, grid_min_value_);
+  costmap_.add(LayerName::WAYAREA, grid_min_value_);
+  costmap_.add(LayerName::COMBINED, grid_min_value_);
 }
 
-grid_map::Matrix CostmapGenerator::generateWayAreaCostmap()
+grid_map::Matrix CostmapGenerator::generateWayAreaCostmap() const
 {
   grid_map::GridMap lanelet2_costmap = costmap_;
   if (!area_points_.empty()) {
-    object_map::FillPolygonAreas(
-      lanelet2_costmap, area_points_, LayerName::wayarea, grid_max_value_, grid_min_value_,
-      grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, tf_buffer_);
+    object_map::fillPolygonAreas(
+        lanelet2_costmap, area_points_, LayerName::WAYAREA, grid_max_value_, grid_min_value_,
+        grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, tf_buffer_);
   }
-  return lanelet2_costmap[LayerName::wayarea];
+  return lanelet2_costmap[LayerName::WAYAREA];
 }
 
-grid_map::Matrix CostmapGenerator::generateCombinedCostmap()
+grid_map::Matrix CostmapGenerator::generateCombinedCostmap() const
 {
   // assuming combined_costmap is calculated by element wise max operation
   grid_map::GridMap combined_costmap = costmap_;
 
-  combined_costmap[LayerName::combined].setConstant(grid_min_value_);
+  combined_costmap[LayerName::COMBINED].setConstant(grid_min_value_);
 
-  combined_costmap[LayerName::combined] =
-    combined_costmap[LayerName::combined].cwiseMax(combined_costmap[LayerName::wayarea]);
+  combined_costmap[LayerName::COMBINED] =
+    combined_costmap[LayerName::COMBINED].cwiseMax(combined_costmap[LayerName::WAYAREA]);
 
-  return combined_costmap[LayerName::combined];
-}
-
-void CostmapGenerator::publishCostmap(const grid_map::GridMap & costmap)
-{
-  // Set header
-  std_msgs::msg::Header header;
-  header.frame_id = costmap_frame_;
-  header.stamp = this->now();
-
-  // Publish OccupancyGrid
-  nav_msgs::msg::OccupancyGrid out_occupancy_grid;
-  grid_map::GridMapRosConverter::toOccupancyGrid(
-    costmap, LayerName::combined, grid_min_value_, grid_max_value_, out_occupancy_grid);
-  out_occupancy_grid.header = header;
-  debug_occupancy_grid_publisher_->publish(out_occupancy_grid);
+  return combined_costmap[LayerName::COMBINED];
 }
 
 // taken from mapping/had_map/lanelet2_map_provider/src/lanelet2_map_visualizer.cpp
