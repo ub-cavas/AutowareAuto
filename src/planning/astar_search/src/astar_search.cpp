@@ -22,8 +22,13 @@
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 
-namespace
+namespace autoware
 {
+namespace planning
+{
+namespace astar_search
+{
+
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
   return std::hypot(p2.x - p1.x, p2.y - p1.y);
@@ -188,8 +193,6 @@ AstarSearch::TransitionTable createTransitionTable(
   return transition_table;
 }
 
-}  // namespace
-
 AstarSearch::AstarSearch(const AstarParam & astar_param)
 : astar_param_(astar_param)
 {
@@ -271,7 +274,7 @@ bool AstarSearch::setStartNode()
   return true;
 }
 
-bool AstarSearch::setGoalNode()
+bool AstarSearch::setGoalNode() const
 {
   const auto index = pose2index(costmap_, goal_pose_, astar_param_.theta_size);
 
@@ -282,7 +285,7 @@ bool AstarSearch::setGoalNode()
   return true;
 }
 
-double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose)
+double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
 {
   double total_cost = 0.0;
 
@@ -395,7 +398,7 @@ void AstarSearch::setPath(const AstarNode & goal_node)
   }
 }
 
-bool AstarSearch::detectCollision(const IndexXYT & base_index)
+bool AstarSearch::detectCollision(const IndexXYT & base_index) const
 {
   const RobotShape & robot_shape = astar_param_.robot_shape;
 
@@ -434,7 +437,7 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index)
   return false;
 }
 
-bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory)
+bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const
 {
   for (const auto & pose : trajectory.poses) {
     const auto pose_local = global2local(costmap_, pose);
@@ -448,19 +451,19 @@ bool AstarSearch::hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & 
   return false;
 }
 
-bool AstarSearch::isOutOfRange(const IndexXYT & index)
+bool AstarSearch::isOutOfRange(const IndexXYT & index) const
 {
   if (index.x < 0 || static_cast<int>(costmap_.info.width) <= index.x) {return true;}
   if (index.y < 0 || static_cast<int>(costmap_.info.height) <= index.y) {return true;}
   return false;
 }
 
-bool AstarSearch::isObs(const IndexXYT & index)
+bool AstarSearch::isObs(const IndexXYT & index) const
 {
   return nodes_[index.y][index.x][0].status == NodeStatus::Obstacle;
 }
 
-bool AstarSearch::isGoal(const AstarNode & node)
+bool AstarSearch::isGoal(const AstarNode & node) const
 {
   const double lateral_goal_range = astar_param_.lateral_goal_range / 2.0;
   const double longitudinal_goal_range = astar_param_.longitudinal_goal_range / 2.0;
@@ -473,10 +476,8 @@ bool AstarSearch::isGoal(const AstarNode & node)
     return false;
   }
 
-  if (
-    std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
-    std::fabs(relative_pose.position.y) > lateral_goal_range)
-  {
+  if (std::fabs(relative_pose.position.x) > longitudinal_goal_range ||
+      std::fabs(relative_pose.position.y) > lateral_goal_range) {
     return false;
   }
 
@@ -487,3 +488,7 @@ bool AstarSearch::isGoal(const AstarNode & node)
 
   return true;
 }
+
+}  // namespace autoware
+}  // namespace planning
+}  // namespace astar_search

@@ -74,13 +74,6 @@ enum class FreespacePlannerState
 struct NodeParam
 {
   double waypoints_velocity;  // constant velocity on planned waypoints [km/h]
-  double update_rate;         // replanning and publishing rate [Hz]
-  double th_arrived_distance_m;
-  double th_stopped_time_sec;
-  double th_stopped_velocity_mps;
-  double th_course_out_distance_m;
-  bool replan_when_obstacle_found;
-  bool replan_when_course_out;
 };
 
 
@@ -95,8 +88,6 @@ private:
   using PlannerCostmapAction = autoware_auto_msgs::action::PlannerCostmap;
   using PlannerCostmapGoalHandle = rclcpp_action::ClientGoalHandle<PlannerCostmapAction>;
 
-
-
   // ros communication
   rclcpp_action::Client<PlannerCostmapAction>::SharedPtr map_client_;
   rclcpp_action::Server<PlanTrajectoryAction>::SharedPtr plan_trajectory_srv_;
@@ -109,11 +100,11 @@ private:
 
   // params
   NodeParam node_param_;
-  AstarParam astar_param_;
+  astar_search::AstarParam astar_param_;
   FreespacePlannerState state_;
 
   // variables
-  std::unique_ptr<AstarSearch> astar_;
+  std::unique_ptr<astar_search::AstarSearch> astar_;
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
@@ -122,16 +113,15 @@ private:
 
   // callbacks
   rclcpp_action::GoalResponse handleGoal(
-    const rclcpp_action::GoalUUID & uuid,
-    const std::shared_ptr<const PlanTrajectoryAction::Goal> goal);
+    const rclcpp_action::GoalUUID &,
+    const std::shared_ptr<const PlanTrajectoryAction::Goal>);
   rclcpp_action::CancelResponse handleCancel(
     const std::shared_ptr<GoalHandle> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandle> goal_handle);
 
   void goalResponseCallback(std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future);
-  void feedbackCallback(
-    PlannerCostmapGoalHandle::SharedPtr goal_handle,
-    const std::shared_ptr<const PlannerCostmapAction::Feedback> feedback);
+  void feedbackCallback(PlannerCostmapGoalHandle::SharedPtr,
+                        const std::shared_ptr<const PlannerCostmapAction::Feedback>) {}
   void resultCallback(const PlannerCostmapGoalHandle::WrappedResult & result);
 
   // functions
@@ -143,7 +133,7 @@ private:
   geometry_msgs::msg::TransformStamped getTransform(
     const std::string & from, const std::string & to);
 
-  void visualize_trajectory();
+  void visualizeTrajectory();
 };
 
 }  // namespace freespace_planner

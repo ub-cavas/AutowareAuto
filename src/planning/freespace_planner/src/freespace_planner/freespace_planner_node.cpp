@@ -35,16 +35,13 @@
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
+
 
 namespace autoware
 {
 namespace planning
 {
 namespace freespace_planner
-{
-
-namespace
 {
 
 using motion::motion_common::to_quat;
@@ -64,14 +61,14 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
-AstarWaypoints adjustWaypointsSize(const AstarWaypoints & astar_waypoints)
+astar_search::AstarWaypoints adjustWaypointsSize(const astar_search::AstarWaypoints & astar_waypoints)
 {
   auto max_length = Trajectory::CAPACITY;
   auto input_length = astar_waypoints.waypoints.size();
 
   if (input_length > max_length)
   {
-    AstarWaypoints resized_vector;
+    astar_search::AstarWaypoints resized_vector;
     resized_vector.header = astar_waypoints.header;
 
     // input_length substraction to handle handle max_length multiplicity
@@ -93,12 +90,12 @@ AstarWaypoints adjustWaypointsSize(const AstarWaypoints & astar_waypoints)
     resized_vector.waypoints.insert(resized_vector.waypoints.end(), waypoints_iter, astar_waypoints.waypoints.end());
     return resized_vector;
   }
-  return astar_waypoints;
 
+  return astar_waypoints;
 }
 
 autoware_auto_msgs::msg::Trajectory createTrajectory(
-  const geometry_msgs::msg::PoseStamped & current_pose, const AstarWaypoints & astar_waypoints,
+  const geometry_msgs::msg::PoseStamped & current_pose, const astar_search::AstarWaypoints & astar_waypoints,
   const double & velocity)
 {
   Trajectory trajectory;
@@ -121,8 +118,6 @@ autoware_auto_msgs::msg::Trajectory createTrajectory(
   return trajectory;
 }
 
-}  // namespace
-
 FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_options)
 : Node("freespace_planner", node_options)
 {
@@ -132,13 +127,6 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
   // NodeParam
   {
     node_param_.waypoints_velocity = declare_parameter("waypoints_velocity", 5.0);
-    node_param_.update_rate = declare_parameter("update_rate", 1.0);
-    node_param_.th_arrived_distance_m = declare_parameter("th_arrived_distance_m", 1.0);
-    node_param_.th_stopped_time_sec = declare_parameter("th_stopped_time_sec", 1.0);
-    node_param_.th_stopped_velocity_mps = declare_parameter("th_stopped_velocity_mps", 0.01);
-    node_param_.th_course_out_distance_m = declare_parameter("th_course_out_distance_m", 3.0);
-    node_param_.replan_when_obstacle_found = declare_parameter("replan_when_obstacle_found", true);
-    node_param_.replan_when_course_out = declare_parameter("replan_when_course_out", true);
   }
 
   // AstarParam
@@ -225,11 +213,9 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 }
 
 rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
-    const rclcpp_action::GoalUUID & uuid,
-    const std::shared_ptr<const PlanTrajectoryAction::Goal> goal)
+    const rclcpp_action::GoalUUID &,
+    const std::shared_ptr<const PlanTrajectoryAction::Goal>)
 {
-  (void) uuid;
-  (void) goal;
   if (isPlanning())
   {
     RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
@@ -312,15 +298,6 @@ void FreespacePlannerNode::goalResponseCallback(
   RCLCPP_INFO(get_logger(), "Costmap generator action goal accepted.");
 }
 
-void FreespacePlannerNode::feedbackCallback(
-  PlannerCostmapGoalHandle::SharedPtr goal_handle,
-  const std::shared_ptr<const PlannerCostmapAction::Feedback> feedback)
-{
-  // feedback is not needed atm
-  (void) goal_handle;
-  (void) feedback;
-}
-
 void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::WrappedResult & costmap_result)
 {
   auto planning_result = std::make_shared<PlanTrajectoryAction::Result>();
@@ -340,7 +317,7 @@ void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::Wrappe
   planTrajectory();
 
   if (!trajectory_.points.empty()) {
-    visualize_trajectory();
+    visualizeTrajectory();
     trajectory_debug_pub_->publish(trajectory_);
     planning_result->result = PlanTrajectoryAction::Result::SUCCESS;
     planning_result->trajectory = trajectory_;
@@ -359,14 +336,14 @@ void FreespacePlannerNode::planTrajectory()
   reset();
 
   // Extend robot shape
-  RobotShape extended_robot_shape = astar_param_.robot_shape;
+  astar_search::RobotShape extended_robot_shape = astar_param_.robot_shape;
   constexpr double margin = 0.0;
   extended_robot_shape.length += margin;
   extended_robot_shape.width += margin;
   extended_robot_shape.base2back += margin / 2;
 
   // initialize vector for A* search, this runs only once
-  astar_ = std::make_unique<AstarSearch>(astar_param_);
+  astar_ = std::make_unique<astar_search::AstarSearch>(astar_param_);
   astar_->setRobotShape(extended_robot_shape);
   astar_->initializeNodes(*occupancy_grid_.get());
 
@@ -381,12 +358,11 @@ void FreespacePlannerNode::planTrajectory()
   // execute astar search
   const rclcpp::Time start = get_clock()->now();
   bool success;
-  SearchStatus search_status;
+  astar_search::SearchStatus search_status;
   std::tie(success, search_status) = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
   const rclcpp::Time end = get_clock()->now();
 
   RCLCPP_INFO(get_logger(), "Astar planning took %f [s]", (end - start).seconds());
-
 
   if (success) {
     RCLCPP_INFO(get_logger(), "Plan found.");
@@ -395,16 +371,16 @@ void FreespacePlannerNode::planTrajectory()
       createTrajectory(start_pose_, waypoints, node_param_.waypoints_velocity);
   } else {
     switch (search_status) {
-      case FAILURE_COLLISION_AT_START:
+      case astar_search::FAILURE_COLLISION_AT_START:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in start position.");
         break;
-      case FAILURE_COLLISION_AT_GOAL:
+      case astar_search::FAILURE_COLLISION_AT_GOAL:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in goal position.");
         break;
-      case FAILURE_TIMEOUT_EXCEEDED:
+      case astar_search::FAILURE_TIMEOUT_EXCEEDED:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because timeout exceeded.");
         break;
-      case FAILURE_NO_PATH_FOUND:
+      case astar_search::FAILURE_NO_PATH_FOUND:
         RCLCPP_ERROR(get_logger(), "Cannot find plan.");
         break;
       default:
@@ -432,7 +408,6 @@ void FreespacePlannerNode::stopPlanning()
 void FreespacePlannerNode::reset()
 {
   trajectory_ = autoware_auto_msgs::msg::Trajectory();
-  // this->set_parameter(rclcpp::Parameter("is_completed", false));
 }
 
 geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
@@ -448,7 +423,7 @@ geometry_msgs::msg::TransformStamped FreespacePlannerNode::getTransform(
   return tf;
 }
 
-void FreespacePlannerNode::visualize_trajectory() {
+void FreespacePlannerNode::visualizeTrajectory() {
   auto debug_pose_array_trajectory = geometry_msgs::msg::PoseArray();
 
   debug_pose_array_trajectory.header = trajectory_.header;
@@ -469,5 +444,6 @@ void FreespacePlannerNode::visualize_trajectory() {
 }  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
+
 #include "rclcpp_components/register_node_macro.hpp"
 RCLCPP_COMPONENTS_REGISTER_NODE(autoware::planning::freespace_planner::FreespacePlannerNode)

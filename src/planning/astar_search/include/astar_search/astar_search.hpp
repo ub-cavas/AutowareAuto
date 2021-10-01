@@ -28,6 +28,14 @@
 #include "nav_msgs/msg/path.hpp"
 #include "std_msgs/msg/header.hpp"
 
+
+namespace autoware
+{
+namespace planning
+{
+namespace astar_search
+{
+
 enum class NodeStatus : uint8_t { None, Open, Closed, Obstacle };
 
 struct IndexXYT
@@ -164,7 +172,7 @@ public:
   void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
   std::tuple<bool, SearchStatus> makePlan(
     const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
-  bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory);
+  bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const;
 
   const AstarWaypoints & getWaypoints() const {return waypoints_;}
 
@@ -172,13 +180,13 @@ private:
   std::tuple<bool, SearchStatus> search();
   void setPath(const AstarNode & goal);
   bool setStartNode();
-  bool setGoalNode();
-  double estimateCost(const geometry_msgs::msg::Pose & pose);
+  bool setGoalNode() const;
+  double estimateCost(const geometry_msgs::msg::Pose & pose) const;
 
-  bool detectCollision(const IndexXYT & index);
-  bool isOutOfRange(const IndexXYT & index);
-  bool isObs(const IndexXYT & index);
-  bool isGoal(const AstarNode & node);
+  bool detectCollision(const IndexXYT & index) const;
+  bool isOutOfRange(const IndexXYT & index) const;
+  bool isObs(const IndexXYT & index) const;
+  bool isGoal(const AstarNode & node) const;
 
   AstarNode * getNodeRef(const IndexXYT & index) {return &nodes_[index.y][index.x][index.theta];}
 
@@ -199,5 +207,10 @@ private:
   // result path
   AstarWaypoints waypoints_;
 };
+
+}  // namespace autoware
+}  // namespace planning
+}  // namespace astar_search
+
 
 #endif  // ASTAR_SEARCH__ASTAR_SEARCH_HPP_

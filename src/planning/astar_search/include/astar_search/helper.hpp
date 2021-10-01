@@ -15,6 +15,13 @@
 #ifndef ASTAR_SEARCH__HELPER_HPP_
 #define ASTAR_SEARCH__HELPER_HPP_
 
+namespace autoware
+{
+namespace planning
+{
+namespace astar_search
+{
+
 constexpr double deg2rad(const double deg) {return deg * M_PI / 180.0;}
 
 constexpr double rad2deg(const double rad) {return rad * 180.0 / M_PI;}
@@ -44,5 +51,10 @@ double normalizeRadian(
     return value - std::copysign(2 * M_PI, value);
   }
 }
+
+}  // namespace autoware
+}  // namespace planning
+}  // namespace astar_search
+
 
 #endif  // ASTAR_SEARCH__HELPER_HPP_
