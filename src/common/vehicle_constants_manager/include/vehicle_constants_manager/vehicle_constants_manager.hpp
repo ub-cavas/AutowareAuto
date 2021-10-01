@@ -58,15 +58,18 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
   /// @param[in] tire_cornering_stiffness_rear Cornering stiffness for rear wheels
   /// @param[in] mass_vehicle Mass of the vehicle
   /// @param[in] inertia_yaw_kg_m_2 Moment of Inertia of the vehicle on Z axis
+  /// @param[in] maximum_turning_angle_rad Maximum turning angle for cars front axis
   /// @throws std::runtime_error if certain parameters are negative.
   /// @throws std::runtime_error if cg_to_rear is larger than wheel_base (center of gravity must be
   /// within front and rear axles.)
   explicit VehicleConstants(
-    float64_t wheel_radius, float64_t wheel_width, float64_t wheel_base, float64_t wheel_tread,
-    float64_t overhang_front, float64_t overhang_rear, float64_t overhang_left,
-    float64_t overhang_right, float64_t vehicle_height, float64_t cg_to_rear,
-    float64_t tire_cornering_stiffness_front, float64_t tire_cornering_stiffness_rear,
-    float64_t mass_vehicle, float64_t inertia_yaw_kg_m_2);
+    float64_t wheel_radius, float64_t wheel_width, float64_t wheel_base,
+    float64_t wheel_tread, float64_t overhang_front,
+    float64_t overhang_rear, float64_t overhang_left,
+    float64_t overhang_right, float64_t vehicle_height,
+    float64_t cg_to_rear, float64_t tire_cornering_stiffness_front,
+    float64_t tire_cornering_stiffness_rear, float64_t mass_vehicle,
+    float64_t inertia_yaw_kg_m_2, float64_t maximum_turning_angle_rad);
 
   // Primary Constants
 
@@ -121,6 +124,10 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
   /// @brief [kg * m^2] Moment of inertia around vertical axis of the vehicle
   const float64_t inertia_yaw_kg_m2;
 
+  /// @brief [rad] Maximum turning angle for cars front axis
+  const float64_t maximum_turning_angle_rad;
+
+
   // Derived Constants
 
   /// @brief [m] Absolute value of longitudinal distance between Center of Gravity and center of
@@ -154,6 +161,9 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
 
   /// @brief [m] Signed distance from base_link to the top-most point of the vehicle.
   const float64_t offset_height_max;
+
+  /// @brief [rad] Maximum turning radius
+  float64_t minimum_turning_radius;
 
   /// @brief Retrieves a list of vehicle parameters names and values as a string.
   std::string str_pretty() const;

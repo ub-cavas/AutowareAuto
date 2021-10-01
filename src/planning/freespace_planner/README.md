@@ -58,7 +58,6 @@ None
 | `time_limit`                | double | time limit of planning                                  |
 | `robot_length`              | double | robot length                                            |
 | `robot_width`               | double | robot width                                             |
-| `robot_base2back`           | double | distance from robot's back to robot's base_link         |
 | `minimum_turning_radius`    | double | minimum turning radius of robot                         |
 | `theta_size`                | double | the number of angle's discretization                    |
 | `lateral_goal_range`        | double | goal range of lateral position                          |

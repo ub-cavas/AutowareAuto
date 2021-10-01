@@ -124,7 +124,7 @@ struct RobotShape
 {
   double length;     // X [m]
   double width;      // Y [m]
-  double base2back;  // base_link to rear [m]
+  double cg2back;  // center of gravity to rear [m]
 };
 
 struct AstarParam

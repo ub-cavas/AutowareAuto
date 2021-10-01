@@ -47,6 +47,7 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <motion_common/motion_common.hpp>
 
+#include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 #include <nav_msgs/msg/occupancy_grid.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <autoware_planning_msgs/msg/route.hpp>

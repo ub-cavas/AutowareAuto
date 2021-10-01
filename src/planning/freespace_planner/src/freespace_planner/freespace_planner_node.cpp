@@ -48,6 +48,7 @@ using motion::motion_common::to_quat;
 using motion::motion_common::from_quat;
 using autoware_auto_msgs::action::PlannerCostmap;
 using autoware_auto_msgs::msg::Trajectory;
+using common::vehicle_constants_manager::try_get_vehicle_constants;
 
 
 geometry_msgs::msg::Pose transformPose(
@@ -137,13 +138,24 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.time_limit = declare_parameter("time_limit", 5000.0);
 
     // robot configs
-    // TODO(Kenji Miyake): obtain from vehicle_info
-    astar_param_.robot_shape.length = declare_parameter("robot_length", 4.5);
-    astar_param_.robot_shape.width = declare_parameter("robot_width", 1.75);
-    astar_param_.robot_shape.base2back = declare_parameter("robot_base2back", 1.0);
-    astar_param_.minimum_turning_radius = declare_parameter("minimum_turning_radius", 0.5);
+    while (rclcpp::ok()) {
+      try {
+        auto vehicle_constants = try_get_vehicle_constants(
+          this->create_sub_node(""), 5s);
+        astar_param_.robot_shape.length = vehicle_constants.vehicle_length;
+        astar_param_.robot_shape.width = vehicle_constants.vehicle_width;
+        astar_param_.robot_shape.cg2back = vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear;
+        astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
+        break;
+      } catch (std::runtime_error &x) {
+        // wait for vehicle_constants_manager as long as rclcpp allows
+      }
+    }
     astar_param_.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
     astar_param_.turning_radius_size = declare_parameter("turning_radius_size", 11);
+
+    // TODO (kielczykowski-rai) add proper parameters validation and check
+    // how astar_search reacts to turning size > 1 when max_radius = min_radius
     astar_param_.maximum_turning_radius = std::max(
       astar_param_.maximum_turning_radius,
       astar_param_.minimum_turning_radius);
@@ -340,7 +352,7 @@ void FreespacePlannerNode::planTrajectory()
   constexpr double margin = 0.0;
   extended_robot_shape.length += margin;
   extended_robot_shape.width += margin;
-  extended_robot_shape.base2back += margin / 2;
+  extended_robot_shape.cg2back += margin / 2;
 
   // initialize vector for A* search, this runs only once
   astar_ = std::make_unique<astar_search::AstarSearch>(astar_param_);

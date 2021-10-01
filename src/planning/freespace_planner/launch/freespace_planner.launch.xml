@@ -6,7 +6,7 @@
   <arg name="output_trajectory" default="output_trajectory"/>
   <arg name="is_completed" default="is_completed"/>
 
-  <arg name="param_file" default="$(find-pkg-share freespace_planner)/config/freespace_planner.param.yaml"/>
+  <arg name="param_file" default="$(find-pkg-share freespace_planner)/param/defaults.param.yaml"/>
 
   <node pkg="freespace_planner" exec="freespace_planner" name="freespace_planner" output="screen">
     <remap from="~/input/route" to="$(var input_route)" />
