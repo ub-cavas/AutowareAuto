@@ -150,7 +150,7 @@ struct AstarParam
 
   // costmap configs
   int obstacle_threshold;            // obstacle threshold on grid [-]
-  double distance_heuristic_weight;  // obstacle threshold on grid [0,255]
+  double distance_heuristic_weight;
 };
 
 enum SearchStatus {

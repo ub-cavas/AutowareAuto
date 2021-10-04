@@ -9,10 +9,10 @@
     only_behind_solutions: false
     time_limit: 30000.0
     # robot configs
-    maximum_turning_radius: 9.0
+    maximum_turning_radius: 20.0
     turning_radius_size: 5
     # search configs
-    theta_size: 144
+    theta_size: 48
     angle_goal_range: 6.0
     curve_weight: 1.2
     reverse_weight: 2.0
