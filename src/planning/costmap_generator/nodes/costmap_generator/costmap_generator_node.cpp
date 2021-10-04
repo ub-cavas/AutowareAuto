@@ -324,6 +324,7 @@ void CostmapGenerator::mapResponse(rclcpp::Client<autoware_auto_msgs::srv::HADMa
   auto lanelet_map_ptr = std::make_shared<lanelet::LaneletMap>();
   autoware::common::had_map_utils::fromBinaryMsg(future.get()->map, lanelet_map_ptr);
 
+  area_points_.clear();
   loadRoadAreasFromLaneletMap(lanelet_map_ptr);
   loadParkingAreasFromLaneletMap(lanelet_map_ptr);
 
