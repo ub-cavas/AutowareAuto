@@ -97,7 +97,7 @@ astar_search::AstarWaypoints adjustWaypointsSize(const astar_search::AstarWaypoi
 
 autoware_auto_msgs::msg::Trajectory createTrajectory(
   const geometry_msgs::msg::PoseStamped & current_pose, const astar_search::AstarWaypoints & astar_waypoints,
-  const double & velocity)
+  const float & velocity)
 {
   Trajectory trajectory;
   trajectory.header = astar_waypoints.header;
@@ -105,13 +105,13 @@ autoware_auto_msgs::msg::Trajectory createTrajectory(
   for (const auto & awp : astar_waypoints.waypoints) {
     autoware_auto_msgs::msg::TrajectoryPoint point;
 
-    point.x = awp.pose.pose.position.x;
-    point.y = awp.pose.pose.position.y;
-    point.z = current_pose.pose.position.z;  // height = const
+    point.x = static_cast<float>(awp.pose.pose.position.x);
+    point.y = static_cast<float>(awp.pose.pose.position.y);
+    point.z = static_cast<float>(current_pose.pose.position.z);  // height = const
     point.heading = from_quat<geometry_msgs::msg::Quaternion>(awp.pose.pose.orientation);
 
     // switch sign by forward/backward
-    point.longitudinal_velocity_mps = (awp.is_back ? -1 : 1) * (velocity / 3.6);  // velocity = const
+    point.longitudinal_velocity_mps = (awp.is_back ? -1.0f : 1.0f) * (velocity / 3.6f);  // velocity = const
 
     trajectory.points.push_back(point);
   }
@@ -124,6 +124,15 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
 {
   using std::placeholders::_1;
   using namespace std::literals::chrono_literals;
+
+  auto throw_if_negative = [](int64_t number, const std::string & name) {
+      if (number < 0) {
+        throw std::runtime_error(
+                name + " = " + std::to_string(number) +
+                " shouldn't be negative.");
+      }
+    };
+
 
   // NodeParam
   {
@@ -141,28 +150,30 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     while (rclcpp::ok()) {
       try {
         auto vehicle_constants = try_get_vehicle_constants(
-          this->create_sub_node(""), 5s);
+          // empty namespace doesn't work. See: https://github.com/ros2/rclcpp/issues/1656
+          this->create_sub_node("vehicle_params"), 5s);
         astar_param_.robot_shape.length = vehicle_constants.vehicle_length;
         astar_param_.robot_shape.width = vehicle_constants.vehicle_width;
         astar_param_.robot_shape.cg2back = vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear;
         astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
         break;
       } catch (std::runtime_error &x) {
+        RCLCPP_INFO(get_logger(), "%s", x.what());
         // wait for vehicle_constants_manager as long as rclcpp allows
       }
     }
     astar_param_.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
-    astar_param_.turning_radius_size = declare_parameter("turning_radius_size", 11);
-
-    // TODO (kielczykowski-rai) add proper parameters validation and check
-    // how astar_search reacts to turning size > 1 when max_radius = min_radius
     astar_param_.maximum_turning_radius = std::max(
       astar_param_.maximum_turning_radius,
       astar_param_.minimum_turning_radius);
-    astar_param_.turning_radius_size = std::max(astar_param_.turning_radius_size, 1);
+    auto tr_size = declare_parameter("turning_radius_size", 11);
+    throw_if_negative(tr_size, "turning_radius_size");
+    astar_param_.turning_radius_size = static_cast<size_t>(tr_size);
 
     // search configs
-    astar_param_.theta_size = declare_parameter("theta_size", 48);
+    auto th_size = declare_parameter("theta_size", 48);
+    throw_if_negative(th_size, "theta_size");
+    astar_param_.theta_size = static_cast<size_t>(th_size);
     astar_param_.angle_goal_range = declare_parameter("angle_goal_range", 6.0);
     astar_param_.curve_weight = declare_parameter("curve_weight", 1.2);
     astar_param_.reverse_weight = declare_parameter("reverse_weight", 2.00);
@@ -179,9 +190,9 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     rclcpp::QoS qos{1};
     qos.transient_local();  // latch
     trajectory_debug_pub_ =
-      create_publisher<autoware_auto_msgs::msg::Trajectory>("~/output/trajectory", qos);
+      create_publisher<autoware_auto_msgs::msg::Trajectory>("~/debug/trajectory", qos);
     pose_array_trajectory_debug_pub_ =
-        create_publisher<geometry_msgs::msg::PoseArray>("~/output/trajectory_pose_array", qos);
+      create_publisher<geometry_msgs::msg::PoseArray>("~/debug/trajectory_pose_array", qos);
   }
 
   // Action client
@@ -210,7 +221,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
       this->get_node_clock_interface(),
       this->get_node_logging_interface(),
       this->get_node_waitables_interface(),
-      "/planning/plan_parking_trajectory",  // TODO: add namespace in launch instead of here
+      "plan_parking_trajectory",
       [this](auto uuid, auto goal) {return this->handleGoal(uuid, goal);},
       [this](auto goal_handle) {return this->handleCancel(goal_handle);},
       [this](auto goal_handle) {return this->handleAccepted(goal_handle);});
@@ -380,7 +391,7 @@ void FreespacePlannerNode::planTrajectory()
     RCLCPP_INFO(get_logger(), "Plan found.");
     auto waypoints = adjustWaypointsSize(astar_->getWaypoints());
     trajectory_ =
-      createTrajectory(start_pose_, waypoints, node_param_.waypoints_velocity);
+      createTrajectory(start_pose_, waypoints, static_cast<float>(node_param_.waypoints_velocity));
   } else {
     switch (search_status) {
       case astar_search::FAILURE_COLLISION_AT_START:

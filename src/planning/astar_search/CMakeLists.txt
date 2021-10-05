@@ -1,20 +1,13 @@
 cmake_minimum_required(VERSION 3.5)
 project(astar_search)
 
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
-
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-ament_auto_add_library(astar_search SHARED
+set(ASTAR_SEARCH_LIB astar_search)
+ament_auto_add_library(${ASTAR_SEARCH_LIB} SHARED
         src/astar_search.cpp)
+autoware_set_compile_options(${ASTAR_SEARCH_LIB})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

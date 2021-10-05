@@ -15,6 +15,8 @@
 #ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 #define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 
+#include <astar_search/visibility_control.hpp>
+
 #include <cmath>
 #include <functional>
 #include <iostream>
@@ -23,10 +25,10 @@
 #include <tuple>
 #include <vector>
 
-#include "geometry_msgs/msg/pose_array.hpp"
-#include "nav_msgs/msg/occupancy_grid.hpp"
-#include "nav_msgs/msg/path.hpp"
-#include "std_msgs/msg/header.hpp"
+#include <geometry_msgs/msg/pose_array.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
+#include <nav_msgs/msg/path.hpp>
+#include <std_msgs/msg/header.hpp>
 
 
 namespace autoware
@@ -79,7 +81,7 @@ struct AstarWaypoint
   bool is_back = false;
 };
 
-struct AstarWaypoints
+struct ASTAR_SEARCH_PUBLIC AstarWaypoints
 {
   std_msgs::msg::Header header;
   std::vector<AstarWaypoint> waypoints;
@@ -120,14 +122,14 @@ struct NodeUpdate
   }
 };
 
-struct RobotShape
+struct ASTAR_SEARCH_PUBLIC RobotShape
 {
   double length;     // X [m]
   double width;      // Y [m]
-  double cg2back;  // center of gravity to rear [m]
+  double cg2back;    // center of gravity to rear [m]
 };
 
-struct AstarParam
+struct ASTAR_SEARCH_PUBLIC AstarParam
 {
   // base configs
   bool use_back;               // backward search
@@ -138,10 +140,10 @@ struct AstarParam
   RobotShape robot_shape;
   double minimum_turning_radius;  // [m]
   double maximum_turning_radius;  // [m]
-  int turning_radius_size;        // discretized turning radius table size [-]
+  size_t turning_radius_size;     // discretized turning radius table size [-]
 
   // search configs
-  int theta_size;                  // discretized angle table size [-]
+  size_t theta_size;               // discretized angle table size [-]
   double curve_weight;             // curve moving cost [-]
   double reverse_weight;           // backward moving cost [-]
   double lateral_goal_range;       // reaching threshold, lateral error [m]
@@ -149,11 +151,11 @@ struct AstarParam
   double angle_goal_range;         // reaching threshold, angle error [deg]
 
   // costmap configs
-  int obstacle_threshold;            // obstacle threshold on grid [-]
-  double distance_heuristic_weight;
+  int64_t obstacle_threshold;        // obstacle threshold on grid [-]
+  double distance_heuristic_weight;  // distance weight for trajectory cost estimation
 };
 
-enum SearchStatus {
+enum ASTAR_SEARCH_PUBLIC SearchStatus {
   SUCCESS,
   FAILURE_COLLISION_AT_START,
   FAILURE_COLLISION_AT_GOAL,
@@ -161,7 +163,7 @@ enum SearchStatus {
   FAILURE_NO_PATH_FOUND
 };
 
-class AstarSearch
+class ASTAR_SEARCH_PUBLIC AstarSearch
 {
 public:
   using TransitionTable = std::vector<std::vector<NodeUpdate>>;
@@ -188,7 +190,8 @@ private:
   bool isObs(const IndexXYT & index) const;
   bool isGoal(const AstarNode & node) const;
 
-  AstarNode * getNodeRef(const IndexXYT & index) {return &nodes_[index.y][index.x][index.theta];}
+  AstarNode * getNodeRef(const IndexXYT & index)
+    {return &nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][static_cast<size_t>(index.theta)];}
 
   AstarParam astar_param_;
 

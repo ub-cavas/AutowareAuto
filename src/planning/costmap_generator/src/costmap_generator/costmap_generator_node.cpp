@@ -234,26 +234,26 @@ CostmapGenerator::createMapRequest(const autoware_auto_msgs::msg::HADMapRoute & 
   // x
   request.geom_upper_bound.push_back(
       std::fmax(
-          static_cast<float32_t>(route.start_point.position.x),
-          static_cast<float32_t>(route.goal_point.position.x)) + route_box_padding_);
+          route.start_point.position.x,
+          route.goal_point.position.x) + route_box_padding_);
   // y
   request.geom_upper_bound.push_back(
       std::fmax(
-          static_cast<float32_t>(route.start_point.position.y),
-          static_cast<float32_t>(route.goal_point.position.y)) + route_box_padding_);
+          route.start_point.position.y,
+          route.goal_point.position.y) + route_box_padding_);
   // z (ignored)
   request.geom_upper_bound.push_back(0.0);
 
   // x
   request.geom_lower_bound.push_back(
       std::fmin(
-          static_cast<float32_t>(route.start_point.position.x),
-          static_cast<float32_t>(route.goal_point.position.x)) - route_box_padding_);
+          route.start_point.position.x,
+          route.goal_point.position.x) - route_box_padding_);
   // y
   request.geom_lower_bound.push_back(
       std::fmin(
-          static_cast<float32_t>(route.start_point.position.y),
-          static_cast<float32_t>(route.goal_point.position.y)) - route_box_padding_);
+          route.start_point.position.y,
+          route.goal_point.position.y) - route_box_padding_);
   // z (ignored)
   request.geom_lower_bound.push_back(0.0);
 
@@ -364,7 +364,7 @@ nav_msgs::msg::OccupancyGrid CostmapGenerator::createOccupancyGrid(const grid_ma
 
   // Convert to OccupancyGrid
   grid_map::GridMapRosConverter::toOccupancyGrid(
-      costmap, LayerName::COMBINED, grid_min_value_, grid_max_value_, occupancy_grid);
+      costmap, LayerName::COMBINED, static_cast<float>(grid_min_value_), static_cast<float>(grid_max_value_), occupancy_grid);
 
   // Set header
   std_msgs::msg::Header header;
@@ -391,8 +391,8 @@ grid_map::Matrix CostmapGenerator::generateWayAreaCostmap() const
   grid_map::GridMap lanelet2_costmap = costmap_;
   if (!area_points_.empty()) {
     object_map::fillPolygonAreas(
-        lanelet2_costmap, area_points_, LayerName::WAYAREA, grid_max_value_, grid_min_value_,
-        grid_min_value_, grid_max_value_, costmap_frame_, map_frame_, tf_buffer_);
+        lanelet2_costmap, area_points_, LayerName::WAYAREA, static_cast<int>(grid_max_value_),  static_cast<int>(grid_min_value_),
+         static_cast<int>(grid_min_value_),  static_cast<int>(grid_max_value_), costmap_frame_, map_frame_, tf_buffer_);
   }
   return lanelet2_costmap[LayerName::WAYAREA];
 }
@@ -402,7 +402,7 @@ grid_map::Matrix CostmapGenerator::generateCombinedCostmap() const
   // assuming combined_costmap is calculated by element wise max operation
   grid_map::GridMap combined_costmap = costmap_;
 
-  combined_costmap[LayerName::COMBINED].setConstant(grid_min_value_);
+  combined_costmap[LayerName::COMBINED].setConstant(static_cast<float>(grid_min_value_));
 
   combined_costmap[LayerName::COMBINED] =
     combined_costmap[LayerName::COMBINED].cwiseMax(combined_costmap[LayerName::WAYAREA]);

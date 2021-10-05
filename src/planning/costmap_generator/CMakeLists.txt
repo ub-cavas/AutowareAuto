@@ -1,41 +1,27 @@
 cmake_minimum_required(VERSION 3.5)
-
 project(costmap_generator)
-
-if(NOT CMAKE_CXX_STANDARD)
-  set(CMAKE_CXX_STANDARD 14)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
-if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-  add_compile_options(-Wall -Wextra -Wpedantic)
-endif()
 
 find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
-include_directories(
-  include
-  ${GRID_MAP_INCLUDE_DIR}
-)
+set(COSTMAP_GENERATOR_NODE_NAME costmap_generator_node)
 
-ament_auto_add_library(costmap_generator_lib SHARED
-  nodes/costmap_generator/object_map_utils.cpp
+ament_auto_add_library(${COSTMAP_GENERATOR_NODE_NAME} SHARED
+  src/costmap_generator/costmap_generator_node.cpp
+  src/costmap_generator/object_map_utils.cpp
 )
+autoware_set_compile_options(${COSTMAP_GENERATOR_NODE_NAME})
+# skipping Werrors from external `grid_map_cv` package
+target_compile_options(${COSTMAP_GENERATOR_NODE_NAME} PRIVATE -Wno-old-style-cast -Wno-sign-conversion -Wno-conversion -Wno-double-conversion -Wno-double-promotion)
 
-ament_auto_add_library(costmap_generator_node SHARED
-  nodes/costmap_generator/costmap_generator_node.cpp
-)
-
-rclcpp_components_register_node(costmap_generator_node
+rclcpp_components_register_node(${COSTMAP_GENERATOR_NODE_NAME}
   PLUGIN "autoware::planning::costmap_generator::CostmapGenerator"
-  EXECUTABLE costmap_generator
+  EXECUTABLE ${COSTMAP_GENERATOR_NODE_NAME}_exe
 )
 
 if(BUILD_TESTING)
-  find_package(ament_cmake_gtest REQUIRED)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_auto_package(INSTALL_TO_SHARE launch)
+ament_auto_package(INSTALL_TO_SHARE launch param)

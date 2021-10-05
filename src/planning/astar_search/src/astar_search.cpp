@@ -74,10 +74,10 @@ geometry_msgs::msg::Pose calcRelativePose(
   return transformed.pose;
 }
 
-int discretizeAngle(const double theta, const int theta_size)
+int discretizeAngle(const double theta, const size_t theta_size)
 {
-  const double one_angle_range = 2.0 * M_PI / theta_size;
-  return static_cast<int>(normalizeRadian(theta, 0, 2 * M_PI) / one_angle_range) % theta_size;
+  const double one_angle_range = 2.0 * M_PI / static_cast<double>(theta_size);
+  return static_cast<int>(normalizeRadian(theta, 0.0, 2.0 * M_PI) / one_angle_range) % static_cast<int>(theta_size);
 }
 
 geometry_msgs::msg::Pose global2local(
@@ -106,23 +106,23 @@ geometry_msgs::msg::Pose local2global(
 
 IndexXYT pose2index(
   const nav_msgs::msg::OccupancyGrid & costmap, const geometry_msgs::msg::Pose & pose_local,
-  const int theta_size)
+  const size_t theta_size)
 {
-  const int index_x = pose_local.position.x / costmap.info.resolution;
-  const int index_y = pose_local.position.y / costmap.info.resolution;
+  const int index_x = static_cast<int>(std::floor(pose_local.position.x / static_cast<double>(costmap.info.resolution)));
+  const int index_y = static_cast<int>(std::floor(pose_local.position.y / static_cast<double>(costmap.info.resolution)));
   const int index_theta = discretizeAngle(tf2::getYaw(pose_local.orientation), theta_size);
   return {index_x, index_y, index_theta};
 }
 
 geometry_msgs::msg::Pose index2pose(
-  const nav_msgs::msg::OccupancyGrid & costmap, const IndexXYT & index, const int theta_size)
+  const nav_msgs::msg::OccupancyGrid & costmap, const IndexXYT & index, const size_t theta_size)
 {
   geometry_msgs::msg::Pose pose_local;
 
-  pose_local.position.x = index.x * costmap.info.resolution;
-  pose_local.position.y = index.y * costmap.info.resolution;
+  pose_local.position.x = static_cast<float>(index.x) * costmap.info.resolution;
+  pose_local.position.y = static_cast<float>(index.y) * costmap.info.resolution;
 
-  const double one_angle_range = 2.0 * M_PI / theta_size;
+  const double one_angle_range = 2.0 * M_PI / static_cast<double>(theta_size);
   const double yaw = index.theta * one_angle_range;
   tf2::Quaternion quat;
   quat.setRPY(0, 0, yaw);
@@ -148,26 +148,26 @@ geometry_msgs::msg::Pose node2pose(const AstarNode & node)
 
 AstarSearch::TransitionTable createTransitionTable(
   const double minimum_turning_radius, const double maximum_turning_radius,
-  const int turning_radius_size, const double theta_size, const bool use_back)
+  const size_t turning_radius_size, const size_t theta_size, const bool use_back)
 {
   // Vehicle moving for each angle
   AstarSearch::TransitionTable transition_table;
   transition_table.resize(theta_size);
 
-  const double dtheta = 2.0 * M_PI / theta_size;
+  const double dtheta = 2.0 * M_PI / static_cast<double>(theta_size);
 
   // Minimum moving distance with one state update
   // arc  = r * theta
   const auto & R_min = minimum_turning_radius;
   const auto & R_max = maximum_turning_radius;
   const double step_min = R_min * dtheta;
-  const double dR = (R_max - R_min) / turning_radius_size;
+  const double dR = (R_max - R_min) / static_cast<double>(turning_radius_size);
 
   // NodeUpdate actions
   std::vector<NodeUpdate> forward_node_candidates;
   const NodeUpdate forward_straight{step_min, 0.0, 0.0, step_min, false, false};
   forward_node_candidates.push_back(forward_straight);
-  for (int i = 0; i < turning_radius_size + 1; ++i) {
+  for (int i = 0; i < static_cast<int>(turning_radius_size + 1); ++i) {
     double R = R_min + i * dR;
     double step = R * dtheta;
     NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, true, false};
@@ -176,8 +176,8 @@ AstarSearch::TransitionTable createTransitionTable(
     forward_node_candidates.push_back(forward_right);
   }
 
-  for (int i = 0; i < theta_size; i++) {
-    const double theta = dtheta * i;
+  for (size_t i = 0; i < theta_size; i++) {
+    const double theta = dtheta * static_cast<double>(i);
 
     for (const auto & nu : forward_node_candidates) {
       transition_table[i].push_back(nu.rotated(theta));
@@ -261,7 +261,7 @@ bool AstarSearch::setStartNode()
   AstarNode * start_node = getNodeRef(index);
   start_node->x = start_pose_.position.x;
   start_node->y = start_pose_.position.y;
-  start_node->theta = 2.0 * M_PI / astar_param_.theta_size * index.theta;
+  start_node->theta = 2.0 * M_PI / static_cast<double>(astar_param_.theta_size) * static_cast<double>(index.theta);
   start_node->gc = 0;
   start_node->hc = estimateCost(start_pose_);
   start_node->is_back = false;
@@ -322,7 +322,7 @@ std::tuple<bool, SearchStatus> AstarSearch::search()
 
     // Transit
     const auto index_theta = discretizeAngle(current_node->theta, astar_param_.theta_size);
-    for (const auto & transition : transition_table_[index_theta]) {
+    for (const auto & transition : transition_table_[static_cast<size_t>(index_theta)]) {
       const bool is_turning_point = transition.is_back != current_node->is_back;
 
       // TODO(T.Horibe): change step to distance (just rename)
@@ -412,8 +412,9 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index) const
   const auto base_theta = tf2::getYaw(base_pose.orientation);
 
   // Convert each point to index and check if the node is Obstacle
-  for (double x = back; x <= front; x += costmap_.info.resolution) {
-    for (double y = right; y <= left; y += costmap_.info.resolution) {
+  auto costmap_resolution = static_cast<double>(costmap_.info.resolution);
+  for (double x = back; x <= front; x += costmap_resolution) {
+    for (double y = right; y <= left; y += costmap_resolution) {
       // Calculate offset in rotated frame
       const double offset_x = std::cos(base_theta) * x - std::sin(base_theta) * y;
       const double offset_y = std::sin(base_theta) * x + std::cos(base_theta) * y;
@@ -460,7 +461,7 @@ bool AstarSearch::isOutOfRange(const IndexXYT & index) const
 
 bool AstarSearch::isObs(const IndexXYT & index) const
 {
-  return nodes_[index.y][index.x][0].status == NodeStatus::Obstacle;
+  return nodes_[static_cast<size_t>(index.y)][static_cast<size_t>(index.x)][0].status == NodeStatus::Obstacle;
 }
 
 bool AstarSearch::isGoal(const AstarNode & node) const

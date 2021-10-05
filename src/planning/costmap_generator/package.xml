@@ -10,8 +10,8 @@
   <maintainer email="cirpue49@yahoo.co.jp">ando</maintainer>
   <license>BSD-3-Clause</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
@@ -24,7 +24,6 @@
   <depend>had_map_utils</depend>
 
   <test_depend>ament_cmake_gtest</test_depend>
-
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
