@@ -131,9 +131,9 @@ CostmapGenerator::CostmapGenerator(const rclcpp::NodeOptions & node_options)
 
   // Publishers
   debug_occupancy_grid_publisher_ = this->create_publisher<nav_msgs::msg::OccupancyGrid>(
-    "~/output/occupancy_grid", 1);
+    "~/debug/occupancy_grid", 1);
   debug_local_had_map_publisher_ = this->create_publisher<visualization_msgs::msg::MarkerArray>(
-      "/costmap_generator/viz_had_map",1);
+    "~/debug/local_had_map", 1);
 
   // Action server
   costmap_action_server_ = rclcpp_action::create_server<autoware_auto_msgs::action::PlannerCostmap>(
