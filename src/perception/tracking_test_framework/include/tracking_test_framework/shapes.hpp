@@ -33,6 +33,7 @@
 #include <cstdint>
 #include <memory>
 #include <vector>
+#include <array>
 
 namespace autoware
 {
