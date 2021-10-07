@@ -108,7 +108,7 @@ primitives:
   primitive_type: parking
 ```
 
-To check if the route is reasonable, open the OSM map `AutowareAuto/src/tools/autoware_demos/data/autonomousstuff_parking_lot.osm` in a text editor and search for `way id='9824`.
+To check if the route is reasonable, open the OSM map `AutowareAuto/src/launch/autoware_demos/data/autonomousstuff_parking_lot.osm` in a text editor and search for `way id='9824`.
 It references a node, the center of the entrance line, `9831` in this case.
 Searching for its coordinates, they are:
 ```{xml}
