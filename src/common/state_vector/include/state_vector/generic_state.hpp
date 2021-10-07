@@ -37,7 +37,9 @@
 #include <Eigen/Core>
 #pragma GCC diagnostic pop
 
+#include <limits>
 #include <tuple>
+#include <vector>
 
 namespace autoware
 {
@@ -414,6 +416,39 @@ using FloatState = GenericState<common::types::float32_t, Ts...>;
 /// A typedef for the 64 bit floating point state.
 template<typename ... Ts>
 using DoubleState = GenericState<common::types::float64_t, Ts...>;
+
+template<typename StateT>
+struct CovarianceAnd
+{
+  static_assert(
+    is_state<StateT>::value,
+    "\n\nStateT is not a GenericState.\n\n");
+
+  static CovarianceAnd from_state_and_variances(
+    const StateT & initial_state,
+    const std::vector<typename StateT::Scalar> & initial_variances)
+  {
+    if (initial_variances.size() != static_cast<std::size_t>(StateT::size())) {
+      std::runtime_error(
+        "Cannot create Kalman filter - dimensions mismatch. Provided " +
+        std::to_string(initial_variances.size()) + " variances, but " +
+        std::to_string(StateT::size()) + " required.");
+    }
+    typename StateT::Vector variances{StateT::Vector::Zero()};
+    // A small enough epsilon to compare a floating point variance with zero.
+    const auto epsilon = 5.0F * std::numeric_limits<common::types::float32_t>::epsilon();
+    for (std::uint32_t i = 0; i < initial_variances.size(); ++i) {
+      if (common::helper_functions::comparisons::abs_lte(initial_variances[i], 0.0F, epsilon)) {
+        throw std::domain_error("Variances must be positive");
+      }
+      variances[static_cast<std::int32_t>(i)] = initial_variances[i] * initial_variances[i];
+    }
+    return {initial_state, variances.asDiagonal()};
+  }
+
+  StateT state;
+  typename StateT::Matrix covariance;
+};
 
 }  // namespace state_vector
 }  // namespace common

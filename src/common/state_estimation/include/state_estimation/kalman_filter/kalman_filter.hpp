@@ -70,15 +70,8 @@ public:
   /// @param[in]  initial_state       The initial state of the filter.
   /// @param[in]  initial_covariance  The initial state covariance.
   ///
-  explicit KalmanFilter(
-    MotionModelT motion_model,
-    NoiseModelT noise_model,
-    const State & initial_state,
-    const StateMatrix & initial_covariance)
-  : m_motion_model{motion_model},
-    m_noise_model{noise_model},
-    m_state{initial_state},
-    m_covariance{initial_covariance} {}
+  explicit KalmanFilter(MotionModelT motion_model, NoiseModelT noise_model)
+  : m_motion_model{motion_model}, m_noise_model{noise_model} {}
 
   ///
   /// @brief      Predict next state.
@@ -87,13 +80,16 @@ public:
   ///
   /// @return     Predicted state.
   ///
-  State crtp_predict(const std::chrono::nanoseconds & dt)
+  template<typename StateT>
+  state_vector::CovarianceAnd<StateT> crtp_predict(
+    const state_vector::CovarianceAnd<StateT> & state, const std::chrono::nanoseconds & dt) const
   {
-    m_state = m_motion_model.predict(m_state, dt);
-    const auto & motion_jacobian = m_motion_model.jacobian(m_state, dt);
-    m_covariance =
-      motion_jacobian * m_covariance * motion_jacobian.transpose() + m_noise_model.covariance(dt);
-    return m_state;
+    const auto predicted_state = m_motion_model.predict(state.state, dt);
+    const auto & motion_jacobian = m_motion_model.jacobian(predicted_state, dt);
+    const auto predicted_covariance =
+      motion_jacobian * state.covariance * motion_jacobian.transpose() +
+      m_noise_model.covariance(dt);
+    return {predicted_state, predicted_covariance};
   }
 
   ///
@@ -107,53 +103,29 @@ public:
   ///
   /// @return     State corrected with the measurement.
   ///
-  template<typename MeasurementT>
-  State crtp_correct(const MeasurementT & measurement)
+  template<typename StateT, typename MeasurementT>
+  state_vector::CovarianceAnd<StateT> crtp_correct(
+    const state_vector::CovarianceAnd<StateT> & state, const MeasurementT & measurement) const
   {
-    const auto expected_measurement = measurement.create_new_instance_from(m_state);
+    const auto expected_measurement = measurement.create_new_instance_from(state.state);
     const auto innovation = wrap_all_angles(measurement.state() - expected_measurement);
-    const auto mapping_matrix = measurement.mapping_matrix_from(m_state);
+    const auto mapping_matrix = measurement.mapping_matrix_from(state.state);
     const auto innovation_covariance =
-      mapping_matrix * m_covariance * mapping_matrix.transpose() + measurement.covariance();
+      mapping_matrix * state.covariance * mapping_matrix.transpose() + measurement.covariance();
     const auto kalman_gain =
-      m_covariance * mapping_matrix.transpose() * innovation_covariance.inverse();
-    m_state += kalman_gain * innovation.vector();
-    m_state.wrap_all_angles();
-    m_covariance = (State::Matrix::Identity() - kalman_gain * mapping_matrix) * m_covariance;
-    return m_state;
+      state.covariance * mapping_matrix.transpose() * innovation_covariance.inverse();
+    auto corrected_state = state.state + kalman_gain * innovation.vector();
+    corrected_state.wrap_all_angles();
+    const auto corrected_covariance =
+      (State::Matrix::Identity() - kalman_gain * mapping_matrix) * state.covariance;
+    return {corrected_state, corrected_covariance};
   }
-
-  ///
-  /// @brief      Reset the state of the filter to a given state and covariance.
-  ///
-  /// @param[in]  state       The new state that overwrites one stored in the filter.
-  /// @param[in]  covariance  The new covariance that overwrites one stored in the filter.
-  ///
-  void crtp_reset(const State & state, const StateMatrix & covariance)
-  {
-    m_state = state;
-    m_covariance = covariance;
-  }
-
-  /// @brief      Get current state.
-  auto & crtp_state() {return m_state;}
-  /// @brief      Get current state.
-  const auto & crtp_state() const {return m_state;}
-
-  /// @brief      Get current covariance.
-  auto & crtp_covariance() {return m_covariance;}
-  /// @brief      Get current covariance.
-  const auto & crtp_covariance() const {return m_covariance;}
 
 private:
   /// Motion model used to predict the state forward.
   MotionModelT m_motion_model{};
   /// Noise model of the movement.
   NoiseModelT m_noise_model{};
-  /// State of the tracked object.
-  State m_state{};
-  /// Covariance of the state of the tracked object.
-  StateMatrix m_covariance{StateMatrix::Zero()};
 };
 
 ///
@@ -175,12 +147,9 @@ private:
 template<typename MotionModelT, typename NoiseModelT>
 auto make_kalman_filter(
   const MotionModelT & motion_model,
-  const NoiseModelT & noise_model,
-  const typename MotionModelT::State & initial_state,
-  const typename MotionModelT::State::Matrix & initial_covariance)
+  const NoiseModelT & noise_model)
 {
-  return KalmanFilter<MotionModelT, NoiseModelT>{
-    motion_model, noise_model, initial_state, initial_covariance};
+  return KalmanFilter<MotionModelT, NoiseModelT>{motion_model, noise_model};
 }
 
 ///
@@ -200,9 +169,7 @@ auto make_kalman_filter(
 /// @return     Returns a valid KalmanFilter instance.
 ///
 template<typename StateT>
-auto make_correction_only_kalman_filter(
-  const StateT & initial_state,
-  const typename StateT::Matrix & initial_covariance)
+auto make_correction_only_kalman_filter()
 {
   struct DummyNoise : public NoiseInterface<DummyNoise>
   {
@@ -216,51 +183,7 @@ auto make_correction_only_kalman_filter(
 
   using MotionModel = common::motion_model::StationaryMotionModel<StateT>;
 
-  return make_kalman_filter(
-    MotionModel{}, DummyNoise{}, initial_state, initial_covariance);
-}
-
-///
-/// @brief      A utility function that creates a Kalman filter from a vector of variances.
-///
-///             Mostly this is needed to avoid passing the template parameters explicitly and let
-///             the compiler infer them from the objects passed into this function.
-///
-/// @param[in]  motion_model       A motion model.
-/// @param[in]  noise_model        A noise model.
-/// @param[in]  initial_state      Initial state.
-/// @param[in]  initial_variances  Initial variances as a vector.
-///
-/// @tparam     MotionModelT       Type of the motion model.
-/// @tparam     NoiseModelT        Type of the noise model.
-///
-/// @return     Returns a valid KalmanFilter instance.
-///
-template<typename MotionModelT, typename NoiseModelT>
-auto make_kalman_filter(
-  const MotionModelT & motion_model,
-  const NoiseModelT & noise_model,
-  const typename MotionModelT::State & initial_state,
-  const std::vector<typename MotionModelT::State::Scalar> & initial_variances)
-{
-  using State = typename MotionModelT::State;
-  if (initial_variances.size() != static_cast<std::size_t>(State::size())) {
-    std::runtime_error(
-      "Cannot create Kalman filter - dimensions mismatch. Provided " +
-      std::to_string(initial_variances.size()) + " variances, but " +
-      std::to_string(State::size()) + " required.");
-  }
-  typename State::Vector variances{State::Vector::Zero()};
-  // A small enough epsilon to compare a floating point variance with zero.
-  const auto epsilon = 5.0F * std::numeric_limits<common::types::float32_t>::epsilon();
-  for (std::uint32_t i = 0; i < initial_variances.size(); ++i) {
-    if (common::helper_functions::comparisons::abs_lte(initial_variances[i], 0.0F, epsilon)) {
-      throw std::domain_error("Variances must be positive");
-    }
-    variances[static_cast<std::int32_t>(i)] = initial_variances[i] * initial_variances[i];
-  }
-  return KalmanFilter<MotionModelT, NoiseModelT>{
-    motion_model, noise_model, initial_state, variances.asDiagonal()};
+  return make_kalman_filter(MotionModel{}, DummyNoise{});
 }
 
 }  // namespace state_estimation
