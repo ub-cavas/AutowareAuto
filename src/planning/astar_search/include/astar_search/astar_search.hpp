@@ -155,13 +155,17 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
   double distance_heuristic_weight;  // distance weight for trajectory cost estimation
 };
 
-enum ASTAR_SEARCH_PUBLIC SearchStatus {
+enum class ASTAR_SEARCH_PUBLIC SearchStatus {
   SUCCESS,
   FAILURE_COLLISION_AT_START,
   FAILURE_COLLISION_AT_GOAL,
   FAILURE_TIMEOUT_EXCEEDED,
   FAILURE_NO_PATH_FOUND
 };
+
+bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status) {
+  return status == SearchStatus::SUCCESS;
+}
 
 class ASTAR_SEARCH_PUBLIC AstarSearch
 {
@@ -172,14 +176,14 @@ public:
 
   void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
   void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
-  std::tuple<bool, SearchStatus> makePlan(
-    const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose);
+  SearchStatus makePlan(const geometry_msgs::msg::Pose & start_pose,
+                        const geometry_msgs::msg::Pose & goal_pose);
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const;
 
   const AstarWaypoints & getWaypoints() const {return waypoints_;}
 
 private:
-  std::tuple<bool, SearchStatus> search();
+  SearchStatus search();
   void setPath(const AstarNode & goal);
   bool setStartNode();
   bool setGoalNode() const;

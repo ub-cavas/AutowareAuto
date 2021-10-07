@@ -239,11 +239,11 @@ rclcpp_action::GoalResponse FreespacePlannerNode::handleGoal(
     const rclcpp_action::GoalUUID &,
     const std::shared_ptr<const PlanTrajectoryAction::Goal>)
 {
-  if (isPlanning())
-  {
+  if (isPlanning()) {
     RCLCPP_WARN(get_logger(), "Planner is already planning. Rejecting new goal.");
     return rclcpp_action::GoalResponse::REJECT;
   }
+
   RCLCPP_INFO(this->get_logger(), "Received new goal.");
   startPlanning();
   return rclcpp_action::GoalResponse::ACCEPT_AND_EXECUTE;
@@ -318,6 +318,7 @@ void FreespacePlannerNode::goalResponseCallback(
     stopPlanning();
     return;
   }
+
   RCLCPP_INFO(get_logger(), "Costmap generator action goal accepted.");
 }
 
@@ -325,23 +326,14 @@ void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::Wrappe
 {
   auto planning_result = std::make_shared<PlanTrajectoryAction::Result>();
 
-  if (costmap_result.result->costmap.data.empty())
-  {
-    RCLCPP_ERROR(get_logger(), "Costmap generator failed to produce map.");
-    planning_result->result = PlanTrajectoryAction::Result::FAIL;
-    planning_goal_handle_->abort(planning_result);
-    return;
-  }
-
   RCLCPP_INFO(get_logger(), "Costmap received, planning started.");
 
   occupancy_grid_ = std::make_shared<nav_msgs::msg::OccupancyGrid>(costmap_result.result->costmap);
 
-  planTrajectory();
+  bool success = planTrajectory();
 
-  if (!trajectory_.points.empty()) {
+  if (success) {
     visualizeTrajectory();
-    trajectory_debug_pub_->publish(trajectory_);
     planning_result->result = PlanTrajectoryAction::Result::SUCCESS;
     planning_result->trajectory = trajectory_;
     planning_goal_handle_->succeed(planning_result);
@@ -353,7 +345,7 @@ void FreespacePlannerNode::resultCallback(const PlannerCostmapGoalHandle::Wrappe
   stopPlanning();
 }
 
-void FreespacePlannerNode::planTrajectory()
+bool FreespacePlannerNode::planTrajectory()
 {
   // reset inner state
   reset();
@@ -380,39 +372,37 @@ void FreespacePlannerNode::planTrajectory()
 
   // execute astar search
   const rclcpp::Time start = get_clock()->now();
-  bool success;
-  astar_search::SearchStatus search_status;
-  std::tie(success, search_status) = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
+  auto search_status = astar_->makePlan(start_pose_in_costmap_frame, goal_pose_in_costmap_frame);
   const rclcpp::Time end = get_clock()->now();
 
   RCLCPP_INFO(get_logger(), "Astar planning took %f [s]", (end - start).seconds());
 
-  if (success) {
+  if (astar_search::isSuccess(search_status)) {
     RCLCPP_INFO(get_logger(), "Plan found.");
     auto waypoints = adjustWaypointsSize(astar_->getWaypoints());
     trajectory_ =
       createTrajectory(start_pose_, waypoints, static_cast<float>(node_param_.waypoints_velocity));
   } else {
     switch (search_status) {
-      case astar_search::FAILURE_COLLISION_AT_START:
+      case astar_search::SearchStatus::FAILURE_COLLISION_AT_START:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in start position.");
         break;
-      case astar_search::FAILURE_COLLISION_AT_GOAL:
+      case astar_search::SearchStatus::FAILURE_COLLISION_AT_GOAL:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because collision was detected in goal position.");
         break;
-      case astar_search::FAILURE_TIMEOUT_EXCEEDED:
+      case astar_search::SearchStatus::FAILURE_TIMEOUT_EXCEEDED:
         RCLCPP_ERROR(get_logger(), "Cannot find plan because timeout exceeded.");
         break;
-      case astar_search::FAILURE_NO_PATH_FOUND:
+      case astar_search::SearchStatus::FAILURE_NO_PATH_FOUND:
         RCLCPP_ERROR(get_logger(), "Cannot find plan.");
         break;
       default:
         RCLCPP_ERROR(get_logger(), "SearchStatus not handled.");
         break;
     }
-
-    reset();
   }
+
+  return astar_search::isSuccess(search_status);
 }
 
 bool FreespacePlannerNode::isPlanning() const
@@ -461,7 +451,11 @@ void FreespacePlannerNode::visualizeTrajectory() {
     debug_pose_array_trajectory.poses.push_back(pose);
   }
 
+  // publish visualization friendly pose array
   pose_array_trajectory_debug_pub_->publish(debug_pose_array_trajectory);
+
+  // publish trajectory as-is
+  trajectory_debug_pub_->publish(trajectory_);
 }
 
 }  // namespace freespace_planner

@@ -129,7 +129,7 @@ private:
   bool isPlanning() const;
   void startPlanning();
   void stopPlanning();
-  void planTrajectory();
+  bool planTrajectory();
   geometry_msgs::msg::TransformStamped getTransform(
     const std::string & from, const std::string & to);
 

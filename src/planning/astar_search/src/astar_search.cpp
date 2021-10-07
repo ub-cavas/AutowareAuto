@@ -232,18 +232,18 @@ void AstarSearch::initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap)
   }
 }
 
-std::tuple<bool, SearchStatus> AstarSearch::makePlan(
+SearchStatus AstarSearch::makePlan(
   const geometry_msgs::msg::Pose & start_pose, const geometry_msgs::msg::Pose & goal_pose)
 {
   start_pose_ = global2local(costmap_, start_pose);
   goal_pose_ = global2local(costmap_, goal_pose);
 
   if (!setStartNode()) {
-    return {false, SearchStatus::FAILURE_COLLISION_AT_START};
+    return SearchStatus::FAILURE_COLLISION_AT_START;
   }
 
   if (!setGoalNode()) {
-    return {false, SearchStatus::FAILURE_COLLISION_AT_GOAL};
+    return SearchStatus::FAILURE_COLLISION_AT_GOAL;
   }
 
   return search();
@@ -297,7 +297,7 @@ double AstarSearch::estimateCost(const geometry_msgs::msg::Pose & pose) const
   return total_cost;
 }
 
-std::tuple<bool, SearchStatus> AstarSearch::search()
+SearchStatus AstarSearch::search()
 {
   const rclcpp::Time begin = rclcpp::Clock(RCL_ROS_TIME).now();
 
@@ -307,7 +307,7 @@ std::tuple<bool, SearchStatus> AstarSearch::search()
     const rclcpp::Time now = rclcpp::Clock(RCL_ROS_TIME).now();
     const double msec = (now - begin).seconds() * 1000.0;
     if (msec > astar_param_.time_limit) {
-      return {false, SearchStatus::FAILURE_TIMEOUT_EXCEEDED};
+      return SearchStatus::FAILURE_TIMEOUT_EXCEEDED;
     }
 
     // Expand minimum cost node
@@ -317,7 +317,7 @@ std::tuple<bool, SearchStatus> AstarSearch::search()
 
     if (isGoal(*current_node)) {
       setPath(*current_node);
-      return {true, SearchStatus::SUCCESS};
+      return SearchStatus::SUCCESS;
     }
 
     // Transit
@@ -359,7 +359,7 @@ std::tuple<bool, SearchStatus> AstarSearch::search()
   }
 
   // Failed to find path
-  return {false, SearchStatus::FAILURE_NO_PATH_FOUND};
+  return SearchStatus::FAILURE_NO_PATH_FOUND;
 }
 
 void AstarSearch::setPath(const AstarNode & goal_node)
