@@ -16,13 +16,9 @@ AccessModifierOffset: -2
 AlignAfterOpenBracket: AlwaysBreak
 AllowAllArgumentsOnNextLine: true
 AllowAllConstructorInitializersOnNextLine: true
+AllowShortFunctionsOnASingleLine: Inline
 AllowAllParametersOfDeclarationOnNextLine: true
-AllowShortBlocksOnASingleLine: true
-AllowShortCaseLabelsOnASingleLine: true
-AllowShortFunctionsOnASingleLine: All
-AllowShortIfStatementsOnASingleLine: Always
 AllowShortLambdasOnASingleLine: All
-AllowShortLoopsOnASingleLine: true
 AlwaysBreakTemplateDeclarations: MultiLine
 BraceWrapping:
   AfterClass: true
