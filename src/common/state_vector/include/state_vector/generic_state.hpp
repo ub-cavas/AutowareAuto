@@ -451,8 +451,8 @@ struct CovarianceAnd
     return l.state == r.state && l.covariance.isApprox(r.covariance);
   }
 
-  StateT state;
-  typename StateT::Matrix covariance;
+  StateT state{};
+  typename StateT::Matrix covariance{StateT::Matrix::Zero()};
 };
 
 }  // namespace state_vector
