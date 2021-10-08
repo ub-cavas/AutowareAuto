@@ -214,8 +214,7 @@ nav_msgs::msg::Odometry KalmanFilterWrapper<FilterT>::get_state() const
   }
   const auto last_event = m_history.get_last_event();
   const auto state = last_event.stored_state();
-  const auto & covariance = last_event.stored_covariance();
-  auto msg = OdometryFiller<typename FilterT::State>::fill_odom_msg(state, covariance);
+  auto msg = OdometryFiller<typename FilterT::State>::fill_odom_msg(state.state, state.covariance);
   msg.header.stamp = rclcpp::Time{to_ros_time(m_history.get_last_timestamp())};
   msg.header.frame_id = m_frame_id;
   msg.child_frame_id = kDefaultChildFrameId;

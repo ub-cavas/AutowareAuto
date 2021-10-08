@@ -94,12 +94,7 @@ public:
     m_frame_id{frame_id},
     m_mahalanobis_threshold{mahalanobis_threshold},
     m_expected_prediction_period{expected_dt},
-    m_filter{
-      motion_model,
-      noise_model,
-      State{},
-      initial_state_covariance,
-    },
+    m_filter{motion_model, noise_model},
     m_history{
       m_filter,
       static_cast<std::size_t>(history_duration / expected_dt),

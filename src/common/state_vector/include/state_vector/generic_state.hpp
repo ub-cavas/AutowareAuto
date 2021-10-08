@@ -446,6 +446,11 @@ struct CovarianceAnd
     return {initial_state, variances.asDiagonal()};
   }
 
+  friend inline bool operator==(const CovarianceAnd & l, const CovarianceAnd & r)
+  {
+    return l.state == r.state && l.covariance.isApprox(r.covariance);
+  }
+
   StateT state;
   typename StateT::Matrix covariance;
 };
