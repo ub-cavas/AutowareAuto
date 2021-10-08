@@ -61,6 +61,7 @@ void VoxelGridOutlierFilterNode::filter(
 
   // Perform filtering
   voxel_grid_outlier_filter_->filter(pcl_input, pcl_output);
+  output.header.frame_id = input.header.frame_id;
 
   pcl::toROSMsg(pcl_output, output);
 }
