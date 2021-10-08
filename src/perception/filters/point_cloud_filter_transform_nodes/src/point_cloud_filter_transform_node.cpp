@@ -142,8 +142,10 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     }
   }
   using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_filtered_transformed_msg, m_output_frame_id}.resize(m_pcl_size);
+  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{
+    m_filtered_transformed_msg, m_output_frame_id};
+  pc_modifier.clear();
+  pc_modifier.reserve(m_pcl_size);
 }
 
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
