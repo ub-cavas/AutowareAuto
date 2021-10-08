@@ -52,10 +52,9 @@ template<typename ClassificationStateT>
 class TRACKING_PUBLIC GenericClassificationTracker
 {
   /// A convenience typedef for the underlying Kalman filter.
+  using StateWithCovariance = autoware::common::state_vector::CovarianceAnd<ClassificationStateT>;
   using ClassTrackerKalmanFilter =
-    decltype(common::state_estimation::make_correction_only_kalman_filter(
-      std::declval<ClassificationStateT>(),
-      std::declval<typename ClassificationStateT::Matrix>()));
+    decltype(common::state_estimation::make_correction_only_kalman_filter<ClassificationStateT>());
 
 public:
   /// Default constructor.
@@ -120,7 +119,7 @@ public:
         "Assigning the missing probability to the UNKNOWN class." << std::endl;
       measurement.state()[autoware_auto_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F - sum;
     }
-    m_tracker.correct(measurement);
+    m_state = m_tracker.correct(m_state, measurement);
   }
 
   ///
@@ -131,7 +130,7 @@ public:
   std::uint8_t most_likely_class() const
   {
     std::uint8_t index_of_the_max_value{};
-    m_tracker.state().vector().maxCoeff(&index_of_the_max_value);
+    m_state.state.vector().maxCoeff(&index_of_the_max_value);
     return index_of_the_max_value;
   }
 
@@ -147,14 +146,14 @@ public:
     for (uint8_t label = 0U; label < ClassificationStateT::size(); ++label) {
       autoware_auto_msgs::msg::ObjectClassification object_classification;
       object_classification.classification = label;
-      object_classification.probability = m_tracker.state()[label];
+      object_classification.probability = m_state.state[label];
       classification_vector.emplace_back(object_classification);
     }
     return classification_vector;
   }
 
   /// @brief      Expose the underlying state for utility purposes.
-  const ClassificationStateT & state() const noexcept {return m_tracker.state();}
+  const ClassificationStateT & state() const noexcept {return m_state.state;}
 
   /// @brief      Expose the observation covariance.
   autoware::common::types::float32_t default_observation_covariance() const noexcept
@@ -179,9 +178,10 @@ private:
   autoware::common::types::float32_t m_initial_state_covariance{100000.0F};
 
   /// The underlying Kalman filter.
-  ClassTrackerKalmanFilter m_tracker = common::state_estimation::make_correction_only_kalman_filter(
-    create_initial_classification_vector(),
-    m_initial_state_covariance * ClassificationStateT::Matrix::Identity());
+  ClassTrackerKalmanFilter m_tracker =
+    common::state_estimation::make_correction_only_kalman_filter<ClassificationStateT>();
+  StateWithCovariance m_state{create_initial_classification_vector(),
+    m_initial_state_covariance * ClassificationStateT::Matrix::Identity()};
 };
 
 

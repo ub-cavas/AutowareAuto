@@ -53,10 +53,16 @@ using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
 using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
 using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
 using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
+using StateWithCovariance = autoware::common::state_vector::CovarianceAnd<CA>;
 
-EKF init_ekf(
-  const DetectedObjectMsg & detection, float64_t default_variance,
-  float64_t noise_variance)
+EKF init_ekf(float64_t noise_variance)
+{
+  return make_kalman_filter(
+    MotionModel {}, NoiseModel {{noise_variance, noise_variance}});
+}
+
+StateWithCovariance init_state(
+  const DetectedObjectMsg & detection, float64_t default_variance)
 {
   auto state = MotionModel::State {};
   state.at<X>() = detection.kinematics.centroid_position.x;
@@ -100,9 +106,7 @@ EKF init_ekf(
       state.index_of<Y_VELOCITY>()) =
       detection.kinematics.twist.covariance[7];
   }
-  return make_kalman_filter(
-    MotionModel {}, NoiseModel {{noise_variance, noise_variance}},
-    state, cov);
+  return StateWithCovariance{state, cov};
 }
 
 }  // anonymous namespace
@@ -112,7 +116,8 @@ TrackedObject::TrackedObject(
   const DetectedObjectMsg & detection, float64_t default_variance,
   float64_t noise_variance)
 : m_msg{},
-  m_ekf{init_ekf(detection, default_variance, noise_variance)},
+  m_ekf{init_ekf(noise_variance)},
+  m_state{init_state(detection, default_variance)},
   m_default_variance{default_variance}
 {
   static uint64_t object_id = 0;
@@ -126,8 +131,13 @@ TrackedObject::TrackedObject(
 
 void TrackedObject::predict(std::chrono::nanoseconds dt)
 {
-  m_ekf.predict(dt);
+  m_state = m_ekf.predict(m_state, dt);
   m_time_since_last_seen += dt;
+}
+
+StateWithCovariance TrackedObject::predict_as_copy(std::chrono::nanoseconds dt) const
+{
+  return m_ekf.predict(m_state, dt);
 }
 
 void TrackedObject::update(const DetectedObjectMsg & detection)
@@ -151,7 +161,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
     pose_measurement.covariance() = m_default_variance *
       PoseMeasurementXYZ64::State::Matrix::Identity();
   }
-  m_ekf.correct(pose_measurement);
+  m_state = m_ekf.correct(m_state, pose_measurement);
 }
 
 void TrackedObject::update(const ObjectClassifications & classification)
@@ -168,48 +178,48 @@ void TrackedObject::no_update()
 const TrackedObject::TrackedObjectMsg & TrackedObject::msg()
 {
   // Fill the message fields from the filter state
-  m_msg.kinematics.centroid_position.x = m_ekf.state().at<X>();
-  m_msg.kinematics.centroid_position.y = m_ekf.state().at<Y>();
-  m_msg.kinematics.twist.twist.linear.x = m_ekf.state().at<X_VELOCITY>();
-  m_msg.kinematics.twist.twist.linear.y = m_ekf.state().at<Y_VELOCITY>();
+  m_msg.kinematics.centroid_position.x = m_state.state.at<X>();
+  m_msg.kinematics.centroid_position.y = m_state.state.at<Y>();
+  m_msg.kinematics.twist.twist.linear.x = m_state.state.at<X_VELOCITY>();
+  m_msg.kinematics.twist.twist.linear.y = m_state.state.at<Y_VELOCITY>();
   m_msg.kinematics.acceleration.accel.linear.x =
-    m_ekf.state().at<X_ACCELERATION>();
+    m_state.state.at<X_ACCELERATION>();
   m_msg.kinematics.acceleration.accel.linear.y =
-    m_ekf.state().at<Y_ACCELERATION>();
+    m_state.state.at<Y_ACCELERATION>();
 
   // Set covariances
   m_msg.kinematics.position_covariance[0] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<X>(),
-    m_ekf.state().index_of<X>());
+    m_state.covariance(
+    m_state.state.index_of<X>(),
+    m_state.state.index_of<X>());
   m_msg.kinematics.position_covariance[1] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<X>(),
-    m_ekf.state().index_of<Y>());
+    m_state.covariance(
+    m_state.state.index_of<X>(),
+    m_state.state.index_of<Y>());
   m_msg.kinematics.position_covariance[3] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<Y>(),
-    m_ekf.state().index_of<X>());
+    m_state.covariance(
+    m_state.state.index_of<Y>(),
+    m_state.state.index_of<X>());
   m_msg.kinematics.position_covariance[4] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<Y>(),
-    m_ekf.state().index_of<Y>());
+    m_state.covariance(
+    m_state.state.index_of<Y>(),
+    m_state.state.index_of<Y>());
   m_msg.kinematics.twist.covariance[0] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<X_VELOCITY>(),
-    m_ekf.state().index_of<X_VELOCITY>());
+    m_state.covariance(
+    m_state.state.index_of<X_VELOCITY>(),
+    m_state.state.index_of<X_VELOCITY>());
   m_msg.kinematics.twist.covariance[1] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<X_VELOCITY>(),
-    m_ekf.state().index_of<Y_VELOCITY>());
+    m_state.covariance(
+    m_state.state.index_of<X_VELOCITY>(),
+    m_state.state.index_of<Y_VELOCITY>());
   m_msg.kinematics.twist.covariance[6] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<Y_VELOCITY>(),
-    m_ekf.state().index_of<X_VELOCITY>());
+    m_state.covariance(
+    m_state.state.index_of<Y_VELOCITY>(),
+    m_state.state.index_of<X_VELOCITY>());
   m_msg.kinematics.twist.covariance[7] =
-    m_ekf.covariance()(
-    m_ekf.state().index_of<Y_VELOCITY>(),
-    m_ekf.state().index_of<Y_VELOCITY>());
+    m_state.covariance(
+    m_state.state.index_of<Y_VELOCITY>(),
+    m_state.state.index_of<Y_VELOCITY>());
   m_msg.classification = m_classifier.object_classification_vector();
   // TODO(nikolai.morin): Set is_stationary etc.
   return m_msg;

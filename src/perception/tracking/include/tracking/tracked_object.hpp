@@ -57,6 +57,7 @@ public:
   using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
   using ObjectClassifications = autoware_auto_msgs::msg::TrackedObject::_classification_type;
   using ShapeMsg = autoware_auto_msgs::msg::Shape;
+  using StateWithCovariance = autoware::common::state_vector::CovarianceAnd<CA>;
 
   /// Constructor
   /// \param detection A detection from which to initialize this object. Must have a pose.
@@ -70,6 +71,8 @@ public:
   /// Extrapolate the track forward.
   // TODO(nikolai.morin): Change signature to use absolute time after #1002
   void predict(std::chrono::nanoseconds dt);
+  /// Predict the track forward without changing the internal state.
+  StateWithCovariance predict_as_copy(std::chrono::nanoseconds dt) const;
 
   /// Adjust the track to the detection.
   void update(const DetectedObjectMsg & detection);
@@ -91,14 +94,15 @@ public:
   /// Getter for position covariance array
   inline Eigen::Matrix2d position_covariance() const
   {
-    return m_ekf.covariance().topLeftCorner<2, 2>();
+    return m_state.covariance.topLeftCorner<2, 2>();
   }
 
   /// Getter for centroid position
   inline Eigen::Vector2d centroid() const
   {
-    return Eigen::Vector2d {m_ekf.state().at<autoware::common::state_vector::variable::X>(),
-      m_ekf.state().at<autoware::common::state_vector::variable::Y>()};
+    return Eigen::Vector2d {
+      m_state.state.at<autoware::common::state_vector::variable::X>(),
+      m_state.state.at<autoware::common::state_vector::variable::Y>()};
   }
 
   /// Getter for shape
@@ -112,6 +116,8 @@ private:
   TrackedObjectMsg m_msg;
   /// The state estimator.
   EKF m_ekf;
+  /// The internal state of the track.
+  StateWithCovariance m_state;
   /// The time since this object has last been seen.
   std::chrono::nanoseconds m_time_since_last_seen = std::chrono::nanoseconds::zero();
   /// The number of updates where this object has not been seen
