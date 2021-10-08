@@ -67,8 +67,6 @@ public:
   ///
   /// @param[in]  motion_model        The motion model to be used to predict the movement.
   /// @param[in]  noise_model         The noise model that models the motion noise.
-  /// @param[in]  initial_state       The initial state of the filter.
-  /// @param[in]  initial_covariance  The initial state covariance.
   ///
   explicit KalmanFilter(MotionModelT motion_model, NoiseModelT noise_model)
   : m_motion_model{motion_model}, m_noise_model{noise_model} {}
@@ -76,7 +74,10 @@ public:
   ///
   /// @brief      Predict next state.
   ///
-  /// @param[in]  dt    Time difference to the time at which prediction is needed.
+  /// @param[in]  state   The state before prediction.
+  /// @param[in]  dt      Time difference to the time at which prediction is needed.
+  ///
+  /// @tparam     StateT  Type of the state.
   ///
   /// @return     Predicted state.
   ///
@@ -97,8 +98,10 @@ public:
   ///
   /// @note       It is expected that a prediction step was done right before the correction.
   ///
+  /// @param[in]  state         The state before correction
   /// @param[in]  measurement   Current measurement.
   ///
+  /// @tparam     StateT        Type of the state.
   /// @tparam     MeasurementT  Measurement type.
   ///
   /// @return     State corrected with the measurement.
@@ -136,8 +139,6 @@ private:
 ///
 /// @param[in]  motion_model        A motion model.
 /// @param[in]  noise_model         A noise model.
-/// @param[in]  initial_state       The initial state
-/// @param[in]  initial_covariance  The initial covariance
 ///
 /// @tparam     MotionModelT        Type of the motion model.
 /// @tparam     NoiseModelT         Type of the noise model.

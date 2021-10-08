@@ -46,7 +46,10 @@ public:
   ///
   /// @brief      Predict the state by dt into the future.
   ///
-  /// @param[in]  dt    Time for prediction.
+  /// @param[in]  state   The state before prediction.
+  /// @param[in]  dt      Time for prediction.
+  ///
+  /// @tparam     StateT  Type of the state.
   ///
   /// @return     A new predicted state.
   ///
@@ -63,8 +66,10 @@ public:
   ///
   /// @note       It is expected that prediction step was called before-wise.
   ///
+  /// @param[in]  state         The state before correction
   /// @param[in]  measurement   The measurement
   ///
+  /// @tparam     StateT        The type of the state.
   /// @tparam     MeasurementT  Measurement type
   ///
   /// @return     A corrected state.
