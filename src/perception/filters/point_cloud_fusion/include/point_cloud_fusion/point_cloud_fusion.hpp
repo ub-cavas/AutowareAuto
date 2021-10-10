@@ -21,7 +21,6 @@
 
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <vector>
 
 namespace autoware
@@ -32,8 +31,6 @@ namespace filters
 {
 namespace point_cloud_fusion
 {
-using autoware::common::types::PointXYZI;
-
 class POINT_CLOUD_FUSION_PUBLIC PointCloudFusion
 {
 public:
@@ -65,9 +62,8 @@ public:
 
 private:
   void concatenate_pointcloud(
-    const PointCloudMsgT & pc_in,
-    uint32_t & concat_idx,
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> & modifier) const;
+    const PointCloudMsgT & pc_in, PointCloudMsgT & pc_out,
+    uint32_t & concat_idx) const;
 
   uint32_t m_cloud_capacity;
   size_t m_input_topics_size;

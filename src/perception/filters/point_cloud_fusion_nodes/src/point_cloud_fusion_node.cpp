@@ -16,7 +16,6 @@
 
 #include <common/types.hpp>
 #include <point_cloud_fusion_nodes/point_cloud_fusion_node.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 
@@ -57,9 +56,9 @@ void PointCloudFusionNode::init()
     m_cloud_capacity,
     m_input_topics.size());
 
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_cloud_concatenated, m_output_frame_id}.reserve(m_cloud_capacity);
+  common::lidar_utils::init_pcl_msg(
+    m_cloud_concatenated, m_output_frame_id,
+    m_cloud_capacity);
 
   if (m_input_topics.size() > 8 || m_input_topics.size() < 2) {
     throw std::domain_error(
@@ -103,11 +102,11 @@ PointCloudFusionNode::pointcloud_callback(
   std::array<PointCloudMsgT::ConstSharedPtr, 8> msgs{msg1, msg2, msg3, msg4, msg5, msg6, msg7,
     msg8};
 
+  uint32_t pc_concat_idx = 0;
   // reset pointcloud before using
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_cloud_concatenated};
-  modifier.clear();
-  modifier.reserve(m_cloud_capacity);
+  common::lidar_utils::reset_pcl_msg(
+    m_cloud_concatenated, m_cloud_capacity,
+    pc_concat_idx);
 
   auto latest_stamp = msgs[0]->header.stamp;
   auto total_size = 0U;
@@ -143,7 +142,7 @@ PointCloudFusionNode::pointcloud_callback(
 
   if (fused_cloud_size > 0) {
     // Resize and publish.
-    modifier.resize(fused_cloud_size);
+    common::lidar_utils::resize_pcl_msg(m_cloud_concatenated, fused_cloud_size);
 
     m_cloud_concatenated.header.stamp = latest_stamp;
     m_cloud_publisher->publish(m_cloud_concatenated);

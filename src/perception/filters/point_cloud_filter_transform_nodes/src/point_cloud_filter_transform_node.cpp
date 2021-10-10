@@ -16,7 +16,6 @@
 
 #include <common/types.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
@@ -32,10 +31,12 @@ namespace filters
 /// \brief Boilerplate Apex.OS nodes around point_cloud_filter_transform_nodes
 namespace point_cloud_filter_transform_nodes
 {
+using autoware::common::lidar_utils::add_point_to_cloud;
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
+using autoware::common::lidar_utils::reset_pcl_msg;
+using autoware::common::lidar_utils::resize_pcl_msg;
 using autoware::common::lidar_utils::sanitize_point_cloud;
 using autoware::common::types::float64_t;
-using autoware::common::types::PointXYZI;
 using autoware::common::types::PointXYZIF;
 using geometry_msgs::msg::TransformStamped;
 using sensor_msgs::msg::PointCloud2;
@@ -81,7 +82,7 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
     static_cast<size_t>(declare_parameter("expected_num_publishers").get<int32_t>())},
   m_expected_num_subscribers{
     static_cast<size_t>(declare_parameter("expected_num_subscribers").get<int32_t>())},
-  m_pcl_size{static_cast<std::uint32_t>(declare_parameter("pcl_size").get<uint32_t>())}
+  m_pcl_size{static_cast<size_t>(declare_parameter("pcl_size").get<int32_t>())}
 {  /// Declare transform parameters with the namespace
   this->declare_parameter("static_transformer.quaternion.x");
   this->declare_parameter("static_transformer.quaternion.y");
@@ -141,9 +142,9 @@ PointCloud2FilterTransformNode::PointCloud2FilterTransformNode(
       }
     }
   }
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{
-    m_filtered_transformed_msg, m_output_frame_id}.resize(m_pcl_size);
+  common::lidar_utils::init_pcl_msg(
+    m_filtered_transformed_msg,
+    m_output_frame_id.c_str(), m_pcl_size);
 }
 
 const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const PointCloud2 & msg)
@@ -161,15 +162,12 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   auto && intensity_it = autoware::common::lidar_utils::IntensityIteratorWrapper(msg);
 
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_filtered_transformed_msg};
-  modifier.clear();
-  modifier.reserve(m_pcl_size);
-
+  auto point_cloud_idx = 0U;
+  reset_pcl_msg(m_filtered_transformed_msg, m_pcl_size, point_cloud_idx);
   m_filtered_transformed_msg.header.stamp = msg.header.stamp;
 
   for (size_t it = 0; it < (msg.data.size() / 16); it++) {
-    PointXYZI pt;
+    PointXYZIF pt;
     pt.x = *x_it;
     pt.y = *y_it;
     pt.z = *z_it;
@@ -178,7 +176,12 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
     if (point_not_filtered(pt)) {
       auto transformed_point = transform_point(pt);
       transformed_point.intensity = pt.intensity;
-      modifier.push_back(transformed_point);
+      if (!add_point_to_cloud(
+          m_filtered_transformed_msg, transformed_point, point_cloud_idx))
+      {
+        throw std::runtime_error(
+                "Overran cloud msg point capacity");
+      }
     }
 
     ++x_it;
@@ -190,6 +193,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
       break;
     }
   }
+  resize_pcl_msg(m_filtered_transformed_msg, point_cloud_idx);
   return m_filtered_transformed_msg;
 }
 

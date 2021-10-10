@@ -37,8 +37,7 @@ namespace ndt_nodes
 /// Clear the given pointcloud message
 void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
 {
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI>{msg}.clear();
+  point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI>{msg}.clear();
 }
 
 NDTMapPublisherNode::NDTMapPublisherNode(
@@ -88,10 +87,8 @@ void NDTMapPublisherNode::init(
   const std::string & viz_map_topic)
 {
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
-
-  using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> initializer{
-    m_source_pc, map_frame};
+  point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI> initializer{m_source_pc,
+    map_frame};
 
   m_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
     map_topic,
@@ -116,9 +113,8 @@ void NDTMapPublisherNode::init(
       10000000U);
 
     // Initialize Voxel Grid and output message for downsampling map
-    using autoware::common::types::PointXYZI;
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> downsampled_pc_initializer{
-      m_downsampled_pc, map_frame};
+    point_cloud_msg_wrapper::PointCloud2Modifier<common::types::PointXYZI>
+    downsampled_pc_initializer{m_downsampled_pc, map_frame};
     m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_viz_map_config_ptr);
 
     // Periodic publishing is a temp. hack until the rviz in ade has transient_local qos support.

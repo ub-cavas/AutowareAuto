@@ -150,17 +150,16 @@ protected:
 void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
 {
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
+  autoware::common::lidar_utils::init_pcl_msg(cloud, "base_link", seeds.size());
 
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud, "base_link"};
-
+  uint32_t pidx = 0;
   for (auto seed : seeds) {
-    PointXYZIF pt;
+    autoware::common::types::PointXYZIF pt;
     pt.x = seed;
     pt.y = seed;
     pt.z = seed;
     pt.intensity = seed;
-    modifier.push_back(pt);
+    autoware::common::lidar_utils::add_point_to_cloud(cloud, pt, pidx);
   }
 }
 
@@ -170,9 +169,9 @@ void check_pc(
   sensor_msgs::msg::PointCloud2 & msg2)
 {
   // Convert to using the wrapper
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg1_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg1_wrapper{
     msg1};
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg2_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg2_wrapper{
     msg2};
 
   EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
