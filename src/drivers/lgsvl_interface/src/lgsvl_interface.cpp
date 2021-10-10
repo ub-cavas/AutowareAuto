@@ -325,7 +325,7 @@ bool8_t LgsvlInterface::send_control_command(
   const auto directional_accel = get_state_report().gear ==
     VSR::GEAR_REVERSE ? -msg.long_accel_mps2 : msg.long_accel_mps2;
 
-  if (directional_accel >= decltype(msg.long_accel_mps2) {} && msg.velocity_mps != decltype(msg.velocity_mps) {}) {
+  if (directional_accel >= decltype(msg.long_accel_mps2) {}) {
     // TODO(c.ho)  cast to double...
     raw_msg.throttle =
       static_cast<decltype(raw_msg.throttle)>(m_throttle_table.lookup(directional_accel));
