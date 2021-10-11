@@ -384,6 +384,80 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   return ret;
 }
 
+bool8_t NERaptorInterface::send_control_command(const AckermannControlCommand & msg)
+{
+  bool8_t ret{true};
+  float32_t velocity_checked{0.0F};
+  float32_t angle_checked{0.0F};
+
+  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
+  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
+
+  // Using steering wheel angle for control
+  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
+  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+
+  // Set limits
+  m_steer_cmd.angle_velocity = m_max_steer_angle;
+
+  if (msg.longitudinal.acceleration > 0.0F &&
+    msg.longitudinal.acceleration < m_acceleration_limit)
+  {
+    m_accel_cmd.accel_limit = msg.longitudinal.acceleration;
+  } else {
+    m_accel_cmd.accel_limit = m_acceleration_limit;
+  }
+
+  if (msg.longitudinal.acceleration < 0.0F &&
+    msg.longitudinal.acceleration > (-1.0F * m_deceleration_limit))
+  {
+    m_brake_cmd.decel_limit = std::fabs(msg.longitudinal.acceleration);
+  } else {
+    m_brake_cmd.decel_limit = m_deceleration_limit;
+  }
+
+  // Check for invalid changes in direction
+  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
+    (msg.longitudinal.speed < 0.0F) ) ||
+    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
+    (msg.longitudinal.speed > 0.0F) ) )
+  {
+    velocity_checked = 0.0F;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid speed request value: speed direction does not match current gear.");
+    ret = false;
+  } else {
+    velocity_checked = std::fabs(msg.longitudinal.speed);
+  }
+
+  // Limit steering angle to valid range
+  /* Steering -> tire angle conversion is linear except for extreme angles */
+  angle_checked = (msg.lateral.steering_tire_angle * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
+  if (angle_checked > m_max_steer_angle) {
+    angle_checked = m_max_steer_angle;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid steering angle value: request exceeds max angle.");
+    ret = false;
+  }
+  if (angle_checked < (-1.0F * m_max_steer_angle)) {
+    angle_checked = -1.0F * m_max_steer_angle;
+    RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid steering angle value: request exceeds max angle.");
+    ret = false;
+  }
+
+  // Set commands
+  m_accel_cmd.speed_cmd = velocity_checked;
+  m_steer_cmd.angle_cmd = angle_checked;
+
+  return ret;
+}
+
 bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   bool8_t ret{true};

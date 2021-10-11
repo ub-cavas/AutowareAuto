@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,6 +27,7 @@
 #include <reference_tracking_controller/reference_tracking_controller.hpp>
 #include <signal_filters/signal_filter.hpp>
 
+#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
@@ -182,8 +183,10 @@ private:
   using RawSub = rclcpp::Subscription<autoware_auto_msgs::msg::RawControlCommand>::SharedPtr;
   using HighLevelSub =
     rclcpp::Subscription<autoware_auto_msgs::msg::HighLevelControlCommand>::SharedPtr;
+  using AckermannSub =
+    rclcpp::Subscription<autoware_auto_msgs::msg::AckermannControlCommand>::SharedPtr;
 
-  mpark::variant<RawSub, BasicSub, HighLevelSub> m_command_sub{};
+  mpark::variant<RawSub, BasicSub, HighLevelSub, AckermannSub> m_command_sub{};
 
   std::unique_ptr<PlatformInterface> m_interface{nullptr};
   VehicleFilter m_filter{nullptr, nullptr, nullptr, nullptr};

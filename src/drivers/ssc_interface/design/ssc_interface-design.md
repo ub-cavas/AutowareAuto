@@ -19,6 +19,7 @@ This package inherits from @ref vehicle-interface-design and, as such, performs 
 
 #### From Autoware
 - autoware_auto_msgs::msg::VehicleControlCommand to command speed and steering
+- autoware_auto_msgs::msg::AckermannControlCommand to command speed and steering (untested)
 - autoware_auto_msgs::msg::VehicleStateCommand to control drive-by-wire mode, gear, and turn signals
 
 #### From SSC

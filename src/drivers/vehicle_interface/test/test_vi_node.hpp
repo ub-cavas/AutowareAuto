@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ using autoware_auto_msgs::msg::WipersCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_msgs::msg::AckermannControlCommand;
 using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
 using ModeChangeResponse = autoware_auto_msgs::srv::AutonomyModeChange_Response;
 
@@ -83,6 +84,16 @@ public:
     m_controls.push_back(msg);
     return (m_count % 5) != 2;
   }
+  bool8_t send_control_command(const AckermannControlCommand & msg) override
+  {
+    if (m_fail) {
+      ++m_count;
+    }
+    m_ackermann_called = true;
+    m_ackermann_control = msg;
+    m_ackermann_controls.push_back(msg);
+    return (m_count % 5) != 2;
+  }
   bool8_t send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg) override
   {
     if (m_fail) {
@@ -104,6 +115,7 @@ public:
 
   const RawControlCommand & msg() const noexcept {return m_msg;}
   const VehicleControlCommand & control() const noexcept {return m_control;}
+  const AckermannControlCommand & ackermanm_control() const noexcept {return m_ackermann_control;}
   const VehicleStateCommand & state() const noexcept {return m_state;}
   const ModeChangeRequest & mode_request() const noexcept {return m_mode_request;}
   const std::vector<VehicleControlCommand> & controls() const noexcept {return m_controls;}
@@ -111,6 +123,7 @@ public:
   bool8_t update_called() const noexcept {return m_update_called;}
   bool8_t state_called() const noexcept {return m_state_called;}
   bool8_t basic_called() const noexcept {return m_basic_called;}
+  bool8_t ackermann_called() const noexcept {return m_ackermann_called;}
   bool8_t raw_called() const noexcept {return m_raw_called;}
   bool8_t mode_change_called() const noexcept {return m_mode_change_called;}
   int32_t count() const noexcept {return m_count;}
@@ -119,13 +132,16 @@ private:
   std::atomic<bool8_t> m_update_called{false};
   std::atomic<bool8_t> m_state_called{false};
   std::atomic<bool8_t> m_basic_called{false};
+  std::atomic<bool8_t> m_ackermann_called{false};
   std::atomic<bool8_t> m_raw_called{false};
   std::atomic<bool8_t> m_mode_change_called{false};
   RawControlCommand m_msg{};
   VehicleControlCommand m_control{};
+  AckermannControlCommand m_ackermann_control{};
   VehicleStateCommand m_state{};
   ModeChangeRequest m_mode_request{};
   std::vector<VehicleControlCommand> m_controls{};
+  std::vector<AckermannControlCommand> m_ackermann_controls{};
   int32_t m_count{};
   bool8_t m_fail;
 };

@@ -1,4 +1,4 @@
-// Copyright 2020 The Autoware Foundation
+// Copyright 2020-2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,6 +36,7 @@
 #include <autoware_auto_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
@@ -66,6 +67,7 @@ using autoware_auto_msgs::msg::HighLevelControlCommand;
 using autoware_auto_msgs::msg::RawControlCommand;
 using autoware_auto_msgs::msg::TrajectoryPoint;
 using autoware_auto_msgs::msg::VehicleControlCommand;
+using autoware_auto_msgs::msg::AckermannControlCommand;
 using autoware_auto_msgs::msg::VehicleKinematicState;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::srv::AutonomyModeChange;
@@ -127,6 +129,11 @@ public:
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
   bool8_t send_control_command(const VehicleControlCommand & msg) override;
+  /// \brief Send the control command to the vehicle platform.
+  ///   Exceptions may be thrown on errors
+  /// \param[in] msg The control command to send to the vehicle
+  /// \return false if sending failed in some way, true otherwise
+  bool8_t send_control_command(const AckermannControlCommand & msg) override;
   /// \brief Handle a request from the user to enable or disable the DBW system.
   ///   Exceptions may be thrown on errors
   /// \param[in] request The requested autonomy mode

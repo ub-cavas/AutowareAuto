@@ -361,8 +361,8 @@ bool8_t LgsvlInterface::send_control_command(
     raw_msg.brake =
       static_cast<decltype(raw_msg.brake)>(m_brake_table.lookup(directional_accel));
   }
-  raw_msg.front_steer =
-    static_cast<decltype(raw_msg.front_steer)>(m_steer_table.lookup(msg.lateral.steering_tire_angle));
+  raw_msg.front_steer = static_cast<decltype(raw_msg.front_steer)>(
+    m_steer_table.lookup(msg.lateral.steering_tire_angle));
   raw_msg.rear_steer = 0;
 
   return send_control_command(raw_msg);
