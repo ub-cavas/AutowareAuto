@@ -166,6 +166,7 @@ As a node, the inputs are:
 
 1. One of the following:
   - `VehicleControlCommand`
+  - `AckermannControlCommand`
   - `RawControlCommand`
   - `HighLevelControlCommand`
 2. `VehicleStateCommand`

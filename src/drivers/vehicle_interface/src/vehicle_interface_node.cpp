@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -184,6 +184,26 @@ void VehicleInterfaceNode::on_command_message(
 ////////////////////////////////////////////////////////////////////////////////
 template<>
 void VehicleInterfaceNode::on_command_message(
+  const autoware_auto_msgs::msg::AckermannControlCommand & msg)
+{
+  const auto stamp = time_utils::from_message(msg.stamp);
+  const auto dt = stamp - m_last_command_stamp;
+
+  // Time should not go backwards
+  if (dt < std::chrono::nanoseconds::zero()) {
+    throw std::domain_error{"Vehicle interface command went backwards in time!"};
+  }
+
+  if (!m_interface->send_control_command(msg)) {
+    on_control_send_failure();
+  }
+  send_state_command(m_last_state_command);
+  m_last_state_command = MaybeStateCommand{};
+}
+
+////////////////////////////////////////////////////////////////////////////////
+template<>
+void VehicleInterfaceNode::on_command_message(
   const autoware_auto_msgs::msg::VehicleControlCommand & msg)
 {
   const auto stamp = time_utils::from_message(msg.stamp);
@@ -332,6 +352,11 @@ void VehicleInterfaceNode::init(
   } else if (control_command.topic == "basic") {
     m_command_sub = create_subscription<BasicControlCommand>(
       "vehicle_command", rclcpp::QoS{10U}, cmd_callback(BasicControlCommand{}));
+    m_state_machine = state_machine();
+  } else if (control_command.topic == "ackermann") {
+    using AckermannCC = autoware_auto_msgs::msg::AckermannControlCommand;
+    m_command_sub = create_subscription<AckermannCC>(
+      "ackermann_vehicle_command", rclcpp::QoS{10U}, cmd_callback(AckermannCC{}));
     m_state_machine = state_machine();
   } else if (control_command.topic == "raw") {
     using RCC = autoware_auto_msgs::msg::RawControlCommand;

@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -335,6 +335,34 @@ bool8_t LgsvlInterface::send_control_command(
   }
   raw_msg.front_steer =
     static_cast<decltype(raw_msg.front_steer)>(m_steer_table.lookup(msg.front_wheel_angle_rad));
+  raw_msg.rear_steer = 0;
+
+  return send_control_command(raw_msg);
+}
+
+////////////////////////////////////////////////////////////////////////////////
+bool8_t LgsvlInterface::send_control_command(
+  const autoware_auto_msgs::msg::AckermannControlCommand & msg)
+{
+  autoware_auto_msgs::msg::RawControlCommand raw_msg;
+  raw_msg.stamp = msg.stamp;
+  raw_msg.throttle = 0;
+  raw_msg.brake = 0;
+
+  using VSR = autoware_auto_msgs::msg::VehicleStateReport;
+  const auto directional_accel = get_state_report().gear ==
+    VSR::GEAR_REVERSE ? -msg.longitudinal.acceleration : msg.longitudinal.acceleration;
+
+  if (directional_accel >= decltype(msg.longitudinal.acceleration) {}) {
+    // TODO(c.ho)  cast to double...
+    raw_msg.throttle =
+      static_cast<decltype(raw_msg.throttle)>(m_throttle_table.lookup(directional_accel));
+  } else {
+    raw_msg.brake =
+      static_cast<decltype(raw_msg.brake)>(m_brake_table.lookup(directional_accel));
+  }
+  raw_msg.front_steer = static_cast<decltype(raw_msg.front_steer)>(
+    m_steer_table.lookup(msg.lateral.steering_tire_angle));
   raw_msg.rear_steer = 0;
 
   return send_control_command(raw_msg);

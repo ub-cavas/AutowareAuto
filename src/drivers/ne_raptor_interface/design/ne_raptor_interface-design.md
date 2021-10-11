@@ -24,6 +24,7 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 #### From Autoware
 - autoware_auto_msgs::msg::HighLevelControlCommand
 - autoware_auto_msgs::msg::VehicleControlCommand
+- autoware_auto_msgs::msg::AckermannControlCommand (untested).
 - autoware_auto_msgs::msg::VehicleStateCommand
 
 #### To Raptor
