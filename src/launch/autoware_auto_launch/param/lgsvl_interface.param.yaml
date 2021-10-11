@@ -1,7 +1,9 @@
 /**:
   ros__parameters:
     cycle_time_ms: 10
-    control_command: "basic"
+    # Only one of the four control command topics need be specified
+    # "raw", "basic", "ackermann", or "high_level"
+    control_command: "ackermann"
     lgsvl:
       use_nav_odometry_topic: True
       throttle:
