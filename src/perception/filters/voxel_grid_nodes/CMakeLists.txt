@@ -38,10 +38,9 @@ ament_auto_add_library(${VOXEL_GRID_NODE_LIB} SHARED
 )
 autoware_set_compile_options(${VOXEL_GRID_NODE_LIB})
 
-set(NODE_NAME ${VOXEL_GRID_NODE_LIB}_exe)
 rclcpp_components_register_node(${VOXEL_GRID_NODE_LIB}
   PLUGIN "autoware::perception::filters::voxel_grid_nodes::VoxelCloudNode"
-  EXECUTABLE ${NODE_NAME}
+  EXECUTABLE ${VOXEL_GRID_NODE_LIB}_exe
 )
 
 if(BUILD_TESTING)
@@ -60,9 +59,10 @@ if(BUILD_TESTING)
     test/voxel_grid_fuzzing.test.py
     TIMEOUT "120"
   )
-
-  find_package(autoware_testing REQUIRED)
-  add_smoke_test(${PROJECT_NAME} ${NODE_NAME})
+  add_ros_test(
+    test/voxel_grid_node_launch.test.py
+    TIMEOUT "30"
+  )
 endif()
 
 # Ament Exporting
