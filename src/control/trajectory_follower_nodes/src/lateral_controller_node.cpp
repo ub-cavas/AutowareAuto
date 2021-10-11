@@ -54,8 +54,7 @@ void update_param(
 }  // namespace
 
 LateralController::LateralController(const rclcpp::NodeOptions & node_options)
-: Node("lateral_controller", node_options),
-  m_tf_buffer(this->get_clock()), m_tf_listener(m_tf_buffer)
+: Node("lateral_controller", node_options)
 {
   using std::placeholders::_1;
 
@@ -159,6 +158,10 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   m_sub_steering = create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
     "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(
       &LateralController::onState, this, _1));
+  m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
+    "input/tf", 1, std::bind(&LateralController::callbackTF, this, _1));
+  m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
+    "input/tf_static", 1, std::bind(&LateralController::callbackStaticTF, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
@@ -273,6 +276,24 @@ void LateralController::onTrajectory(const autoware_auto_msgs::msg::Trajectory::
   m_mpc.setReferenceTrajectory(
     *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
     m_enable_yaw_recalculation, m_curvature_smoothing_num);
+}
+
+void LateralController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
+{
+  for (const auto & tf : msg->transforms) {
+    if (!m_tf_buffer.setTransform(tf, "external", false)) {
+      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
+    }
+  }
+}
+
+void LateralController::callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
+{
+  for (const auto & tf : msg->transforms) {
+    if (!m_tf_buffer.setTransform(tf, "external", true)) {
+      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
+    }
+  }
 }
 
 void LateralController::updateCurrentPose()
