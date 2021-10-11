@@ -191,6 +191,8 @@ def generate_launch_description():
        remappings=[
            ("input/reference_trajectory", "/planning/trajectory"),
            ("input/current_kinematic_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
        ],
     )
     lon_control = Node(
@@ -205,6 +207,8 @@ def generate_launch_description():
        remappings=[
            ("input/current_trajectory", "/planning/trajectory"),
            ("input/current_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
        ],
     )
     latlon_muxer = Node(
@@ -218,7 +222,7 @@ def generate_launch_description():
        remappings=[
            ("input/lateral/control_cmd", "output/lateral/control_cmd"),
            ("input/longitudinal/control_cmd", "output/longitudinal_control_cmd"),
-           ("output/control_cmd", "/simulation/input/ackermann_control_command"),
+           ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
        ],
     )
 
@@ -233,7 +237,7 @@ def generate_launch_description():
         lon_control_param,
         latlon_muxer_param,
         urdf_publisher,
-        # lgsvl_interface,
+        lgsvl_interface,
         lat_control,
         lon_control,
         latlon_muxer,
