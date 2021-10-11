@@ -20,6 +20,7 @@
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <common/types.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -28,19 +29,6 @@ namespace
 {
 
 constexpr auto kCloudSize = 100UL;
-
-autoware::common::types::bool8_t operator==(
-  const autoware::common::types::PointXYZIF & p1,
-  const autoware::common::types::PointXYZIF & p2) noexcept
-{
-  using autoware::common::helper_functions::comparisons::rel_eq;
-  const auto epsilon = std::numeric_limits<autoware::common::types::float32_t>::epsilon();
-  return rel_eq(p1.x, p2.x, epsilon) &&
-         rel_eq(p1.y, p2.y, epsilon) &&
-         rel_eq(p1.z, p2.z, epsilon) &&
-         rel_eq(p1.intensity, p2.intensity, epsilon) &&
-         (p1.id == p2.id);
-}
 
 sensor_msgs::msg::PointCloud2 create_point_cloud_through_wrapper(const std::size_t size)
 {
