@@ -50,8 +50,8 @@ def generate_launch_description():
         autoware_auto_launch_pkg_prefix, 'param/freespace_planner.param.yaml')
     vehicle_characteristics_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
-    vehicle_constats_manager_nodes_param_file = os.path.join(
-        autoware_auto_launch_pkg_prefix, 'param/lexus_rx_hybrid_2016.yaml')
+    vehicle_constants_manager_param_file = os.path.join(
+        autoware_auto_launch_pkg_prefix, 'param/lexus_rx_hybrid_2016.param.yaml')
 
 
     # Arguments
@@ -95,10 +95,10 @@ def generate_launch_description():
         default_value=vehicle_characteristics_param_file,
         description='Path to config file for vehicle characteristics'
     )
-    vehicle_constats_manager_nodes_param = DeclareLaunchArgument(
-        'vehicle_constats_manager_nodes_param_file',
-        default_value=vehicle_constats_manager_nodes_param_file,
-        description='Path to config file for vehicle constants manager'
+    vehicle_constants_manager_param = DeclareLaunchArgument(
+        'vehicle_constants_manager_param_file',
+        default_value=vehicle_constants_manager_param_file,
+        description='Path to config file for vehicle_constants_manager'
     )
 
     # Nodes
@@ -185,15 +185,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             LaunchConfiguration('freespace_planner_param_file'),
-        ]
-    )
-    vehicle_constants_manager_node = Node(
-        package='vehicle_constants_manager_nodes',
-        executable='vehicle_constants_manager_node_exe',
-        namespace='',
-        output='screen',
-        parameters=[
-            LaunchConfiguration('vehicle_constats_manager_nodes_param_file')
+            LaunchConfiguration('vehicle_constants_manager_param')
         ]
     )
 
@@ -206,7 +198,7 @@ def generate_launch_description():
         costmap_generator_param,
         freespace_planner_param,
         vehicle_characteristics_param,
-        vehicle_constats_manager_nodes_param,
+        vehicle_constants_manager_param,
         behavior_planner,
         lanelet2_global_planner,
         lane_planner,
@@ -214,5 +206,4 @@ def generate_launch_description():
         object_collision_estimator,
         costmap_generator,
         freespace_planner,
-        vehicle_constants_manager_node,
     ])

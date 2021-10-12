@@ -48,7 +48,7 @@ using motion::motion_common::to_quat;
 using motion::motion_common::from_quat;
 using autoware_auto_msgs::action::PlannerCostmap;
 using autoware_auto_msgs::msg::Trajectory;
-using common::vehicle_constants_manager::try_get_vehicle_constants;
+using common::vehicle_constants_manager::declare_and_get_vehicle_constants;
 
 
 geometry_msgs::msg::Pose transformPose(
@@ -147,21 +147,19 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.time_limit = declare_parameter("time_limit", 5000.0);
 
     // robot configs
-    while (rclcpp::ok()) {
-      try {
-        auto vehicle_constants = try_get_vehicle_constants(
-          // empty namespace doesn't work. See: https://github.com/ros2/rclcpp/issues/1656
-          this->create_sub_node("vehicle_params"), 5s);
+    // while (rclcpp::ok()) {
+      // try {
+        auto vehicle_constants = declare_and_get_vehicle_constants(*this);
         astar_param_.robot_shape.length = vehicle_constants.vehicle_length;
         astar_param_.robot_shape.width = vehicle_constants.vehicle_width;
         astar_param_.robot_shape.cg2back = vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear;
         astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
-        break;
-      } catch (std::runtime_error &x) {
-        RCLCPP_INFO(get_logger(), "%s", x.what());
-        // wait for vehicle_constants_manager as long as rclcpp allows
-      }
-    }
+        // break;
+      // } catch (std::runtime_error &x) {
+      //   RCLCPP_INFO(get_logger(), "%s", x.what());
+      //   // wait for vehicle_constants_manager as long as rclcpp allows
+      // }
+    // }
     astar_param_.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
     astar_param_.maximum_turning_radius = std::max(
       astar_param_.maximum_turning_radius,

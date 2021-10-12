@@ -25,7 +25,6 @@
   <exec_depend>parking_planner_nodes</exec_depend>
   <exec_depend>freespace_planner</exec_depend>
   <exec_depend>costmap_generator</exec_depend>
-  <exec_depend>vehicle_constants_manager_nodes</exec_depend>
   <exec_depend>point_cloud_filter_transform_nodes</exec_depend>
   <exec_depend>point_cloud_fusion_nodes</exec_depend>
   <exec_depend>ray_ground_classifier_nodes</exec_depend>

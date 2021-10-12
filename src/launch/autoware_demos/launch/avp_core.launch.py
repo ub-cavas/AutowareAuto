@@ -58,11 +58,11 @@ def generate_launch_description():
         autoware_launch_pkg_prefix, 'param/behavior_planner.param.yaml')
     off_map_obstacles_filter_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
-    vehicle_constants_manager_nodes_param_file = os.path.join(
-        autoware_launch_pkg_prefix, 'param/lexus_rx_hybrid_2016.yaml')
 
     vehicle_characteristics_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
+    vehicle_constants_manager_param_file = os.path.join(
+        autoware_launch_pkg_prefix, 'param/lexus_rx_hybrid_2016.param.yaml')
 
     point_cloud_fusion_node_pkg_prefix = get_package_share_directory(
         'point_cloud_fusion_nodes')
@@ -129,10 +129,10 @@ def generate_launch_description():
         default_value=vehicle_characteristics_param_file,
         description='Path to config file for vehicle characteristics'
     )
-    vehicle_constants_manager_nodes_param = DeclareLaunchArgument(
-        'vehicle_constants_manager_nodes_param_file',
-        default_value=vehicle_constants_manager_nodes_param_file,
-        description='Path to config file for vehicle constants manager'
+    vehicle_constants_manager_param = DeclareLaunchArgument(
+        'vehicle_constants_manager_param_file',
+        default_value=vehicle_constants_manager_param_file,
+        description='Path to parameter file for vehicle_constants_manager'
     )
 
     # Nodes
@@ -226,6 +226,7 @@ def generate_launch_description():
         output='screen',
         parameters=[
             LaunchConfiguration('freespace_planner_param_file'),
+            LaunchConfiguration('vehicle_constants_manager_param_file')
         ]
     )
     object_collision_estimator = Node(
@@ -274,15 +275,6 @@ def generate_launch_description():
             ('HAD_Map_Service', '/had_maps/HAD_Map_Service'),
         ]
     )
-    vehicle_constants_manager_node = Node(
-        package='vehicle_constants_manager_nodes',
-        executable='vehicle_constants_manager_node_exe',
-        namespace='planning',
-        output='screen',
-        parameters=[
-            LaunchConfiguration('vehicle_constants_manager_nodes_param_file')
-        ]
-    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -297,7 +289,7 @@ def generate_launch_description():
         behavior_planner_param,
         off_map_obstacles_filter_param,
         vehicle_characteristics_param,
-        vehicle_constants_manager_nodes_param,
+        vehicle_constants_manager_param,
         euclidean_clustering,
         ray_ground_classifier,
         scan_downsampler,
@@ -311,5 +303,4 @@ def generate_launch_description():
         object_collision_estimator,
         behavior_planner,
         off_map_obstacles_filter,
-        vehicle_constants_manager_node,
     ])
