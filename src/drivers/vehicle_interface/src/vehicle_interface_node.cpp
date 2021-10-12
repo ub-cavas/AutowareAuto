@@ -350,6 +350,9 @@ void VehicleInterfaceNode::init(
       create_subscription<HCC>("high_level_command", rclcpp::QoS{10U}, cmd_callback(HCC{}));
     m_state_machine = state_machine();
   } else if (control_command.topic == "basic") {
+    RCLCPP_WARN(
+      logger(),
+      "Use of basic control command is deprecated in favor of AckermannControlCommand");
     m_command_sub = create_subscription<BasicControlCommand>(
       "vehicle_command", rclcpp::QoS{10U}, cmd_callback(BasicControlCommand{}));
     m_state_machine = state_machine();
