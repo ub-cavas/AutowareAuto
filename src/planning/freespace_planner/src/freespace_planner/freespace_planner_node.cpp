@@ -133,6 +133,9 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
       }
     };
 
+  auto rad_to_deg = [](double radians) {
+      return radians * (180.0 / M_PI);
+    };
 
   // NodeParam
   {
@@ -172,7 +175,7 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     auto th_size = declare_parameter("theta_size", 48);
     throw_if_negative(th_size, "theta_size");
     astar_param_.theta_size = static_cast<size_t>(th_size);
-    astar_param_.angle_goal_range = declare_parameter("angle_goal_range", 6.0);
+    astar_param_.angle_goal_range = rad_to_deg(declare_parameter("angle_goal_range", 0.10472));
     astar_param_.curve_weight = declare_parameter("curve_weight", 1.2);
     astar_param_.reverse_weight = declare_parameter("reverse_weight", 2.00);
     astar_param_.lateral_goal_range = declare_parameter("lateral_goal_range", 0.5);

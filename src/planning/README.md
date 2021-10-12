@@ -23,8 +23,9 @@ generation process.
   - @subpage object-collision-estimator
   - @subpage object-collision-estimator-nodes
 - Parking planner
-  - @subpage parking-planner
-  - @subpage parking-planner-nodes
+  - @subpage astar-search
+  - @subpage costmap-generator
+  - @subpage freespace-planner
 - RecordReplay planner
   - @subpage recordreplay-planner
   - @subpage recordreplay-planner-nodes

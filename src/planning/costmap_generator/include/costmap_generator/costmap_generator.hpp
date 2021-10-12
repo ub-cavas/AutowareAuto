@@ -150,17 +150,16 @@ private:
   void initGridmap();
 
   /// \brief create occupancy grid based on input grid map and parameters
-  /// \param [in] input grid map
-  /// \param [out] converted occupancy grid
-  nav_msgs::msg::OccupancyGrid createOccupancyGrid(const grid_map::GridMap &) const;
+  /// \param [in] costmap grid map
+  nav_msgs::msg::OccupancyGrid createOccupancyGrid(const grid_map::GridMap & costmap) const;
 
   /// \brief set area_points_ from lanelet polygons
-  /// \param [in] input lanelet_map
-  void loadRoadAreasFromLaneletMap(lanelet::LaneletMapPtr);
+  /// \param [in] lanelet_map lanelet_map
+  void loadRoadAreasFromLaneletMap(lanelet::LaneletMapPtr lanelet_map);
 
   /// \brief set area_points_ from parking areas
-  /// \param [in] input lanelet_map
-  void loadParkingAreasFromLaneletMap(lanelet::LaneletMapPtr);
+  /// \param [in] lanelet_map lanelet_map
+  void loadParkingAreasFromLaneletMap(lanelet::LaneletMapPtr lanelet_map);
 
   /// \brief calculate cost from lanelet2 map
   grid_map::Matrix generateWayAreaCostmap() const;

@@ -13,7 +13,7 @@
     turning_radius_size: 5
     # search configs
     theta_size: 48
-    angle_goal_range: 6.0
+    angle_goal_range: 0.10472
     curve_weight: 1.2
     reverse_weight: 2.0
     lateral_goal_range: 0.5
