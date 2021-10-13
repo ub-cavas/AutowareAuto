@@ -64,10 +64,13 @@ struct NodeParam
   double waypoints_velocity;  // constant velocity on planned waypoints [km/h]
 };
 
-
+/// \class FreespacePlannerNode
+/// \brief Creates Hybrid A* planning algorithm node
 class FreespacePlannerNode : public rclcpp::Node
 {
 public:
+  /// \brief Default constructor for FreespacePlannerNode class
+  /// \param [in] node_options A rclcpp::NodeOptions object passed on to rclcpp::Node
   explicit FreespacePlannerNode(const rclcpp::NodeOptions & node_options);
 
 private:

@@ -32,19 +32,19 @@
 
 namespace object_map
 {
-  /*!
-   * Projects the in_area_points forming the road, stores the result in out_grid_map.
-   * @param[out] out_grid_map GridMap object to add the road grid
-   * @param[in] in_area_points Array of points containing the wayareas
-   * @param[in] in_grid_layer_name Name to assign to the layer
-   * @param[in] in_layer_background_value Empty state value
-   * @param[in] in_fill_color Value to fill on wayareas
-   * @param[in] in_layer_min_value Minimum value in the layer
-   * @param[in] in_layer_max_value Maximum value in the later
-   * @param[in] in_tf_target_frame Target frame to transform the wayarea points
-   * @param[in] in_tf_source_frame Source frame, where the points are located
-   * @param[in] in_tf_buffer Buffer to obtain the transformation from
-   */
+/*!
+ * Projects the in_area_points forming the road, stores the result in out_grid_map.
+ * @param[out] out_grid_map GridMap object to add the road grid
+ * @param[in] in_area_points Array of points containing the wayareas
+ * @param[in] in_grid_layer_name Name to assign to the layer
+ * @param[in] in_layer_background_value Empty state value
+ * @param[in] in_fill_color Value to fill on wayareas
+ * @param[in] in_layer_min_value Minimum value in the layer
+ * @param[in] in_layer_max_value Maximum value in the later
+ * @param[in] in_tf_target_frame Target frame to transform the wayarea points
+ * @param[in] in_tf_source_frame Source frame, where the points are located
+ * @param[in] in_tf_buffer Valid buffer to handle the transformation
+ */
 void fillPolygonAreas(
   grid_map::GridMap & out_grid_map,
   const std::vector<std::vector<geometry_msgs::msg::Point>> & in_area_points,

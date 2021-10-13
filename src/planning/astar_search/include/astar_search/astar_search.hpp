@@ -84,10 +84,11 @@ struct AstarWaypoint
   bool is_back = false;
 };
 
+/// \brief Trajectory points representation as an algorithms output
 struct ASTAR_SEARCH_PUBLIC AstarWaypoints
 {
-  std_msgs::msg::Header header;
-  std::vector<AstarWaypoint> waypoints;
+  std_msgs::msg::Header header;           ///< Mostly timestamp and frame information
+  std::vector<AstarWaypoint> waypoints;   ///< Vector of trajectory waypoints
 };
 
 struct NodeUpdate
@@ -124,62 +125,88 @@ struct NodeUpdate
   }
 };
 
+/// \brief Definition of essential robot dimensions
 struct ASTAR_SEARCH_PUBLIC RobotShape
 {
-  double length;     // X [m]
-  double width;      // Y [m]
-  double cg2back;    // center of gravity to rear [m]
+  double length;     ///< Robot's length (bound with X axis direction) [m]
+  double width;      ///< Robot's length (bound with Y axis direction)  [m]
+  double cg2back;    ///< Robot's distance from center of gravity to back [m]
 };
 
+/// \brief Parameters defining algorithm configuration
 struct ASTAR_SEARCH_PUBLIC AstarParam
 {
   // base configs
-  bool use_back;               // backward search
-  bool only_behind_solutions;  // solutions should be behind the goal
-  double time_limit;           // planning time limit [msec]
+  bool use_back;                     ///< Indicate if should search for solutions in backward direction
+  bool only_behind_solutions;        ///< Indicate if solutions should be exclusively behind the goal
+  double time_limit;                 ///< Planning time limit [msec]
 
   // robot configs
-  RobotShape robot_shape;
-  double minimum_turning_radius;  // [m]
-  double maximum_turning_radius;  // [m]
-  size_t turning_radius_size;     // discretized turning radius table size [-]
+  RobotShape robot_shape;            ///< Definition of robot shape
+  double minimum_turning_radius;     ///< Minimum possible turning radius to plan trajectory [m]
+  double maximum_turning_radius;     ///< Maximum possible turning radius to plan trajectory [m]
+  size_t turning_radius_size;        ///< Number of levels of discretization between minimum and maximum turning radius [-]
 
   // search configs
-  size_t theta_size;               // discretized angle table size [-]
-  double reverse_weight;           // backward moving cost [-]
-  double lateral_goal_range;       // reaching threshold, lateral error [m]
-  double longitudinal_goal_range;  // reaching threshold, longitudinal error [m]
-  double angle_goal_range;         // reaching threshold, angle error [deg]
+  size_t theta_size;                 ///< Number of possible headings, discretized between <0, 2pi> [-]
+  double reverse_weight;             ///< Cost of changing moving direction [-]
+  double distance_heuristic_weight;  ///< Distance weight for trajectory cost estimation
+  double lateral_goal_range;         ///< Reaching threshold, lateral error [m]
+  double longitudinal_goal_range;    ///< Reaching threshold, longitudinal error [m]
+  double angle_goal_range;           ///< Reaching threshold, angle error [deg]
 
   // costmap configs
-  int64_t obstacle_threshold;        // obstacle threshold on grid [-]
-  double distance_heuristic_weight;  // distance weight for trajectory cost estimation
+  int64_t obstacle_threshold;        ///< Threshold value of costmap cell to be regarded as an obstacle [-]
 };
 
-enum class ASTAR_SEARCH_PUBLIC SearchStatus {
-  SUCCESS,
-  FAILURE_COLLISION_AT_START,
-  FAILURE_COLLISION_AT_GOAL,
-  FAILURE_TIMEOUT_EXCEEDED,
-  FAILURE_NO_PATH_FOUND
+/// \brief Possible planning results
+enum class SearchStatus
+{
+  SUCCESS,                      ///< Planning successful
+  FAILURE_COLLISION_AT_START,   ///< Collision at start position detected
+  FAILURE_COLLISION_AT_GOAL,    ///< Collision at goal position detected
+  FAILURE_TIMEOUT_EXCEEDED,     ///< Planning timeout exceeded
+  FAILURE_NO_PATH_FOUND         ///< Planner didn't manage to find path
 };
 
+/// \brief Determines if passed status is a success status
 bool ASTAR_SEARCH_PUBLIC isSuccess(const SearchStatus & status) {
   return status == SearchStatus::SUCCESS;
 }
 
+/// \class AstarSearch
+/// \brief A* Hybrid algorithm implementation using ROS2 typical structures
 class ASTAR_SEARCH_PUBLIC AstarSearch
 {
 public:
   using TransitionTable = std::vector<std::vector<NodeUpdate>>;
 
+  /// \brief Default and only constructor for AstarSearch class
+  /// \param[in] astar_param Hybrid A* algorithm configuration parameters
   explicit AstarSearch(const AstarParam & astar_param);
 
+  /// \brief Robot dimensions setter
+  /// \param[in] robot_shape RobotShape object
+  void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
+
+  /// \brief Set occupancy grid for planning
+  /// \param[in] costmap nav_msgs::msg::OccupancyGrid type object
   void setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap);
+
+  /// \brief Create trajectory plan
+  /// \param[in] start_pose Start position
+  /// \param[in] goal_pose Goal position
+  /// \return SearchStatus flag showing if planning succeeded or not
   SearchStatus makePlan(const geometry_msgs::msg::Pose & start_pose,
                         const geometry_msgs::msg::Pose & goal_pose);
+
+  /// \brief Check if there will be collision on generated trajectory
+  /// \param[in] trajectory Generated trajectory
+  /// \return True if detected collision
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const;
 
+  /// \brief Fetch algorithm solution
+  /// \return AstarWaypoints created trajectory
   const AstarWaypoints & getWaypoints() const {return waypoints_;}
 
 private:
