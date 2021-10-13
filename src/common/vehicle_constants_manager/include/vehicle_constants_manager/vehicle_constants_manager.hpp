@@ -162,7 +162,7 @@ struct VEHICLE_CONSTANTS_MANAGER_PUBLIC VehicleConstants
   /// @brief [m] Signed distance from base_link to the top-most point of the vehicle.
   const float64_t offset_height_max;
 
-  /// @brief [rad] Maximum turning radius
+  /// @brief [rad] Minimum turning radius
   float64_t minimum_turning_radius;
 
   /// @brief Retrieves a list of vehicle parameters names and values as a string.

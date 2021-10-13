@@ -1,4 +1,4 @@
-// Copyright 2020 Tier IV, Inc.
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,22 +11,8 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-/*
- * Copyright 2015-2019 Autoware Foundation. All rights reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
 #include "freespace_planner/freespace_planner.hpp"
 
@@ -149,6 +135,8 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.only_behind_solutions = declare_parameter("only_behind_solutions", false);
     astar_param_.time_limit = declare_parameter("time_limit", 5000.0);
 
+    auto vehicle_dimension_margin = declare_parameter("vehicle_dimension_margin", 0.0);
+
     // robot configs
     // while (rclcpp::ok()) {
       // try {
@@ -176,7 +164,6 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     throw_if_negative(th_size, "theta_size");
     astar_param_.theta_size = static_cast<size_t>(th_size);
     astar_param_.angle_goal_range = rad_to_deg(declare_parameter("angle_goal_range", 0.10472));
-    astar_param_.curve_weight = declare_parameter("curve_weight", 1.2);
     astar_param_.reverse_weight = declare_parameter("reverse_weight", 2.00);
     astar_param_.lateral_goal_range = declare_parameter("lateral_goal_range", 0.5);
     astar_param_.longitudinal_goal_range = declare_parameter("longitudinal_goal_range", 2.0);
@@ -184,6 +171,11 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     // costmap configs
     astar_param_.obstacle_threshold = declare_parameter("obstacle_threshold", 100);
     astar_param_.distance_heuristic_weight = declare_parameter("distance_heuristic_weight", 1.0);
+  }
+
+  // Hybrid A* implementation
+  {
+    astar_ = std::make_unique<astar_search::AstarSearch>(astar_param_);
   }
 
   // Publisher
@@ -351,17 +343,8 @@ bool FreespacePlannerNode::planTrajectory()
   // reset inner state
   reset();
 
-  // Extend robot shape
-  astar_search::RobotShape extended_robot_shape = astar_param_.robot_shape;
-  constexpr double margin = 0.0;
-  extended_robot_shape.length += margin;
-  extended_robot_shape.width += margin;
-  extended_robot_shape.cg2back += margin / 2;
-
-  // initialize vector for A* search, this runs only once
-  astar_ = std::make_unique<astar_search::AstarSearch>(astar_param_);
-  astar_->setRobotShape(extended_robot_shape);
-  astar_->initializeNodes(*occupancy_grid_.get());
+  // Supply latest costmap to planning algorithm
+  astar_->setOccupancyGrid(*occupancy_grid_.get());
 
   // Calculate poses in costmap frame
   const auto start_pose_in_costmap_frame = transformPose(

@@ -101,8 +101,7 @@ VehicleConstants::VehicleConstants(
   throw_if_negative(inertia_yaw_kg_m_2, "inertia_yaw_kg_m_2");
   throw_if_negative(maximum_turning_angle_rad, "maximum_turning_angle_rad");
 
-  if (maximum_turning_angle_rad < 0.0 ||
-    maximum_turning_angle_rad > (M_PI / 2.0))
+  if (!(0.0 < maximum_turning_angle_rad && maximum_turning_angle_rad < (M_PI / 2.0)))
   {
     throw std::runtime_error("maximum_turning_angle_rad must be positive and cannot be greater than 0.5*PI.");
   }

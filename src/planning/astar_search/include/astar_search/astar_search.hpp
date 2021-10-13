@@ -1,4 +1,4 @@
-// Copyright 2015-2019 Autoware Foundation
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,6 +11,9 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
+
 
 #ifndef ASTAR_SEARCH__ASTAR_SEARCH_HPP_
 #define ASTAR_SEARCH__ASTAR_SEARCH_HPP_
@@ -93,7 +96,6 @@ struct NodeUpdate
   double shift_y;
   double shift_theta;
   double step;
-  bool is_curve;
   bool is_back;
 
   NodeUpdate rotated(const double theta) const
@@ -144,7 +146,6 @@ struct ASTAR_SEARCH_PUBLIC AstarParam
 
   // search configs
   size_t theta_size;               // discretized angle table size [-]
-  double curve_weight;             // curve moving cost [-]
   double reverse_weight;           // backward moving cost [-]
   double lateral_goal_range;       // reaching threshold, lateral error [m]
   double longitudinal_goal_range;  // reaching threshold, longitudinal error [m]
@@ -174,8 +175,7 @@ public:
 
   explicit AstarSearch(const AstarParam & astar_param);
 
-  void setRobotShape(const RobotShape & robot_shape) {astar_param_.robot_shape = robot_shape;}
-  void initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap);
+  void setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap);
   SearchStatus makePlan(const geometry_msgs::msg::Pose & start_pose,
                         const geometry_msgs::msg::Pose & goal_pose);
   bool hasObstacleOnTrajectory(const geometry_msgs::msg::PoseArray & trajectory) const;

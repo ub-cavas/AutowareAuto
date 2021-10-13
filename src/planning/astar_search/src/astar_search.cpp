@@ -1,4 +1,4 @@
-// Copyright 2015-2019 Autoware Foundation
+// Copyright 2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -11,12 +11,13 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+// Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
+
 
 #include <vector>
 
 #include "astar_search/astar_search.hpp"
-
-#include "astar_search/helper.hpp"
 
 #include "tf2/utils.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
@@ -28,6 +29,19 @@ namespace planning
 {
 namespace astar_search
 {
+
+constexpr double deg2rad(const double deg) {return deg * M_PI / 180.0;}
+
+double normalizeRadian(
+  const double rad, const double min_rad = -M_PI, const double max_rad = M_PI)
+{
+  const auto value = std::fmod(rad, 2 * M_PI);
+  if (min_rad < value && value <= max_rad) {
+    return value;
+  } else {
+    return value - std::copysign(2 * M_PI, value);
+  }
+}
 
 double calcDistance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2)
 {
@@ -50,11 +64,11 @@ geometry_msgs::msg::Pose transformPose(
   return transformed_pose.pose;
 }
 
-void setYaw(geometry_msgs::msg::Quaternion * orientation, const double yaw)
+geometry_msgs::msg::Quaternion makeQuaternionWithYaw(const double yaw)
 {
   tf2::Quaternion quat;
-  quat.setRPY(0, 0, yaw);
-  tf2::convert(quat, *orientation);
+  quat.setRPY(0.0, 0.0, yaw);
+  return tf2::toMsg(quat);
 }
 
 geometry_msgs::msg::Pose calcRelativePose(
@@ -165,12 +179,12 @@ AstarSearch::TransitionTable createTransitionTable(
 
   // NodeUpdate actions
   std::vector<NodeUpdate> forward_node_candidates;
-  const NodeUpdate forward_straight{step_min, 0.0, 0.0, step_min, false, false};
+  const NodeUpdate forward_straight{step_min, 0.0, 0.0, step_min, false};
   forward_node_candidates.push_back(forward_straight);
   for (int i = 0; i < static_cast<int>(turning_radius_size + 1); ++i) {
     double R = R_min + i * dR;
     double step = R * dtheta;
-    NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, true, false};
+    NodeUpdate forward_left{R * sin(dtheta), R * (1 - cos(dtheta)), dtheta, step, false};
     NodeUpdate forward_right = forward_left.flipped();
     forward_node_candidates.push_back(forward_left);
     forward_node_candidates.push_back(forward_right);
@@ -201,7 +215,7 @@ AstarSearch::AstarSearch(const AstarParam & astar_param)
     astar_param_.turning_radius_size, astar_param_.theta_size, astar_param_.use_back);
 }
 
-void AstarSearch::initializeNodes(const nav_msgs::msg::OccupancyGrid & costmap)
+void AstarSearch::setOccupancyGrid(const nav_msgs::msg::OccupancyGrid & costmap)
 {
   costmap_ = costmap;
 
@@ -333,7 +347,7 @@ SearchStatus AstarSearch::search()
       geometry_msgs::msg::Pose next_pose;
       next_pose.position.x = current_node->x + transition.shift_x;
       next_pose.position.y = current_node->y + transition.shift_y;
-      setYaw(&next_pose.orientation, current_node->theta + transition.shift_theta);
+      next_pose.orientation = makeQuaternionWithYaw(current_node->theta + transition.shift_theta);
       const auto next_index = pose2index(costmap_, next_pose, astar_param_.theta_size);
 
       if (detectCollision(next_index)) {
@@ -412,7 +426,7 @@ bool AstarSearch::detectCollision(const IndexXYT & base_index) const
   const auto base_theta = tf2::getYaw(base_pose.orientation);
 
   // Convert each point to index and check if the node is Obstacle
-  auto costmap_resolution = static_cast<double>(costmap_.info.resolution);
+  const auto costmap_resolution = static_cast<double>(costmap_.info.resolution);
   for (double x = back; x <= front; x += costmap_resolution) {
     for (double y = right; y <= left; y += costmap_resolution) {
       // Calculate offset in rotated frame
