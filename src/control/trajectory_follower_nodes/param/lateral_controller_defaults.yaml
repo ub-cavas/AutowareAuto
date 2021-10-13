@@ -10,7 +10,7 @@
     admissible_yaw_error_rad: 1.57  # stop mpc calculation when error is larger than the following value
 
     # -- path smoothing --
-    enable_path_smoothing: false   # flag for path smoothing
+    enable_path_smoothing: true # flag for path smoothing
     path_filter_moving_ave_num: 25 # param of moving average filter for path smoothing
     curvature_smoothing_num: 15    # point-to-point index distance used in curvature calculation : curvature is calculated from three points p(i-num), p(i), p(i+num)
 
@@ -43,11 +43,11 @@
 
     # -- vehicle model --
     vehicle_model_type: "kinematics" # vehicle model type for mpc prediction. option is kinematics, kinematics_no_delay, and dynamics
-    input_delay: 0.24                # steering input delay time for delay compensation
+    input_delay: 0.12                # steering input delay time for delay compensation
     vehicle_model_steer_tau: 0.1     # steering dynamics time constant (1d approximation) [s]
-    steer_lim_deg: 20.0              # steering angle limit [deg]
-    steer_rate_lim_dps: 600.0        # steering angle rate limit [deg/s]
-    acceleration_limit: 2.0          # acceleration limit for trajectory velocity modification [m/ss]
+    steer_lim_deg: 34.0              # steering angle limit [deg]
+    steer_rate_lim_dps: 100.0        # steering angle rate limit [deg/s]
+    acceleration_limit: 3.0          # acceleration limit for trajectory velocity modification [m/ss]
     velocity_time_constant: 0.3      # velocity dynamics time constant  for trajectory velocity modification [s]
 
     # -- lowpass filter for noise reduction --
