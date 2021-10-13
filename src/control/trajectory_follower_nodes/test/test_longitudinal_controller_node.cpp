@@ -16,6 +16,7 @@
 #include <trajectory_follower_nodes/longitudinal_controller_node.hpp>
 
 #include <memory>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
@@ -39,13 +40,16 @@ using VehicleState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
-std::shared_ptr<LongitudinalController> makeLongitudinalNode()
+const char * lon_ns = "/longitudinal_controller_gtest";
+
+std::shared_ptr<rclcpp::Node> makeLongitudinalNode()
 {
   // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
-    {"--ros-args", "--params-file", share_dir + "/param/longitudinal_controller_defaults.yaml"});
+    {"--ros-args", "--params-file", share_dir + "/param/longitudinal_controller_defaults.yaml",
+      "-r", "__ns:=" + std::string(lon_ns) /* set namespace */});
   std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
     node_options);
 
@@ -64,16 +68,16 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -132,16 +136,16 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -201,16 +205,16 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -269,16 +273,16 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -330,16 +334,16 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -390,16 +394,16 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   bool received_longitudinal_command = false;
 
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // Publisher/Subscribers
   rclcpp::Publisher<VehicleState>::SharedPtr state_pub = this->create_publisher<VehicleState>(
-    "input/current_state");
+    std::string(lon_ns) + "/input/current_state");
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub = this->create_publisher<Trajectory>(
-    "input/current_trajectory");
+    std::string(lon_ns) + "/input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    std::string(lon_ns) + "/output/longitudinal_control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -449,7 +453,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
 TEST_F(FakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
 {
   // Node
-  std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();
+  std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();
 
   // give the node some time to initialize completely
   std::this_thread::sleep_for(std::chrono::milliseconds{100LL});

@@ -16,6 +16,7 @@
 #include <trajectory_follower_nodes/lateral_controller_node.hpp>
 
 #include <memory>
+#include <string>
 #include <vector>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
@@ -41,14 +42,16 @@ using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicS
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
+const char * lat_ns = "/lateral_controller_gtest";
 
-std::shared_ptr<LateralController> makeLateralNode()
+std::shared_ptr<rclcpp::Node> makeLateralNode()
 {
   // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
-    {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml"});
+    {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml",
+      "-r", "__ns:=" + std::string(lat_ns) /* set namespace */});
   std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
 
   // Enable all logging in the node
@@ -63,18 +66,18 @@ TEST_F(FakeNodeFixture, no_input)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -93,18 +96,18 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -137,18 +140,18 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -199,18 +202,18 @@ TEST_F(FakeNodeFixture, right_turn)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -263,18 +266,18 @@ TEST_F(FakeNodeFixture, left_turn)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -327,18 +330,18 @@ TEST_F(FakeNodeFixture, stopped)
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
   bool received_lateral_command = false;
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // Publisher/Subscribers
   rclcpp::Publisher<Trajectory>::SharedPtr traj_pub =
     this->create_publisher<Trajectory>(
-    "input/reference_trajectory");
+    std::string(lat_ns) + "/input/reference_trajectory");
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr state_pub =
     this->create_publisher<VehicleKinematicState>(
-    "input/current_kinematic_state");
+    std::string(lat_ns) + "/input/current_kinematic_state");
   rclcpp::Subscription<LateralCommand>::SharedPtr cmd_sub =
     this->create_subscription<LateralCommand>(
-    "output/lateral/control_cmd", *this->get_fake_node(),
+    std::string(lat_ns) + "/output/lateral/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_lateral_command](const LateralCommand::SharedPtr msg) {
       cmd_msg = msg; received_lateral_command = true;
     });
@@ -391,8 +394,8 @@ TEST_F(FakeNodeFixture, stopped)
 // TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
 TEST_F(FakeNodeFixture, DISABLED_set_lateral_param_smoke_test)
 {
-  // Node
-  std::shared_ptr<LateralController> node = makeLateralNode();
+  // rclcpp::Node
+  std::shared_ptr<rclcpp::Node> node = makeLateralNode();
   // give the node some time to initialize completely
   std::this_thread::sleep_for(std::chrono::milliseconds{100LL});
 
