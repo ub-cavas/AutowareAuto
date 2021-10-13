@@ -136,21 +136,13 @@ FreespacePlannerNode::FreespacePlannerNode(const rclcpp::NodeOptions & node_opti
     astar_param_.time_limit = declare_parameter("time_limit", 5000.0);
 
     auto vehicle_dimension_margin = declare_parameter("vehicle_dimension_margin", 0.0);
+    auto vehicle_constants = declare_and_get_vehicle_constants(*this);
+    astar_param_.robot_shape.length = vehicle_constants.vehicle_length + vehicle_dimension_margin;
+    astar_param_.robot_shape.width = vehicle_constants.vehicle_width + vehicle_dimension_margin;
+    astar_param_.robot_shape.cg2back =
+      vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear + (vehicle_dimension_margin / 2.0);
+    astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
 
-    // robot configs
-    // while (rclcpp::ok()) {
-      // try {
-        auto vehicle_constants = declare_and_get_vehicle_constants(*this);
-        astar_param_.robot_shape.length = vehicle_constants.vehicle_length;
-        astar_param_.robot_shape.width = vehicle_constants.vehicle_width;
-        astar_param_.robot_shape.cg2back = vehicle_constants.cg_to_rear + vehicle_constants.overhang_rear;
-        astar_param_.minimum_turning_radius = vehicle_constants.minimum_turning_radius;
-        // break;
-      // } catch (std::runtime_error &x) {
-      //   RCLCPP_INFO(get_logger(), "%s", x.what());
-      //   // wait for vehicle_constants_manager as long as rclcpp allows
-      // }
-    // }
     astar_param_.maximum_turning_radius = declare_parameter("maximum_turning_radius", 6.0);
     astar_param_.maximum_turning_radius = std::max(
       astar_param_.maximum_turning_radius,
