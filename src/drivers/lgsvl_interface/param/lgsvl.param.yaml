@@ -14,7 +14,7 @@
         domain: [-3.0, 0.0]
         range: [100.0, 0.0]
       steer:
-        domain: [-0.331, 0.331]
+        domain: [-0.593, 0.593]
         range: [-100.0, 100.0]
       publish_tf: False
       odom_child_frame: "base_link"
@@ -25,8 +25,8 @@
         max: 3.0
         threshold: 1.0
       front_steer_limits:
-        min: -0.331
-        max: 0.331
+        min: -0.593
+        max: 0.593
         threshold: 0.3
       time_step_ms: 100
       timeout_acceleration_mps2: 3.0
