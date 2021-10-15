@@ -303,7 +303,7 @@ bool8_t LateralController::updateCurrentPose()
       m_current_trajectory_ptr->header.frame_id,
       "base_link",
       tf2::TimePointZero);
-  } catch (tf2::TransformException & ex) {
+  } catch (const tf2::TransformException & ex) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       get_logger(), *get_clock(), 5000 /*ms*/,
       ex.what());

@@ -125,10 +125,18 @@ float64_t calcLongitudinalOffsetToSegment(
     static_cast<float64_t>(p_target.y) - y_front, 0.0};
 
   if (segment_vec.norm() == 0.0) {
-    throw std::runtime_error("Same points are given.");
-  }
+    geometry_msgs::msg::Pose pose;
+    pose.position.x = p_front.x;
+    pose.position.y = p_front.y;
+    tf2::Quaternion q;
+    q.setRPY(0, 0, ::motion::motion_common::to_angle(p_front.heading));
+    pose.orientation = tf2::toMsg(q);
 
-  return segment_vec.dot(target_vec) / segment_vec.norm();
+    return calcLongitudinalDeviation(pose, p_target);
+  }
+  else {
+    return segment_vec.dot(target_vec) / segment_vec.norm();
+  }
 }
 
 size_t findNearestSegmentIndex(const Points & points, const geometry_msgs::msg::Point & point)
