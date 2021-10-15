@@ -81,7 +81,7 @@ def generate_launch_description():
     )
     with_obstacles_param = DeclareLaunchArgument(
         'with_obstacles',
-        default_value='True',
+        default_value='False',
         description='Enable obstacle detection'
     )
     scan_downsampler_param = DeclareLaunchArgument(
