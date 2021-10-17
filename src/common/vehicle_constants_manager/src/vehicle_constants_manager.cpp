@@ -158,7 +158,7 @@ VehicleConstants declare_and_get_vehicle_constants(rclcpp::Node & node)
       continue;
     }
 
-    pair.second = node.declare_parameter(pair.first).get<float64_t>();
+    pair.second = node.declare_parameter<float64_t>(pair.first);
   }
 
   return VehicleConstants(
