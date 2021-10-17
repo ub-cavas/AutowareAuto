@@ -84,7 +84,7 @@ protected:
 // Instantiate tests for given types, add more types here as they are used
 using PointTypes = ::testing::Types<PointXYZ, PointXYZIF>;
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(TypedVoxelTest, PointTypes, );
+TYPED_TEST_SUITE(TypedVoxelTest, PointTypes, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 
 /// Note on memory tests: They assume instantiating the given point type does not allocate heap
@@ -573,8 +573,8 @@ protected:
 };
 
 // TODO(c.ho) move to another file
-// TYPED_TEST_CASE(TypedVoxelGridTest, PointTypes);
-TYPED_TEST_CASE(TypedVoxelGridTest, PointXYZ, );
+// TYPED_TEST_SUITE(TypedVoxelGridTest, PointTypes);
+TYPED_TEST_SUITE(TypedVoxelGridTest, PointXYZ, );
 
 /// basic i/o for voxel grid
 TYPED_TEST(TypedVoxelGridTest, centroid_voxel_grid)
