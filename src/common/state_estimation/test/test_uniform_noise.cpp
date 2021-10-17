@@ -45,7 +45,7 @@ constexpr float32_t kSigmaY = 23.23F;
 
 class CreationTest : public ::testing::TestWithParam<UniformNoise<StateXY>> {};
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   UniformNoiseTest,
   CreationTest,
   ::testing::Values(
@@ -54,7 +54,7 @@ INSTANTIATE_TEST_CASE_P(
     UniformNoise<StateXY>{std::array<float32_t, 2UL>{kSigmaX, kSigmaY}},
     UniformNoise<StateXY>{std::vector<float32_t>{kSigmaX, kSigmaY}}
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 /// @test Test that the noise model is correctly created.
 TEST_P(CreationTest, CreateFromVariances) {
