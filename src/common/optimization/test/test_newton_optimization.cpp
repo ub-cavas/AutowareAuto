@@ -56,7 +56,7 @@ TEST_P(NewtonOptimizationParamTest, NewtonOptimizationValidation) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TestTermination,
   NewtonOptimizationParamTest,
   ::testing::Values(
@@ -82,14 +82,14 @@ INSTANTIATE_TEST_CASE_P(
   TerminationType::CONVERGENCE
 }
     // cppcheck-suppress syntaxError
-  ),
+  )
 );
 
 // since the convex polynomial objective will have a zero gradient solution,
 // Using a gradient based tolerance will have less variance to the step size than
 // the function tolerance which depends on the step size. Parameter tolerance is useless for
 // fixed step search. Hence gradient tolerance is used for different cases.
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TestDifferentProblems,
   NewtonOptimizationParamTest,
   ::testing::Values(
@@ -144,14 +144,14 @@ INSTANTIATE_TEST_CASE_P(
   FixedLineSearch(0.5),
   TerminationType::CONVERGENCE
 }
-  ),
+  )
 );
 
 constexpr auto inf = std::numeric_limits<float64_t>::infinity();
 constexpr auto max = std::numeric_limits<float64_t>::max();
 constexpr auto qnan = std::numeric_limits<float64_t>::quiet_NaN();
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TestNumericFailure,
   NewtonOptimizationParamTest,
   ::testing::Values(
@@ -197,7 +197,7 @@ INSTANTIATE_TEST_CASE_P(
   FixedLineSearch(max),
   TerminationType::FAILURE
 }
-  ),
+  )
 );
 
 TEST(TestFixedLineSearch, FixedLineSearchValidation) {
