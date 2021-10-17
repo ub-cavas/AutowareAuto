@@ -144,7 +144,7 @@ void TrajectoryPlannerNodeBase::map_response(rclcpp::Client<HADMapService>::Shar
     result->result = PlanTrajectoryAction::Result::SUCCESS;
     result->trajectory = trajectory;
     m_goal_handle->succeed(result);
-    RCLCPP_INFO(get_logger(), "Sent planned trajectory with %d points", trajectory.points.size());
+    RCLCPP_INFO(get_logger(), "Sent planned trajectory with %zu points", trajectory.points.size());
   } else {
     RCLCPP_INFO(get_logger(), "Aborting planning due to invalid trajectory");
     auto result = std::make_shared<PlanTrajectoryAction::Result>();
