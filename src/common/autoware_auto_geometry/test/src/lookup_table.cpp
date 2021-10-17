@@ -35,7 +35,7 @@ class BadCase : public ::testing::Test
 
 using BadTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(BadCase, BadTypes, );
+TYPED_TEST_SUITE(BadCase, BadTypes, );
 
 // Empty domain/range
 TYPED_TEST(BadCase, Empty)
@@ -94,7 +94,7 @@ protected:
 };
 
 using NormalTypes = ::testing::Types<float32_t, float64_t, int32_t, uint32_t>;
-TYPED_TEST_CASE(SanityCheck, NormalTypes, );
+TYPED_TEST_SUITE(SanityCheck, NormalTypes, );
 
 TYPED_TEST(SanityCheck, Exact)
 {

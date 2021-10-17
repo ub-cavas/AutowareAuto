@@ -69,7 +69,7 @@ struct PointPositionToLine : public ::testing::Test
   static std::vector<std::pair<Parameters, int>> input_output;
 };
 
-TYPED_TEST_CASE_P(PointPositionToLine);
+TYPED_TEST_SUITE_P(PointPositionToLine);
 
 
 template<typename T>
@@ -93,9 +93,9 @@ TYPED_TEST_P(PointPositionToLine, PointPositionToLineTest) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(PointPositionToLine, PointPositionToLineTest);
+REGISTER_TYPED_TEST_SUITE_P(PointPositionToLine, PointPositionToLineTest);
 // cppcheck-suppress syntaxError
-INSTANTIATE_TYPED_TEST_CASE_P(Test, PointPositionToLine, PointTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(Test, PointPositionToLine, PointTypes, );
 
 /////////////////////////////////////////////////////////////////////////////////////
 
@@ -113,7 +113,7 @@ struct InsidePolygon : public ::testing::Test
   static std::vector<std::pair<Parameters, bool>> input_output;
 };
 
-TYPED_TEST_CASE_P(InsidePolygon);
+TYPED_TEST_SUITE_P(InsidePolygon);
 
 template<typename T>
 std::vector<std::pair<typename InsidePolygon<T>::Parameters, bool>>
@@ -147,9 +147,9 @@ TYPED_TEST_P(InsidePolygon, InsidePolygonTest) {
   }
 }
 
-REGISTER_TYPED_TEST_CASE_P(InsidePolygon, InsidePolygonTest);
+REGISTER_TYPED_TEST_SUITE_P(InsidePolygon, InsidePolygonTest);
 // cppcheck-suppress syntaxError
-INSTANTIATE_TYPED_TEST_CASE_P(Test, InsidePolygon, PointTypes, );
+INSTANTIATE_TYPED_TEST_SUITE_P(Test, InsidePolygon, PointTypes, );
 
 TEST(ordered_check, basic) {
   // CW

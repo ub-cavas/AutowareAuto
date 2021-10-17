@@ -55,7 +55,7 @@ using TestTypes_ = ::testing::Types<
 // ... and point types to test
 using TestTypes = TestTypes_<geometry_msgs::msg::Point32>;
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(AreaTest, TestTypes, );
+TYPED_TEST_SUITE(AreaTest, TestTypes, );
 
 // The empty set has zero area
 TYPED_TEST(AreaTest, DegenerateZero)
