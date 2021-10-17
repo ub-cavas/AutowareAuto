@@ -150,14 +150,14 @@ TEST_P(VelodyneNodeIntegration, Test)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Cloud,
   VelodyneNodeIntegration,
   // cppcheck-suppress syntaxError
-  ::testing::Values(VelodyneNodeTestParam{55000U, 30000U, 100.0F, true}), );
+  ::testing::Values(VelodyneNodeTestParam{55000U, 30000U, 100.0F, true}));
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   HalfCloud,
   VelodyneNodeIntegration,
   // cppcheck-suppress syntaxError
-  ::testing::Values(VelodyneNodeTestParam{10700U, 10700U, 50.0F, true}), );
+  ::testing::Values(VelodyneNodeTestParam{10700U, 10700U, 50.0F, true}));
