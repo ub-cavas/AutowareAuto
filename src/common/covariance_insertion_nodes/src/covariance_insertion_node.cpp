@@ -68,7 +68,7 @@ CovarianceInsertionNode::CovarianceInsertionNode(const rclcpp::NodeOptions & opt
   m_output_topic = m_input_topic + kOutputTopicSuffix;
   m_core = std::make_unique<covariance_insertion::CovarianceInsertion>();
 
-  const auto input_msg_type_name{declare_parameter(kInputMsgTypeTag).get<std::string>()};
+  const auto input_msg_type_name{declare_parameter<std::string>(kInputMsgTypeTag)};
   for (const auto & field : kPossibleOverrideFieldNames) {
     const auto full_field{std::string{kOverrideCovariancesPrefix} + '.' + field};
     const auto covariance{declare_parameter(full_field, std::vector<common::types::float64_t>{})};
