@@ -106,7 +106,7 @@ TEST_P(BestEffortInitializationTest, Basic) {
   check_transform_eq(tf1, tf_extrapolate_guess);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   SanityTest, BestEffortInitializationTest,
   ::testing::Values(
     BestEffortInitializerTestParams{
@@ -134,7 +134,7 @@ INSTANTIATE_TEST_CASE_P(
   std::chrono::milliseconds{50}
 }
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 /////////// Helper function implementations:
 
