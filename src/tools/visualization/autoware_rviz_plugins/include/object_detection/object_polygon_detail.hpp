@@ -117,8 +117,8 @@ get_best_label(
     }
   );
   if (best_class_label == labels.end()) {
-    RCLCPP_WARN(
-      rclcpp::get_logger(logger_name), "Empty classification field. "
+    RCLCPP_WARN_STREAM(
+      rclcpp::get_logger(logger_name), "Empty classification field. " <<
       "Treating as unknown");
     return autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
   }
