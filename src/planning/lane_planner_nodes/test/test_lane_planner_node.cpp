@@ -154,7 +154,7 @@ TEST_F(LanePlannerNodeTest, PlanSimpleTrajectory)
   executor.add_node(m_planner_ptr);
 
   const auto goal_return_code = executor.spin_until_future_complete(goal_handle_future, 10s);
-  ASSERT_EQ(goal_return_code, rclcpp::executor::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(goal_return_code, rclcpp::FutureReturnCode::SUCCESS);
   auto goal_handle = goal_handle_future.get();
 
   // check if goal was accepted
@@ -163,7 +163,7 @@ TEST_F(LanePlannerNodeTest, PlanSimpleTrajectory)
   auto result_future = m_trajectory_client->async_get_result(goal_handle);
   const auto result_return_code = executor.spin_until_future_complete(result_future, 10s);
 
-  ASSERT_EQ(result_return_code, rclcpp::executor::FutureReturnCode::SUCCESS);
+  ASSERT_EQ(result_return_code, rclcpp::FutureReturnCode::SUCCESS);
 
   auto result = result_future.get();
 
