@@ -206,7 +206,7 @@ LidarIntegrationPclListener::LidarIntegrationPclListener(
       topic, rclcpp::QoS(rclcpp::KeepLast(20)),
       [this](const PointCloud2::SharedPtr msg_ptr) {
         this->callback(msg_ptr->width);
-        RCLCPP_INFO(get_logger(), "\tdata length: %u", msg_ptr->data.size());
+        RCLCPP_INFO(get_logger(), "\tdata length: %zu", msg_ptr->data.size());
       })}
 {
   RCLCPP_INFO(get_logger(), ("\tpcl_topic1: " + topic).c_str());
