@@ -50,7 +50,7 @@ OffMapObstaclesFilterNode::OffMapObstaclesFilterNode(const rclcpp::NodeOptions &
       rmw_qos_profile_services_default)),
   m_tf2_buffer(this->get_clock()),
   m_tf2_listener(m_tf2_buffer),
-  m_overlap_threshold(declare_parameter("overlap_threshold").get<float64_t>())
+  m_overlap_threshold(declare_parameter<float64_t>("overlap_threshold"))
 {
   while (!m_map_client_ptr->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
