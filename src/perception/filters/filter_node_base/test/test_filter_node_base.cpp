@@ -47,8 +47,8 @@ public:
   explicit MockFilterNodeBase(const rclcpp::NodeOptions & options)
   : FilterNodeBase("test_filter_node", options)
   {
-    test_param_1_ = declare_parameter("test_param_1").get<double>();
-    test_param_2_ = declare_parameter("test_param_2").get<std::string>();
+    test_param_1_ = declare_parameter<double>("test_param_1");
+    test_param_2_ = declare_parameter<std::string>("test_param_2");
 
     this->set_param_callback();
   }
