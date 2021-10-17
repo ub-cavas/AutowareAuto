@@ -209,7 +209,7 @@ const auto slanted_gap_obstacles = std::vector<Polytope2D>{
 };
 
 // This would be INSTANTIATE_TEST_SUITE_P in gtest 1.10 and up, but Autoware uses gtest 1.8.
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Integration, TestIntegration, ::testing::Values(
     // Parallel, close, and car is somewhat small
     IntegrationTestParams{"parallel_close_small",
@@ -280,5 +280,5 @@ INSTANTIATE_TEST_CASE_P(
     // add extra comma to silence warning about missing argument to variadic macro
     // https://github.com/google/googletest/issues/1419#issuecomment-381423292
     // cppcheck-suppress syntaxError
-  ),
+  )
 );
