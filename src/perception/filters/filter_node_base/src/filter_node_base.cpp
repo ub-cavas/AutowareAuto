@@ -36,8 +36,8 @@ FilterNodeBase::FilterNodeBase(
   const std::string & filter_name, const rclcpp::NodeOptions & options)
 : Node(filter_name, options), filter_field_name_(filter_name)
 {
-  max_queue_size_ = static_cast<std::size_t>(declare_parameter(
-      "max_queue_size").get<std::size_t>());
+  max_queue_size_ = static_cast<std::size_t>(declare_parameter<int>(
+      "max_queue_size"));
 
   // Set publisher
   pub_output_ = this->create_publisher<PointCloud2>(
@@ -78,7 +78,7 @@ void FilterNodeBase::pointcloud_callback(const PointCloud2SharedPtr msg)
     this->get_logger(),
     "[%s]: PointCloud with %d data points and frame %s on input topic "
     "received.",
-    filter_field_name_, msg->width * msg->height, msg->header.frame_id.c_str());
+    filter_field_name_.c_str(), msg->width * msg->height, msg->header.frame_id.c_str());
 
   PointCloud2 output;
   {
