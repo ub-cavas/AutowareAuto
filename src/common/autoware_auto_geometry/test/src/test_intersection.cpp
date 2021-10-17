@@ -65,7 +65,7 @@ TEST_P(IntersectionTest, Basic) {
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, IntersectionTest,
   ::testing::Values(
     IntersectionTestParams{
@@ -106,7 +106,7 @@ INSTANTIATE_TEST_CASE_P(
   {}
 }
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 TEST(PolygonPointTest, Basic) {
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};
