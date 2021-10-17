@@ -32,6 +32,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
 using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
@@ -52,15 +53,15 @@ EuclideanClusterNode::EuclideanClusterNode(
       "points_in",
       rclcpp::QoS(10),
       [this](const PointCloud2::SharedPtr msg) {handle(msg);})},
-  m_cluster_pub_ptr{declare_parameter("use_cluster").get<bool8_t>() ?
+  m_cluster_pub_ptr{declare_parameter<bool8_t>("use_cluster") ?
   create_publisher<Clusters>(
     "points_clustered",
     rclcpp::QoS(10)) : nullptr},
-m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
+m_box_pub_ptr{declare_parameter<bool8_t>("use_box") ?
   create_publisher<BoundingBoxArray>(
     "lidar_bounding_boxes", rclcpp::QoS{10}) :
   nullptr},
-m_detected_objects_pub_ptr{declare_parameter("use_detected_objects").get<bool8_t>() ?
+m_detected_objects_pub_ptr{declare_parameter<bool8_t>("use_detected_objects") ?
   create_publisher<DetectedObjects>(
     "lidar_detected_objects", rclcpp::QoS{10}) :
   nullptr},
@@ -70,46 +71,46 @@ m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
   nullptr},
 m_cluster_alg{
   euclidean_cluster::Config{
-    declare_parameter("cluster.frame_id").get<std::string>().c_str(),
-    static_cast<std::size_t>(declare_parameter("cluster.min_cluster_size").get<std::size_t>()),
-    static_cast<std::size_t>(declare_parameter("cluster.max_num_clusters").get<std::size_t>()),
-    static_cast<float32_t>(declare_parameter("cluster.min_cluster_threshold_m").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("cluster.max_cluster_threshold_m").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("cluster.threshold_saturation_distance_m")
-    .get<float32_t>())
+    declare_parameter<std::string>("cluster.frame_id").c_str(),
+    static_cast<std::size_t>(declare_parameter<int64_t>("cluster.min_cluster_size")),
+    static_cast<std::size_t>(declare_parameter<int64_t>("cluster.max_num_clusters")),
+    static_cast<float32_t>(declare_parameter<float64_t>("cluster.min_cluster_threshold_m")),
+    static_cast<float32_t>(declare_parameter<float64_t>("cluster.max_cluster_threshold_m")),
+    static_cast<float32_t>(declare_parameter<float64_t>("cluster.threshold_saturation_distance_m")
+    )
   },
   euclidean_cluster::HashConfig{
-    static_cast<float32_t>(declare_parameter("hash.min_x").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("hash.max_x").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("hash.min_y").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("hash.max_y").get<float32_t>()),
-    static_cast<float32_t>(declare_parameter("hash.side_length").get<float32_t>()),
-    static_cast<std::size_t>(declare_parameter("max_cloud_size").get<std::size_t>())
+    static_cast<float32_t>(declare_parameter<float64_t>("hash.min_x")),
+    static_cast<float32_t>(declare_parameter<float64_t>("hash.max_x")),
+    static_cast<float32_t>(declare_parameter<float64_t>("hash.min_y")),
+    static_cast<float32_t>(declare_parameter<float64_t>("hash.max_y")),
+    static_cast<float32_t>(declare_parameter<float64_t>("hash.side_length")),
+    static_cast<std::size_t>(declare_parameter<int64_t>("max_cloud_size"))
   }
 },
 m_clusters{},
 m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positional arguments
-m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
-m_use_z{declare_parameter("use_z").get<bool8_t>()}
+m_use_lfit{declare_parameter<bool8_t>("use_lfit")},
+m_use_z{declare_parameter<bool8_t>("use_z")}
 {
   // Sanity check
   if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
     throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
   }
   // Initialize voxel grid
-  if (declare_parameter("downsample").get<bool8_t>()) {
+  if (declare_parameter<bool8_t>("downsample")) {
     filters::voxel_grid::PointXYZ min_point;
     filters::voxel_grid::PointXYZ max_point;
     filters::voxel_grid::PointXYZ voxel_size;
-    min_point.x = static_cast<float32_t>(declare_parameter("voxel.min_point.x").get<float32_t>());
-    min_point.y = static_cast<float32_t>(declare_parameter("voxel.min_point.y").get<float32_t>());
-    min_point.z = static_cast<float32_t>(declare_parameter("voxel.min_point.z").get<float32_t>());
-    max_point.x = static_cast<float32_t>(declare_parameter("voxel.max_point.x").get<float32_t>());
-    max_point.y = static_cast<float32_t>(declare_parameter("voxel.max_point.y").get<float32_t>());
-    max_point.z = static_cast<float32_t>(declare_parameter("voxel.max_point.z").get<float32_t>());
-    voxel_size.x = static_cast<float32_t>(declare_parameter("voxel.voxel_size.x").get<float32_t>());
-    voxel_size.y = static_cast<float32_t>(declare_parameter("voxel.voxel_size.y").get<float32_t>());
-    voxel_size.z = static_cast<float32_t>(declare_parameter("voxel.voxel_size.z").get<float32_t>());
+    min_point.x = static_cast<float32_t>(declare_parameter<float64_t>("voxel.min_point.x"));
+    min_point.y = static_cast<float32_t>(declare_parameter<float64_t>("voxel.min_point.y"));
+    min_point.z = static_cast<float32_t>(declare_parameter<float64_t>("voxel.min_point.z"));
+    max_point.x = static_cast<float32_t>(declare_parameter<float64_t>("voxel.max_point.x"));
+    max_point.y = static_cast<float32_t>(declare_parameter<float64_t>("voxel.max_point.y"));
+    max_point.z = static_cast<float32_t>(declare_parameter<float64_t>("voxel.max_point.z"));
+    voxel_size.x = static_cast<float32_t>(declare_parameter<float64_t>("voxel.voxel_size.x"));
+    voxel_size.y = static_cast<float32_t>(declare_parameter<float64_t>("voxel.voxel_size.y"));
+    voxel_size.z = static_cast<float32_t>(declare_parameter<float64_t>("voxel.voxel_size.z"));
     // Aggressive downsampling if not using z
     if (!m_use_z) {
       voxel_size.z = (max_point.z - min_point.z) + 1.0F;
