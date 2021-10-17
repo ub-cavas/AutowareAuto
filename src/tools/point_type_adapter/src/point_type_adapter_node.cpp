@@ -58,9 +58,9 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
     PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzi(msg_ptr);
     pub_ptr_cloud_output_->publish(*cloud_out);
   } catch (std::exception & ex) {
-    RCLCPP_ERROR(
+    RCLCPP_ERROR_STREAM(
       this->get_logger(),
-      "Exception occured: " + std::string(ex.what()));
+      "Exception occured: " << ex.what());
     rclcpp::shutdown();
   }
 }
@@ -82,9 +82,9 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
         });
       if (iter_search == fields.cend()) {
         // Given field doesn't exist within given point cloud.
-        RCLCPP_ERROR(
+        RCLCPP_ERROR_STREAM(
           this->get_logger(),
-          "Field named \"" + name + "\" doesn't exist within given point cloud.");
+          "Field named \"" << name << "\" doesn't exist within given point cloud.");
         return false;
       }
       // Given field exists within given point cloud, check its type.
