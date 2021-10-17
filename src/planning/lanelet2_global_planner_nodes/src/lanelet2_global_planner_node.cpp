@@ -109,7 +109,7 @@ void Lanelet2GlobalPlannerNode::request_osm_binary_map()
 
   auto result = map_client->async_send_request(request);
   if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) !=
-    rclcpp::executor::FutureReturnCode::SUCCESS)
+    rclcpp::FutureReturnCode::SUCCESS)
   {
     RCLCPP_ERROR(this->get_logger(), "Service call failed");
     throw std::runtime_error("Lanelet2GlobalPlannerNode: Map service call fail");
