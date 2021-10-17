@@ -135,7 +135,7 @@ TEST_P(P2DLocalizerParameterTest, SanityTest) {
   std::cout << "The estimated pose difference after \n" << pose_out << std::endl;
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   SanityTest, P2DLocalizerParameterTest,
   ::testing::Values(
     PoseParams{0.0, 0.65, 0.0, 0.0, 0.0, 0.0},
@@ -143,7 +143,7 @@ INSTANTIATE_TEST_CASE_P(
     PoseParams{0.0, 0.1, 0.1, 0.0, 3.14159265359 / 72.0, 0.0},
     PoseParams{0.0, -0.2, 0.0, 0.0, 3.14159265359 / 72.0, 3.14159265359 / 72.0}
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 
 TEST_F(P2DLocalizerParameterTest, DelayedScan) {
