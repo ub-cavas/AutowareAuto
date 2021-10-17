@@ -97,11 +97,11 @@ TEST_F(FakeNodeFixture, Test) {
   run_test(15, this);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   FakeNodeFixtureTests,
   FakeNodeFixtureParametrized,
   // cppcheck-suppress syntaxError  // cppcheck doesn't like the trailing comma.
-  ::testing::Values(-5, 0, 42), /*This comment needed to avoid a warning*/);
+  ::testing::Values(-5, 0, 42));
 
 /// @test Test that we can use a parametrized test.
 TEST_P(FakeNodeFixtureParametrized, Test) {
