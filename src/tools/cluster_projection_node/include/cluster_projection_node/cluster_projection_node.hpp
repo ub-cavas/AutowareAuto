@@ -32,6 +32,8 @@
 #include <memory>
 #include <string>
 
+using autoware::common::types::float64_t;
+
 namespace autoware
 {
 namespace cluster_projection_node
