@@ -42,20 +42,20 @@ PurePursuitNode::PurePursuitNode(
     "tf", "trajectory", "ctrl_diag"}
 {
   pure_pursuit::Config cfg{
-    static_cast<float32_t>(declare_parameter(
-      "controller.minimum_lookahead_distance").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter(
-      "controller.maximum_lookahead_distance").get<float64_t>()),
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "controller.minimum_lookahead_distance")),
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "controller.maximum_lookahead_distance")),
     static_cast<float32_t>(
-      declare_parameter("controller.speed_to_lookahead_ratio").get<float64_t>()),
-    declare_parameter("controller.is_interpolate_lookahead_point").get<bool8_t>(),
-    declare_parameter("controller.is_delay_compensation").get<bool8_t>(),
-    static_cast<float32_t>(declare_parameter(
-      "controller.emergency_stop_distance").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter(
-      "controller.speed_thres_traveling_direction").get<float64_t>()),
-    static_cast<float32_t>(declare_parameter(
-      "controller.dist_front_rear_wheels").get<float64_t>())};
+      declare_parameter<float64_t>("controller.speed_to_lookahead_ratio")),
+    declare_parameter<bool8_t>("controller.is_interpolate_lookahead_point"),
+    declare_parameter<bool8_t>("controller.is_delay_compensation"),
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "controller.emergency_stop_distance")),
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "controller.speed_thres_traveling_direction")),
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "controller.dist_front_rear_wheels"))};
   set_controller(std::make_unique<pure_pursuit::PurePursuit>(cfg));
 }
 ////////////////////////////////////////////////////////////////////////////////
