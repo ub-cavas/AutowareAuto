@@ -109,8 +109,8 @@ StateEstimationNode::StateEstimationNode(
 : rclcpp::Node{"state_estimation_node", node_options},
   m_tf_listener(m_tf_buffer, std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false)
 {
-  m_frame_id = declare_parameter("frame_id").get<std::string>();
-  m_child_frame_id = declare_parameter("child_frame_id").get<std::string>();
+  m_frame_id = declare_parameter<std::string>("frame_id");
+  m_child_frame_id = declare_parameter<std::string>("child_frame_id");
   m_publish_frequency = declare_parameter("output_frequency", kInvalidFrequency);
   m_publish_data_driven = declare_parameter("data_driven", false);
   const auto time_between_publish_requests{
