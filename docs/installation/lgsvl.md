@@ -23,23 +23,6 @@ The following guide assumes that the SVL simulator will be run from inside an AD
 - If using Docker engine version 19.03 or later, [install Native GPU Support](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(Native-GPU-Support)).
 - If using Docker engine with a version less than 19.03, either upgrade Docker or [install nvidia-docker2](https://github.com/NVIDIA/nvidia-docker/wiki/Installation-(version-2.0))
 - Cyclone DDS is the DDS vendor; see @ref choosing-a-dds-vendor
-- LGSVL bridge between SVL and ROS2, [lgsvl_bridge](https://github.com/lgsvl/ros2-lgsvl-bridge)
-
-# Setting up a ROS2 bridge
-
-Default ROS2 bridge for SVL requires `lgsvl_bridge` running in the background.
-
-You can:
-- use instructions from [github page](https://github.com/lgsvl/ros2-lgsvl-bridge) and build it on your own, or
-- install via apt: `sudo apt install ros-foxy-lgsvl-bridge`.
-
-Then you can run it: 
-
-```{bash}
-$ # Source lgsvl_bridge workspace if built from source
-$ # . ~/ros2-lgsvl-bridge/install/setup.bash
-$ lgsvl_bridge
-```
 
 # Using the simulator
 
@@ -61,7 +44,7 @@ Start ADE with the SVL volume:
 
 ```{bash}
 $ cd ~/adehome/AutowareAuto
-$ ade --rc .aderc-svl start --update --enter
+$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 ```
 
 Pick a different `.aderc-*-svl` file to manually choose a ROS version.
@@ -77,7 +60,7 @@ ade$ /opt/svl/simulator
 In case the simulator window opens up with a black screen and the application immediately terminates, have a look at the log file at
 
 ```{bash}
-~/.config/unity3d/LG\ Silicon\ Valley\ Lab/LGSVL\ Simulator/Player.log
+~/.config/unity3d/LGElectronics/SVLSimulator/Player.log
 ```
 
 One possible fix is to remove conflicting graphics drivers from ADE with
@@ -91,23 +74,24 @@ and launch the simulator again.
 
 You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step.
 
-@note SVL creates cluster by calling its remote service with access token. This operation requires a working internet browser in ADE environment. If there are no browsers in ADE, you have to install one manually: `sudo apt update && sudo apt-get install epiphany-browser xdg-utils -y`.
 
-At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it and add a new cluster. You need an SVL account to do so, if you do not have one, create it now. 
+At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it and go to an URL which has been printed in terminal window to create a cluster. You need an SVL account to do so. If you do not have one, create it now. 
 
-You can find more informations about linking to cloud [here](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
+@note SVL creates cluster by calling its remote service with access token. This operation requires a working internet browser which is missing by default in ADE. You have to manually go to a printed URL on your hosts web browser.
+
+More about linking to cloud: [documentation](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
 
 ## Creating a simulation
 
 Creating a simulation configuration takes only a few clicks in the browser. The following steps assume that the launch was successful and illustrate the configuration process with the setup for the @ref avpdemo.
 
-Start your browser on host system and go to [SVL simulator web interface](https://wise.svlsimulator.com/). You should have your account set up already (after setting up a cluster), so sign in using the button on the top right of the screen. 
+Start your browser and go to [SVL simulator web interface](https://wise.svlsimulator.com/). You should have your account set up already (after setting up a cluster), so sign in using the button on the top right of the screen. 
 
 Detailed web interface documentation could be found [here](https://www.svlsimulator.com/docs/user-interface/web/store/).
 
 ### Choosing a map
 
-The goal is to add `AutonomouStuff` parking lot map to your library. If that map is already in your library then nothings needs to be done.
+The goal is to add `AutonomouStuff` parking lot map to your library. If that map is already in your library then nothing needs to be done.
 
 Adding a map to your library:
 - Go to `Store` -> `Maps`.
@@ -117,13 +101,19 @@ Adding a map to your library:
 
 ### Configuring a vehicle {#svl-configuring-vehicle}
 
-The goal is to add a vehicle to your library. If that vehicle is already in your library then nothings needs to be done.
+The goal is to add a vehicle to your library. If this vehicle is already in your library then nothing needs to be done.
 
 Adding a vehicle to your library:
 - Go to `Store` -> `Vehicles`.
 - Click `+` button next to `AWFLexus2016RXHybrid` vehicle (you can use search bar to filter by name).
 
 @image html images/svl-vehicle.png `Adding a vehicle` width=50%
+
+### Adding ROS2ForUnitySVLBridge
+
+Adding native ROS2 bridge to your library:
+- Go to [ROS2ForUnitySVLBridge](https://wise.svlsimulator.com/plugins/profile/d490cb21-2a44-447f-a289-7d869f23aabf) plugin page
+- Click `Add to Library` button
 
 ### Configure vehicle sensors
 
@@ -136,12 +126,12 @@ Once you added vehicle to your library:
 
 Notice that there is already an `Autoware.Auto` configuration. To make sure that we are running the newest version possible, it is better to create a new one and use current version of sensor configuration file:
 - Click `+ Create New Configuration` button at the bottom of the page. 
-- Set a configuration name and pick `ROS2` as a bridge. This is a build-in SVL bridge that requires an additional application running in the background to translate simulation data to ROS2. 
+- Set a configuration name and pick `ROS2ForUnitySVLBridge` as a bridge. This is a native implementation of ROS2 bridge.
 - Confirm.
 
 In the configuration edit view:
 - Click `< >` symbol near preview window.
-- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Confgurator` window should populate with bunch of sensors now. 
+- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now. 
 - Click `Save` to save configuration.
 
 @image html images/svl-sensors-json.png "Json configuration file" width=40%
@@ -158,14 +148,12 @@ To create a new simulation, follow the below steps:
 - Enter a name, description and select a cluster. Click `Next`.
 - Select the `Random Traffic` runtime template from the drop-down menu.
 - Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`.
-- Select `Autoware.Auto (Apex.AI)` autopilot and set `Bridge IP` address. While running everything locally: `127.0.0.1:9090`. 
+- Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value. 
 - Click `Next` and then `Publish`.
 
 You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
 
 ### Starting the simulation {#lgsvl-start-simulation}
-
-Make sure you have `lgsvl_bridge` up and running in the background.
 
 Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation configuration in `Simulations` view.
 
@@ -239,10 +227,10 @@ Congratulations if everything is working up to this point. The setup of LGSVL is
 
 @todo update check section
 
-LGSVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
--# Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
+SVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
+-# Converts control inputs with CCW positive rotations to the CCW negative inputs the SVL
 simulator expects
--# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
+-# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` SVL expects via
 parametrizable 1D lookup tables
 
 To run the `lgsvl_interface` manually, enter the following in a new terminal window:
