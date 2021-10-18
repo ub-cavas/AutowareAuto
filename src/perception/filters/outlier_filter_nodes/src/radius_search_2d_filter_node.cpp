@@ -37,8 +37,8 @@ using RadiusSearch2DFilter =
 
 RadiusSearch2DFilterNode::RadiusSearch2DFilterNode(const rclcpp::NodeOptions & options)
 :  FilterNodeBase("radius_search_2d_filter_node", options),
-  search_radius_(declare_parameter("search_radius").get<float64_t>()),
-  min_neighbors_(declare_parameter("min_neighbors").get<int>())
+  search_radius_(declare_parameter<float64_t>("search_radius")),
+  min_neighbors_(declare_parameter<int64_t>("min_neighbors"))
 {
   radius_search_2d_filter_ = std::make_shared<RadiusSearch2DFilter>(
     search_radius_,
@@ -80,7 +80,7 @@ rcl_interfaces::msg::SetParametersResult RadiusSearch2DFilterNode::get_node_para
     if (get_param<std::int64_t>(p, "min_neighbors", min_neighbors_)) {
       result.successful = false;
       result.reason += "Failed to retrieve min_neighbors parameter. ";
-      RCLCPP_DEBUG(get_logger(), "Setting new min neighbors to: %d.", min_neighbors_);
+      RCLCPP_DEBUG(get_logger(), "Setting new min neighbors to: %ld.", min_neighbors_);
     }
   }
 
