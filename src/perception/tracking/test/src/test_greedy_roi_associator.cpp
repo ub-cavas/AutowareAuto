@@ -143,7 +143,7 @@ Shape TestRoiAssociation<DetectedObjects>::get_ith_shape(const size_t i)
 using MyTypes = ::testing::Types<TrackedObjects, DetectedObjects>;
 // NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(TestRoiAssociation, MyTypes, );
+TYPED_TEST_SUITE(TestRoiAssociation, MyTypes, );
 
 TYPED_TEST(TestRoiAssociation, CorrectAssociation) {
   ClassifiedRoiArray rois;
