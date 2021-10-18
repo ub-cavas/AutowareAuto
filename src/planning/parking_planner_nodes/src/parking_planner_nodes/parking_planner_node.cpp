@@ -87,7 +87,7 @@ ParkingPlannerNode::ParkingPlannerNode(
 : TrajectoryPlannerNodeBase("parking_planner", "plan_parking_trajectory", options)
 {
   const auto f32_param = [this](const std::string & name) {
-      return static_cast<Real>(declare_parameter(name).get<float32_t>());
+      return static_cast<Real>(static_cast<float32_t>(declare_parameter<float64_t>(name)));
     };
 
   const VehicleConfig vehicle_param{
