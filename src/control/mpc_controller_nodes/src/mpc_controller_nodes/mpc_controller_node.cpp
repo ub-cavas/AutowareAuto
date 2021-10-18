@@ -33,60 +33,60 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
   const LimitsConfig limits{
     {
       static_cast<Real>(
-        declare_parameter("controller.limits.min_longitudinal_velocity_mps").get<double>()),
+        declare_parameter<double>("controller.limits.min_longitudinal_velocity_mps")),
       static_cast<Real>(
-        declare_parameter("controller.limits.max_longitudinal_velocity_mps").get<double>())
-    },
-    {
-      static_cast<Real>(
-        declare_parameter("controller.limits.min_lateral_velocity_mps").get<double>()),
-      static_cast<Real>(
-        declare_parameter("controller.limits.max_lateral_velocity_mps").get<double>())
-    },
-    {
-      static_cast<Real>(declare_parameter("controller.limits.min_acceleration_mps2").get<double>()),
-      static_cast<Real>(declare_parameter("controller.limits.max_acceleration_mps2").get<double>())
-    },
-    {
-      static_cast<Real>(declare_parameter("controller.limits.min_yaw_rate_rps").get<double>()),
-      static_cast<Real>(declare_parameter("controller.limits.max_yaw_rate_rps").get<double>())
-    },
-    {
-      static_cast<Real>(declare_parameter("controller.limits.min_jerk_mps3").get<double>()),
-      static_cast<Real>(declare_parameter("controller.limits.max_jerk_mps3").get<double>())
-    },
-    {
-      static_cast<Real>(declare_parameter("controller.limits.min_steer_angle_rad").get<double>()),
-      static_cast<Real>(declare_parameter("controller.limits.max_steer_angle_rad").get<double>())
+        declare_parameter<double>("controller.limits.max_longitudinal_velocity_mps"))
     },
     {
       static_cast<Real>(
-        declare_parameter("controller.limits.min_steer_angle_rate_rps").get<double>()),
+        declare_parameter<double>("controller.limits.min_lateral_velocity_mps")),
       static_cast<Real>(
-        declare_parameter("controller.limits.max_steer_angle_rate_rps").get<double>())
+        declare_parameter<double>("controller.limits.max_lateral_velocity_mps"))
+    },
+    {
+      static_cast<Real>(declare_parameter<double>("controller.limits.min_acceleration_mps2")),
+      static_cast<Real>(declare_parameter<double>("controller.limits.max_acceleration_mps2"))
+    },
+    {
+      static_cast<Real>(declare_parameter<double>("controller.limits.min_yaw_rate_rps")),
+      static_cast<Real>(declare_parameter<double>("controller.limits.max_yaw_rate_rps"))
+    },
+    {
+      static_cast<Real>(declare_parameter<double>("controller.limits.min_jerk_mps3")),
+      static_cast<Real>(declare_parameter<double>("controller.limits.max_jerk_mps3"))
+    },
+    {
+      static_cast<Real>(declare_parameter<double>("controller.limits.min_steer_angle_rad")),
+      static_cast<Real>(declare_parameter<double>("controller.limits.max_steer_angle_rad"))
+    },
+    {
+      static_cast<Real>(
+        declare_parameter<double>("controller.limits.min_steer_angle_rate_rps")),
+      static_cast<Real>(
+        declare_parameter<double>("controller.limits.max_steer_angle_rate_rps"))
     },
   };
   using mpc_controller::VehicleConfig;
   const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter("vehicle.cg_to_front_m").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.cg_to_rear_m").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.front_corner_stiffness").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_corner_stiffness").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.mass_kg").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.width_m").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.front_overhang_m").get<double>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_overhang_m").get<double>())
+    static_cast<Real>(declare_parameter<double>("vehicle.cg_to_front_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.cg_to_rear_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.front_corner_stiffness")),
+    static_cast<Real>(declare_parameter<double>("vehicle.rear_corner_stiffness")),
+    static_cast<Real>(declare_parameter<double>("vehicle.mass_kg")),
+    static_cast<Real>(declare_parameter<double>("vehicle.yaw_inertia_kgm2")),
+    static_cast<Real>(declare_parameter<double>("vehicle.width_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.front_overhang_m")),
+    static_cast<Real>(declare_parameter<double>("vehicle.rear_overhang_m"))
   };
   using mpc_controller::BehaviorConfig;
   using controller_common::ControlReference;
   auto ref_type = ControlReference::SPATIAL;
-  if (declare_parameter("controller.behavior.is_temporal_reference").get<bool>()) {
+  if (declare_parameter<bool>("controller.behavior.is_temporal_reference")) {
     ref_type = ControlReference::TEMPORAL;
   }
   const BehaviorConfig behavior{
-    static_cast<Real>(declare_parameter("controller.behavior.stop_rate_mps2").get<double>()),
-    std::chrono::milliseconds(declare_parameter("controller.behavior.time_step_ms").get<int64_t>()),
+    static_cast<Real>(declare_parameter<double>("controller.behavior.stop_rate_mps2")),
+    std::chrono::milliseconds(declare_parameter<int64_t>("controller.behavior.time_step_ms")),
     ref_type
   };
 
@@ -94,46 +94,46 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
   using mpc_controller::StateWeight;
   const OptimizationConfig weights{
     StateWeight{
-      static_cast<Real>(declare_parameter("controller.weights.nominal.pose").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.nominal.heading").get<double>()),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.pose")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.heading")),
       static_cast<Real>(
-        declare_parameter("controller.weights.nominal.longitudinal_velocity").get<double>()),
+        declare_parameter<double>("controller.weights.nominal.longitudinal_velocity")),
       static_cast<Real>(
-        declare_parameter("controller.weights.nominal.lateral_velocity").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.nominal.yaw_rate").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.nominal.acceleration").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.nominal.jerk").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.nominal.steer_angle").get<double>()),
+        declare_parameter<double>("controller.weights.nominal.lateral_velocity")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.yaw_rate")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.acceleration")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.jerk")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.nominal.steer_angle")),
       static_cast<Real>(
-        declare_parameter("controller.weights.nominal.steer_angle_rate").get<double>()),
+        declare_parameter<double>("controller.weights.nominal.steer_angle_rate")),
     },
     StateWeight{
-      static_cast<Real>(declare_parameter("controller.weights.terminal.pose").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.terminal.heading").get<double>()),
+      static_cast<Real>(declare_parameter<double>("controller.weights.terminal.pose")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.terminal.heading")),
       static_cast<Real>(
-        declare_parameter("controller.weights.terminal.longitudinal_velocity").get<double>()),
+        declare_parameter<double>("controller.weights.terminal.longitudinal_velocity")),
       static_cast<Real>(
-        declare_parameter("controller.weights.terminal.lateral_velocity").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.terminal.yaw_rate").get<double>()),
+        declare_parameter<double>("controller.weights.terminal.lateral_velocity")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.terminal.yaw_rate")),
       static_cast<Real>(
-        declare_parameter("controller.weights.terminal.acceleration").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.terminal.jerk").get<double>()),
-      static_cast<Real>(declare_parameter("controller.weights.terminal.steer_angle").get<double>()),
+        declare_parameter<double>("controller.weights.terminal.acceleration")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.terminal.jerk")),
+      static_cast<Real>(declare_parameter<double>("controller.weights.terminal.steer_angle")),
       static_cast<Real>(
-        declare_parameter("controller.weights.terminal.steer_angle_rate").get<double>()),
+        declare_parameter<double>("controller.weights.terminal.steer_angle_rate")),
     }
   };
 
   using mpc_controller::Interpolation;
   auto interpolation = Interpolation::NO;
-  if (declare_parameter("controller.interpolation").get<bool>()) {
+  if (declare_parameter<bool>("controller.interpolation")) {
     interpolation = Interpolation::YES;
   }
   const auto sample_tolerance_ms =
-    std::chrono::milliseconds(declare_parameter("controller.sample_tolerance_ms").get<int64_t>());
+    std::chrono::milliseconds(declare_parameter<int64_t>("controller.sample_tolerance_ms"));
 
   const auto control_lookahead_ms =
-    std::chrono::milliseconds(declare_parameter("controller.control_lookahead_ms").get<int64_t>());
+    std::chrono::milliseconds(declare_parameter<int64_t>("controller.control_lookahead_ms"));
 
   auto controller = std::make_unique<mpc_controller::MpcController>(
     mpc_controller::Config{
@@ -151,21 +151,18 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
   const auto ctrl_ptr = controller.get();
   set_controller(std::move(controller));
 
-  const auto debug_cycle_duration_param = declare_parameter("debug_trajectory_publish_period_ms");
-  if (rclcpp::PARAMETER_INTEGER == debug_cycle_duration_param.get_type()) {
-    const auto cycle_duration =
-      std::chrono::milliseconds{debug_cycle_duration_param.get<std::int64_t>()};
-    if (decltype(cycle_duration)::zero() != cycle_duration) {
-      m_debug_traj_pub = create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
-        "mpc_debug_computed_trajectory",
-        rclcpp::QoS{10LL});
-      const auto debug_publish = [this, ctrl_ptr]() -> void {
-          auto traj = ctrl_ptr->get_computed_trajectory();
-          traj.header.frame_id = "map";
-          m_debug_traj_pub->publish(traj);
-        };
-      m_debug_timer = create_wall_timer(cycle_duration, debug_publish);
-    }
+  const auto cycle_duration =
+    std::chrono::milliseconds{declare_parameter<int64_t>("debug_trajectory_publish_period_ms")};
+  if (decltype(cycle_duration)::zero() != cycle_duration) {
+    m_debug_traj_pub = create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
+      "mpc_debug_computed_trajectory",
+      rclcpp::QoS{10LL});
+    const auto debug_publish = [this, ctrl_ptr]() -> void {
+        auto traj = ctrl_ptr->get_computed_trajectory();
+        traj.header.frame_id = "map";
+        m_debug_traj_pub->publish(traj);
+      };
+    m_debug_timer = create_wall_timer(cycle_duration, debug_publish);
   }
 }
 
