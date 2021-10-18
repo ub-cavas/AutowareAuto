@@ -242,25 +242,25 @@ MultiObjectTrackerNode::TrackerVariant MultiObjectTrackerNode::init_tracker(
   const common::types::bool8_t use_vision)
 {
   const float32_t max_distance =
-    static_cast<float32_t>(declare_parameter(
-      "object_association.max_distance").get<float64_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "object_association.max_distance"));
   const float32_t max_area_ratio =
-    static_cast<float32_t>(declare_parameter(
-      "object_association.max_area_ratio").get<float64_t>());
-  const bool consider_edge_for_big_detections = declare_parameter(
-    "object_association.consider_edge_for_big_detection").get<bool>();
+    static_cast<float32_t>(declare_parameter<float64_t>(
+      "object_association.max_area_ratio"));
+  const bool consider_edge_for_big_detections = declare_parameter<bool>(
+    "object_association.consider_edge_for_big_detection");
 
-  const auto default_variance = declare_parameter(
-    "ekf_default_variance").get<float64_t>();
-  const auto noise_variance = declare_parameter(
-    "ekf_noise_variance").get<float64_t>();
+  const auto default_variance = declare_parameter<float64_t>(
+    "ekf_default_variance");
+  const auto noise_variance = declare_parameter<float64_t>(
+    "ekf_noise_variance");
   const std::chrono::nanoseconds pruning_time_threshold =
     std::chrono::milliseconds(
-    declare_parameter(
-      "pruning_time_threshold_ms").get<int64_t>());
+    declare_parameter<int64_t>(
+      "pruning_time_threshold_ms"));
   const std::size_t pruning_ticks_threshold =
-    static_cast<std::size_t>(declare_parameter(
-      "pruning_ticks_threshold").get<int64_t>());
+    static_cast<std::size_t>(declare_parameter<int64_t>(
+      "pruning_ticks_threshold"));
   const std::string frame = declare_parameter("track_frame_id", "odom");
 
   GreedyRoiAssociatorConfig vision_config{};
@@ -268,31 +268,31 @@ MultiObjectTrackerNode::TrackerVariant MultiObjectTrackerNode::init_tracker(
   if (use_vision) {
     // There is no reason to have vision and use LidarClusterOnly policy. So, update the policy
     vision_config.intrinsics = {
-      static_cast<std::size_t>(declare_parameter(
-        "vision_association.intrinsics.width").get<int64_t>()),
-      static_cast<std::size_t>(declare_parameter(
-        "vision_association.intrinsics.height").get<int64_t>()),
-      static_cast<float32_t>(declare_parameter(
-        "vision_association.intrinsics.fx").get<float32_t>()),
-      static_cast<float32_t>(declare_parameter(
-        "vision_association.intrinsics.fy").get<float32_t>()),
-      static_cast<float32_t>(declare_parameter(
-        "vision_association.intrinsics.ox").get<float32_t>()),
-      static_cast<float32_t>(declare_parameter(
-        "vision_association.intrinsics.oy").get<float32_t>()),
-      static_cast<float32_t>(declare_parameter(
-        "vision_association.intrinsics.skew").get<float32_t>())
+      static_cast<std::size_t>(declare_parameter<int64_t>(
+        "vision_association.intrinsics.width")),
+      static_cast<std::size_t>(declare_parameter<int64_t>(
+        "vision_association.intrinsics.height")),
+      static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.intrinsics.fx")),
+      static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.intrinsics.fy")),
+      static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.intrinsics.ox")),
+      static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.intrinsics.oy")),
+      static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.intrinsics.skew"))
     };
 
 
-    vision_config.iou_threshold = static_cast<float32_t>(declare_parameter(
-        "vision_association.iou_threshold").get<float32_t>());
+    vision_config.iou_threshold = static_cast<float32_t>(declare_parameter<float64_t>(
+        "vision_association.iou_threshold"));
 
     VisionPolicyConfig vision_policy_cfg;
     vision_policy_cfg.associator_cfg = vision_config;
     vision_policy_cfg.max_vision_lidar_timestamp_diff = std::chrono::milliseconds(
-      declare_parameter(
-        "vision_association.timestamp_diff_ms").get<int64_t>());
+      declare_parameter<int64_t>(
+        "vision_association.timestamp_diff_ms"));
     auto track_creation_policy = std::make_shared<LidarClusterIfVisionPolicy>(
       vision_policy_cfg, default_variance, noise_variance, m_tf_buffer);
     TrackCreator<LidarClusterIfVisionPolicy> track_creator{track_creation_policy};
