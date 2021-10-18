@@ -9,7 +9,7 @@ It is assumed that you are running AutowareAuto in ADE environment with default 
 
 * update, run and enter ADE
 ```
-ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+ade --rc .aderc-amd64-foxy-svl start --update --enter
 ```
 * go to `AutowareAuto` directory
 ```
