@@ -146,7 +146,7 @@ TEST_P(HighFrequencyWarning, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   HighFrequencyWarning,
   ::testing::Values(
@@ -159,7 +159,7 @@ INSTANTIATE_TEST_CASE_P(
     HighFrequency{0.0F, 0.3F, std::chrono::milliseconds{10LL}, 20U,
       FrequencyTargets{FrequencyTarget::SteerCommand}}
     // cppcheck-suppress syntaxError
-  ),
+  )
 );
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -206,7 +206,7 @@ TEST_P(NoStateChange, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   NoStateChange,
   ::testing::Values(
@@ -289,7 +289,7 @@ INSTANTIATE_TEST_CASE_P(
   set__headlight(HeadlightsCommand::DISABLE).set__gear(VSC::GEAR_LOW)
 }
     // TODO(c.ho) more combinatorial tests
-  ),
+  )
 );
 
 // TODO(c.ho) test cases for overriding a previous requested change
@@ -327,7 +327,7 @@ TEST_P(TimeoutCommands, Basic)
 
 // Assume characteristic time rate of 100ms
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   TimeoutCommands,
   ::testing::Values(
@@ -338,5 +338,5 @@ INSTANTIATE_TEST_CASE_P(
     // Negative
     TimeoutCommand{-10.0F, 3.0F},  // saturated case
     TimeoutCommand{-0.1F, 1.0F}  // Near stop case
-  ),
+  )
 );

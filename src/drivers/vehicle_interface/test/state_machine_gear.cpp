@@ -71,7 +71,7 @@ TEST_P(GearShiftVelocity, Basic)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   GearShiftVelocity,
   ::testing::Values(
@@ -102,7 +102,7 @@ INSTANTIATE_TEST_CASE_P(
   VSR::GEAR_REVERSE, VSC::GEAR_LOW, -velocity_threshold - 1.0F, VSC::GEAR_NO_COMMAND},
     GearVelocity{VSR::GEAR_REVERSE, VSC::GEAR_LOW, velocity_threshold, VSC::GEAR_LOW}
     // cppcheck-suppress syntaxError
-  ),
+  )
 );
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -150,7 +150,7 @@ TEST_P(AutoGearShift, Basic)
 }
 
 // Assume characteristic time step of 100ms
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   AutoGearShift,
   ::testing::Values(
@@ -181,5 +181,5 @@ INSTANTIATE_TEST_CASE_P(
     AutoGear{-0.2F, 3.0F, VSR::GEAR_REVERSE, VSC::GEAR_NO_COMMAND, VSC::GEAR_DRIVE},
     AutoGear{-0.0F, 3.0F, VSR::GEAR_REVERSE, VSC::GEAR_NO_COMMAND, VSC::GEAR_DRIVE}
     // TODO(c.ho) bad/inconsistent states
-  ),
+  )
 );
