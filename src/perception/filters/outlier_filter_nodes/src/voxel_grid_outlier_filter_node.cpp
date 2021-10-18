@@ -38,10 +38,10 @@ using VoxelGridOutlierFilter =
 
 VoxelGridOutlierFilterNode::VoxelGridOutlierFilterNode(const rclcpp::NodeOptions & options)
 : FilterNodeBase("voxel_grid_outlier_filter_node", options),
-  voxel_size_x_(declare_parameter("voxel_size_x").get<float64_t>()),
-  voxel_size_y_(declare_parameter("voxel_size_y").get<float64_t>()),
-  voxel_size_z_(declare_parameter("voxel_size_z").get<float64_t>()),
-  voxel_points_threshold_(declare_parameter("voxel_points_threshold").get<uint32_t>())
+  voxel_size_x_(declare_parameter<float64_t>("voxel_size_x")),
+  voxel_size_y_(declare_parameter<float64_t>("voxel_size_y")),
+  voxel_size_z_(declare_parameter<float64_t>("voxel_size_z")),
+  voxel_points_threshold_(declare_parameter<int64_t>("voxel_points_threshold"))
 {
   voxel_grid_outlier_filter_ = std::make_shared<VoxelGridOutlierFilter>(
     voxel_size_x_,
@@ -95,7 +95,7 @@ rcl_interfaces::msg::SetParametersResult VoxelGridOutlierFilterNode::get_node_pa
       result.successful = false;
       result.reason += "Failed to retrieve voxel_points_threshold parameter. ";
       RCLCPP_DEBUG(
-        get_logger(), "Setting new voxel points threshold to: %d.", voxel_points_threshold_);
+        get_logger(), "Setting new voxel points threshold to: %ld.", voxel_points_threshold_);
     }
   }
 
