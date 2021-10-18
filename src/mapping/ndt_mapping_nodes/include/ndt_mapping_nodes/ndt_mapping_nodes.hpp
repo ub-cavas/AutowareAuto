@@ -88,16 +88,14 @@ public:
     m_observation_sub{create_subscription<Cloud>(
         "points_in",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter("observation_sub.history_depth").template
-            get<size_t>())}},
+            static_cast<size_t>(declare_parameter<int>("observation_sub.history_depth"))}},
         [this](typename Cloud::ConstSharedPtr msg) {observation_callback(msg);})},
     m_pose_publisher(
       create_publisher<PoseWithCovarianceStamped>(
         "ndt_pose",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(declare_parameter(
-              "pose_pub.history_depth").template get<size_t>())}})),
-    m_base_fn_prefix{this->declare_parameter("file_name_prefix").template get<std::string>()}
+            static_cast<size_t>(declare_parameter<int>("pose_pub.history_depth"))}})),
+    m_base_fn_prefix{declare_parameter<std::string>("file_name_prefix")}
   {
     init();
   }
@@ -106,7 +104,7 @@ public:
   {
     if (m_map_ptr->size() > 0U) {
       const auto & file_name_prefix = m_prefix_generator.get(m_base_fn_prefix);
-      RCLCPP_DEBUG(get_logger(), "The map is written to" + file_name_prefix + ".pcd");
+      RCLCPP_DEBUG_STREAM(get_logger(), "The map is written to" << file_name_prefix << ".pcd");
       m_map_ptr->write(file_name_prefix);
     }
   }
@@ -116,12 +114,12 @@ private:
   {
     auto get_point_param = [this](const std::string & config_name_prefix) {
         perception::filters::voxel_grid::PointXYZ point;
-        point.x = static_cast<float32_t>(declare_parameter(config_name_prefix + ".x").
-          template get<float32_t>());
-        point.y = static_cast<float32_t>(this->declare_parameter(config_name_prefix + ".y").
-          template get<float32_t>());
-        point.z = static_cast<float32_t>(this->declare_parameter(config_name_prefix + ".z").
-          template get<float32_t>());
+        point.x = static_cast<float32_t>(
+          declare_parameter<float64_t>(config_name_prefix + ".x"));
+        point.y = static_cast<float32_t>(
+          declare_parameter<float64_t>(config_name_prefix + ".y"));
+        point.z = static_cast<float32_t>(
+          declare_parameter<float64_t>(config_name_prefix + ".z"));
         return point;
       };
 
@@ -129,7 +127,7 @@ private:
     const auto parse_grid_config = [this, get_point_param](const std::string & prefix) {
         // Fetch map configuration
         const auto capacity = static_cast<std::size_t>(
-          this->declare_parameter(prefix + ".capacity").template get<std::size_t>());
+          declare_parameter<int>(prefix + ".capacity"));
 
         return perception::filters::voxel_grid::Config{get_point_param(
           prefix + ".min_point"), get_point_param(prefix + ".max_point"),
@@ -138,53 +136,48 @@ private:
 
     // Fetch localizer configuration
     P2DNDTConfig localizer_config{
-      static_cast<uint32_t>(this->declare_parameter("localizer.scan.capacity").
-      template get<uint32_t>()),
+      static_cast<uint32_t>(declare_parameter<int>("localizer.scan.capacity")),
       std::chrono::milliseconds(
         static_cast<uint64_t>(
-          this->declare_parameter("localizer.guess_time_tolerance_ms").template get<uint64_t>()))
+          declare_parameter<int64_t>("localizer.guess_time_tolerance_ms")))
     };
 
-    const auto outlier_ratio{this->declare_parameter(
-        "localizer.optimization.outlier_ratio").template get<float64_t>()};
+    const auto outlier_ratio{declare_parameter<float64_t>("localizer.optimization.outlier_ratio")};
 
     const common::optimization::OptimizationOptions optimization_options{
       static_cast<uint64_t>(
-        this->declare_parameter("localizer.optimizer.max_iterations").template get<uint64_t>()),
-      this->declare_parameter("localizer.optimizer.score_tolerance").template get<float64_t>(),
-      this->declare_parameter(
-        "localizer.optimizer.parameter_tolerance").template get<float64_t>(),
-      this->declare_parameter("localizer.optimizer.gradient_tolerance").template get<float64_t>()
+        declare_parameter<int64_t>("localizer.optimizer.max_iterations")),
+      declare_parameter<float64_t>("localizer.optimizer.score_tolerance"),
+      declare_parameter<float64_t>(
+        "localizer.optimizer.parameter_tolerance"),
+      declare_parameter<float64_t>("localizer.optimizer.gradient_tolerance")
     };
 
     m_localizer_ptr = std::make_unique<Localizer>(
       localizer_config,
       Optimizer{
             common::optimization::MoreThuenteLineSearch{
-              static_cast<float32_t>(this->declare_parameter(
-                "localizer.optimizer.line_search.step_max")
-              .template get<float32_t>()),
-              static_cast<float32_t>(this->declare_parameter(
-                "localizer.optimizer.line_search.step_min")
-              .template get<float32_t>()),
+              static_cast<float32_t>(declare_parameter<float64_t>(
+                "localizer.optimizer.line_search.step_max")),
+              static_cast<float32_t>(declare_parameter<float64_t>(
+                "localizer.optimizer.line_search.step_min")),
               common::optimization::MoreThuenteLineSearch::OptimizationDirection::kMaximization
             },
             optimization_options},
       outlier_ratio);
-    const auto & map_frame_id = this->declare_parameter("map.frame_id").template get<std::string>();
+    const auto & map_frame_id = declare_parameter<std::string>("map.frame_id");
     m_map_ptr = std::make_unique<VoxelMap>(
       parse_grid_config("map"), map_frame_id,
       NDTMap{parse_grid_config("localizer.map")});
 
-    if (this->declare_parameter("publish_map_increment").template get<bool8_t>()) {
-      m_increment_publisher = this->template create_publisher<sensor_msgs::msg::PointCloud2>(
+    if (declare_parameter<bool8_t>("publish_map_increment")) {
+      m_increment_publisher = create_publisher<sensor_msgs::msg::PointCloud2>(
         "points_registered",
         rclcpp::QoS{rclcpp::KeepLast{
-            static_cast<size_t>(this->declare_parameter("map_increment_pub.history_depth").template
-            get<size_t>())}});
+            static_cast<size_t>(declare_parameter<int>("map_increment_pub.history_depth"))}});
     }
 
-    if (declare_parameter("publish_tf").template get<bool>()) {
+    if (declare_parameter<bool8_t>("publish_tf")) {
       m_tf_publisher = create_publisher<tf2_msgs::msg::TFMessage>(
         "/tf",
         rclcpp::QoS{rclcpp::KeepLast{m_pose_publisher->get_queue_size()}});
@@ -231,7 +224,7 @@ private:
       if (m_write_trigger.ready(*m_map_ptr)) {
         const auto & file_name_prefix = m_prefix_generator.get(m_base_fn_prefix);
         m_map_ptr->write(file_name_prefix);
-        RCLCPP_DEBUG(get_logger(), "The map is written to" + file_name_prefix + ".pcd");
+        RCLCPP_DEBUG_STREAM(get_logger(), "The map is written to" << file_name_prefix << ".pcd");
       }
       if (m_clear_trigger.ready(*m_map_ptr)) {
         RCLCPP_DEBUG(get_logger(), "The map is cleared.");
@@ -243,7 +236,7 @@ private:
       m_map_ptr->update(increment);
       m_previous_transform = pose_to_transform(pose_out, msg_ptr->header.frame_id);
     } catch (const std::runtime_error & e) {
-      RCLCPP_ERROR(get_logger(), "Failed to register the measurement: ", e.what());
+      RCLCPP_ERROR_STREAM(get_logger(), "Failed to register the measurement: " << e.what());
     }
   }
 
