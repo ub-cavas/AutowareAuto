@@ -35,20 +35,18 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
 {
   // topics
   const auto control_command =
-    declare_parameter("control_command").get<std::string>();
+    declare_parameter<std::string>("control_command");
   const bool recordreplay_command_enabled =
-    declare_parameter("recordreplay_command_enabled").get<bool8_t>();
+    declare_parameter<bool8_t>("recordreplay_command_enabled");
 
   // maps
   const auto check_set = [this](auto & map, auto key, const std::string & param_name) {
-      const auto param = declare_parameter(param_name);
-      if (param.get_type() != rclcpp::ParameterType::PARAMETER_NOT_SET) {
-        using MapT = std::remove_reference_t<decltype(map)>;
-        using ValT = typename MapT::mapped_type;
-        const auto val_raw =
-          param.get<std::conditional_t<std::is_floating_point<ValT>::value, float64_t, int64_t>>();
-        map[key] = static_cast<ValT>(val_raw);
-      }
+      using MapT = std::remove_reference_t<decltype(map)>;
+      using ValT = typename MapT::mapped_type;
+      const auto val_raw =
+        declare_parameter<
+          std::conditional_t<std::is_floating_point<ValT>::value, float64_t, int64_t>>(param_name);
+      map[key] = static_cast<ValT>(val_raw);
     };
   // axis map
   AxisMap axis_map{};
