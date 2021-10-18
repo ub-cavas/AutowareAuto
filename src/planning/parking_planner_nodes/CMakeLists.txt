@@ -10,7 +10,15 @@ set(PARKING_PLANNER_NODE_LIB parking_planner_node)
 ament_auto_add_library(${PARKING_PLANNER_NODE_LIB} SHARED
   src/parking_planner_nodes/parking_planner_node.cpp)
 autoware_set_compile_options(${PARKING_PLANNER_NODE_LIB})
-
+# Supress warning for casadi
+target_compile_options(${PARKING_PLANNER_NODE_LIB} PRIVATE
+  -Wno-conversion
+  -Wno-old-style-cast
+  -Wno-pedantic
+  -Wno-sign-compare
+  -Wno-unused-parameter
+  -Wno-useless-cast
+)
 set(NODE_NAME ${PARKING_PLANNER_NODE_LIB}_exe)
 rclcpp_components_register_node(${PARKING_PLANNER_NODE_LIB}
   PLUGIN "autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode"
@@ -28,7 +36,16 @@ if(BUILD_TESTING)
 
   # Unit test
   ament_add_gtest(${PARKING_PLANNER_NODE_LIB}_unit_tests test/sanity_checks.cpp)
-  autoware_set_compile_options(${PARKING_PLANNER_NODE_LIB})
+  autoware_set_compile_options(${PARKING_PLANNER_NODE_LIB}_unit_tests)
+  # Supress warning for casadi
+  target_compile_options(${PARKING_PLANNER_NODE_LIB}_unit_tests PRIVATE
+    -Wno-conversion
+    -Wno-old-style-cast
+    -Wno-pedantic
+    -Wno-sign-compare
+    -Wno-unused-parameter
+    -Wno-useless-cast
+  )
   target_link_libraries(${PARKING_PLANNER_NODE_LIB}_unit_tests ${PARKING_PLANNER_NODE_LIB} gmp mpfr)
   target_include_directories(${PARKING_PLANNER_NODE_LIB}_unit_tests PRIVATE "include")
   add_dependencies(${PARKING_PLANNER_NODE_LIB}_unit_tests ${PARKING_PLANNER_NODE_LIB})
