@@ -44,7 +44,7 @@ Start ADE with the SVL volume:
 
 ```{bash}
 $ cd ~/adehome/AutowareAuto
-$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+$ ade --rc .aderc-amd64-foxy-svl start --update --enter
 ```
 
 Pick a different `.aderc-*-svl` file to manually choose a ROS version.
@@ -165,7 +165,7 @@ The next step is to control the Lexus and to drive around. Press `F1` to see a l
 
 The essential commands are to use the arrow keys to steer and accelerate, and the `Page Up` and `Page Down` keys to switch between forward and reverse driving.
 
-Congratulations if everything is working up to this point. The setup of LGSVL is completed.
+Congratulations if everything is working up to this point. The setup of SVL is completed.
 
 @image html images/lgsvl-controls.png "Controlling the Lexus" width=60%
 
@@ -261,7 +261,7 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py
 ```
 
-For an example of using `VehicleControlCommand` with LGSVL, run the following demo in a new terminal window:
+For an example of using `VehicleControlCommand` with SVL, run the following demo in a new terminal window:
 
 ```{bash}
 $ ade enter
