@@ -59,7 +59,7 @@ using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using TestTypes = ::testing::Types<State, Trajectory, Command>;
 
 // cppcheck-suppress syntaxError
-TYPED_TEST_CASE(PeriodicPublisherTest, TestTypes, );
+TYPED_TEST_SUITE(PeriodicPublisherTest, TestTypes, );
 
 TYPED_TEST(PeriodicPublisherTest, Basic)
 {
