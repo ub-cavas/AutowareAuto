@@ -45,35 +45,35 @@ NDTMapPublisherNode::NDTMapPublisherNode(
   const rclcpp::NodeOptions & node_options
 )
 : Node("ndt_map_publisher_node", node_options),
-  m_pcl_file_name(declare_parameter("map_pcd_file").get<std::string>()),
-  m_yaml_file_name(declare_parameter("map_yaml_file").get<std::string>()),
+  m_pcl_file_name(declare_parameter<std::string>("map_pcd_file")),
+  m_yaml_file_name(declare_parameter<std::string>("map_yaml_file")),
   m_viz_map(declare_parameter("viz_map", false))
 {
   using PointXYZ = perception::filters::voxel_grid::PointXYZ;
   PointXYZ min_point;
   min_point.x =
-    static_cast<float32_t>(declare_parameter("map_config.min_point.x").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.min_point.x"));
   min_point.y =
-    static_cast<float32_t>(declare_parameter("map_config.min_point.y").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.min_point.y"));
   min_point.z =
-    static_cast<float32_t>(declare_parameter("map_config.min_point.z").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.min_point.z"));
   PointXYZ max_point;
   max_point.x =
-    static_cast<float32_t>(declare_parameter("map_config.max_point.x").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.max_point.x"));
   max_point.y =
-    static_cast<float32_t>(declare_parameter("map_config.max_point.y").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.max_point.y"));
   max_point.z =
-    static_cast<float32_t>(declare_parameter("map_config.max_point.z").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.max_point.z"));
   PointXYZ voxel_size;
   voxel_size.x =
-    static_cast<float32_t>(declare_parameter("map_config.voxel_size.x").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.voxel_size.x"));
   voxel_size.y =
-    static_cast<float32_t>(declare_parameter("map_config.voxel_size.y").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.voxel_size.y"));
   voxel_size.z =
-    static_cast<float32_t>(declare_parameter("map_config.voxel_size.z").get<float32_t>());
+    static_cast<float32_t>(declare_parameter<float64_t>("map_config.voxel_size.z"));
   const std::size_t capacity =
-    static_cast<std::size_t>(declare_parameter("map_config.capacity").get<std::size_t>());
-  const std::string map_frame = declare_parameter("map_frame").get<std::string>();
+    static_cast<std::size_t>(declare_parameter<int>("map_config.capacity"));
+  const std::string map_frame = declare_parameter<std::string>("map_frame");
   const std::string map_topic = "ndt_map";
   const std::string viz_map_topic = "viz_ndt_map";
 
