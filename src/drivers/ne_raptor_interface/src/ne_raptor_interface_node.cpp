@@ -27,6 +27,7 @@ namespace ne_raptor_interface
 {
 
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::drivers::vehicle_interface::ViFeature;
 
 NERaptorInterfaceNode::NERaptorInterfaceNode(const rclcpp::NodeOptions & options)
@@ -43,16 +44,18 @@ NERaptorInterfaceNode::NERaptorInterfaceNode(const rclcpp::NodeOptions & options
   set_interface(
     std::make_unique<NERaptorInterface>(
       *this,
-      declare_parameter("ne_raptor.ecu_build_num").get<uint16_t>(),
-      declare_parameter("ne_raptor.front_axle_to_cog").get<float32_t>(),
-      declare_parameter("ne_raptor.rear_axle_to_cog").get<float32_t>(),
-      declare_parameter("ne_raptor.steer_to_tire_ratio").get<float32_t>(),
-      declare_parameter("ne_raptor.max_steer_angle").get<float32_t>(),
+      static_cast<uint16_t>(declare_parameter<int>("ne_raptor.ecu_build_num")),
+      static_cast<float32_t>(declare_parameter<float64_t>("ne_raptor.front_axle_to_cog")),
+      static_cast<float32_t>(declare_parameter<float64_t>("ne_raptor.rear_axle_to_cog")),
+      static_cast<float32_t>(declare_parameter<float64_t>("ne_raptor.steer_to_tire_ratio")),
+      static_cast<float32_t>(declare_parameter<float64_t>("ne_raptor.max_steer_angle")),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
-      declare_parameter("ne_raptor.acceleration_positive_jerk_limit").get<float32_t>(),
-      declare_parameter("ne_raptor.deceleration_negative_jerk_limit").get<float32_t>(),
-      declare_parameter("ne_raptor.pub_period").get<uint32_t>()
+      static_cast<float32_t>(
+        declare_parameter<float64_t>("ne_raptor.acceleration_positive_jerk_limit")),
+      static_cast<float32_t>(
+        declare_parameter<float64_t>("ne_raptor.deceleration_negative_jerk_limit")),
+      static_cast<uint32_t>(declare_parameter<int>("ne_raptor.pub_period"))
   ));
 }
 
