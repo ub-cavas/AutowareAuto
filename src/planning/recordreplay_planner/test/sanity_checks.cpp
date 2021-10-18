@@ -86,7 +86,7 @@ TEST_P(SanityChecksTrajectoryProperties, Basicproperties)
   EXPECT_NEAR(trajectory_time_length, endpoint_sec, ep);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TrajectoryProperties,
   SanityChecksTrajectoryProperties,
   testing::Values(
@@ -95,7 +95,7 @@ INSTANTIATE_TEST_CASE_P(
     PropertyTestParameters{std::chrono::milliseconds(100), system_clock::from_time_t(10)},
     PropertyTestParameters{std::chrono::milliseconds(200), system_clock::from_time_t(10)}
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 
 //------------------ Test that length cropping properly works
@@ -131,13 +131,13 @@ TEST_P(SanityChecksTrajectoryLength, Length)
     std::min(N, static_cast<uint32_t>(trajectory.points.max_size())));
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   TrajectoryLength,
   SanityChecksTrajectoryLength,
   testing::Values(
     LengthTestParameters{80},
     LengthTestParameters{200}
-  ), );
+  ));
 
 
 // Test setup helper function. This creates a planner and records a trajectory
