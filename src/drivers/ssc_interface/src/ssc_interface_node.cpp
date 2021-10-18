@@ -25,6 +25,7 @@ namespace ssc_interface
 {
 
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::drivers::vehicle_interface::ViFeature;
 
 SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
@@ -37,11 +38,11 @@ SscInterfaceNode::SscInterfaceNode(const rclcpp::NodeOptions & options)
   set_interface(
     std::make_unique<SscInterface>(
       *this,
-      declare_parameter("ssc.front_axle_to_cog").get<float32_t>(),
-      declare_parameter("ssc.rear_axle_to_cog").get<float32_t>(),
+      static_cast<float32_t>(declare_parameter<float64_t>("ssc.front_axle_to_cog")),
+      static_cast<float32_t>(declare_parameter<float64_t>("ssc.rear_axle_to_cog")),
       get_state_machine().get_config().accel_limits().max(),
       get_state_machine().get_config().accel_limits().min(),
-      declare_parameter("ssc.max_yaw_rate").get<float32_t>()
+      static_cast<float32_t>(declare_parameter<float64_t>("ssc.max_yaw_rate"))
   ));
 }
 
