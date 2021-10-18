@@ -407,7 +407,7 @@ TEST_P(JoyViTest, BasicMapping)
   }
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Test,
   JoyViTest,
   ::testing::Values(
@@ -467,4 +467,4 @@ INSTANTIATE_TEST_CASE_P(
   {{Buttons::RECORDREPLAY_STOP, 1U}}
 }
     // cppcheck-suppress syntaxError
-  ), );
+  ));
