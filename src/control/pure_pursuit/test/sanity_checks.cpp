@@ -92,14 +92,14 @@ TEST_P(SanityChecksAxisAlignedStraight, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksAxisAlignedStraight,
   ::testing::Values(
     StraightTestParam{0.0F, 0.0F, false},
     StraightTestParam{3.0F, 4.0F, false},
     StraightTestParam{-5.0F, 12.0F, false}
     // cppcheck-suppress syntaxError
-  ), );
+  ));
 
 // oriented_straight: exercise some basic transform stuff
 //      ^
@@ -132,7 +132,7 @@ TEST_P(SanityChecksOrientedStraight, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksOrientedStraight,
   ::testing::Values(
     StraightTestParam{0.0F, 0.0F, false},
@@ -141,7 +141,7 @@ INSTANTIATE_TEST_CASE_P(
     StraightTestParam{0.0F, 0.0F, true},
     StraightTestParam{3.0F, 4.0F, true},
     StraightTestParam{-5.0F, 12.0F, true}
-  ), );
+  ));
 
 // Orthogonal orientation: easy to compute offset for
 // Double slashes on the right to avoid -Wcomment warnings
@@ -173,12 +173,12 @@ TEST_P(SanityChecksOrthogonalOrientation, Basic)
   check_steer(cmd, guess, TOL);
 }
 
-INSTANTIATE_TEST_CASE_P(
+INSTANTIATE_TEST_SUITE_P(
   Basic, SanityChecksOrthogonalOrientation,
   ::testing::Values(
     StraightTestParam{0.0F, 5.0F, false},
     StraightTestParam{0.0F, 5.0F, true}
-  ), );
+  ));
 
 
 // A track which curves like (ellipsoid):
