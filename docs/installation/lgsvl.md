@@ -52,7 +52,7 @@ Pick a different `.aderc-*-svl` file to manually choose a ROS version.
 To start the SVL simulator, in the same terminal window:
 
 ```{bash}
-ade$ /opt/svl/simulator
+ade$ /opt/lgsvl/simulator
 ```
 
 ### Troubleshooting
