@@ -56,6 +56,14 @@ InteractiveTrajectorySpooferNode::InteractiveTrajectorySpooferNode(
         std::placeholders::_1)),
     interactive_markers::MenuHandler::UNCHECKED);
 
+  m_menu_handler.setCheckState(
+    m_menu_handler.insert(
+      "Reverse",
+      std::bind(
+        &InteractiveTrajectorySpooferNode::reverseMenuCb, this,
+        std::placeholders::_1)),
+    interactive_markers::MenuHandler::UNCHECKED);
+
   // initialize interactive markers server
   m_server_ptr = std::make_shared<interactive_markers::InteractiveMarkerServer>(
     "interactive_trajectory_spoofer", this);
@@ -186,14 +194,39 @@ void InteractiveTrajectorySpooferNode::previewMenuCb(MarkerFeedback::ConstShared
   m_server_ptr->applyChanges();
 }
 
+void InteractiveTrajectorySpooferNode::reverseMenuCb(MarkerFeedback::ConstSharedPtr feedback)
+{
+  if (m_reverse_mode) {
+    m_menu_handler.setCheckState(
+      feedback->menu_entry_id,
+      interactive_markers::MenuHandler::UNCHECKED);
+    m_reverse_mode = false;
+  } else {
+    m_menu_handler.setCheckState(
+      feedback->menu_entry_id,
+      interactive_markers::MenuHandler::CHECKED);
+    m_reverse_mode = true;
+  }
+
+  m_menu_handler.reApply(*m_server_ptr);
+  m_server_ptr->applyChanges();
+}
+
 void InteractiveTrajectorySpooferNode::timerTrajCb()
 {
   if (m_initialized) {
+    Trajectory trajectory = m_trajectory;
+    if(m_reverse_mode) {
+      std::reverse(trajectory.points.begin(), trajectory.points.end());
+      for(auto & point: trajectory.points) {
+        point.longitudinal_velocity_mps *= -1.0f;
+      }
+    }
     if (m_publishing) {
-      m_traj_pub->publish(m_trajectory);
+      m_traj_pub->publish(trajectory);
     }
     if (m_publishing_preview) {
-      m_preview_pub->publish(m_trajectory);
+      m_preview_pub->publish(trajectory);
     }
   } else {
     if (m_tf_buffer.canTransform("map", "base_link", tf2::TimePointZero)) {

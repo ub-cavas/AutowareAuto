@@ -83,6 +83,7 @@ private:
   bool8_t m_publishing = false;
   bool8_t m_publishing_preview = false;
   bool8_t m_initialized = false;
+  bool8_t m_reverse_mode = false;
 
   /**
    * @brief initialize the control points of the curve and corresponding interactive markers
@@ -117,6 +118,12 @@ private:
    * @param [in] feedback menu feedback
    */
   void previewMenuCb(MarkerFeedback::ConstSharedPtr feedback);
+
+  /**
+   * @brief callback for the checkbox to reverse the trajectory
+   * @param [in] feedback menu feedback
+   */
+  void reverseMenuCb(MarkerFeedback::ConstSharedPtr feedback);
 
   /**
    * @brief generate the trajectory for the current curve
