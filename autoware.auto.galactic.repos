@@ -3,12 +3,12 @@ repositories:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
     version: 34d98a6173ae02572fef10ebc47a2916c2b0d395
-  src/external/casadi_vendor
+  src/external/casadi_vendor:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor.git
     version: e244158a3dd6d181c01bd756b3603a39a09107e9
-  src/external/raptor_dbw_ros2
+  src/external/raptor_dbw_ros2:
     type: git
     url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
-    version: 8bcb321103abdf1da603865ec8cf12e803f085bc 
+    version: 8bcb321103abdf1da603865ec8cf12e803f085bc
 
