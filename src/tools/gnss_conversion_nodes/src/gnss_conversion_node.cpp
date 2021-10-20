@@ -158,9 +158,9 @@ void GnssConversionNode::nav_sat_fix_callback(
       m_steady_clock,
       kDefaultLoggingInterval,
       "Skipping publishing of a GNSS pose message.\n" <<
-      "Could not look up transformation between " <<
-      out_msg.header.frame_id << " and " <<
-      m_frame_id << " with the exception: " << exception.what());
+        "Could not look up transformation between " <<
+        out_msg.header.frame_id << " and " <<
+        m_frame_id << " with the exception: " << exception.what());
     return;
   }
   if (!m_override_variances_diagonal.empty()) {

@@ -60,12 +60,14 @@ CameraListWrapper::CameraListWrapper(
     std::string device_serial_number = get_camera_serial_number(m_camera_list[camera_index]);
     for (std::uint32_t setting_index = 0; setting_index < camera_settings.size(); ++setting_index) {
       if (camera_settings[setting_index].get_serial_number().empty() ||
-        (device_serial_number == camera_settings[setting_index].get_serial_number())) {
-          m_cameras.emplace_back(current_index,
-            m_camera_list.GetByIndex(current_index),
-            camera_settings[setting_index]);
-          current_index++;
-       }
+        (device_serial_number == camera_settings[setting_index].get_serial_number()))
+      {
+        m_cameras.emplace_back(
+          current_index,
+          m_camera_list.GetByIndex(current_index),
+          camera_settings[setting_index]);
+        current_index++;
+      }
     }
   }
 }
@@ -113,7 +115,7 @@ std::string CameraListWrapper::get_camera_serial_number(const Spinnaker::CameraP
   if (Spinnaker::GenApi::IsReadable(ptr_serial_number)) {
     serial_number = std::string(ptr_serial_number->GetValue());
   } else {
-    serial_number  = "";
+    serial_number = "";
   }
 
   return serial_number;

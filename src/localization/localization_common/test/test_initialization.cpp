@@ -134,7 +134,7 @@ INSTANTIATE_TEST_SUITE_P(
   std::chrono::milliseconds{50}
 }
     // cppcheck-suppress syntaxError
-  ));
+));
 
 /////////// Helper function implementations:
 

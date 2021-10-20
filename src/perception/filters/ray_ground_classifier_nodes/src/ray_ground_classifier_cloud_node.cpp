@@ -75,7 +75,7 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   m_frame_id(declare_parameter<std::string>("frame_id").c_str()),
   m_has_failed(false),
   m_timeout(std::chrono::milliseconds{
-    static_cast<uint16_t>(declare_parameter<int>("cloud_timeout_ms"))}),
+          static_cast<uint16_t>(declare_parameter<int>("cloud_timeout_ms"))}),
   m_raw_sub_ptr(create_subscription<PointCloud2>(
       "points_in",
       rclcpp::QoS(10), std::bind(&RayGroundClassifierCloudNode::callback, this, _1))),

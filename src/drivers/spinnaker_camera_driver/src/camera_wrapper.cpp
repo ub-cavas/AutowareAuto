@@ -136,7 +136,8 @@ std::unique_ptr<sensor_msgs::msg::Image> CameraWrapper::convert_to_image_msg(
 
   const size_t image_size = image->GetImageSize();
   msg->data.resize(static_cast<std::uint32_t>(image_size));
-  std::copy_n(static_cast<std::uint8_t *>(
+  std::copy_n(
+    static_cast<std::uint8_t *>(
       image->GetData()), image_size, msg->data.data());
   return msg;
 }
@@ -240,7 +241,7 @@ void CameraWrapper::configure_camera(
   }
 
   CBooleanPtr frame_rate_enable = m_camera->GetNodeMap().GetNode("AcquisitionFrameRateEnable");
-  INodeMap& node_map = m_camera->GetNodeMap();
+  INodeMap & node_map = m_camera->GetNodeMap();
   CFloatPtr acquisition_frame_rate = node_map.GetNode("AcquisitionFrameRate");
 
   if (IsAvailable(frame_rate_enable) && IsWritable(frame_rate_enable)) {
