@@ -95,7 +95,7 @@ INSTANTIATE_TEST_SUITE_P(
     PropertyTestParameters{std::chrono::milliseconds(100), system_clock::from_time_t(10)},
     PropertyTestParameters{std::chrono::milliseconds(200), system_clock::from_time_t(10)}
     // cppcheck-suppress syntaxError
-  ));
+));
 
 
 //------------------ Test that length cropping properly works
@@ -137,7 +137,7 @@ INSTANTIATE_TEST_SUITE_P(
   testing::Values(
     LengthTestParameters{80},
     LengthTestParameters{200}
-  ));
+));
 
 
 // Test setup helper function. This creates a planner and records a trajectory

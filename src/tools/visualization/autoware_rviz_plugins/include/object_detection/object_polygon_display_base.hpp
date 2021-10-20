@@ -157,7 +157,7 @@ protected:
     if (it == m_polygon_properties.end()) {
       RCLCPP_WARN_STREAM(
         rclcpp::get_logger(kLoggerName), "Color alpha property does not exist for " <<
-        "label " << std::to_string(label) << "Using property values from UNKNOWN");
+          "label " << std::to_string(label) << "Using property values from UNKNOWN");
       it = m_polygon_properties.find(ObjectClassificationMsg::UNKNOWN);
     }
     return it->second;

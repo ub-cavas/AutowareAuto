@@ -143,7 +143,7 @@ INSTANTIATE_TEST_SUITE_P(
     PoseParams{0.0, 0.1, 0.1, 0.0, 3.14159265359 / 72.0, 0.0},
     PoseParams{0.0, -0.2, 0.0, 0.0, 3.14159265359 / 72.0, 3.14159265359 / 72.0}
     // cppcheck-suppress syntaxError
-  ));
+));
 
 
 TEST_F(P2DLocalizerParameterTest, DelayedScan) {

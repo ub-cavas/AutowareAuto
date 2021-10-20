@@ -119,7 +119,7 @@ get_best_label(
   if (best_class_label == labels.end()) {
     RCLCPP_WARN_STREAM(
       rclcpp::get_logger(logger_name), "Empty classification field. " <<
-      "Treating as unknown");
+        "Treating as unknown");
     return autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
   }
   return best_class_label->classification;
