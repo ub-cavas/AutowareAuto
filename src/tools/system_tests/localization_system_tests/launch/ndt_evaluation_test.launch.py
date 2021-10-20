@@ -21,7 +21,6 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import os
 
@@ -42,8 +41,10 @@ def generate_launch_description():
     map_publisher_param_file = os.path.join(
         get_package_share_directory('localization_system_tests'), 'param/map_publisher.param.yaml')
 
-    rviz_cfg_path = os.path.join(get_package_share_directory('localization_system_tests'),
-        'rviz2/localization_benchmark.rviz')
+    rviz_cfg_path = os.path.join(
+        get_package_share_directory('localization_system_tests'),
+        'rviz2/localization_benchmark.rviz'
+    )
 
     lgsvl_param_file = os.path.join(
         get_package_share_directory('localization_system_tests'),

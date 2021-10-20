@@ -23,6 +23,8 @@ import launch.substitutions
 import launch_ros.actions
 
 
+# assumes the param file has the given file_name and is under
+# "param" folder inside the given package_name
 def get_param_file(package_name, file_name):
     """
     Get param file.
@@ -100,8 +102,11 @@ def generate_launch_description():
     # Setup robot state publisher
     vehicle_description_pkg_path = get_package_share_directory(
         'lexus_rx_450h_description')
-    urdf_path = os.path.join(vehicle_description_pkg_path, 'urdf',
-                             'lexus_rx_450h_pcap.urdf')
+    urdf_path = os.path.join(
+        vehicle_description_pkg_path,
+        'urdf',
+        'lexus_rx_450h_pcap.urdf'
+    )
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
     robot_state_publisher_runner = launch_ros.actions.Node(
@@ -114,8 +119,11 @@ def generate_launch_description():
     # Run rviz
     examples_pkg_path = get_package_share_directory(
         'autoware_demos')
-    rviz_cfg_path = os.path.join(examples_pkg_path, 'rviz2',
-                                 'lidar_bounding_boxes_lgsvl.rviz')
+    rviz_cfg_path = os.path.join(
+        examples_pkg_path,
+        'rviz2',
+        'lidar_bounding_boxes_lgsvl.rviz'
+    )
     rviz_runner = launch_ros.actions.Node(
         package='rviz2',
         executable='rviz2',
