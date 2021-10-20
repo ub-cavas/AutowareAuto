@@ -167,7 +167,9 @@ public:
     // Definitely shouldn't get too many
     message_received = message_received && (m_num_received_msgs <= m_num_msgs * 2U);
 
-    RCLCPP_INFO_STREAM(get_logger(), "\tShould have correct answer: "s << std::to_string(m_num_msgs));
+    RCLCPP_INFO_STREAM(
+      get_logger(),
+      "\tShould have correct answer: "s << std::to_string(m_num_msgs));
     RCLCPP_INFO_STREAM(
       get_logger(),
       "\tActual have correct answer: "s << std::to_string(m_num_correct_output));
