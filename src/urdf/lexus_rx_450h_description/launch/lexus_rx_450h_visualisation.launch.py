@@ -1,7 +1,6 @@
 import launch
 import launch_ros.actions
 import ament_index_python
-import os
 from pathlib import Path
 
 package_path = ament_index_python.get_package_share_directory('lexus_rx_450h_description')

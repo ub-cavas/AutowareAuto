@@ -40,10 +40,13 @@ def generate_launch_description():
 
     map_publisher_param_file = os.path.join(
         get_package_share_directory('autoware_demos'),
-        'param/autoware_academy_demo/map_publisher.param.yaml')
+        'param/autoware_academy_demo/map_publisher.param.yaml'
+    )
 
-    rviz_cfg_path = os.path.join(get_package_share_directory('autoware_demos'),
-                                 'rviz2/autoware_academy_demo.rviz')
+    rviz_cfg_path = os.path.join(
+        get_package_share_directory('autoware_demos'),
+        'rviz2/autoware_academy_demo.rviz'
+    )
 
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',

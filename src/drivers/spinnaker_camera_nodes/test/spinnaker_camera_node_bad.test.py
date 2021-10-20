@@ -25,7 +25,6 @@ import launch_testing.util
 
 def generate_test_description():
     # The node under test and the checker node that will pass/fail our tests:
-    test_topic = "spinnaker_camera_node_test_topic"
     spinnaker_camera_node = launch_ros.actions.Node(
         package="spinnaker_camera_nodes",
         executable="spinnaker_camera_node_exe",
