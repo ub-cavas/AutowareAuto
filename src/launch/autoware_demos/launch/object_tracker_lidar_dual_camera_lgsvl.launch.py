@@ -72,8 +72,12 @@ def generate_launch_description():
     )
 
     ndt_state_estimation_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(os.path.join(get_package_share_directory("autoware_demos"),
-                                                   "launch/ndt_state_estimation_core_lgsvl.launch.py")),
+        PythonLaunchDescriptionSource(
+            os.path.join(
+                get_package_share_directory("autoware_demos"),
+                "launch/ndt_state_estimation_core_lgsvl.launch.py"
+            )
+        ),
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )
 

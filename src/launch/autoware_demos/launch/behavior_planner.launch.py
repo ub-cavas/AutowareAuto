@@ -200,6 +200,7 @@ def generate_launch_description():
         global_planner,
         lane_planner_param,
         lane_planner,
+        vehicle_characteristics_param,
         lanelet2_map_provider_param,
         lanelet2_map_provider,
         lanelet2_map_visualizer,

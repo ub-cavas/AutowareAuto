@@ -21,9 +21,9 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import os
+
 
 def generate_launch_description():
     # Boilerplate to fetch the necessary parameter files:
