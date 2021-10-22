@@ -84,11 +84,35 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
 
   using autoware::common::types::float32_t;
   using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   using point_cloud_msg_wrapper::PointCloud2View;
   using point_cloud_msg_wrapper::PointCloud2Modifier;
-  if (PointCloud2View<PointXYZI>::can_be_created_from(cloud)) {
+
+  if (PointCloud2View<PointXYZIF>::can_be_created_from(cloud)) {
     // The cloud already has correct fields.
     *msg = std::move(cloud);
+    return;
+  }
+
+  if (PointCloud2View<PointXYZI>::can_be_created_from(cloud)) {
+    // We need to convert the intensity field.
+    sensor_msgs::msg::PointCloud2 adjusted_cloud;
+    point_cloud_msg_wrapper::PointCloud2View<PointXYZI> old_cloud_view{cloud};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
+      adjusted_cloud, msg->header.frame_id};
+    adjusted_cloud_modifier.reserve(old_cloud_view.size());
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZIF point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        old_point.intensity,
+        0};  // TODO(esteve): calculate ring from beam angle?
+      adjusted_cloud_modifier.push_back(point);
+    }
+
+    *msg = std::move(adjusted_cloud);
     return;
   }
 
@@ -102,16 +126,17 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   if (PointCloud2View<PointWithoutIntensity>::can_be_created_from(cloud)) {
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointWithoutIntensity> old_cloud_view{cloud};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> adjusted_cloud_modifier{
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
       adjusted_cloud, msg->header.frame_id};
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZI point{
+      const PointXYZIF point{
         old_point.x,
         old_point.y,
         old_point.z,
-        0.0f};
+        0.0f,
+        0};  // TODO(esteve): calculate ring from beam angle?
       adjusted_cloud_modifier.push_back(point);
     }
 
@@ -134,16 +159,17 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     // We need to convert the intensity field.
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointWithUintIntensity> old_cloud_view{cloud};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> adjusted_cloud_modifier{
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
       adjusted_cloud, msg->header.frame_id};
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZI point{
+      const PointXYZIF point{
         old_point.x,
         old_point.y,
         old_point.z,
-        static_cast<float>(old_point.intensity)};
+        static_cast<float>(old_point.intensity),
+        0};  // TODO(esteve): calculate ring from beam angle?
       adjusted_cloud_modifier.push_back(point);
     }
 
