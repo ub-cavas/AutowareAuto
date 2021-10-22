@@ -82,6 +82,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   sensor_msgs::msg::PointCloud2 cloud;
   pcl_conversions::moveFromPCL(pcl_cloud, cloud);
 
+  using autoware::common::types::float32_t;
   using autoware::common::types::PointXYZI;
   using point_cloud_msg_wrapper::PointCloud2View;
   using point_cloud_msg_wrapper::PointCloud2Modifier;
@@ -91,13 +92,40 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     return;
   }
 
+  struct PointWithoutIntensity
+  {
+    float32_t x;
+    float32_t y;
+    float32_t z;
+  };
+
+  if (PointCloud2View<PointWithoutIntensity>::can_be_created_from(cloud)) {
+    sensor_msgs::msg::PointCloud2 adjusted_cloud;
+    point_cloud_msg_wrapper::PointCloud2View<PointWithoutIntensity> old_cloud_view{cloud};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> adjusted_cloud_modifier{
+      adjusted_cloud, msg->header.frame_id};
+    adjusted_cloud_modifier.reserve(old_cloud_view.size());
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZI point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        0.0f};
+      adjusted_cloud_modifier.push_back(point);
+    }
+
+    *msg = std::move(adjusted_cloud);
+    return;
+  }
+
   // We must pack this structure as this is how data is stored coming from the PCL conversion.
   #pragma pack(push, 1)
   struct PointWithUintIntensity
   {
-    float x;
-    float y;
-    float z;
+    float32_t x;
+    float32_t y;
+    float32_t z;
     std::uint8_t intensity;
   };
   #pragma pack(pop)
