@@ -194,15 +194,10 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
 
           // Add ray to point clouds
           for (auto & ground_point : ground_blk) {
-            ground_msg_modifier.push_back(
-              PointXYZI{
-                      ground_point->x, ground_point->y, ground_point->z, ground_point->intensity});
+            ground_msg_modifier.push_back(*ground_point);
           }
           for (auto & nonground_point : nonground_blk) {
-            nonground_msg_modifier.push_back(
-              PointXYZI{
-                      nonground_point->x, nonground_point->y, nonground_point->z,
-                      nonground_point->intensity});
+            nonground_msg_modifier.push_back(*nonground_point);
           }
         } catch (const std::runtime_error & e) {
           m_has_failed = true;

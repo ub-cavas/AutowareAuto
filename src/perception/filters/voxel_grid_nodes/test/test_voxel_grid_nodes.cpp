@@ -45,7 +45,7 @@ class VoxelAlgorithm : public ::testing::Test
 protected:
   PointXYZIF make(const float32_t x, const float32_t y, const float32_t z, const uint16_t id)
   {
-    PointXYZI ret;
+    PointXYZIF ret;
     ret.x = x;
     ret.y = y;
     ret.z = z;
@@ -53,8 +53,8 @@ protected:
     return ret;
   }
   std::unique_ptr<Config> cfg_ptr;
-  std::array<PointXYZI, 16U> obs_points1;
-  std::array<PointXYZI, 8U> ref_points1;
+  std::array<PointXYZIF, 16U> obs_points1;
+  std::array<PointXYZIF, 8U> ref_points1;
   const std::size_t m_capacity;
 
 public:
@@ -103,7 +103,7 @@ protected:
   using VoxelAlgorithm::make;
   void make(sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> mod{cloud, "frame_id"};
+    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> mod{cloud, "frame_id"};
     for (std::size_t idx = 0U; idx < N; ++idx) {
       mod.push_back(obs_points1[idx]);
     }

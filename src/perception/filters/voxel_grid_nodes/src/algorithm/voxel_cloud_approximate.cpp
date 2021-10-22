@@ -90,7 +90,7 @@ const sensor_msgs::msg::PointCloud2 & VoxelCloudApproximate::get()
 
   for (const auto & it : m_grid) {
     const auto & pt = it.second.get();
-    modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
+    modifier.push_back(pt);
   }
   m_grid.clear();
 
