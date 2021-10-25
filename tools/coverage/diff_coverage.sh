@@ -69,7 +69,8 @@ if [ ${SKIP_BUILD} -eq 0 ]; then
       -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" \
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
     --cmake-args \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
   lcov ${OPTS[@]} -o lcov.base --initial > log/latest_lcov_stdout.logs
 fi
 
