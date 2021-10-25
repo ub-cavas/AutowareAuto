@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+// Co-developed by Tier IV, Inc. and Apex.AI, Inc. CHANGE TO TRIGGER CI
 
 #include <ndt/ndt_optimization_problem.hpp>
 #include <ndt/ndt_map.hpp>
