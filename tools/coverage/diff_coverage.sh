@@ -68,7 +68,7 @@ if [ ${SKIP_BUILD} -eq 0 ]; then
     --ament-cmake-args \
       -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" \
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
-    --event-handlers console_cohesion+ \
+    --event-handlers console_direct+ \
     --cmake-args \
       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
       -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
