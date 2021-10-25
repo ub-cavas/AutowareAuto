@@ -35,6 +35,7 @@ namespace voxel_grid
 {
 
 using autoware::common::types::PointXYZIF;
+using autoware::common::types::PointXYZI;
 using autoware::common::types::float32_t;
 
 /// \brief Default addition operator for a point type for use with CentroidVoxel

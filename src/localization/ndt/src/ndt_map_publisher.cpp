@@ -102,7 +102,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   using autoware::common::types::PointXYZI;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{
     adjusted_cloud, msg->header.frame_id};
-  modifier.reserve(num_points);
+  modifier.resize(num_points);
 
   // Copy x, y, z into it
   for (size_t i = 0; i < num_points; ++i) {
