@@ -62,8 +62,12 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       declare_parameter<std::vector<float64_t>>(prefix + "range")
       };
     };
-  const bool pub_pose = declare_parameter<bool>("lgsvl.publish_pose");
-  const bool pub_tf = declare_parameter<bool>("lgsvl.publish_tf");
+  const auto pub_pose_param = declare_parameter("lgsvl.publish_pose", rclcpp::PARAMETER_BOOL);
+  const bool pub_pose = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_pose_param.get_type() ?
+    PUBLISH : pub_pose_param.get<bool>();
+  const auto pub_tf_param = declare_parameter("lgsvl.publish_tf", rclcpp::PARAMETER_BOOL);
+  const bool pub_tf = rclcpp::ParameterType::PARAMETER_NOT_SET == pub_tf_param.get_type() ?
+    NO_PUBLISH : pub_tf_param.get<bool>();
 
   // Set up interface
   set_interface(

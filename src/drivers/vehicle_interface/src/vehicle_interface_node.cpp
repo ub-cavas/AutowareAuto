@@ -66,45 +66,54 @@ VehicleInterfaceNode::VehicleInterfaceNode(
   // optionally instantiate a config
   std::experimental::optional<StateMachineConfig> state_machine_config{};
   {
-    state_machine_config = StateMachineConfig{
-      static_cast<float32_t>(
-        declare_parameter<float64_t>("state_machine.gear_shift_velocity_threshold_mps")),
-      limits_from_param("state_machine.acceleration_limits"),
-      limits_from_param("state_machine.front_steer_limits"),
-      std::chrono::milliseconds{declare_parameter<int64_t>("state_machine.time_step_ms")},
-      static_cast<float32_t>(
-        declare_parameter<float64_t>("state_machine.timeout_acceleration_mps2")),
-      time("state_machine.state_transition_timeout_ms"),
-      static_cast<float32_t>(
-        declare_parameter<float64_t>("state_machine.gear_shift_accel_deadzone_mps2"))
-    };
+    const auto velocity_threshold = declare_parameter(
+      "state_machine.gear_shift_velocity_threshold_mps", rclcpp::PARAMETER_DOUBLE);
+    if (rclcpp::PARAMETER_NOT_SET != velocity_threshold.get_type()) {
+      state_machine_config = StateMachineConfig{
+        static_cast<float32_t>(velocity_threshold.get<float64_t>()),
+        limits_from_param("state_machine.acceleration_limits"),
+        limits_from_param("state_machine.front_steer_limits"),
+        std::chrono::milliseconds{declare_parameter<int64_t>("state_machine.time_step_ms")},
+        static_cast<float32_t>(
+          declare_parameter<float64_t>("state_machine.timeout_acceleration_mps2")),
+        time("state_machine.state_transition_timeout_ms"),
+        static_cast<float32_t>(
+          declare_parameter<float64_t>("state_machine.gear_shift_accel_deadzone_mps2"))
+      };
+    }
   }
   // Get stuff from filter.<prefix_middle>.blah
   const auto filter = [this](const auto prefix_middle) -> FilterConfig {
       const auto prefix = std::string{"filter."} + prefix_middle + std::string{"."};
       // lazy optional stuff: if one is missing then give up
-      const auto type = declare_parameter<std::string>(prefix + "type");
+      const auto type = declare_parameter(prefix + "type", rclcpp::PARAMETER_STRING);
+      if (rclcpp::PARAMETER_NOT_SET == type.get_type()) {
+        return FilterConfig{"", 0.0F};
+      }
       const auto cutoff =
         static_cast<Real>(declare_parameter<float64_t>(prefix + "cutoff_frequency_hz"));
-      return FilterConfig{type, cutoff};
+      return FilterConfig{type.template get<std::string>(), cutoff};
     };
+
   // Check for enabled features
-  const auto feature_list_string = declare_parameter<std::vector<std::string>>("features");
+  const auto feature_list_string = declare_parameter("features", rclcpp::PARAMETER_STRING_ARRAY);
 
-  for (const auto & feature : feature_list_string) {
-    const auto found_feature = m_avail_features.find(feature);
+  if (feature_list_string.get_type() != rclcpp::PARAMETER_NOT_SET) {
+    for (const auto & feature : feature_list_string.template get<std::vector<std::string>>()) {
+      const auto found_feature = m_avail_features.find(feature);
 
-    if (found_feature == m_avail_features.end()) {
-      throw std::domain_error{"Provided feature not found in list of available features"};
+      if (found_feature == m_avail_features.end()) {
+        throw std::domain_error{"Provided feature not found in list of available features"};
+      }
+
+      const auto supported_feature = features.find(found_feature->second);
+
+      if (supported_feature == features.end()) {
+        throw std::domain_error{"Provided feature not found in list of supported features"};
+      }
+
+      m_enabled_features.insert(*supported_feature);
     }
-
-    const auto supported_feature = features.find(found_feature->second);
-
-    if (supported_feature == features.end()) {
-      throw std::domain_error{"Provided feature not found in list of supported features"};
-    }
-
-    m_enabled_features.insert(*supported_feature);
   }
 
   // Actually init
