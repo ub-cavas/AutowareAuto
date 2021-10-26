@@ -2,7 +2,7 @@
 
 # calculate test coverage for packages that are modified compared to the 'master' branch
 
-COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1"
+COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1 -v"
 SKIP_BUILD=0
 SKIP_TEST=0
 FLAG_U=0
