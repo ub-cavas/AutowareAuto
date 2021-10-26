@@ -106,13 +106,13 @@ std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2
 SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg)
 {
   /// XYZI or XYZ, or throw
-  if(point_cloud_msg_wrapper::PointCloud2View<geometry_msgs::msg::Point32>::can_be_created_from(msg))
+  if (point_cloud_msg_wrapper::PointCloud2View<geometry_msgs::msg::Point32>::can_be_created_from(
+      msg))
   {
     return SafeCloudIndices{3 * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
   }
 
-  if(point_cloud_msg_wrapper::PointCloud2View<PointXYZI>::can_be_created_from(msg))
-  {
+  if (point_cloud_msg_wrapper::PointCloud2View<PointXYZI>::can_be_created_from(msg)) {
     return SafeCloudIndices{4 * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
   }
 
