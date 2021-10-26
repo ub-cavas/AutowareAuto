@@ -2,7 +2,7 @@
 
 # calculate test coverage for packages that are modified compared to the 'master' branch
 
-COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1 -v"
+COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1"
 SKIP_BUILD=0
 SKIP_TEST=0
 FLAG_U=0
@@ -70,8 +70,7 @@ if [ ${SKIP_BUILD} -eq 0 ]; then
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
     --event-handlers console_direct+ \
     --cmake-args \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-      -DCMAKE_VERBOSE_MAKEFILE:BOOL=ON
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo
   lcov ${OPTS[@]} -o lcov.base --initial > log/latest_lcov_stdout.logs
 fi
 

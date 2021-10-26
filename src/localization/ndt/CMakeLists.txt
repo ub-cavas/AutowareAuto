@@ -13,6 +13,9 @@ find_package(ament_cmake_auto REQUIRED)
 find_package(PCL 1.8 REQUIRED COMPONENTS io)
 ament_auto_find_build_dependencies()
 
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
+list(APPEND CMAKE_CXX_FLAGS "-v")
+
 # includes
 include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR} ${YAML_CPP_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 
