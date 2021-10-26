@@ -39,8 +39,6 @@ using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 
 using std::placeholders::_1;
 
-using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-
 RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
   const rclcpp::NodeOptions & node_options)
 : Node("ray_ground_classifier", node_options),
@@ -116,7 +114,7 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
       throw std::runtime_error("RayGroundClassifierCloudNode: Malformed PointCloud2");
     }
     // Verify the point cloud format and assign correct point_step
-    if (!has_intensity_and_throw_if_no_xyz(msg)) {
+    if (!point_cloud_msg_wrapper::PointCloud2View<PointXYZI>::can_be_created_from(*msg)) {
       RCLCPP_WARN(
         this->get_logger(),
         "RayGroundClassifierNode Warning: PointCloud doesn't have intensity field");

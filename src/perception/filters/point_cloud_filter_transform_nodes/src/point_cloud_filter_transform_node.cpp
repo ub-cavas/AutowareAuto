@@ -32,8 +32,6 @@ namespace filters
 /// \brief Boilerplate Apex.OS nodes around point_cloud_filter_transform_nodes
 namespace point_cloud_filter_transform_nodes
 {
-using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-using autoware::common::lidar_utils::sanitize_point_cloud;
 using autoware::common::types::float64_t;
 using autoware::common::types::PointXYZI;
 using autoware::common::types::PointXYZIF;

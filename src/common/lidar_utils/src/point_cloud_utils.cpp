@@ -17,6 +17,8 @@
 #include <common/types.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -40,6 +42,7 @@ namespace lidar_utils
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;
+using autoware::common::types::PointXYZI;
 
 std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator,
   autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator>
@@ -85,56 +88,6 @@ get_cluster(
   return {clusters.points.begin() + cls_begin_offset, clusters.points.begin() + cls_end_offset};
 }
 
-bool8_t has_intensity_and_throw_if_no_xyz(
-  const PointCloud2::SharedPtr & cloud)
-{
-  return has_intensity_and_throw_if_no_xyz(*cloud);
-}
-
-bool8_t has_intensity_and_throw_if_no_xyz(
-  const PointCloud2 & cloud)
-{
-  bool8_t ret = true;
-  // Validate point step
-  if (cloud.fields.size() < 3U) {
-    throw std::runtime_error("Invalid PointCloud msg");
-  }
-
-  const auto check_field = [](
-    const sensor_msgs::msg::PointField & field,
-    const char8_t * const name,
-    const uint32_t offset,
-    const decltype(sensor_msgs::msg::PointField::datatype) datatype) -> bool8_t {
-      bool8_t res = true;
-      if ((name != field.name) || (offset != field.offset) ||
-        (datatype != field.datatype) || (1U != field.count))
-      {
-        res = false;
-      }
-      return res;
-    };
-
-  if (!check_field(cloud.fields[0U], "x", 0U, sensor_msgs::msg::PointField::FLOAT32)) {
-    throw std::runtime_error("PointCloud doesn't have correct x field");
-  } else if (!check_field(cloud.fields[1U], "y", 4U, sensor_msgs::msg::PointField::FLOAT32)) {
-    throw std::runtime_error("PointCloud doesn't have correct y field");
-  } else if (!check_field(cloud.fields[2U], "z", 8U, sensor_msgs::msg::PointField::FLOAT32)) {
-    throw std::runtime_error("PointCloud doesn't have correct z field");
-  } else {
-    // do nothing
-  }
-  if (cloud.fields.size() >= 4U) {
-    if (!check_field(cloud.fields[3U], "intensity", 12U, sensor_msgs::msg::PointField::FLOAT32)) {
-      if (!check_field(cloud.fields[3U], "intensity", 16U, sensor_msgs::msg::PointField::UINT8)) {
-        ret = false;
-      }
-    }
-  } else {
-    ret = false;
-  }
-  return ret;
-}
-
 std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2 & msg) noexcept
 {
   // Count expected amount of data from various source of truths
@@ -153,11 +106,17 @@ std::size_t index_after_last_safe_byte_index(const sensor_msgs::msg::PointCloud2
 SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg::PointCloud2 & msg)
 {
   /// XYZI or XYZ, or throw
-  auto num_floats = 3U;
-  if (has_intensity_and_throw_if_no_xyz(msg)) {
-    num_floats = 4U;
+  if(point_cloud_msg_wrapper::PointCloud2View<geometry_msgs::msg::Point32>::can_be_created_from(msg))
+  {
+    return SafeCloudIndices{3 * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
   }
-  return SafeCloudIndices{num_floats * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
+
+  if(point_cloud_msg_wrapper::PointCloud2View<PointXYZI>::can_be_created_from(msg))
+  {
+    return SafeCloudIndices{4 * sizeof(float32_t), index_after_last_safe_byte_index(msg)};
+  }
+
+  throw std::runtime_error("Invalid point structure");
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////

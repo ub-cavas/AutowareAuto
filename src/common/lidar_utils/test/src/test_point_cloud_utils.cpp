@@ -26,42 +26,6 @@
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
-TEST(TestPointCloudUtils, HasIntensityAndThrowIfNoXyzTest)
-{
-  using autoware::common::lidar_utils::create_custom_pcl;
-  using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
-
-  const uint32_t mini_cloud_size = 10U;
-
-  std::vector<std::string> right_field_names{"x", "y", "z", "intensity"};
-  std::vector<std::string> not_intensity_field_names{"x", "y", "z", "not_intensity"};
-  std::vector<std::string> three_field_names{"x", "y", "z"};
-  std::vector<std::string> five_field_names{"x", "y", "z", "intensity", "timestamp"};
-  std::vector<std::string> invalid_field_names{"x", "y"};
-  std::vector<std::string> wrong_x_field_names{"h", "y", "z"};
-  std::vector<std::string> wrong_y_field_names{"x", "h", "z"};
-  std::vector<std::string> wrong_z_field_names{"x", "y", "h"};
-  const auto correct_pc = create_custom_pcl<float32_t>(right_field_names, mini_cloud_size);
-  const auto not_intensity_pc = create_custom_pcl<float32_t>(
-    not_intensity_field_names,
-    mini_cloud_size);
-  const auto three_fields_pc = create_custom_pcl<float32_t>(three_field_names, mini_cloud_size);
-  const auto five_fields_pc = create_custom_pcl<float32_t>(five_field_names, mini_cloud_size);
-  const auto invalid_pc = create_custom_pcl<float32_t>(invalid_field_names, mini_cloud_size);
-  const auto no_x_pc = create_custom_pcl<float32_t>(wrong_x_field_names, mini_cloud_size);
-  const auto no_y_pc = create_custom_pcl<float32_t>(wrong_y_field_names, mini_cloud_size);
-  const auto no_z_pc = create_custom_pcl<float32_t>(wrong_z_field_names, mini_cloud_size);
-
-  EXPECT_THROW(has_intensity_and_throw_if_no_xyz(invalid_pc), std::runtime_error);
-  EXPECT_THROW(has_intensity_and_throw_if_no_xyz(no_x_pc), std::runtime_error);
-  EXPECT_THROW(has_intensity_and_throw_if_no_xyz(no_y_pc), std::runtime_error);
-  EXPECT_THROW(has_intensity_and_throw_if_no_xyz(no_z_pc), std::runtime_error);
-  EXPECT_FALSE(has_intensity_and_throw_if_no_xyz(not_intensity_pc));
-  EXPECT_FALSE(has_intensity_and_throw_if_no_xyz(three_fields_pc));
-  EXPECT_TRUE(has_intensity_and_throw_if_no_xyz(correct_pc));
-  EXPECT_TRUE(has_intensity_and_throw_if_no_xyz(five_fields_pc));
-}
-
 TEST(TestStaticTransformer, TransformPoint)
 {
   Eigen::Quaternionf rotation;

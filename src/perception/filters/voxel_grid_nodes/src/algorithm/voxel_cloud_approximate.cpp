@@ -20,7 +20,6 @@
 #include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp"
 
-using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
 using autoware::common::types::PointXYZI;
 
 namespace autoware
@@ -57,7 +56,7 @@ void VoxelCloudApproximate::insert(
   // Verify the point cloud format and assign correct point_step
   constexpr auto field_size = sizeof(decltype(autoware::common::types::PointXYZI::x));
   auto point_step = 4U * field_size;
-  if (!has_intensity_and_throw_if_no_xyz(msg)) {
+  if (!point_cloud_msg_wrapper::PointCloud2View<PointXYZI>::can_be_created_from(msg)) {
     point_step = 3U * field_size;
   }
 
