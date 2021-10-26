@@ -35,6 +35,7 @@ namespace tools
 namespace point_type_adapter
 {
 using common::types::PointXYZI;
+using common::types::PointXYZIF;
 using sensor_msgs::msg::PointCloud2;
 
 PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
@@ -104,35 +105,110 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
     throw std::runtime_error("x,y,z fields either don't exist or they are not FLOAT32");
   }
 
-  // Throws if "intensity" field doesn't exist
-  // or the field isn't with uint8_t or float32_t datatypes
-  IntensityIteratorWrapper intensity_iter_wrapper(*cloud_in);
-
-  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_x(*cloud_in, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_y(*cloud_in, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> iter_z(*cloud_in, "z");
-
-
-  CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
-  cloud_out_ptr->header = cloud_in->header;
-
-  cloud_modifier_out.reserve(cloud_in->width);
-
-  while (iter_x != iter_x.end() ||
-    iter_y != iter_y.end() ||
-    iter_z != iter_z.end() ||
-    !intensity_iter_wrapper.is_end())
+  // We must pack this structure as this is how data is stored coming from the PCL conversion.
+  #pragma pack(push, 1)
+  struct PointWithUintIntensity
   {
-    PointXYZI point_xyzi{*iter_x, *iter_y, *iter_z,
-      intensity_iter_wrapper.get_current_value<float32_t>()};
-    cloud_modifier_out.push_back(point_xyzi);
-    iter_x += 1;
-    iter_y += 1;
-    iter_z += 1;
-    intensity_iter_wrapper.increase();
+    float32_t x;
+    float32_t y;
+    float32_t z;
+    std::uint8_t intensity;
+  };
+  #pragma pack(pop)
+
+  using PointWithUintIntensityView =
+    point_cloud_msg_wrapper::PointCloud2View<PointWithUintIntensity>;
+
+  if (PointWithUintIntensityView::can_be_created_from(*cloud_in)) {
+    PointWithUintIntensityView old_cloud_view{*cloud_in};
+    CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
+    cloud_out_ptr->header = cloud_in->header;
+
+    cloud_modifier_out.reserve(cloud_in->width);
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZI point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        static_cast<float32_t>(old_point.intensity)};
+      cloud_modifier_out.push_back(point);
+    }
+    return cloud_out_ptr;
   }
 
-  return cloud_out_ptr;
+  using PointXYZIView = point_cloud_msg_wrapper::PointCloud2View<PointXYZI>;
+
+  if (PointXYZIView::can_be_created_from(*cloud_in)) {
+    PointXYZIView old_cloud_view{*cloud_in};
+    CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
+    cloud_out_ptr->header = cloud_in->header;
+
+    cloud_modifier_out.reserve(cloud_in->width);
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZI point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        old_point.intensity};
+      cloud_modifier_out.push_back(point);
+    }
+    return cloud_out_ptr;
+  }
+
+  using PointXYZIFView = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
+
+  if (PointXYZIFView::can_be_created_from(*cloud_in)) {
+    PointXYZIFView old_cloud_view{*cloud_in};
+    CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
+    cloud_out_ptr->header = cloud_in->header;
+
+    cloud_modifier_out.reserve(cloud_in->width);
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZI point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        old_point.intensity};
+      cloud_modifier_out.push_back(point);
+    }
+    return cloud_out_ptr;
+  }
+
+  #pragma pack(push, 1)
+  struct PointWithTimestamp
+  {
+    float32_t x;
+    float32_t y;
+    float32_t z;
+    std::uint8_t intensity;
+    float64_t timestamp;
+  };
+  #pragma pack(pop)
+
+  using PointWithTimestampView = point_cloud_msg_wrapper::PointCloud2View<PointWithTimestamp>;
+
+  if (PointWithTimestampView::can_be_created_from(*cloud_in)) {
+    PointWithTimestampView old_cloud_view{*cloud_in};
+    CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
+    cloud_out_ptr->header = cloud_in->header;
+
+    cloud_modifier_out.reserve(cloud_in->width);
+
+    for (const auto & old_point : old_cloud_view) {
+      const PointXYZI point{
+        old_point.x,
+        old_point.y,
+        old_point.z,
+        static_cast<float32_t>(old_point.intensity)};
+      cloud_modifier_out.push_back(point);
+    }
+    return cloud_out_ptr;
+  }
+
+  throw std::runtime_error("Point cloud not with the right structure");
 }
 
 }  // namespace point_type_adapter

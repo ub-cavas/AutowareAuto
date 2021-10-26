@@ -155,11 +155,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
             m_input_frame_id + ", got: " + msg.header.frame_id);
   }
 
-  sensor_msgs::PointCloud2ConstIterator<float32_t> x_it(msg, "x");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> y_it(msg, "y");
-  sensor_msgs::PointCloud2ConstIterator<float32_t> z_it(msg, "z");
-
-  auto && intensity_it = autoware::common::lidar_utils::IntensityIteratorWrapper(msg);
+  point_cloud_msg_wrapper::PointCloud2View<PointXYZI> cloud_view{msg};
 
   using autoware::common::types::PointXYZI;
   point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZI> modifier{m_filtered_transformed_msg};
@@ -168,26 +164,15 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   m_filtered_transformed_msg.header.stamp = msg.header.stamp;
 
-  for (size_t it = 0; it < (msg.data.size() / 16); it++) {
-    PointXYZI pt;
-    pt.x = *x_it;
-    pt.y = *y_it;
-    pt.z = *z_it;
-    intensity_it.get_current_value(pt.intensity);
-
-    if (point_not_filtered(pt)) {
-      auto transformed_point = transform_point(pt);
-      transformed_point.intensity = pt.intensity;
-      modifier.push_back(transformed_point);
-    }
-
-    ++x_it;
-    ++y_it;
-    ++z_it;
-    intensity_it.next();
-
-    if (intensity_it.eof()) {
-      break;
+  for (const auto & old_point : cloud_view) {
+    if (point_not_filtered(old_point)) {
+      auto transformed_point = transform_point(old_point);
+      const PointXYZI point{
+        transformed_point.x,
+        transformed_point.y,
+        transformed_point.z,
+        old_point.intensity};
+      modifier.push_back(point);
     }
   }
   return m_filtered_transformed_msg;
