@@ -31,7 +31,6 @@ Using the simulator involves the following steps:
 -# Launch it
 -# Configure cluster (one time step)
 -# Choose or create a simulation
--# Bridge the simulator with Autoware.Auto
 -# Start the simulation
 
 This section outlines these steps.
@@ -74,10 +73,7 @@ and launch the simulator again.
 
 You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step.
 
-
-At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it and go to an URL which has been printed in terminal window to create a cluster. You need an SVL account to do so. If you do not have one, create it now. 
-
-@note SVL creates cluster by calling its remote service with access token. This operation requires a working internet browser which is missing by default in ADE. You have to manually go to a printed URL on your hosts web browser.
+At first simulator run, there should be a window with only one button: `LINK TO CLOUD`, click it. Web browser with `https://wise.svlsimulator.com/` should open, you can create a new cluster there. You need an SVL account to do so, if you do not have one, create it. 
 
 More about linking to cloud: [documentation](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
 
@@ -111,7 +107,7 @@ Adding a vehicle to your library:
 
 ### Adding ROS2ForUnitySVLBridge
 
-Adding native ROS2 bridge to your library:
+Adding native ROS2 bridge to your library. If this bridge is already in your library then nothing needs to be done:
 - Go to [ROS2ForUnitySVLBridge](https://wise.svlsimulator.com/plugins/profile/d490cb21-2a44-447f-a289-7d869f23aabf) plugin page
 - Click `Add to Library` button
 
@@ -153,13 +149,13 @@ To create a new simulation, follow the below steps:
 
 You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
 
-### Starting the simulation {#lgsvl-start-simulation}
+## Starting the simulation {#lgsvl-start-simulation}
 
 Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation configuration in `Simulations` view.
 
 @image html images/svl-simulation-start.png "Starting the simulation" width=40%
 
-The Lexus should appear in a 3D rendering in the `SVL Simulator` window (not in the browser).
+The Lexus should appear in the `SVL Simulator` window (not in the browser).
 
 The next step is to control the Lexus and to drive around. Press `F1` to see a list of shortcuts and press the cookie button in bottom left corner for more UI controls.
 
