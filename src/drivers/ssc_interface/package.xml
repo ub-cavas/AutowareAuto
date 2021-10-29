@@ -14,10 +14,14 @@
   <depend>automotive_platform_msgs</depend>
   <depend>autoware_auto_common</depend>
   <depend>autoware_auto_msgs</depend>
+  <depend>motion_common</depend>
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
+  <depend>tf2</depend>
+  <depend>tf2_geometry_msgs</depend>
   <depend>time_utils</depend>
   <depend>vehicle_interface</depend>
+
 
   <exec_depend>ament_index_python</exec_depend>
   

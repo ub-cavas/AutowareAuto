@@ -15,7 +15,10 @@
 #include "ssc_interface/ssc_interface.hpp"
 
 #include <automotive_platform_msgs/msg/gear.hpp>
+#include <motion_common/motion_common.hpp>
 #include <rclcpp/logging.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
@@ -341,10 +344,12 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
   if (m_seen_steer) {
     // TODO(Takamasa Horibe): modify after AVP with TF specifications
     // position or yaw is 0 since odom=baselink with static TF in AVP demo
-    m_vehicle_kinematic_state.state.x = 0.0F;
-    m_vehicle_kinematic_state.state.y = 0.0F;
-    m_vehicle_kinematic_state.state.heading.real = std::cos(/*yaw*/ 0.0F / 2.0F);
-    m_vehicle_kinematic_state.state.heading.imag = std::sin(/*yaw*/ 0.0F / 2.0F);
+    m_vehicle_kinematic_state.state.pose.position.x = 0.0F;
+    m_vehicle_kinematic_state.state.pose.position.y = 0.0F;
+    m_vehicle_kinematic_state.state.pose.orientation.w = 1.0F;
+    m_vehicle_kinematic_state.state.pose.orientation.x = 0.0F;
+    m_vehicle_kinematic_state.state.pose.orientation.y = 0.0F;
+    m_vehicle_kinematic_state.state.pose.orientation.z = 0.0F;
     const float32_t beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
     m_vehicle_kinematic_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;
     m_kinematic_state_pub->publish(m_vehicle_kinematic_state);
@@ -357,11 +362,7 @@ void SscInterface::on_vel_accel_report(const VelocityAccelCov::SharedPtr & msg)
 void SscInterface::kinematic_bicycle_model(
   float32_t dt, float32_t l_r, float32_t l_f, VehicleKinematicState * vks)
 {
-  // convert to yaw – copied from trajectory_spoofer.cpp
-  // The below formula could probably be simplified if it would be derived directly for heading
-  const float32_t sin_y = 2.0F * vks->state.heading.real * vks->state.heading.imag;
-  const float32_t cos_y = 1.0F - 2.0F * vks->state.heading.imag * vks->state.heading.imag;
-  float32_t yaw = std::atan2(sin_y, cos_y);
+  float32_t yaw = ::motion::motion_common::to_angle(vks->state.pose.orientation);
   if (yaw < 0) {
     yaw += TAU;
   }
@@ -397,23 +398,29 @@ void SscInterface::kinematic_bicycle_model(
   const float32_t yaw_rate = yaw_change * v0;
   // Threshold chosen so as to not result in division by 0
   if (std::abs(yaw_rate) < 1e-18f) {
-    vks->state.x += std::cos(course) * (v0 * dt + 0.5f * a * dt * dt);
-    vks->state.y += std::sin(course) * (v0 * dt + 0.5f * a * dt * dt);
+    vks->state.pose.position.x +=
+      static_cast<double>(std::cos(course) * (v0 * dt + 0.5f * a * dt * dt));
+    vks->state.pose.position.y +=
+      static_cast<double>(std::sin(course) * (v0 * dt + 0.5f * a * dt * dt));
   } else {
-    vks->state.x +=
+    vks->state.pose.position.x +=
+      static_cast<double>(
       (v0 + a * dt) / yaw_rate * std::sin(course + yaw_rate * dt) -
       v0 / yaw_rate * std::sin(course) +
       a / (yaw_rate * yaw_rate) * std::cos(course + yaw_rate * dt) -
-      a / (yaw_rate * yaw_rate) * std::cos(course);
-    vks->state.y +=
+      a / (yaw_rate * yaw_rate) * std::cos(course));
+    vks->state.pose.position.y +=
+      static_cast<double>(
       -(v0 + a * dt) / yaw_rate * std::cos(course + yaw_rate * dt) +
       v0 / yaw_rate * std::cos(course) +
       a / (yaw_rate * yaw_rate) * std::sin(course + yaw_rate * dt) -
-      a / (yaw_rate * yaw_rate) * std::sin(course);
+      a / (yaw_rate * yaw_rate) * std::sin(course));
   }
   yaw += std::cos(beta) * std::tan(delta) / (l_r + l_f) * (v0 * dt + 0.5f * a * dt * dt);
-  vks->state.heading.real = std::cos(yaw / 2.0f);
-  vks->state.heading.imag = std::sin(yaw / 2.0f);
+  tf2::Quaternion quat;
+  quat.setRPY(0.0, 0.0, yaw);
+  vks->state.pose.orientation = tf2::toMsg(quat);
+
 
   // Rotations per second or rad per second?
   vks->state.heading_rate_rps = yaw_rate;

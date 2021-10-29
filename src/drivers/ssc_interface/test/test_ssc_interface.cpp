@@ -15,6 +15,9 @@
 #include <common/types.hpp>
 
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 #include <cmath>
 #include <memory>
@@ -40,17 +43,18 @@ TEST(TestSscInterface, TestDriveStraight) {
   VehicleKinematicState vks;
   vks.state.longitudinal_velocity_mps = 2.0;
   constexpr float32_t kYaw = 1.0471975511965976F;  // 60 deg
-  vks.state.heading.real = 0.86602540378F;  // cos(30 deg)
-  vks.state.heading.imag = 0.5F;  // sin(30 deg)
+  tf2::Quaternion quat;
+  quat.setRPY(0.0, 0.0, kYaw);
+  vks.state.pose.orientation = tf2::toMsg(quat);
   constexpr float32_t dt = 0.1F;
 
   for (float32_t i = 0; i < 50.0F; ++i) {
     const float32_t x_nominal = std::cos(kYaw) * i * dt * 2.0;
-    EXPECT_TRUE(is_close(x_nominal, vks.state.x)) <<
-      "should be " << x_nominal << ", is " << vks.state.x;
+    EXPECT_TRUE(is_close(x_nominal, vks.state.pose.position.x)) <<
+      "should be " << x_nominal << ", is " << vks.state.pose.position.x;
     const float32_t y_nominal = std::sin(kYaw) * i * dt * 2.0;
-    EXPECT_TRUE(is_close(y_nominal, vks.state.y)) <<
-      "should be " << y_nominal << ", is " << vks.state.y;
+    EXPECT_TRUE(is_close(y_nominal, vks.state.pose.position.y)) <<
+      "should be " << y_nominal << ", is " << vks.state.pose.position.y;
     ssc_interface::SscInterface::kinematic_bicycle_model(
       dt, kRearAxleToCogM, kFrontAxleToCogM,
       &vks);
@@ -86,18 +90,20 @@ TEST(TestSscInterface, TestConstantSteering) {
   // Make the circle go around (0, 0) – we're headed right at the start, and
   // turning left (positive angle).
   // So the starting position needs to be below the origin.
-  vks.state.x = 0;
-  vks.state.y = -radius_m;
+  vks.state.pose.position.x = 0;
+  vks.state.pose.position.y = -radius_m;
   // Make sure the velocity vector is horizontal at the beginning.
-  vks.state.heading.real = std::cos(-beta_rad / 2.0f);
-  vks.state.heading.imag = std::sin(-beta_rad / 2.0f);
+  tf2::Quaternion quat;
+  quat.setRPY(0.0, 0.0, -beta_rad);
+  vks.state.pose.orientation = tf2::toMsg(quat);
   for (int i = 0; i < kNumSteps; ++i) {
     ssc_interface::SscInterface::kinematic_bicycle_model(
       dt, kRearAxleToCogM, kFrontAxleToCogM,
       &vks);
     // Check that we're driving a circle. It would be nicer to explicitly
     // calculate a nominal x and y position for each step and compare.
-    const float32_t dist_squared = vks.state.x * vks.state.x + vks.state.y * vks.state.y;
+    const float32_t dist_squared = vks.state.pose.position.x * vks.state.pose.position.x +
+      vks.state.pose.position.y * vks.state.pose.position.y;
     EXPECT_TRUE(is_close(dist_squared, radius_m_squared, 1e-2)) <<
       "should be " << dist_squared << ", is " << radius_m_squared;
   }
