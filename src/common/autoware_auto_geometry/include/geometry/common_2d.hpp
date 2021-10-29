@@ -77,6 +77,13 @@ inline auto & xr_(PointT & pt)
 {
   return pt.x;
 }
+/// \brief Gets a reference to the x value for a TrajectoryPoint
+/// \return A reference to the x value of the TrajectoryPoint
+/// \param[in] pt The TrajectoryPoint
+inline auto & xr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.x;
+}
 /// \brief Gets a reference to the y value for a point
 /// \return A reference to The y value of the point
 /// \param[in] pt The point
@@ -86,6 +93,13 @@ inline auto & yr_(PointT & pt)
 {
   return pt.y;
 }
+/// \brief Gets a reference to the y value for a TrajectoryPoint
+/// \return A reference to the y value of the TrajectoryPoint
+/// \param[in] pt The TrajectoryPoint
+inline auto & yr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.y;
+}
 /// \brief Gets a reference to the z value for a point
 /// \return A reference to the z value of the point
 /// \param[in] pt The point
@@ -94,6 +108,13 @@ template<typename PointT>
 inline auto & zr_(PointT & pt)
 {
   return pt.z;
+}
+/// \brief Gets a reference to the z value for a TrajectoryPoint
+/// \return A reference to the z value of the TrajectoryPoint
+/// \param[in] pt The TrajectoryPoint
+inline auto & zr_(autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.z;
 }
 }  // namespace point_adapter
 

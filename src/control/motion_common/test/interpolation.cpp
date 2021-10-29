@@ -1,4 +1,4 @@
-// Copyright 2019 Christopher Ho
+// Copyright 2019-2021 Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,14 +16,18 @@
 #include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <time_utils/time_utils.hpp>
+#include <tf2/utils.h>
 
 #include <chrono>
 #include <limits>
+
+#include "gtest/gtest.h"
 
 using motion::motion_common::Command;
 using motion::motion_common::Point;
 using motion::motion_common::State;
 using motion::motion_common::Trajectory;
+using motion::motion_common::from_angle;
 using motion::motion_common::to_angle;
 using motion::motion_testing::make_state;
 using motion::motion_testing::constant_velocity_trajectory;
@@ -58,6 +62,7 @@ TEST(Interpolation, Clamp)
   ASSERT_TRUE(osrf_testing_tools_cpp::memory_tools::is_working());
 #endif
   apex_test_tools::memory_test::resume();
+
   constexpr auto TOL = 1.0E-5;
   fn_suite(5.0, 15.0, TOL);
   fn_suite(-15.0, -5.0, TOL);
@@ -102,12 +107,8 @@ TEST(Interpolation, Interpolation)
 
 TEST(Interpolation, Slerp2d)
 {
-  using motion::motion_common::Heading;
+  using motion::motion_common::Orientation;
   using motion::motion_common::Real;
-  const auto make = [](Real real, Real imag) -> Heading
-    {
-      return Heading{}.set__real(real).set__imag(imag);
-    };
   const auto angle_distance = [](Real a, Real b) -> Real
     {
       // https://stackoverflow.com/questions/1878907/the-smallest-difference-between-2-angles?rq=1
@@ -115,34 +116,34 @@ TEST(Interpolation, Slerp2d)
       return std::atan2(std::sin(d), std::cos(d));
     };
   // Plain check
-  const auto test_case = [ = ](Heading a, Heading b, Real t, Heading res, Real tol)
+  const auto test_case = [ = ](Orientation a, Orientation b, Real t, Orientation res, Real tol)
     {
-      using motion::motion_common::nlerp;
-      const auto ret = nlerp(a, b, t);
-      EXPECT_LT(std::fabs(ret.imag - res.imag), tol) << ret.imag << ", " << res.imag;
-      EXPECT_LT(std::fabs(ret.real - res.real), tol) << ret.real << ", " << res.real;
+      using motion::motion_common::slerp;
+      const auto ret = slerp(a, b, t);
+      EXPECT_LT(
+        std::fabs(to_angle(ret) - to_angle(res)),
+        tol) << to_angle(ret) << ", " << to_angle(res);
     };
   // Check using alternate computation path
-  const auto test_case_dual_path = [ = ](Heading a, Heading b, Real t, Real tol)
+  const auto test_case_dual_path = [ = ](Orientation a, Orientation b, Real t, double tol)
     {
       // Compute result using angles
-      using motion::motion_common::to_angle;
       const auto th_a = to_angle(a);
       const auto th_b = to_angle(b);
       const auto ab = angle_distance(th_a, th_b);
       const auto t_ = motion::motion_common::clamp(t, 0.0F, 1.0F);
       const auto th_t = th_a + (t_ * ab);
-      using motion::motion_common::from_angle;
       const auto res_th = from_angle(th_t);
-      using motion::motion_common::nlerp;
+      using motion::motion_common::slerp;
       test_case(a, b, t, res_th, tol);
       if (HasFailure()) {
-        const auto ret = nlerp(a, b, t);
+        const auto ret = slerp(a, b, t);
         std::cout << "Angles: " << th_a << ", " << th_b << "; " << th_t << ", " << to_angle(ret) <<
           "\n";
       }
     };
-  const auto test_suite = [ = ](Heading a, Heading b, Real tol, Real tol2, bool b_snap = false)
+  const auto test_suite =
+    [ = ](Orientation a, Orientation b, Real tol, Real tol2, bool b_snap = false)
     {
       constexpr auto lim = std::numeric_limits<Real>::max();
       // If you do something crazy, make b less crazy wrt a
@@ -159,20 +160,19 @@ TEST(Interpolation, Slerp2d)
       test_case_dual_path(a, b, 0.75F, tol2);
     };
   constexpr auto TOL = 1.0E-5F;
-  const auto cs45 = std::sqrt(2.0F) / 2.0F;
   apex_test_tools::memory_test::start();
   // 0 - 180 -> 90
-  test_case(make(1.0F, 0.0F), make(0.0F, 1.0F), 0.5F, make(cs45, cs45), TOL);
+  test_case(from_angle(0.0), from_angle(M_PI_2), 0.5F, from_angle(M_PI_4), TOL);
   // 0 - -180 -> -90
-  test_case(make(1.0F, 0.0F), make(0.0F, -1.0F), 0.5F, make(cs45, -cs45), TOL);
+  test_case(from_angle(0.0), from_angle(-M_PI_2), 0.5F, from_angle(-M_PI_4), TOL);
   // Commutivity
-  test_case(make(0.0F, 1.0F), make(1.0F, 0.0F), 0.5F, make(cs45, cs45), TOL);
-  test_case(make(0.0F, -1.0F), make(1.0F, 0.0F), 0.5F, make(cs45, -cs45), TOL);
+  test_case(from_angle(M_PI_2), from_angle(0.0), 0.5F, from_angle(M_PI_4), TOL);
+  test_case(from_angle(-M_PI_2), from_angle(0.0), 0.5F, from_angle(-M_PI_4), TOL);
   // test suite
-  test_suite(make(1.0F, 0.0F), make(0.0F, 1.0F), TOL, 0.07F);
-  test_suite(make(1.0F, 0.0F), make(0.0F, -1.0F), TOL, 0.07F);
-  test_suite(make(1.0F, 0.0F), make(-1.0F, 0.0F), TOL, TOL, true);
-  test_suite(make(0.0F, 1.0F), make(0.0F, -1.0F), TOL, TOL, true);
+  test_suite(from_angle(0.0), from_angle(M_PI_2), TOL, 0.07F);
+  test_suite(from_angle(0.0), from_angle(-M_PI_2), TOL, 0.07F);
+  test_suite(from_angle(0.0), from_angle(M_PI), TOL, TOL, true);
+  test_suite(from_angle(M_PI_2), from_angle(-M_PI_2), TOL, TOL, true);
   apex_test_tools::memory_test::stop();
   // Test case below doesn't work, but I'm pretty sure it's more because the test doesn't work for
   // crazy angles
@@ -183,9 +183,6 @@ TEST(Interpolation, Slerp2d)
 
 TEST(Interpolation, AngleArithmetic)
 {
-  using motion::motion_common::from_angle;
-  using motion::motion_common::to_angle;
-  using motion::motion_common::Heading;
   const auto test_fn = [](auto a, auto b, auto res, auto tol) {
       const auto qa = from_angle(a);
       const auto qb = from_angle(b);
@@ -234,9 +231,9 @@ TEST(Interpolation, TrajectorySubsample)
     const auto & ref = t_res.points[idx];
     // Check...
     constexpr auto TOL = 1.0E-3F;
-    EXPECT_LT(std::fabs(pt.x - ref.x), TOL);
-    EXPECT_LT(std::fabs(pt.y - ref.y), TOL);
-    EXPECT_LT(std::fabs(to_angle(pt.heading) - to_angle(ref.heading)), TOL);
+    EXPECT_LT(std::fabs(pt.pose.position.x - ref.pose.position.x), static_cast<double>(TOL));
+    EXPECT_LT(std::fabs(pt.pose.position.y - ref.pose.position.y), static_cast<double>(TOL));
+    EXPECT_LT(std::fabs(to_angle(pt.pose.orientation) - to_angle(ref.pose.orientation)), TOL);
     EXPECT_LT(std::fabs(pt.longitudinal_velocity_mps - ref.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(pt.acceleration_mps2 - ref.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(pt.heading_rate_rps - ref.heading_rate_rps), TOL);
@@ -264,14 +261,14 @@ TEST(Interpolation, TrajectorySupersample)
     const auto & ref = t_res.points[idx];
     // Check...
     constexpr auto TOL = 1.0E-3F;
-    EXPECT_LT(std::fabs(pt.x - ref.x), TOL);
-    EXPECT_LT(std::fabs(pt.y - ref.y), TOL);
-    EXPECT_LT(std::fabs(to_angle(pt.heading) - to_angle(ref.heading)), TOL);
+    EXPECT_LT(std::fabs(pt.pose.position.x - ref.pose.position.x), static_cast<double>(TOL));
+    EXPECT_LT(std::fabs(pt.pose.position.y - ref.pose.position.y), static_cast<double>(TOL));
+    EXPECT_LT(std::fabs(to_angle(pt.pose.orientation) - to_angle(ref.pose.orientation)), TOL);
     EXPECT_LT(std::fabs(pt.longitudinal_velocity_mps - ref.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(pt.acceleration_mps2 - ref.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(pt.heading_rate_rps - ref.heading_rate_rps), TOL);
     const auto dt_err = (dt * idx) - from_message(pt.time_from_start);
     generic_checks(pt, ref, dt_err, TOL);
   }
-  apex_test_tools::memory_test::stop();
+  apex_test_tools::memory_test::start();
 }
