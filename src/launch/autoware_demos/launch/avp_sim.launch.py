@@ -194,6 +194,7 @@ def generate_launch_description():
            ("input/tf", "/tf"),
            ("input/tf_static", "/tf_static"),
        ],
+       arguments=['--ros-args', '--log-level', 'debug'],
     )
     lon_control = Node(
         package='trajectory_follower_nodes',
@@ -210,6 +211,7 @@ def generate_launch_description():
            ("input/tf", "/tf"),
            ("input/tf_static", "/tf_static"),
        ],
+       arguments=['--ros-args', '--log-level', 'debug'],
     )
     latlon_muxer = Node(
         package='trajectory_follower_nodes',
