@@ -1,21 +1,21 @@
-LGSVL simulator {#lgsvl}
+SVL simulator {#lgsvl}
 ========
 
 @tableofcontents
 
-# LGSVL simulator: running the LGSVL simulator alongside Autoware.Auto
+# SVL simulator: running the SVL simulator alongside Autoware.Auto
 
-LGSVL is a Unity-based multi-robot simulator for autonomous vehicle developers. It provides a simulated world to
+SVL is a Unity-based multi-robot simulator for autonomous vehicle developers. It provides a simulated world to
 
 - create sensor inputs to Autoware.Auto,
 - allow the user to manually steer the ego vehicle similar to a computer game,
 - place other moving traffic participants in a scene.
 
-For more information about the simulator, see [https://www.lgsvlsimulator.com/docs/](https://www.lgsvlsimulator.com/docs/).
+For more information about the simulator, see [https://www.svlsimulator.com/docs/getting-started/getting-started/](https://www.svlsimulator.com/docs/getting-started/getting-started/).
 
 # Requirements
 
-The following guide assumes that the LGSVL simulator will be run from inside an ADE container, although it is not strictly required.
+The following guide assumes that the SVL simulator will be run from inside an ADE container, although it is not strictly required.
 
 - ADE 4.2.0 or later. Follow the
 [ADE installation instructions](https://ade-cli.readthedocs.io/en/latest/install.html) to install it
@@ -29,44 +29,37 @@ The following guide assumes that the LGSVL simulator will be run from inside an 
 Using the simulator involves the following steps:
 
 -# Launch it
+-# Configure cluster (one time step)
 -# Choose or create a simulation
--# Bridge the simulator with Autoware.Auto
 -# Start the simulation
 
-This section outlines these steps.
+This section outlines these steps. You also need an SVL account to use the simulator, if you do not have one, create it now on `https://wise.svlsimulator.com/`.
 
 ## Launching the simulator
 
 Install ADE as described in the [installation section](@ref installation-ade):
 
-Start ADE with the LGSVL volume:
+Start ADE with the SVL volume:
 
 ```{bash}
 $ cd ~/adehome/AutowareAuto
-$ ade --rc .aderc-lgsvl start --update --enter
+$ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 ```
 
-Pick a different `.aderc-*-lgsvl` file to select a non-default ROS version.
+Pick a different `.aderc-*-lgsvl` file to manually choose a ROS version.
 
-To start the LGSVL simulator, in the same terminal window:
+To start the SVL simulator, in the same terminal window:
 
 ```{bash}
 ade$ /opt/lgsvl/simulator
 ```
-
-Now start your favorite browser on the host system (outside of ADE!) and go to [http://127.0.0.1:8080](http://127.0.0.1:8080) where simulations can be configured.
-
-@note When running LGSVL Simulator in a Docker container, the "Open Browser..." button in the simulator window does not work.
-
-@note When running LGSVL Simulator for the first time, you may be asked to log into [https://account.lgsvlsimulator.com/](https://account.lgsvlsimulator.com/).
-If you have an account, log in. If you do not have an account, create one, then log in.
 
 ### Troubleshooting
 
 In case the simulator window opens up with a black screen and the application immediately terminates, have a look at the log file at
 
 ```{bash}
-~/.config/unity3d/LG\ Silicon\ Valley\ Lab/LGSVL\ Simulator/Player.log
+~/.config/unity3d/LGElectronics/SVLSimulator/Player.log
 ```
 
 One possible fix is to remove conflicting graphics drivers from ADE with
@@ -76,79 +69,107 @@ ade$ sudo apt remove mesa-vulkan-drivers
 ```
 and launch the simulator again.
 
+
+If point cloud data or image data is not being visualized in rviz but other data such as bounding box is visible run the following command inside ade,
+```{bash}
+ade$ sudo apt update ; sudo apt dist-upgrade
+```
+
+## Configure the cluster
+
+You need to make your ADE environment a valid SVL cluster in order to launch any simulations. This is a one time configuration step. 
+
+On your first simulator run there should be a window with only one button: `LINK TO CLOUD`. Click it and a web browser with `https://wise.svlsimulator.com/` should open. You can create a new cluster there by providing a cluster name and clicking `Create cluster` button.
+
+More about linking to cloud: [documentation](https://www.svlsimulator.com/docs/installation-guide/installing-simulator/#linktocloud).
+
 ## Creating a simulation
 
-Creating a simulation configuration takes only a few clicks in the browser. The following steps assume that the launch was successful and illustrate the configuration process with the setup for the @ref avpdemo.
+Creating a simulation takes only a few clicks in the browser. The following steps assume that the launch was successful and illustrate the configuration process with the setup for the @ref avpdemo.
+
+Start your browser and go to [SVL simulator web interface](https://wise.svlsimulator.com/). You should have your account set up already, so sign in using the button on the top right of the screen.
 
 ### Choosing a map
 
-The goal is to create a map configuration for the AutonomouStuff parking lot. If that map is already available on the first launch of the simulation, nothings needs to be done.
+The goal is to add `AutonomouStuff` parking lot map to your library. If that map is already in your library then nothing needs to be done.
 
-Else follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/maps-tab/#where-to-find-maps), click the `Add new` button and enter a name (e.g. `AutonomouStuff parking lot`) and the link to the asset bundle from [this site](https://content.lgsvlsimulator.com/maps/autonomoustuff/) containing the map data:
+Adding a map to your library:
+- Go to `Store` -> `Maps`.
+- Click `+` button next to `AutonomouStuff` map (you can use search bar to filter by name).
 
-`https://assets.lgsvlsimulator.com/ec057870762b5a967a451c93444b67d0b64e9656/environment_AutonomouStuff`
-
-Once submitted, this will download the map automatically.
-
-@image html images/lgsvl-map.png "Choosing a map"
+@image html images/svl-map.png "Choosing a map" width=50%
 
 ### Configuring a vehicle {#lgsvl-configuring-vehicle}
-The goal is to create a vehicle configuration for the AutonomouStuff parking lot.
 
-Follow the [LGSVL instructions](https://www.lgsvlsimulator.com/docs/vehicles-tab/#how-to-add-a-vehicle),
-to configure the Lexus model: click the vehicles tab, then `Add new` and enter
-`Lexus2016RXHybrid` as name and
+The goal is to add `AWFLexus2016RXHybrid` vehicle to your library. If this vehicle is already in your library then nothing needs to be done.
 
-`https://assets.lgsvlsimulator.com/ea5e32fe566065c6d1bbf1f0728d6654c94e375d/vehicle_AWFLexus2016RXHybrid`
+Adding a vehicle to your library:
+- Go to `Store` -> `Vehicles`.
+- Click `+` button next to `AWFLexus2016RXHybrid` vehicle (you can use search bar to filter by name).
 
-as `Vehicle URL`.
+@image html images/svl-vehicle.png `Adding a vehicle` width=50%
 
-@image html images/lgsvl-vehicle.png "Adding a vehicle"
+### Adding ROS2ForUnitySVLBridge
 
-Once submitted, click on the wrench icon for the Lexus vehicle and
+The goal is to add native ROS2 bridge to your library. If this bridge is already in your library then nothing needs to be done:
+- Go to [ROS2ForUnitySVLBridge](https://wise.svlsimulator.com/plugins/profile/d490cb21-2a44-447f-a289-7d869f23aabf) plugin page.
+- Click `Add to Library` button.
 
-- Change the bridge type to `Ros2NativeBridge`
-- In the `Sensors` box, copy and paste the content of  [`avp-sensors.json`](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) located in the Autoware.Auto repository at `src/tools/autoware_demos/config/svl` to tell LGSVL about sensor positions and where to communicate information to the Autoware.Auto stack.
+You can also search for `ROS2ForUnitySVLBridge` using the search bar.
 
-@image html images/lgsvl-bridge-sensors.png "Configuring bridge and sensors"
+### Configure vehicle sensors
 
-The `Ros2NativeBridge` is a special bridge type which does not require a websocket-based bridge.
-When a simulation is started, the topics should be published in ROS 2 automatically.
+Once you added vehicle to your library:
+- Go to `Library` -> `Vehicles`.
+- Click on the `AWFLexus2016RXHybrid` portrait. You will be forwarded to a vehicle edit page.
+- Click a button near `Sensor Configurations` section to modify sensor configurations.
 
-The above steps are a modified version of the
-[LGSVL documentation](https://www.lgsvlsimulator.com/docs/autoware-auto-instructions/#run-simulator-alongside-autowareauto)
+@image html images/svl-sensors.png "Configuring sensors"
+
+Notice that there is already an `Autoware.Auto` configuration. To make sure that we are running the newest version possible, it is better to create a new one and use the most recent version of sensor configuration file:
+- Click `+ Create New Configuration` button at the bottom of the page. 
+- Set a configuration name and pick `ROS2ForUnitySVLBridge` as a bridge. This is a native implementation of ROS2 bridge.
+- Confirm.
+
+In the configuration edit view:
+- Click `{...}` symbol near Visual Editor (preview) window.
+- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/master/src/launch/autoware_demos/config/svl/avp-sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now. 
+- Click `Save` to save configuration.
+
+@image html images/svl-sensors-json.png "Json configuration file" width=40%
+
+That’s it. Now you have a vehicle with a valid configuration.
 
 ### Choosing/creating a simulation
 
-Choose `Simulations` on the left to see the simulations screen. The LGSVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, select the desired simulation and press the play button in the bottom right corner of the screen. The simulator should now start in the LGSVL window.
+The SVL simulator lets you store and reuse multiple simulation configurations. To use an existing simulation, navigate to `Simulations` tab and press the "Run Simulation" button for desired instance. The simulator should now start in the SVL window.
 
 To create a new simulation, follow the below steps:
 
-- Switch to the Simulations tab and click the `Add new` button.
-- Enter a name and switch to the `Map & Vehicles` tab.
-- Select the `Lexus2016RXHybrid` from the drop-down menu.
-- Enter `127.0.0.1:9090` in the `Ros2NativeBridge connction` box.
-- No changes to the `Traffic` or `Weather` tab are needed but one can play around here.
-- Click submit.
+- Switch to the `Simulations` tab and click the `Add new` button.
+- Enter a name, description and select a cluster. Click `Next`.
+- Select the `Random Traffic` runtime template from the drop-down menu.
+- Select `AutonomouStuff` map and `AWFLexus2016RXHybrid` vehicle with your sensor configuration. Click `Next`.
+- Select `Other ROS 2 Autopilot` autopilot and leave `Bridge Connection` with default value. 
+- Click `Next` and then `Publish`.
 
-@image html images/lgsvl-simulation-general.png "Configuring the simulation"
-@image html images/lgsvl-simulation-map-and-vehicle.png "Configuring the simulation map and vehicle"
+You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interface/web/simulations/) for more in-depth description.
 
-### Starting the simulation {#lgsvl-start-simulation}
+## Starting the simulation {#lgsvl-start-simulation}
 
-Once the simulation has been created, select it by clicking on its white box first, then run it by clicking the play button.
+Once the simulation has been created, you can run it by clicking the `Run Simulation` button next to the simulation configuration widget in `Simulations` view.
 
-@image html images/lgsvl-simulation-start.png "Starting the simulation" width=80%
+@image html images/svl-simulation-start.png "Starting the simulation" width=40%
 
-The Lexus should appear in a 3D rendering in the `LGSVL Simulator` window (not in the browser).
+The Lexus should appear in the `SVL Simulator` window (not in the browser).
 
 The next step is to control the Lexus and to drive around. Press `F1` to see a list of shortcuts and press the cookie button in bottom left corner for more UI controls.
 
 The essential commands are to use the arrow keys to steer and accelerate, and the `Page Up` and `Page Down` keys to switch between forward and reverse driving.
 
-Congratulations if everything is working up to this point. The setup of LGSVL is completed.
+Congratulations if everything is working up to this point. The setup of SVL is completed.
 
-@image html images/lgsvl-controls.png "Controlling the Lexus"
+@image html images/lgsvl-controls.png "Controlling the Lexus" width=60%
 
 @todo #850 Uncomment joystick session when tested again
 
@@ -208,10 +229,10 @@ Congratulations if everything is working up to this point. The setup of LGSVL is
 
 @todo update check section
 
-LGSVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
--# Converts control inputs with CCW positive rotations to the CCW negative inputs the LGSVL
+SVL uses conventions which are not directly aligned with ROS 2 conventions. The full list of behaviors the `lgsvl_interface` implements is:
+-# Converts control inputs with CCW positive rotations to the CCW negative inputs the SVL
 simulator expects
--# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` LGSVL expects via
+-# Provides a mapping from `VehicleControlCommand` to the `RawControlCommand` SVL expects via
 parametrizable 1D lookup tables
 
 To run the `lgsvl_interface` manually, enter the following in a new terminal window:
@@ -242,7 +263,7 @@ ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch joystick_vehicle_interface_nodes lgsvl_joystick.launch.py
 ```
 
-For an example of using `VehicleControlCommand` with LGSVL, run the following demo in a new terminal window:
+For an example of using `VehicleControlCommand` with SVL, run the following demo in a new terminal window:
 
 ```{bash}
 $ ade enter

@@ -69,22 +69,30 @@ RUN cat /bashrc-git-prompt >> /etc/skel/.bashrc && \
     rm /bashrc-git-prompt
 COPY gdbinit /etc/gdb/
 
+# Install a browser. Needed to configure SVL simulator
+RUN if [ "$(uname -m)" = "x86_64" ]; then \
+        curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+        apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+        rm google-chrome-stable_current_amd64.deb; \
+    fi 
+
 
 # ===================== CLEAN UP ZONE ===================== #
 # Commands in the cleanup zone will be cleaned up before every release
 # and put into the correct place.
 RUN apt-get update \
   && apt-get install -y \
-    unzip \
     ca-certificates \
+    libgl1 \
+    libgtk2.0-0 \
+    libvulkan1 \
     libx11-6 \
     libxau6 \
     libxcb1 \
     libxdmcp6 \
     libxext6 \
-    libvulkan1 \
-    libgl1 \
-    libgtk2.0-0 \
+    nodejs \
+    unzip \
     vulkan-utils \
   && apt-get clean
 
