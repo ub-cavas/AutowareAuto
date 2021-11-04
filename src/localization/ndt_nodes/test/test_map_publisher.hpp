@@ -40,7 +40,8 @@ PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
     static_cast<float32_t>(v(0)),
     static_cast<float32_t>(v(1)),
     static_cast<float32_t>(v(2)),
-    0.0};
+    0.0,
+    0};
 }
 
 class DenseNDTMapContext
@@ -131,7 +132,7 @@ protected:
 pcl::PointCloud<pcl::PointXYZI> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
   pcl::PointCloud<pcl::PointXYZI> res{};
-  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI>
+  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>
   msg_view{msg};
 
   for (const auto & pt_in : msg_view) {
