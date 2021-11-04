@@ -234,7 +234,7 @@ INSTANTIATE_TEST_CASE_P(
 
 pcl::PointCloud<pcl::PointXYZ> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI> msg_view{msg};
+  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg_view{msg};
   pcl::PointCloud<pcl::PointXYZ> res{};
 
   for (const auto & pt_in : msg_view) {
