@@ -31,6 +31,7 @@ twine
 vim
 xdg-utils
 wget
+tmux
 
 # DDS Dependencies
 ros-$ROS_DISTRO-cyclonedds
