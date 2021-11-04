@@ -14,9 +14,10 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <tracking/projection.hpp>
-#include <geometry/intersection.hpp>
 #include <geometry/common_2d.hpp>
+#include <geometry/intersection.hpp>
+#include <tracking/projection.hpp>
+
 #include <algorithm>
 #include <vector>
 
@@ -32,7 +33,7 @@ bool is_projection_valid(const Projection & projection) noexcept
 {
   return projection.shape.size() >= 3U;
 }
-}
+}  // namespace
 
 CameraModel::CameraModel(
   const CameraIntrinsics & intrinsics

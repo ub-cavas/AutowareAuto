@@ -17,7 +17,6 @@
 #ifndef TRACKING__TRACKER_TYPES_HPP_
 #define TRACKING__TRACKER_TYPES_HPP_
 
-#include <Eigen/Core>
 #include <tracking/visibility_control.hpp>
 
 #include <limits>

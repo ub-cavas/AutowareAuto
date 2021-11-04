@@ -14,24 +14,32 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include "gtest/gtest.h"
-#include "autoware_auto_msgs/msg/detected_objects.hpp"
-#include "nav_msgs/msg/odometry.hpp"
-#include "tracking/multi_object_tracker.hpp"
+#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <gtest/gtest.h>
+#include <nav_msgs/msg/odometry.hpp>
+#include <tracking/multi_object_tracker.hpp>
 
-using Tracker = autoware::perception::tracking::MultiObjectTracker;
-using CreationPolicies = autoware::perception::tracking::TrackCreationPolicy;
-using Options = autoware::perception::tracking::MultiObjectTrackerOptions;
-using Status = autoware::perception::tracking::TrackerUpdateStatus;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-using Odometry = nav_msgs::msg::Odometry;
+#include <memory>
+
+using autoware::perception::tracking::LidarOnlyPolicy;
+using autoware::perception::tracking::MultiObjectTracker;
+using autoware::perception::tracking::TrackCreationPolicy;
+using autoware::perception::tracking::TrackCreator;
+using autoware::perception::tracking::MultiObjectTrackerOptions;
+using autoware::perception::tracking::TrackerUpdateStatus;
+using autoware_auto_msgs::msg::DetectedObjects;
+using nav_msgs::msg::Odometry;
 
 class MultiObjectTrackerTest : public ::testing::Test
 {
 public:
+  using Policy = LidarOnlyPolicy;
+  using TrackCreatorType = TrackCreator<Policy>;
+
   MultiObjectTrackerTest()
-  : m_tracker{Options{{2.0F, 2.5F, true}, {}, {CreationPolicies::LidarClusterOnly, 1.0F, 1.0F}},
-      m_tf_buffer}
+  : m_policy{std::make_shared<Policy>(1.0, 1.0, m_tf_buffer)},
+    m_track_creator{m_policy},
+    m_tracker{MultiObjectTrackerOptions {{2.0F, 2.5F, true}, {}}, m_track_creator, m_tf_buffer}
   {
     m_detections.header.frame_id = "base_link";
     m_detections.header.stamp.sec = 1000;
@@ -46,7 +54,9 @@ public:
   void TearDown() {}
 
   tf2::BufferCore m_tf_buffer;
-  Tracker m_tracker;
+  std::shared_ptr<Policy> m_policy;
+  TrackCreatorType m_track_creator;
+  MultiObjectTracker<TrackCreatorType> m_tracker;
   DetectedObjects m_detections;
   Odometry m_odom;
 };
@@ -59,7 +69,7 @@ TEST_F(MultiObjectTrackerTest, TestTimestamps) {
   m_tracker.update(m_detections, m_odom);
   m_detections.header.stamp.sec = 999;
   const auto result = m_tracker.update(m_detections, m_odom);
-  EXPECT_EQ(result.status, Status::WentBackInTime);
+  EXPECT_EQ(result.status, TrackerUpdateStatus::WentBackInTime);
 }
 
 TEST_F(MultiObjectTrackerTest, TestFrameOrientationValidation) {
@@ -67,5 +77,5 @@ TEST_F(MultiObjectTrackerTest, TestFrameOrientationValidation) {
   m_odom.pose.pose.orientation.w = 0.0;
   m_odom.pose.pose.orientation.x = 1.0;
   const auto result = m_tracker.update(m_detections, m_odom);
-  EXPECT_EQ(result.status, Status::FrameNotGravityAligned);
+  EXPECT_EQ(result.status, TrackerUpdateStatus::FrameNotGravityAligned);
 }

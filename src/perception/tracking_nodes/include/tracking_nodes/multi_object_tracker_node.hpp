@@ -22,6 +22,7 @@
 #define TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <message_filters/cache.h>
@@ -54,19 +55,32 @@ class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
   using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
   using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
+  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
   using OdometryMsg = nav_msgs::msg::Odometry;
   using PoseMsg = geometry_msgs::msg::PoseWithCovarianceStamped;
   using OdomCache = message_filters::Cache<OdometryMsg>;
+
+  template<class TrackCreationPolicyT>
+  using Tracker = autoware::perception::tracking::MultiObjectTracker<
+    autoware::perception::tracking::TrackCreator<TrackCreationPolicyT>>;
+
+  using TrackerVariant = mpark::variant<
+    Tracker<autoware::perception::tracking::LidarOnlyPolicy>,
+    Tracker<autoware::perception::tracking::LidarClusterIfVisionPolicy>>;
 
 public:
   /// \brief Constructor
   explicit MultiObjectTrackerNode(const rclcpp::NodeOptions & options);
 
 private:
+  TrackerVariant TRACKING_NODES_LOCAL init_tracker(const common::types::bool8_t use_vision);
+
+  void TRACKING_NODES_LOCAL clusters_callback(const ClustersMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL odometry_callback(const OdometryMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL pose_callback(const PoseMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL detected_objects_callback(const DetectedObjects::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL classified_roi_callback(const ClassifiedRoiArray::ConstSharedPtr msg);
+
 
   common::types::bool8_t m_use_ndt{true};
   common::types::bool8_t m_use_vision{true};
@@ -76,10 +90,11 @@ private:
   tf2_ros::TransformListener m_tf_listener;
 
   /// The actual tracker implementation.
-  autoware::perception::tracking::MultiObjectTracker m_tracker;
+  TrackerVariant m_tracker;
 
   rclcpp::Subscription<PoseMsg>::SharedPtr m_pose_subscription{};
   rclcpp::Subscription<OdometryMsg>::SharedPtr m_odom_subscription{};
+  rclcpp::Subscription<ClustersMsg>::SharedPtr m_clusters_subscription{};
   rclcpp::Subscription<DetectedObjects>::SharedPtr m_detected_objects_subscription{};
   std::vector<rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr> m_vision_subscriptions;
 
@@ -93,7 +108,7 @@ private:
 
   // Visualization variables & functions
   void maybe_visualize(
-    const perception::tracking::MaybeRoiStampsT::value_type & roi_stamps,
+    const builtin_interfaces::msg::Time & rois_stamp,
     DetectedObjects all_objects);
 
   bool8_t m_visualize_track_creation = false;

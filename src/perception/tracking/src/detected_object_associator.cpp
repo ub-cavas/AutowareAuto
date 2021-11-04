@@ -31,6 +31,7 @@ namespace perception
 namespace tracking
 {
 
+using autoware_auto_msgs::msg::DetectedObjects;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::types::float32_t;
@@ -48,15 +49,15 @@ DataAssociationConfig::DataAssociationConfig(
 DetectedObjectAssociator::DetectedObjectAssociator(const DataAssociationConfig & association_cfg)
 : m_association_cfg(association_cfg) {}
 
-AssociatorResult DetectedObjectAssociator::assign(
-  const autoware_auto_msgs::msg::DetectedObjects & detections,
-  const TrackedObjects & tracks)
+Associations DetectedObjectAssociator::assign(
+  const DetectedObjects & detections, const TrackedObjects & tracks)
 {
   if (tracks.frame_id != detections.header.frame_id) {
     throw std::runtime_error(
             "Cannot associate tracks with detections - they are in different frames");
   }
   reset();
+  m_track_associations = Associations(tracks.objects.size(), {Matched::kNothing, 0UL});
   m_num_detections = detections.objects.size();
   m_num_tracks = tracks.objects.size();
   m_are_tracks_rows = (m_num_tracks <= m_num_detections);
@@ -88,13 +89,14 @@ void DetectedObjectAssociator::reset()
 }
 
 void DetectedObjectAssociator::compute_weights(
-  const autoware_auto_msgs::msg::DetectedObjects & detections,
-  const TrackedObjects & tracks)
+  const DetectedObjects & detections, const TrackedObjects & tracks)
 {
-  for (size_t det_idx = 0U; det_idx < detections.objects.size(); ++det_idx) {
-    for (size_t track_idx = 0U; track_idx < tracks.objects.size(); ++track_idx) {
-      const auto & track = tracks.objects[track_idx];
-      const auto & detection = detections.objects[det_idx];
+  for (size_t detection_index = 0U; detection_index < detections.objects.size();
+    ++detection_index)
+  {
+    for (size_t track_index = 0U; track_index < tracks.objects.size(); ++track_index) {
+      const auto & track = tracks.objects[track_index];
+      const auto & detection = detections.objects[detection_index];
 
       try {
         if (consider_associating(detection, track)) {
@@ -102,8 +104,7 @@ void DetectedObjectAssociator::compute_weights(
           sample(0, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.x);
           sample(1, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.y);
 
-          Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM,
-            1> mean{track.centroid().cast<float32_t>()};
+          Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM, 1> mean{track.centroid().cast<float32_t>()};
 
           Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM,
             NUM_OBJ_POSE_DIM> cov = track.position_covariance().cast<float32_t>();
@@ -111,7 +112,7 @@ void DetectedObjectAssociator::compute_weights(
           const auto dist = autoware::common::helper_functions::calculate_mahalanobis_distance(
             sample, mean, cov);
 
-          set_weight(dist, det_idx, track_idx);
+          set_weight(dist, detection_index, track_index);
         }
       } catch (const std::runtime_error & e) {
         m_had_errors = true;
@@ -185,66 +186,50 @@ bool DetectedObjectAssociator::consider_associating(
 
 void DetectedObjectAssociator::set_weight(
   const float32_t weight,
-  const size_t det_idx, const size_t track_idx)
+  const size_t detection_index, const size_t track_index)
 {
   if (m_are_tracks_rows) {
     m_assigner.set_weight(
-      weight, static_cast<assigner_idx_t>(track_idx),
-      static_cast<assigner_idx_t>(det_idx));
+      weight, static_cast<assigner_idx_t>(track_index),
+      static_cast<assigner_idx_t>(detection_index));
   } else {
     m_assigner.set_weight(
-      weight, static_cast<assigner_idx_t>(det_idx),
-      static_cast<assigner_idx_t>(track_idx));
+      weight, static_cast<assigner_idx_t>(detection_index),
+      static_cast<assigner_idx_t>(track_index));
   }
 }
 
-AssociatorResult DetectedObjectAssociator::extract_result() const
+Associations DetectedObjectAssociator::extract_result()
 {
-  AssociatorResult ret;
-  ret.track_assignments.resize(m_num_tracks);
-  std::fill(
-    ret.track_assignments.begin(), ret.track_assignments.end(),
-    AssociatorResult::UNASSIGNED);
-
+  auto object_associations = Associations(m_num_detections, {Matched::kNothing, 0UL});
   if (m_are_tracks_rows) {
-    std::vector<common::types::bool8_t> detections_assigned(m_num_detections, false);
-    for (size_t track_idx = 0U; track_idx < m_num_tracks; track_idx++) {
-      const auto det_idx =
-        static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(track_idx)));
-      if (det_idx != Assigner::UNASSIGNED) {
-        ret.track_assignments[track_idx] = det_idx;
-        detections_assigned[det_idx] = true;
-      } else {
-        ret.unassigned_track_indices.insert(track_idx);
-      }
-    }
-
-    for (size_t i = 0U; i < detections_assigned.size(); ++i) {
-      if (!detections_assigned[i]) {
-        ret.unassigned_detection_indices.insert(i);
+    for (size_t track_index = 0U; track_index < m_num_tracks; track_index++) {
+      const auto detection_index =
+        static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(track_index)));
+      const auto track_has_detection_assigned = (detection_index != Assigner::UNASSIGNED);
+      if (!track_has_detection_assigned) {continue;}
+      const auto detection_has_no_assignment_yet =
+        (object_associations[detection_index].matched == Matched::kNothing);
+      if (detection_has_no_assignment_yet) {
+        object_associations[detection_index] = {Matched::kExistingTrack, track_index};
+        m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};
       }
     }
   } else {
-    std::vector<common::types::bool8_t> tracks_assigned(m_num_tracks, false);
-    for (size_t det_idx = 0U; det_idx < m_num_detections; det_idx++) {
-      const auto track_idx =
-        static_cast<size_t>(m_assigner.get_assignment(static_cast<assigner_idx_t>(det_idx)));
-      if (track_idx != Assigner::UNASSIGNED) {
-        ret.track_assignments[track_idx] = det_idx;
-        tracks_assigned[track_idx] = true;
-      } else {
-        ret.unassigned_detection_indices.insert(det_idx);
-      }
-    }
-
-    for (size_t i = 0U; i < tracks_assigned.size(); ++i) {
-      if (!tracks_assigned[i]) {
-        ret.unassigned_track_indices.insert(i);
+    for (size_t detection_index = 0U; detection_index < m_num_detections; detection_index++) {
+      const auto track_index = static_cast<size_t>(
+        m_assigner.get_assignment(static_cast<assigner_idx_t>(detection_index)));
+      const auto track_got_assigned = (track_index != Assigner::UNASSIGNED);
+      const auto detection_has_no_assignment =
+        (object_associations[detection_index].matched == Matched::kNothing);
+      if (track_got_assigned && detection_has_no_assignment) {
+        object_associations[detection_index] = {Matched::kExistingTrack, track_index};
+        m_track_associations[track_index] = {Matched::kOtherDetection, detection_index};
       }
     }
   }
 
-  return ret;
+  return object_associations;
 }
 
 }  // namespace tracking

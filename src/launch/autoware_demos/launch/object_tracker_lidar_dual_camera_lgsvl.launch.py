@@ -97,19 +97,19 @@ def generate_launch_description():
         ])
 
     vision_detections_right = Node(
-            name='vision_detections',
-            executable='ground_truth_detections_node_exe',
-            package='ground_truth_detections',
-            on_exit=Shutdown(),
-            remappings=[
-                ("/simulator/ground_truth/detections2D",
-                 "/simulator/ground_truth/camera_right/detections2D"),
-                ("/perception/ground_truth_detections_2d",
-                 "/perception/ground_truth/camera_right_2d")
-            ],
-            parameters=[
-                {"vision_frame_id": "camera_right"}
-            ]
+        name='vision_detections',
+        executable='ground_truth_detections_node_exe',
+        package='ground_truth_detections',
+        on_exit=Shutdown(),
+        remappings=[
+            ("/simulator/ground_truth/detections2D",
+             "/simulator/ground_truth/camera_right/detections2D"),
+            ("/perception/ground_truth_detections_2d",
+             "/perception/ground_truth/camera_right_2d")
+        ],
+        parameters=[
+            {"vision_frame_id": "camera_right"}
+        ]
     )
 
     vision_detections_left = Node(
@@ -201,7 +201,8 @@ def generate_launch_description():
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/vehicle/odom_pose"),
             ("classified_rois1", "/perception/ground_truth/camera_left_2d"),
-            ("classified_rois2", "/perception/ground_truth/camera_right_2d")
+            ("classified_rois2", "/perception/ground_truth/camera_right_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=LaunchConfigurationEquals('use_ndt', 'False')
     )
@@ -223,7 +224,8 @@ def generate_launch_description():
             ("detected_objects", "/lidars/lidar_detected_objects"),
             ("ego_state", "/localization/odometry"),
             ("classified_rois1", "/perception/ground_truth/camera_left_2d"),
-            ("classified_rois2", "/perception/ground_truth/camera_right_2d")
+            ("classified_rois2", "/perception/ground_truth/camera_right_2d"),
+            ("clusters", "/lidars/cluster_points")
         ],
         condition=IfCondition(LaunchConfiguration('use_ndt'))
     )

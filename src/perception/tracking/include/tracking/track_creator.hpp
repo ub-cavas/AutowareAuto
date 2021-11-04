@@ -23,6 +23,7 @@
 #include <message_filters/cache.h>
 #include <tf2/buffer_core.h>
 #include <tracking/greedy_roi_associator.hpp>
+#include <tracking/objects_with_associations.hpp>
 #include <tracking/tracked_object.hpp>
 #include <tracking/tracker_types.hpp>
 #include <tracking/visibility_control.hpp>
@@ -49,163 +50,97 @@ struct TRACKING_PUBLIC VisionPolicyConfig
   std::chrono::milliseconds max_vision_lidar_timestamp_diff{20};
 };
 
-/// \brief Struct to hold all the configuration parameters for the track creation module
-struct TRACKING_PUBLIC TrackCreatorConfig
-{
-  using float64_t = common::types::float64_t;
-  /// Policy to be used to create new tracks
-  TrackCreationPolicy policy = TrackCreationPolicy::LidarClusterOnly;
-  /// When initializing a new track, this value is used for the variance when none is provided by
-  /// the detection.
-  float64_t default_variance = -1.0;  // Invalid, to make sure it is set.
-  /// The magnitude of the noise in the Kalman filter.
-  float64_t noise_variance = -1.0;  // Invalid, to make sure it is set.
-  std::experimental::optional<VisionPolicyConfig> vision_policy_config = std::experimental::nullopt;
-};
-
-
-using MaybeRoiStampsT = std::experimental::optional<std::vector<builtin_interfaces::msg::Time>>;
-
 /// Struct to be used as the return value from track creation process
 struct TRACKING_PUBLIC TrackCreationResult
 {
   /// List of newly created tracks
   std::vector<TrackedObject> tracks;
-  /// List of detection that was not associated and not used to create tracks
-  autoware_auto_msgs::msg::DetectedObjects detections_leftover;
+  /// List of associations that matches an association to each track
+  Associations associations;
   /// Timestamps of msgs from each of the ClassifiedROIArray topics used for track creation
-  MaybeRoiStampsT maybe_roi_stamps = std::experimental::nullopt;
-};
-
-/// \brief Abstract base class for different track creation policy implementations
-class CreationPolicyBase
-{
-public:
-  using float64_t = common::types::float64_t;
-  /// Constructor
-  /// \param default_variance Default variance value for tracks to be created
-  /// \param noise_variance Default noise variance for tracks to be created
-  /// \param tf_buffer tf buffer containing the necessary transforms
-  CreationPolicyBase(
-    const float64_t default_variance, const float64_t noise_variance,
-    const tf2::BufferCore & tf_buffer);
-
-  /// Function to create new tracks based on previously supplied detection data
-  /// \return Struct containing new tracks and unused detections
-  virtual TrackCreationResult create() = 0;
-
-  /// \brief Keep tracks of all unassigned lidar clusters. Clears the previously passed clusters
-  /// \param clusters DetectedObjects msg output by the lidar clustering algorithm
-  /// \param associator_result Struct containing indices of clusters that do not have track
-  ///                          association
-  virtual void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) = 0;
-  /// \brief Keep tracks of all unassigned vision detections
-  /// \param vision_rois msg output by the vision detector
-  /// \param associator_result Struct containing indices of detections that do not have track
-  ///                          association
-  virtual void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
-    const AssociatorResult & associator_result) = 0;
-
-  /// Helper function to be used by derived classes to extract unassigned lidar detections
-  /// based on the result struct
-  /// \param clusters List of detected objects
-  /// \param associator_result Struct containing indices of detections that do not have track
-  ///                          association
-  /// \return DetectedObjects with header copied and only unassociated objects copied
-  static autoware_auto_msgs::msg::DetectedObjects populate_unassigned_lidar_detections(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result);
-
-protected:
-  float64_t m_default_variance;
-  float64_t m_noise_variance;
-  const tf2::BufferCore & m_tf_buffer;
-  autoware_auto_msgs::msg::DetectedObjects m_debug_objects;
+  builtin_interfaces::msg::Time related_rois_stamp;
 };
 
 // Class implementing LidarOnly track creation policy
-class LidarOnlyPolicy : public CreationPolicyBase
+class TRACKING_PUBLIC LidarOnlyPolicy
 {
 public:
   LidarOnlyPolicy(
-    const float64_t default_variance, const float64_t noise_variance,
+    const common::types::float64_t default_variance,
+    const common::types::float64_t noise_variance,
     const tf2::BufferCore & tf_buffer);
-  TrackCreationResult create() override;
 
-  void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) override;
-
-  inline void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray &,
-    const AssociatorResult &) override
-  {
-    throw std::domain_error("LidarOnly policy cannot handle ClassifiedRoiArray");
-  }
+  TrackCreationResult create(const ObjectsWithAssociations & objects) const;
 
 private:
-  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
+  common::types::float64_t m_default_variance;
+  common::types::float64_t m_noise_variance;
+  const tf2::BufferCore & m_tf_buffer;
 };
 
 /// Class implementing LidarIfVision track creation policy
-class LidarClusterIfVisionPolicy : public CreationPolicyBase
+class TRACKING_PUBLIC LidarClusterIfVisionPolicy
 {
 public:
   LidarClusterIfVisionPolicy(
-    const VisionPolicyConfig & cfg, const float64_t default_variance,
-    const float64_t noise_variance, const tf2::BufferCore & tf_buffer);
-  TrackCreationResult create() override;
+    const VisionPolicyConfig & cfg,
+    const common::types::float64_t default_variance,
+    const common::types::float64_t noise_variance,
+    const tf2::BufferCore & tf_buffer);
 
-  void add_objects(
-    const autoware_auto_msgs::msg::DetectedObjects & clusters,
-    const AssociatorResult & associator_result) override;
+  TrackCreationResult create(const ObjectsWithAssociations & objects) const;
 
   void add_objects(
     const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
-    const AssociatorResult & associator_result) override;
+    const AssociatorResult & associator_result);
 
 private:
   using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
 
-  void create_using_cache(const VisionCache & vision_cache, TrackCreationResult & creator_ret);
+  void create_using_cache(
+    const ObjectsWithAssociations & objects,
+    const VisionCache & vision_cache,
+    TrackCreationResult & result) const;
 
-  static constexpr uint32_t kVisionCacheSize = 20U;
+  static constexpr std::uint32_t kVisionCacheSize = 20U;
+
+  common::types::float64_t m_default_variance;
+  common::types::float64_t m_noise_variance;
+  const tf2::BufferCore & m_tf_buffer;
 
   VisionPolicyConfig m_cfg;
   GreedyRoiAssociator m_associator;
 
   std::unordered_map<std::string, VisionCache> m_vision_cache_map;
-  autoware_auto_msgs::msg::DetectedObjects m_lidar_clusters;
 };
 
 /// \brief Class to create new tracks based on a predefined policy and unassociated detections
+template<class PolicyT>
 class TRACKING_PUBLIC TrackCreator
 {
 public:
-  using float32_t = common::types::float32_t;
   /// \brief Constructor
-  /// \param config parameters for track creation
-  /// \param tf_buffer Tf buffer containing the necessary transforms
-  explicit TrackCreator(const TrackCreatorConfig & config, const tf2::BufferCore & tf_buffer);
+  explicit TrackCreator(std::shared_ptr<PolicyT> policy)
+  : m_policy{policy} {}
   /// \brief Create new tracks based on the policy and unassociated detections. Call the
   ///        appropriate add_unassigned_* functions before calling this.
   /// \return vector of newly created TrackedObject objects
-  inline TrackCreationResult create_tracks() {return m_policy_object->create();}
+  inline TrackCreationResult create_tracks(const ObjectsWithAssociations & objects)
+  {
+    return m_policy->create(objects);
+  }
 
   /// Function to add unassigned detections. This function just passes through the arguments.
   /// The actual implementation is handled by the individual policy implementation classes.
   /// Refer to the CreationPolicyBase doc for details
   template<typename ... Ts>
-  auto add_objects(Ts && ... args)
+  inline auto add_objects(Ts && ... args)
   {
-    return m_policy_object->add_objects(std::forward<Ts>(args)...);
+    return m_policy->add_objects(std::forward<Ts>(args)...);
   }
 
 private:
-  std::unique_ptr<CreationPolicyBase> m_policy_object;
+  std::shared_ptr<PolicyT> m_policy{};
 };
 
 }  // namespace tracking

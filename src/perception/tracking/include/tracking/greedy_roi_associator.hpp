@@ -132,7 +132,8 @@ public:
   /// \param orientation Orientation of the object
   /// \return Transformed vertices of the bottom and the top face.
   std::vector<Point32> operator()(
-    const autoware_auto_msgs::msg::Shape & shape, const geometry_msgs::msg::Point & centroid,
+    const autoware_auto_msgs::msg::Shape & shape,
+    const geometry_msgs::msg::Point & centroid,
     const geometry_msgs::msg::Quaternion & orientation) const;
 
 private:

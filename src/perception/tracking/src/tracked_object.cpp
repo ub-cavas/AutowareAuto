@@ -108,10 +108,11 @@ EKF init_ekf(
 
 }  // anonymous namespace
 
-/// \relates autoware::perception::tracking::TrackedObject
 TrackedObject::TrackedObject(
-  const DetectedObjectMsg & detection, float64_t default_variance,
-  float64_t noise_variance)
+  const DetectedObjectMsg & detection,
+  const DetectedObjectMsg::_classification_type & override_classification,
+  common::types::float64_t default_variance,
+  common::types::float64_t noise_variance)
 : m_msg{},
   m_ekf{init_ekf(detection, default_variance, noise_variance)},
   m_default_variance{default_variance}
@@ -119,7 +120,7 @@ TrackedObject::TrackedObject(
   static uint64_t object_id = 0;
   m_msg.object_id = ++object_id;
   m_msg.existence_probability = detection.existence_probability;
-  m_msg.classification = detection.classification;
+  m_msg.classification = override_classification;
   m_msg.shape.push_back(detection.shape);
   // z is not filtered through ekf. Just pass it through
   m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
@@ -127,8 +128,15 @@ TrackedObject::TrackedObject(
   m_msg.kinematics.orientation_availability = detection.kinematics.orientation_availability;
   m_msg.kinematics.orientation = detection.kinematics.orientation;
   // Kinematics are owned by the EKF and only filled in in the msg() getter
-  m_classifier.update(detection.classification);
+  m_classifier.update(override_classification);
 }
+
+/// \relates autoware::perception::tracking::TrackedObject
+TrackedObject::TrackedObject(
+  const DetectedObjectMsg & detection,
+  float64_t default_variance,
+  float64_t noise_variance)
+: TrackedObject{detection, detection.classification, default_variance, noise_variance} {}
 
 void TrackedObject::predict(std::chrono::nanoseconds dt)
 {
@@ -143,6 +151,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ticks_since_last_seen = 0;
   // Update the shape
   m_msg.shape = {detection.shape};
+  m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
   m_msg.kinematics.orientation = detection.kinematics.orientation;
 
   // It needs to be determined which parts of the DetectedObject message are set, and can be used

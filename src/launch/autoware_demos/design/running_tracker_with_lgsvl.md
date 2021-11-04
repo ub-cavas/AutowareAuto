@@ -15,12 +15,12 @@ Hit the play button on the browser window to start the simulation that was creat
 From a terminal inside ade run the command,  `lgsvl_bridge`  
 Run the following launch command to launch the tracker, 
 ```
-ros2 launch autoware_demos lidar_tracks_lgsvl.launch.py
+ros2 launch autoware_demos object_tracker_lidar_single_camera_lgsvl.launch.py
 ```
 
 This command by default uses the NDT localizer to get the ego vehicle state. But the NDT loclaizer requires a point cloud map which is available only for the `AutonomouStuff` map of the simulator. If you want to run the tracker in some other simulator map (for example, `BorregasAve`) run the following command to disable NDT and use ego vehicle state from the `lgsvl_interface`,
 ```
-ros2 launch autoware_demos lidar_tracks_lgsvl.launch.py use_ndt:=False
+ros2 launch autoware_demos object_tracker_lidar_single_camera_lgsvl.launch.py use_ndt:=False
 ```
 
 

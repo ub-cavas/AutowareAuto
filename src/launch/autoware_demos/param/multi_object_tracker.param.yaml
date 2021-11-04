@@ -24,6 +24,8 @@
     use_vision: True    # Parameters for associating the vision detections
     num_vision_topics: 2  # number of vision topics to subscribe to
     visualize_track_creation: True    # Parameters for visualizing track creation
+    use_raw_clusters: True
+    use_detected_objects: False
     vision_association:
       # The IoU threshold for a RoI and projection of another detection to be considered matches
       iou_threshold: 0.4

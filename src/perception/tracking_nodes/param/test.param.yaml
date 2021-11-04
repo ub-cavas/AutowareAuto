@@ -18,7 +18,8 @@
       max_distance: 2.0
       # Gate parameter: Objects whose size differs by more than this factor are not matched.
       max_area_ratio: 2.5
-      # When true, the shortest edge of the detection will be used as the max distance threshold if it is greater than the configured threshold
+      # When true, the shortest edge of the detection will be used as the max distance threshold if
+      # it is greater than the configured threshold
       consider_edge_for_big_detection: True
     # Parameter to allow the tracker to use vision detections for improving tracking.
     use_vision: True
@@ -26,6 +27,11 @@
     num_vision_topics: 1
     # Parameter to allow the tracker to visualize the 2d-3d associations during track creation
     visualize_track_creation: True
+    # Subscribe to raw clusters and use them to update the position of the tracks
+    use_raw_clusters: True
+    # Subscribe to detected objects and use them to update the position and classification of the
+    # tracks.
+    use_detected_objects: True
     # Parameters for associating the vision detections
     vision_association:
       # The IoU threshold for a RoI and projection of another detection to be considered matches

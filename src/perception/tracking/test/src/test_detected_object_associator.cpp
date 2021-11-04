@@ -112,10 +112,11 @@ TEST_F(AssociationTester, Basic)
   objects_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(objects_msg, tracks);
-  EXPECT_EQ(ret.track_assignments[0U], 1U);
-  EXPECT_EQ(ret.unassigned_detection_indices.size(), 1U);
-  EXPECT_TRUE(ret.unassigned_detection_indices.find(0U) != ret.unassigned_detection_indices.end());
+  const auto associations = m_associator.assign(objects_msg, tracks);
+  ASSERT_EQ(associations.size(), 2UL);
+  EXPECT_EQ(associations[0U].matched, tracking::Matched::kNothing);
+  EXPECT_EQ(associations[1U].matched, tracking::Matched::kExistingTrack);
+  EXPECT_EQ(associations[1U].match_index, 0U);
 }
 
 // 10 tracks, 5 detections. Make sure 5 tracks are unassigned
@@ -156,12 +157,20 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
   detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(detections_msg, tracks);
+  const auto associations = m_associator.assign(detections_msg, tracks);
 
-  EXPECT_EQ(ret.unassigned_track_indices.size(), num_tracks - num_associated_dets);
-  for (size_t i = 0U; i < ret.unassigned_track_indices.size(); ++i) {
-    EXPECT_TRUE(
-      ret.unassigned_track_indices.find((i * 2U) + 1U) != ret.unassigned_track_indices.end());
+  EXPECT_EQ(m_associator.track_associations().size(), num_tracks);
+  const auto & track_associations = m_associator.track_associations();
+  const auto unassigned_track_count = std::count_if(
+    track_associations.begin(), track_associations.end(),
+    [](const auto association) {
+      return association.matched == tracking::Matched::kNothing;
+    });
+  EXPECT_EQ(unassigned_track_count, num_tracks - num_associated_dets);
+  ASSERT_EQ(associations.size(), 5UL);
+  for (const auto & association : associations) {
+    EXPECT_EQ(association.matched, tracking::Matched::kExistingTrack);
+    EXPECT_EQ(association.match_index % 2, 0UL);
   }
 }
 
@@ -180,6 +189,10 @@ TEST_F(AssociationTester, AreaGatingFails)
   // toggle to set some detections to bigger size and some to smaller size
   bool toggle = true;
 
+  const auto detection_index_can_be_associated = [](const auto index) {
+      return index % 2 != 0;
+    };
+
   for (size_t i = 0U; i < num_tracks; ++i) {
     DetectedObject current_track;
     const auto current_shape = create_square(4.0F);
@@ -191,7 +204,9 @@ TEST_F(AssociationTester, AreaGatingFails)
     tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
 
     DetectedObject current_detection;
-    if (i % 2 == 0) {
+    if (detection_index_can_be_associated(i)) {
+      current_detection.shape = current_shape;
+    } else {
       // Create detections that cannot be associated with tracks
       ++num_unassociated_dets;
       if (toggle) {
@@ -201,8 +216,6 @@ TEST_F(AssociationTester, AreaGatingFails)
         current_detection.shape = create_square(0.5F);
         toggle = true;
       }
-    } else {
-      current_detection.shape = current_shape;
     }
     // Exact same position as track
     current_detection.kinematics.centroid_position = current_track.kinematics.centroid_position;
@@ -213,32 +226,20 @@ TEST_F(AssociationTester, AreaGatingFails)
   detections_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
   tracking::TrackedObjects tracks{tracked_object_vec, kTrackerFrame};
-  const auto ret = m_associator.assign(detections_msg, tracks);
+  const auto associations = m_associator.assign(detections_msg, tracks);
 
   // Verify unassigned tracks
-  ASSERT_EQ(ret.unassigned_track_indices.size(), num_unassociated_dets);
-  for (size_t i = 0U, track_idx = 0U; i < ret.unassigned_track_indices.size();
-    ++i, track_idx += 2)
-  {
-    EXPECT_TRUE(ret.unassigned_track_indices.find(track_idx) != ret.unassigned_track_indices.end());
-  }
-
-  // Verify unassigned detections
-  ASSERT_EQ(ret.unassigned_detection_indices.size(), num_unassociated_dets);
-  for (size_t i = 0U, det_idx = 0U; i < ret.unassigned_detection_indices.size();
-    ++i, det_idx += 2)
-  {
-    EXPECT_TRUE(
-      ret.unassigned_detection_indices.find(det_idx) != ret.unassigned_detection_indices.end());
-  }
-
-  // Verify assignments
-  for (size_t track_idx = 0U; track_idx < num_tracks; track_idx++) {
-    if (track_idx % 2 == 0) {
-      EXPECT_EQ(ret.track_assignments[track_idx], tracking::AssociatorResult::UNASSIGNED);
-
+  const auto unassigned_track_count = std::count_if(
+    associations.begin(), associations.end(),
+    [](const auto association) {
+      return association.matched == tracking::Matched::kNothing;
+    });
+  ASSERT_EQ(unassigned_track_count, num_unassociated_dets);
+  for (size_t i = 0U; i < associations.size(); ++i) {
+    if (detection_index_can_be_associated(i)) {
+      EXPECT_EQ(associations[i].matched, tracking::Matched::kExistingTrack);
     } else {
-      EXPECT_EQ(ret.track_assignments[track_idx], track_idx);
+      EXPECT_EQ(associations[i].matched, tracking::Matched::kNothing);
     }
   }
 }

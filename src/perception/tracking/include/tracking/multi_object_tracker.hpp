@@ -27,7 +27,9 @@
 #include <tracking/tracked_object.hpp>
 #include <tracking/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_msgs/msg/point_clusters.hpp>
 #include <autoware_auto_msgs/msg/tracked_object.hpp>
 #include <autoware_auto_msgs/msg/tracked_objects.hpp>
 #include <common/types.hpp>
@@ -74,18 +76,17 @@ enum class TrackerUpdateStatus
   InvalidShape,
 };
 
-
 /// \brief Output of MultiObjectTracker::update.
 struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
   /// The existing tracks output.
   autoware_auto_msgs::msg::TrackedObjects tracks;
-  /// Any unassigned clusters left after the update.
-  autoware_auto_msgs::msg::DetectedObjects unassigned_clusters;
+  /// Indices of unassigned clusters.
+  std::vector<std::size_t> unassigned_clusters_indices;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
   TrackerUpdateStatus status;
   /// Timestamps of ROI msgs used for track creation. Useful for debugging purposes.
-  MaybeRoiStampsT maybe_roi_stamps;
+  builtin_interfaces::msg::Time related_rois_stamp;
 };
 
 /// \brief Options for object tracking, with sensible defaults.
@@ -95,8 +96,6 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
   DataAssociationConfig object_association_config;
   /// Vision ROI association parameters.
   GreedyRoiAssociatorConfig vision_association_config;
-  /// Track creator parameters.
-  TrackCreatorConfig track_creator_config;
   /// Time after which unseen tracks should be pruned.
   std::chrono::nanoseconds pruning_time_threshold = std::chrono::nanoseconds::max();
   /// Number of updates after which unseen tracks should be pruned.
@@ -106,27 +105,54 @@ struct TRACKING_PUBLIC MultiObjectTrackerOptions
 };
 
 /// \brief A class for multi-object tracking.
+template<class TrackCreatorT>
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
+  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
   using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
   using DetectedObjectKinematics = autoware_auto_msgs::msg::DetectedObjectKinematics;
+  using BoundingBoxArrayMsg = autoware_auto_msgs::msg::BoundingBoxArray;
   using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
   using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
 
 public:
   /// Constructor
   explicit MultiObjectTracker(
-    MultiObjectTrackerOptions options, const tf2::BufferCore & tf2_buffer);
+    MultiObjectTrackerOptions options,
+    TrackCreatorT track_creator,
+    const tf2::BufferCore & tf2_buffer);
 
-  /// \brief Update the tracks with the specified detections and return the tracks at the current
-  /// timestamp.
-  /// \param[in] detections An array of detections.
-  /// \param[in] detection_frame_odometry An odometry message for the detection frame in the
-  /// tracking frame, which is defined in MultiObjectTrackerOptions.
-  /// \return A result object containing tracks, unless an error occurred.
+  ///
+  /// @brief      Update the tracks with the specified detections and return the tracks at the
+  ///             current timestamp.
+  ///
+  /// @warning    For now these detections are assumed to have come from clusters. A different set
+  ///             of messages is needed to change this right now.
+  ///
+  /// @param[in]  detections                An array of detections.
+  /// @param[in]  detection_frame_odometry  An odometry message for the detection frame in the
+  ///                                       tracking frame, which is defined in
+  ///                                       MultiObjectTrackerOptions.
+  ///
+  /// @return     A result object containing tracks, unless an error occurred.
+  ///
   DetectedObjectsUpdateResult update(
     const DetectedObjectsMsg & detections,
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
+
+  ///
+  /// @brief      Update the tracks from incoming clusters
+  ///
+  /// @param[in]  incoming_clusters         The incoming clusters
+  /// @param[in]  detection_frame_odometry  An odometry message for the clusters frame in the
+  ///                                       tracking frame, which is defined in
+  ///                                       MultiObjectTrackerOptions.
+  ///
+  /// @return     A result object containing tracks, unless an error occurred.
+  ///
+  DetectedObjectsUpdateResult update(
+    const ClustersMsg & incoming_clusters,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 
   /// \brief Update the tracks with the specified detections
@@ -138,14 +164,6 @@ private:
   TrackerUpdateStatus validate(
     const DetectedObjectsMsg & detections,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
-
-  /// Transform the detections into the tracker frame.
-  DetectedObjectsMsg transform(
-    const DetectedObjectsMsg & detections,
-    const nav_msgs::msg::Odometry & detection_frame_odometry);
-
-  /// Convert the internal tracked object representation to the ROS message type.
-  TrackedObjectsMsg convert_to_msg(const builtin_interfaces::msg::Time & stamp) const;
 
   /// The tracked objects, also called "tracks".
   TrackedObjects m_tracks;
@@ -162,8 +180,15 @@ private:
   GreedyRoiAssociator m_vision_associator;
 
   /// Creator for creating tracks based on unassociated observations
-  TrackCreator m_track_creator;
+  TrackCreatorT m_track_creator;
 };
+
+template<>
+void TRACKING_PUBLIC MultiObjectTracker<TrackCreator<LidarOnlyPolicy>>::update(
+  const ClassifiedRoiArrayMsg &)
+{
+  throw std::runtime_error("Trying to update a LiDAR-only tracker with a vision message.");
+}
 
 }  // namespace tracking
 }  // namespace perception

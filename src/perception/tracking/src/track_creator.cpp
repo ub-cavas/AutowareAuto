@@ -23,48 +23,39 @@
 #include <set>
 #include <vector>
 
+namespace
+{
+using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
+}  // namespace
+
 namespace autoware
 {
 namespace perception
 {
 namespace tracking
 {
-CreationPolicyBase::CreationPolicyBase(
+
+LidarOnlyPolicy::LidarOnlyPolicy(
   const float64_t default_variance,
   const float64_t noise_variance,
   const tf2::BufferCore & tf_buffer)
 : m_default_variance{default_variance}, m_noise_variance{noise_variance}, m_tf_buffer{tf_buffer} {}
 
-autoware_auto_msgs::msg::DetectedObjects CreationPolicyBase::populate_unassigned_lidar_detections(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
-{
-  autoware_auto_msgs::msg::DetectedObjects retval;
-  retval.header = clusters.header;
-  for (const auto & unassigned_idx : associator_result.unassigned_detection_indices) {
-    retval.objects.push_back(clusters.objects[unassigned_idx]);
-  }
-  return retval;
-}
-
-LidarOnlyPolicy::LidarOnlyPolicy(
-  const float64_t default_variance, const float64_t noise_variance,
-  const tf2::BufferCore & tf_buffer)
-: CreationPolicyBase(default_variance, noise_variance, tf_buffer) {}
-
-void LidarOnlyPolicy::add_objects(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
-{
-  m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
-}
-
-TrackCreationResult LidarOnlyPolicy::create()
+TrackCreationResult LidarOnlyPolicy::create(
+  const ObjectsWithAssociations & objects) const
 {
   TrackCreationResult retval;
-  for (const auto & cluster : m_lidar_clusters.objects) {
-    retval.tracks.emplace_back(
-      TrackedObject(cluster, m_default_variance, m_noise_variance));
+  retval.associations = objects.associations();
+  for (auto i = 0U; i < retval.associations.size(); ++i) {
+    const auto & object = objects.objects().objects[i];
+    auto & association = retval.associations[i];
+    if (association.matched == Matched::kNothing) {
+      // This object was not associated with anything before. It is now.
+      retval.tracks.emplace_back(object, m_default_variance, m_noise_variance);
+      const auto created_track_index = retval.tracks.size() - 1UL;
+      association = {Matched::kNewTrack, created_track_index};
+    }
   }
   return retval;
 }
@@ -72,20 +63,15 @@ TrackCreationResult LidarOnlyPolicy::create()
 constexpr uint32_t LidarClusterIfVisionPolicy::kVisionCacheSize;
 
 LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
-  const VisionPolicyConfig & cfg, const float64_t default_variance,
-  const float64_t noise_variance, const tf2::BufferCore & tf_buffer)
-: CreationPolicyBase{default_variance, noise_variance, tf_buffer},
+  const VisionPolicyConfig & cfg,
+  const float64_t default_variance,
+  const float64_t noise_variance,
+  const tf2::BufferCore & tf_buffer)
+: m_default_variance{default_variance},
+  m_noise_variance{noise_variance},
+  m_tf_buffer{tf_buffer},
   m_cfg{cfg},
-  m_associator{cfg.associator_cfg, tf_buffer}
-{
-}
-
-void LidarClusterIfVisionPolicy::add_objects(
-  const autoware_auto_msgs::msg::DetectedObjects & clusters,
-  const AssociatorResult & associator_result)
-{
-  m_lidar_clusters = populate_unassigned_lidar_detections(clusters, associator_result);
-}
+  m_associator{cfg.associator_cfg, tf_buffer} {}
 
 void LidarClusterIfVisionPolicy::add_objects(
   const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
@@ -108,14 +94,14 @@ void LidarClusterIfVisionPolicy::add_objects(
 }
 
 void LidarClusterIfVisionPolicy::create_using_cache(
+  const ObjectsWithAssociations & objects,
   const VisionCache & vision_cache,
-  TrackCreationResult & creator_ret)
+  TrackCreationResult & creator_ret) const
 {
   // For foxy time has to be initialized explicitly with sec, nanosec constructor to use the
   // correct clock source when querying message_filters::cache.
   // Refer: https://github.com/ros2/message_filters/issues/32
-  const rclcpp::Time t{m_lidar_clusters.header.stamp.sec,
-    m_lidar_clusters.header.stamp.nanosec};
+  const rclcpp::Time t{objects.objects().header.stamp.sec, objects.objects().header.stamp.nanosec};
   const auto before = t - m_cfg.max_vision_lidar_timestamp_diff;
   const auto after = t + m_cfg.max_vision_lidar_timestamp_diff;
   const auto vision_msg_matches = vision_cache.getInterval(before, after);
@@ -126,69 +112,35 @@ void LidarClusterIfVisionPolicy::create_using_cache(
   }
 
   const auto & vision_msg = *vision_msg_matches.back();
-  const auto association_result = m_associator.assign(vision_msg, m_lidar_clusters);
+  const auto association_result = m_associator.assign(vision_msg, objects.objects());
 
-  if (!creator_ret.maybe_roi_stamps) {
-    creator_ret.maybe_roi_stamps = std::vector<builtin_interfaces::msg::Time>{};
-  }
-  creator_ret.maybe_roi_stamps->push_back(vision_msg.header.stamp);
+  // This is not entirely correct as the images from different cameras might have different
+  // timestamps but we assume they will be close enough.
+  creator_ret.related_rois_stamp = vision_msg.header.stamp;
 
-  std::set<size_t, std::greater<>> lidar_idx_to_erase;
-
-  for (size_t cluster_idx = 0U; cluster_idx < m_lidar_clusters.objects.size();
-    cluster_idx++)
-  {
+  for (auto cluster_idx = 0U; cluster_idx < objects.associations().size(); ++cluster_idx) {
+    if (creator_ret.associations[cluster_idx].matched != Matched::kNothing) {continue;}
     if (association_result.track_assignments[cluster_idx] != AssociatorResult::UNASSIGNED) {
-      lidar_idx_to_erase.insert(cluster_idx);
-      // TrackedObject constructor uses the classification field in the DetectedObject to
-      // initialize track class. So assign the class from the associated ROI to the cluster.
-      m_lidar_clusters.objects[cluster_idx].classification = vision_msg.rois[association_result
-          .track_assignments[cluster_idx]].classifications;
       creator_ret.tracks.emplace_back(
-        TrackedObject(
-          m_lidar_clusters.objects[cluster_idx],
-          m_default_variance, m_noise_variance));
+        objects.objects().objects[cluster_idx],
+        vision_msg.rois[association_result.track_assignments[cluster_idx]].classifications,
+        m_default_variance,
+        m_noise_variance);
+      const auto created_track_index = creator_ret.tracks.size() - 1UL;
+      creator_ret.associations[cluster_idx] = {Matched::kNewTrack, created_track_index};
     }
   }
-
-  // Erase lidar clusters that are associated to a vision roi
-  for (const auto idx : lidar_idx_to_erase) {
-    m_lidar_clusters.objects.erase(m_lidar_clusters.objects.begin() + static_cast<int32_t>(idx));
-  }
 }
 
-TrackCreationResult LidarClusterIfVisionPolicy::create()
+TrackCreationResult LidarClusterIfVisionPolicy::create(
+  const ObjectsWithAssociations & objects) const
 {
   TrackCreationResult retval;
+  retval.associations = objects.associations();
   for (const auto & frame_cache : m_vision_cache_map) {
-    create_using_cache(frame_cache.second, retval);
+    create_using_cache(objects, frame_cache.second, retval);
   }
-  retval.detections_leftover = m_lidar_clusters;
   return retval;
-}
-
-TrackCreator::TrackCreator(const TrackCreatorConfig & config, const tf2::BufferCore & tf_buffer)
-{
-  switch (config.policy) {
-    case TrackCreationPolicy::LidarClusterOnly:
-      m_policy_object = std::make_unique<LidarOnlyPolicy>(
-        config.default_variance,
-        config.noise_variance, tf_buffer);
-      break;
-    case TrackCreationPolicy::LidarClusterIfVision:
-      if (config.vision_policy_config == std::experimental::nullopt) {
-        throw std::runtime_error(
-                "Vision policy config needs to be initialized to use "
-                "LidarClusterIfVision track creation policy");
-      }
-      m_policy_object = std::make_unique<LidarClusterIfVisionPolicy>(
-        config.vision_policy_config.value(),
-        config.default_variance,
-        config.noise_variance, tf_buffer);
-      break;
-    default:
-      throw std::runtime_error("Track creation policy does not exist / not implemented");
-  }
 }
 
 }  // namespace tracking

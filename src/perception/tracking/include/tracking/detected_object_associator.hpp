@@ -19,6 +19,7 @@
 #include <autoware_auto_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <hungarian_assigner/hungarian_assigner.hpp>
+#include <tracking/objects_with_associations.hpp>
 #include <tracking/tracked_object.hpp>
 #include <tracking/tracker_types.hpp>
 
@@ -83,8 +84,14 @@ public:
   /// \param detections List of detections
   /// \param tracks List of tracks
   /// \return Returns Associator result struct
-  AssociatorResult assign(
-    const autoware_auto_msgs::msg::DetectedObjects & detections, const TrackedObjects & tracks);
+  Associations assign(
+    const autoware_auto_msgs::msg::DetectedObjects & detections,
+    const TrackedObjects & tracks);
+
+  const Associations & track_associations() const noexcept
+  {
+    return m_track_associations;
+  }
 
 private:
   /// \brief Reset internal states of the associator
@@ -102,7 +109,7 @@ private:
   void set_weight(const float32_t weight, const size_t det_idx, const size_t track_idx);
 
   /// \brief Extract result from the assigner and populate the AssociatorResult container
-  AssociatorResult extract_result() const;
+  Associations extract_result();
 
   DataAssociationConfig m_association_cfg;
   Assigner m_assigner;
@@ -111,6 +118,7 @@ private:
   size_t m_num_tracks;
   size_t m_num_detections;
   bool m_had_errors = false;
+  Associations m_track_associations;
 };
 
 

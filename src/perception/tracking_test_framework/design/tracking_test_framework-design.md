@@ -1,4 +1,4 @@
-tracking_test_framework {#tracking_test_framework-package-design}
+Tracking Test Framework {#tracking_test_framework-package-design}
 ===========
 
 This is the design document for the `tracking_test_framework` package.
