@@ -24,6 +24,7 @@
 #include <limits>
 #include <stdexcept>
 
+#include "autoware_auto_msgs/msg/trajectory_point.hpp"
 #include "geometry/interval.hpp"
 
 using autoware::common::types::float32_t;
@@ -50,6 +51,13 @@ inline auto x_(const PointT & pt)
 {
   return pt.x;
 }
+/// \brief Gets the x value for a TrajectoryPoint message
+/// \return The x value of the point
+/// \param[in] pt The point
+inline auto x_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.x;
+}
 /// \brief Gets the y value for a point
 /// \return The y value of the point
 /// \param[in] pt The point
@@ -59,6 +67,13 @@ inline auto y_(const PointT & pt)
 {
   return pt.y;
 }
+/// \brief Gets the y value for a TrajectoryPoint message
+/// \return The y value of the point
+/// \param[in] pt The point
+inline auto y_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.y;
+}
 /// \brief Gets the z value for a point
 /// \return The z value of the point
 /// \param[in] pt The point
@@ -67,6 +82,13 @@ template<typename PointT>
 inline auto z_(const PointT & pt)
 {
   return pt.z;
+}
+/// \brief Gets the z value for a TrajectoryPoint message
+/// \return The z value of the point
+/// \param[in] pt The point
+inline auto z_(const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+{
+  return pt.pose.position.z;
 }
 /// \brief Gets a reference to the x value for a point
 /// \return A reference to the x value of the point
