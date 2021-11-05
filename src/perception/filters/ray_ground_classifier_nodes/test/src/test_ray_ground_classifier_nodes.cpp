@@ -173,18 +173,12 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
     float32_t x = std::cos(angle) * radius_ring_1;
     float32_t y = std::sin(angle) * radius_ring_1;
     float32_t z = 0;
-    PointXYZIF pt{x, y, z};
+    PointXYZIF pt{x, y, z, 0.0, 0};
     modifier1.push_back(pt);
     modifier2.push_back(pt);
   }
 
-  uint32_t expected_gnd_pcl_size = (
-    sizeof(decltype(autoware::common::types::PointXYZIF::x)) +
-    sizeof(decltype(autoware::common::types::PointXYZIF::y)) +
-    sizeof(decltype(autoware::common::types::PointXYZIF::z)) +
-    sizeof(decltype(autoware::common::types::PointXYZIF::intensity)) +
-    sizeof(decltype(autoware::common::types::PointXYZIF::id))
-    ) * mini_cloud_size;
+  uint32_t expected_gnd_pcl_size = sizeof(autoware::common::types::PointXYZIF) * mini_cloud_size;
   uint32_t expected_nongnd_pcl_size = 0U;  // no points will be classified as nonground
   uint32_t expected_num_received = 2U;
 
