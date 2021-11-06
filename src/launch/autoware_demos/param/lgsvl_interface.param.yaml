@@ -1,8 +1,8 @@
 /**:
   ros__parameters:
     cycle_time_ms: 10
-    # Only one of the three control command topics need be specified
-    # "raw", "basic" or "high_level"
+    # Only one of the four control command topics need be specified
+    # "raw", "basic", "ackermann", or "high_level"
     control_command: "basic"
     lgsvl:
       use_nav_odometry_topic: True

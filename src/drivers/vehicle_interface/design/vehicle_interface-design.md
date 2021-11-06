@@ -165,7 +165,8 @@ The proposed API can be
 As a node, the inputs are:
 
 1. One of the following:
-  - `VehicleControlCommand`
+  - `VehicleControlCommand` (deprecated in favor of `AckermanControlCommand`)
+  - `AckermannControlCommand`
   - `RawControlCommand`
   - `HighLevelControlCommand`
 2. `VehicleStateCommand`

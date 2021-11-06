@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 #include <lgsvl_interface/visibility_control.hpp>
 
+#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_msgs/msg/horn_command.hpp>
 #include <autoware_auto_msgs/msg/wipers_command.hpp>
@@ -116,6 +117,8 @@ public:
   bool send_state_command(const autoware_auto_msgs::msg::VehicleStateCommand & msg) override;
   /// Send control command data with whatever state data came along last
   bool send_control_command(const autoware_auto_msgs::msg::VehicleControlCommand & msg) override;
+  /// Send control command data with whatever state data came along last
+  bool send_control_command(const autoware_auto_msgs::msg::AckermannControlCommand & msg) override;
   /// Send control data with whatever state data came along last; applies scaling here too.
   /// If both brake and throttle is nonzero, decide based on config
   bool send_control_command(const autoware_auto_msgs::msg::RawControlCommand & msg) override;

@@ -1,4 +1,4 @@
-// Copyright 2020 The Autoware Foundation
+// Copyright 2020-2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -212,6 +212,30 @@ bool8_t SscInterface::send_control_command(const VehicleControlCommand & msg)
 
   // Calculate curvature from desired steering angle
   hlc_cmd.curvature = std::tan(msg.front_wheel_angle_rad) / (wheelbase);
+
+  return send_control_command(hlc_cmd);
+}
+
+bool8_t SscInterface::send_control_command(const AckermannControlCommand & msg)
+{
+  auto signed_velocity = msg.longitudinal.speed;
+
+  if (msg.longitudinal.speed > 0.0F && state_report().gear == VehicleStateReport::GEAR_REVERSE) {
+    signed_velocity = -msg.longitudinal.speed;
+  }
+
+  const auto wheelbase = m_front_axle_to_cog + m_rear_axle_to_cog;
+
+  HighLevelControlCommand hlc_cmd;
+  hlc_cmd.stamp = msg.stamp;
+
+  // Convert from center-of-mass velocity to rear-axle-center velocity
+  const auto beta =
+    std::atan(m_front_axle_to_cog * std::tan(msg.lateral.steering_tire_angle) / (wheelbase));
+  hlc_cmd.velocity_mps = std::cos(beta) * signed_velocity;
+
+  // Calculate curvature from desired steering angle
+  hlc_cmd.curvature = std::tan(msg.lateral.steering_tire_angle) / (wheelbase);
 
   return send_control_command(hlc_cmd);
 }

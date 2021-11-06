@@ -1,4 +1,4 @@
-// Copyright 2020 the Autoware Foundation
+// Copyright 2020-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,6 +28,7 @@
 #include <autoware_auto_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_msgs/msg/wipers_report.hpp>
 #include <autoware_auto_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
 #include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
@@ -48,6 +49,7 @@ using autoware_auto_msgs::msg::HornReport;
 using autoware_auto_msgs::msg::WipersCommand;
 using autoware_auto_msgs::msg::WipersReport;
 using autoware_auto_msgs::msg::RawControlCommand;
+using autoware_auto_msgs::msg::AckermannControlCommand;
 using autoware_auto_msgs::msg::VehicleControlCommand;
 using autoware_auto_msgs::msg::VehicleStateCommand;
 using autoware_auto_msgs::msg::VehicleStateReport;
@@ -93,6 +95,12 @@ public:
   /// \param[in] msg The control command to send to the vehicle
   /// \return false if sending failed in some way, true otherwise
   virtual bool8_t send_control_command(const VehicleControlCommand & msg) = 0;
+  /// Send the state command to the vehicle platform. May require translation into a
+  /// vehicle-specific representation and sending multiple messages.
+  /// Exceptions may be thrown on errors
+  /// \param[in] msg The control command to send to the vehicle
+  /// \return false if sending failed in some way, true otherwise
+  virtual bool8_t send_control_command(const AckermannControlCommand & msg) = 0;
   /// Send the state command to the vehicle platform. May require translation into a
   /// vehicle-specific representation and sending multiple messages.
   /// Exceptions may be thrown on errors
