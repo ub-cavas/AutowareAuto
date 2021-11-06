@@ -1,4 +1,4 @@
-// Copyright 2020 The Autoware Foundation
+// Copyright 2020-2021 The Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ namespace behavior_planner
 
 using autoware::common::geometry::minus_2d;
 using autoware::common::geometry::norm_2d;
-using motion::motion_common::to_angle;
 
 TrajectoryManager::TrajectoryManager(const PlannerConfig & config)
 : m_config(config)
@@ -99,8 +98,9 @@ std::size_t TrajectoryManager::get_closest_state(
     [this, &current_state](const TrajectoryPoint & other_state) {
       const auto s1 = current_state.state, s2 = other_state;
       const auto distance = norm_2d(minus_2d(s1, s2));
-      const auto angle_diff = std::abs(to_angle(s1.heading - s2.heading));
-      return distance + m_config.heading_weight * angle_diff;
+      const auto angle_diff =
+        std::abs(::motion::motion_common::to_angle(s1.pose.orientation - s2.pose.orientation));
+      return distance + m_config.heading_weight * static_cast<float32_t>(angle_diff);
     };
 
   const auto comparison_function =

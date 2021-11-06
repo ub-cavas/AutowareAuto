@@ -112,7 +112,10 @@ RoutePoint get_closest_point_on_lane(
       closest_point_on_lane.position = plus_2d(prev_pt.position, times_2d(direction_vector, ratio));
       const float32_t angle = std::atan2(
         static_cast<float32_t>(direction_vector.y), static_cast<float32_t>(direction_vector.x));
-      closest_point_on_lane.heading = motion::motion_common::from_angle(angle);
+      closest_point_on_lane.heading.real =
+        static_cast<float32_t>(motion::motion_common::from_angle(angle).w);
+      closest_point_on_lane.heading.imag =
+        static_cast<float32_t>(motion::motion_common::from_angle(angle).z);
     }
     accumulated_length += distance;
   }
@@ -257,9 +260,10 @@ RouteWithType BehaviorPlanner::get_current_subroute(const State & ego_state)
   updated_subroute.route.header = ego_state.header;
   if (updated_subroute.planner_type == PlannerType::LANE) {
     RoutePoint start_point;
-    start_point.heading = ego_state.state.heading;
-    start_point.position.x = ego_state.state.x;
-    start_point.position.y = ego_state.state.y;
+    start_point.heading.real = static_cast<float32_t>(ego_state.state.pose.orientation.w);
+    start_point.heading.imag = static_cast<float32_t>(ego_state.state.pose.orientation.z);
+    start_point.position.x = ego_state.state.pose.position.x;
+    start_point.position.y = ego_state.state.pose.position.y;
     updated_subroute.route.start_point = start_point;
   }
   return updated_subroute;
@@ -322,9 +326,11 @@ bool8_t BehaviorPlanner::has_arrived_goal(const State & state)
 
   const auto & route = m_subroutes.back().route;
   RoutePoint state_route_point;
-  state_route_point.heading = state.state.heading;
-  state_route_point.position.x = state.state.x;
-  state_route_point.position.y = state.state.y;
+  using Real = decltype(state_route_point.heading.imag);
+  state_route_point.heading.real = static_cast<Real>(state.state.pose.orientation.w);
+  state_route_point.heading.imag = static_cast<Real>(state.state.pose.orientation.z);
+  state_route_point.position.x = state.state.pose.position.x;
+  state_route_point.position.y = state.state.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
   const auto satsify_distance_condition = distance < m_config.goal_distance_thresh;
 
@@ -337,9 +343,11 @@ bool8_t BehaviorPlanner::has_arrived_subroute_goal(const State & state)
 
   const auto & route = get_current_subroute().route;
   RoutePoint state_route_point;
-  state_route_point.heading = state.state.heading;
-  state_route_point.position.x = state.state.x;
-  state_route_point.position.y = state.state.y;
+  using Real = decltype(state_route_point.heading.imag);
+  state_route_point.heading.real = static_cast<Real>(state.state.pose.orientation.w);
+  state_route_point.heading.imag = static_cast<Real>(state.state.pose.orientation.z);
+  state_route_point.position.x = state.state.pose.position.x;
+  state_route_point.position.y = state.state.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, state_route_point.position));
   const auto satsify_distance_condition = distance < m_config.goal_distance_thresh;
 
@@ -375,9 +383,11 @@ void BehaviorPlanner::set_trajectory(const Trajectory & trajectory)
   const auto & last_point = trajectory.points.back();
   const auto & route = get_current_subroute().route;
   RoutePoint last_route_point;
-  last_route_point.heading = last_point.heading;
-  last_route_point.position.x = last_point.x;
-  last_route_point.position.y = last_point.y;
+  using Real = decltype(last_route_point.heading.imag);
+  last_route_point.heading.real = static_cast<Real>(last_point.pose.orientation.w);
+  last_route_point.heading.imag = static_cast<Real>(last_point.pose.orientation.z);
+  last_route_point.position.x = last_point.pose.position.x;
+  last_route_point.position.y = last_point.pose.position.y;
   const auto distance = norm_2d(minus_2d(route.goal_point.position, last_route_point.position));
   m_is_trajectory_complete = distance < m_config.goal_distance_thresh;
 }
