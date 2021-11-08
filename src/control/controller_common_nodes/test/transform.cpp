@@ -1,4 +1,4 @@
-// Copyright 2020 Christopher Ho
+// Copyright 2020-2021 Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -195,10 +195,10 @@ TEST_F(Transforms, StaticDynamicTfs)
   {
     for (const auto & state : ctrl->controller().states()) {
       EXPECT_EQ(state.header.frame_id, "odom");
-      EXPECT_FLOAT_EQ(state.state.x, -1.0F);
-      EXPECT_FLOAT_EQ(state.state.y, -6.0F);
-      EXPECT_FLOAT_EQ(state.state.heading.real, 1.0F);
-      EXPECT_FLOAT_EQ(state.state.heading.imag, 0.0F);
+      EXPECT_EQ(state.state.pose.position.x, -1.0);
+      EXPECT_EQ(state.state.pose.position.y, -6.0);
+      EXPECT_EQ(state.state.pose.orientation.w, 1.0);
+      EXPECT_EQ(state.state.pose.orientation.z, 0.0);
       EXPECT_FLOAT_EQ(state.state.longitudinal_velocity_mps, 3.0F);
       EXPECT_FLOAT_EQ(state.state.lateral_velocity_mps, 0.0F);
     }
