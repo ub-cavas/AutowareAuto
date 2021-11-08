@@ -106,11 +106,11 @@ public:
 TEST(TestFunction, Distance2d)
 {
   TrajectoryPoint pt1, pt2;
-  pt1.x = 3.0F;
-  pt1.y = 0.0F;
+  pt1.pose.position.x = 3.0F;
+  pt1.pose.position.y = 0.0F;
 
-  pt2.x = 0.0F;
-  pt2.y = 4.0F;
+  pt2.pose.position.x = 0.0F;
+  pt2.pose.position.y = 4.0F;
 
   // same point returns distance 0
   ASSERT_FLOAT_EQ(autoware::lane_planner::distance2d(pt1, pt1), 0.0F);
@@ -121,14 +121,14 @@ TEST(TestFunction, Distance2d)
 TEST(TestFunction, Curvature)
 {
   TrajectoryPoint pt1, pt2, pt3;
-  pt1.x = 1.0F;
-  pt1.y = 0.0F;
+  pt1.pose.position.x = 1.0F;
+  pt1.pose.position.y = 0.0F;
 
-  pt2.x = 0.0F;
-  pt2.y = 1.0F;
+  pt2.pose.position.x = 0.0F;
+  pt2.pose.position.y = 1.0F;
 
-  pt3.x = -1.0F;
-  pt3.y = 0.0F;
+  pt3.pose.position.x = -1.0F;
+  pt3.pose.position.y = 0.0F;
 
   // circle with radius = 1
   ASSERT_FLOAT_EQ(autoware::lane_planner::calculate_curvature(pt1, pt2, pt3), 1.0F);
@@ -161,9 +161,10 @@ TEST_F(LanePlannerTest, PlanSimpleTrajectory)
   ASSERT_FALSE(trajectory.points.empty());
 
   TrajectoryPoint trajectory_start_point;
-  trajectory_start_point.x = static_cast<float32_t>(had_map_route.start_point.position.x);
-  trajectory_start_point.y = static_cast<float32_t>(had_map_route.start_point.position.y);
-  trajectory_start_point.heading = had_map_route.start_point.heading;
+  trajectory_start_point.pose.position.x = had_map_route.start_point.position.x;
+  trajectory_start_point.pose.position.y = had_map_route.start_point.position.y;
+  trajectory_start_point.pose.orientation.w = had_map_route.start_point.heading.real;
+  trajectory_start_point.pose.orientation.z = had_map_route.start_point.heading.imag;
 
   // start point of trajectory should be same as start point
   const auto distance = autoware::lane_planner::distance2d(
