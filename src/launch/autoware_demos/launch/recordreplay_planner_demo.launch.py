@@ -19,8 +19,7 @@ from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.actions import IncludeLaunchDescription
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
-from launch.conditions import IfCondition
-from launch.conditions import LaunchConfigurationEquals
+from launch.conditions import IfCondition, UnlessCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -262,7 +261,7 @@ def generate_launch_description():
             LaunchConfiguration('mpc_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
-        condition=LaunchConfigurationEquals('run_pure_pursuit', 'False')
+        condition=UnlessCondition(LaunchConfiguration('run_pure_pursuit'))
     )
     pure_pursuit = Node(
         package='pure_pursuit_nodes',
