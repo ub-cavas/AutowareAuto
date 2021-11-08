@@ -162,10 +162,10 @@ bool MpcController::update_references(const Index current_idx)
 void MpcController::initial_conditions(const Point & state)
 {
   // Set x0
-  acadoVariables.x0[IDX_X] = static_cast<AcadoReal>(state.x);
-  acadoVariables.x0[IDX_Y] = static_cast<AcadoReal>(state.y);
+  acadoVariables.x0[IDX_X] = static_cast<AcadoReal>(state.pose.position.x);
+  acadoVariables.x0[IDX_Y] = static_cast<AcadoReal>(state.pose.position.y);
   acadoVariables.x0[IDX_HEADING] =
-    static_cast<AcadoReal>(motion_common::to_angle(state.heading));
+    static_cast<AcadoReal>(motion_common::to_angle(state.pose.orientation));
   acadoVariables.x0[IDX_VEL_LONG] = static_cast<AcadoReal>(state.longitudinal_velocity_mps);
   // Initialization stuff
   acadoVariables.x[IDX_X] = acadoVariables.x0[IDX_X];
@@ -234,12 +234,12 @@ const MpcController::Trajectory & MpcController::get_computed_trajectory() const
   for (std::size_t i = {}; i < HORIZON; ++i) {
     auto & pt = traj.points[i];
     const auto idx = NX * i;
-    pt.x = static_cast<Real>(acadoVariables.x[idx + IDX_X]);
-    pt.y = static_cast<Real>(acadoVariables.x[idx + IDX_Y]);
+    pt.pose.position.x = static_cast<Real>(acadoVariables.x[idx + IDX_X]);
+    pt.pose.position.y = static_cast<Real>(acadoVariables.x[idx + IDX_Y]);
     pt.longitudinal_velocity_mps = static_cast<Real>(acadoVariables.x[idx + IDX_VEL_LONG]);
     pt.lateral_velocity_mps = Real{};
     const auto heading = static_cast<Real>(acadoVariables.x[idx + IDX_HEADING]);
-    pt.heading = motion_common::from_angle(heading);
+    pt.pose.orientation = motion_common::from_angle(heading);
     const auto jdx = NU * i;
     pt.acceleration_mps2 = static_cast<Real>(acadoVariables.u[jdx + IDX_JERK]);
     pt.heading_rate_rps = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE_RATE]);
