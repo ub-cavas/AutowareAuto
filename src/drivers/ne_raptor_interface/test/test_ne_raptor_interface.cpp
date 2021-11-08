@@ -3118,10 +3118,10 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
 
     // Run kinematic bike model
     if ((i == 0) || (i >= kTestValid_VKS)) {  /* First sending: no dT */
-      myTests[i].exp_vks.state.x = 0.0F;
-      myTests[i].exp_vks.state.y = 0.0F;
-      myTests[i].exp_vks.state.heading =
-        motion::motion_common::from_angle(0.0F);
+      myTests[i].exp_vks.state.pose.position.x = 0.0;
+      myTests[i].exp_vks.state.pose.position.y = 0.0;
+      myTests[i].exp_vks.state.pose.orientation =
+        motion::motion_common::from_angle(0.0);
       myTests[i].exp_vks.state.acceleration_mps2 = 0.0F;
     } else {
       myTests[i].exp_vks = myTests[i - 1].exp_vks;
@@ -3178,12 +3178,12 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
     // Check values
     if (test_listener_->l_got_vehicle_kin_state) {
       EXPECT_NEAR(
-        test_listener_->l_vehicle_kin_state.state.x,
-        myTests[i].exp_vks.state.x, err_margin) <<
+        test_listener_->l_vehicle_kin_state.state.pose.position.x,
+        myTests[i].exp_vks.state.pose.position.x, err_margin) <<
         "Test #" << std::to_string(i);
       EXPECT_NEAR(
-        test_listener_->l_vehicle_kin_state.state.y,
-        myTests[i].exp_vks.state.y, err_margin) <<
+        test_listener_->l_vehicle_kin_state.state.pose.position.y,
+        myTests[i].exp_vks.state.pose.position.y, err_margin) <<
         "Test #" << std::to_string(i);
       EXPECT_FLOAT_EQ(
         test_listener_->l_vehicle_kin_state.state.longitudinal_velocity_mps,
@@ -3308,10 +3308,10 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
 
     // Run kinematic bike model
     if ((i == 0) || (i >= kTestValid_VKS)) {  /* First sending: no dT */
-      myTests[i].exp_vks.state.x = 0.0F;
-      myTests[i].exp_vks.state.y = 0.0F;
-      myTests[i].exp_vks.state.heading =
-        motion::motion_common::from_angle(0.0F);
+      myTests[i].exp_vks.state.pose.position.x = 0.0;
+      myTests[i].exp_vks.state.pose.position.y = 0.0;
+      myTests[i].exp_vks.state.pose.orientation =
+        motion::motion_common::from_angle(0.0);
       myTests[i].exp_vks.state.acceleration_mps2 = 0.0F;
     } else {
       myTests[i].exp_vks = myTests[i - 1].exp_vks;
@@ -3402,18 +3402,18 @@ TEST_F(NERaptorInterfaceTest, TestKinematicBikeModel)
   vks.state.longitudinal_velocity_mps = velocity;
   vks.state.lateral_velocity_mps = 0.0F;
   vks.state.front_wheel_angle_rad = wheel_angle;
-  vks.state.x = 0.0F;
-  vks.state.y = 0.0F;
-  vks.state.heading = motion::motion_common::from_angle(kYaw);
+  vks.state.pose.position.x = 0.0;
+  vks.state.pose.position.y = 0.0;
+  vks.state.pose.orientation = motion::motion_common::from_angle(kYaw);
 
   for (i = 0.0F; i < num_steps; ++i) {
     x_nominal = std::cos(kYaw) * i * dT * velocity;
     y_nominal = std::sin(kYaw) * i * dT * velocity;
     err_margin = static_cast<float32_t>(1e-5);
 
-    EXPECT_NEAR(x_nominal, vks.state.x, err_margin) <<
+    EXPECT_NEAR(x_nominal, vks.state.pose.position.x, err_margin) <<
       "Test X #" << std::to_string(i);
-    EXPECT_NEAR(y_nominal, vks.state.y, err_margin) <<
+    EXPECT_NEAR(y_nominal, vks.state.pose.position.y, err_margin) <<
       "Test Y #" << std::to_string(i);
 
     ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
@@ -3437,19 +3437,22 @@ TEST_F(NERaptorInterfaceTest, TestKinematicBikeModel)
   // Make the circle go around (0, 0) – we're headed right at the start, and
   // turning left (positive angle).
   // So the starting position needs to be below the origin.
-  vks.state.x = 0;
-  vks.state.y = -radius;
+  vks.state.pose.position.x = 0;
+  vks.state.pose.position.y = -radius;
 
   // Make sure the velocity vector is horizontal at the beginning.
   kYaw = -beta_rad;
-  vks.state.heading = motion::motion_common::from_angle(kYaw);
+  vks.state.pose.orientation = motion::motion_common::from_angle(kYaw);
 
   for (i = 0.0F; i < num_steps; i++) {
     ne_raptor_interface_->kinematic_bicycle_model(dT, &vks);
     // Check that we're driving in a circle:
     // distance from 0 should == radius
     err_margin = static_cast<float32_t>(1e-2);
-    dist = std::sqrt(vks.state.x * vks.state.x + vks.state.y * vks.state.y);
+    dist = std::sqrt(
+      static_cast<float32_t>(
+        vks.state.pose.position.x * vks.state.pose.position.x +
+        vks.state.pose.position.y * vks.state.pose.position.y));
     EXPECT_NEAR(radius, dist, err_margin) <<
       "Test radius #" << std::to_string(i);
   }
