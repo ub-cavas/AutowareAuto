@@ -14,11 +14,8 @@
 
 #include "trajectory_spoofer/trajectory_spoofer.hpp"
 
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#include <motion_common/motion_common.hpp>
 #include <time_utils/time_utils.hpp>
-
 
 #include <chrono>
 #include <cmath>
@@ -41,13 +38,6 @@ std::chrono::nanoseconds TrajectorySpoofer::get_travel_time_ns(float32_t dist, f
 {
   return std::chrono::duration_cast<std::chrono::nanoseconds>(
     std::chrono::duration<float64_t>(dist / speed));
-}
-
-geometry_msgs::msg::Quaternion TrajectorySpoofer::to_quaternion(const float64_t yaw_angle)
-{
-  tf2::Quaternion quat;
-  quat.setRPY(0.0, 0.0, yaw_angle);
-  return tf2::toMsg(quat);
 }
 
 float32_t TrajectorySpoofer::get_target_speed()
@@ -99,7 +89,8 @@ Trajectory TrajectorySpoofer::spoof_straight_trajectory(
   straight_trajectory.points[0].longitudinal_velocity_mps = target_speed_;
 
 
-  const auto yaw_angle = tf2::getYaw(starting_state.state.pose.orientation);
+  const auto yaw_angle = static_cast<float64_t>(
+    ::motion::motion_common::to_angle(starting_state.state.pose.orientation));
   const float64_t seg_len =
     static_cast<float64_t>(length) / static_cast<float64_t>(num_of_points - 1);
   const auto start_time = time_utils::from_message(straight_trajectory.points[0].time_from_start);
@@ -107,10 +98,8 @@ Trajectory TrajectorySpoofer::spoof_straight_trajectory(
 
   for (int i = 1; i < num_of_points; ++i) {
     pt.time_from_start = time_utils::to_message(start_time + i * time_delta);
-    pt.pose.position.x =
-      static_cast<float32_t>(std::cos(yaw_angle) * static_cast<float64_t>(i) * seg_len);
-    pt.pose.position.y =
-      static_cast<float32_t>(std::sin(yaw_angle) * static_cast<float64_t>(i) * seg_len);
+    pt.pose.position.x = std::cos(yaw_angle) * i * seg_len;
+    pt.pose.position.y = std::sin(yaw_angle) * i * seg_len;
     pt.longitudinal_velocity_mps = target_speed_;
     straight_trajectory.points.push_back(pt);
   }
@@ -138,7 +127,7 @@ Trajectory TrajectorySpoofer::spoof_circular_trajectory(
   const auto time_delta = get_travel_time_ns(static_cast<float32_t>(seg_len), target_speed_);
 
   for (int i = 1; i < num_of_points; ++i) {
-    const float64_t old_head = tf2::getYaw(pt.pose.orientation);
+    const float64_t old_head = ::motion::motion_common::to_angle(pt.pose.orientation);
     const float64_t angle_dist_remain =
       static_cast<float64_t>(TAU) - static_cast<float64_t>(i) * seg_angle_rad;
 
@@ -157,10 +146,9 @@ Trajectory TrajectorySpoofer::spoof_circular_trajectory(
         new_head -= static_cast<float64_t>(TAU);
       }
 
-      pt.pose.orientation = to_quaternion(new_head);
+      pt.pose.orientation = ::motion::motion_common::from_angle(new_head);
     } else {  // last point  (num_of_points -1)
-      pt.pose.position.x = starting_state.state.pose.position.x;
-      pt.pose.position.y = starting_state.state.pose.position.y;
+      pt.pose.position = starting_state.state.pose.position;
       pt.pose.orientation = starting_state.state.pose.orientation;
       pt.longitudinal_velocity_mps = target_speed_;
     }

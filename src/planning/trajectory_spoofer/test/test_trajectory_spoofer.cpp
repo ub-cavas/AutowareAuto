@@ -20,6 +20,7 @@
 #include <autoware_auto_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
 #include <common/types.hpp>
+#include <motion_common/motion_common.hpp>
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
@@ -86,7 +87,7 @@ TEST(TestTrajectorySpoofer, StraightTrajectory) {
   num_of_points = 100;  // max points
   length = 2500.0;
   constexpr float32_t head_rad = 45.0 * M_PI / 180.0;  // Start at heading of 45 degrees
-  starting_point.state.pose.orientation = TrajectorySpoofer::to_quaternion(head_rad);
+  starting_point.state.pose.orientation = ::motion::motion_common::from_angle(head_rad);
   starting_point.state.longitudinal_velocity_mps = 12.5;
 
   traj = ts.spoof_straight_trajectory(
@@ -155,7 +156,7 @@ TEST(TestTrajectorySpoofer, CircularTrajectory) {
   num_of_points = 100;  // max points
   radius = 2500.0;
   constexpr float32_t head_rad = 45.0 * M_PI / 180.0;  // Start at heading of 45 degrees
-  starting_point.state.pose.orientation = TrajectorySpoofer::to_quaternion(head_rad);
+  starting_point.state.pose.orientation = ::motion::motion_common::from_angle(head_rad);
   starting_point.state.longitudinal_velocity_mps = 12.5;
 
   traj = ts.spoof_circular_trajectory(starting_point, num_of_points, radius);

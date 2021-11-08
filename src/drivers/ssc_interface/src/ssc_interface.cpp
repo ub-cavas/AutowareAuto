@@ -17,8 +17,6 @@
 #include <automotive_platform_msgs/msg/gear.hpp>
 #include <motion_common/motion_common.hpp>
 #include <rclcpp/logging.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
@@ -417,9 +415,7 @@ void SscInterface::kinematic_bicycle_model(
       a / (yaw_rate * yaw_rate) * std::sin(course));
   }
   yaw += std::cos(beta) * std::tan(delta) / (l_r + l_f) * (v0 * dt + 0.5f * a * dt * dt);
-  tf2::Quaternion quat;
-  quat.setRPY(0.0, 0.0, yaw);
-  vks->state.pose.orientation = tf2::toMsg(quat);
+  vks->state.pose.orientation = ::motion::motion_common::from_angle(yaw);
 
 
   // Rotations per second or rad per second?

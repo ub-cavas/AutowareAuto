@@ -16,12 +16,9 @@
 #include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <time_utils/time_utils.hpp>
-#include <tf2/utils.h>
 
 #include <chrono>
 #include <limits>
-
-#include "gtest/gtest.h"
 
 using motion::motion_common::Command;
 using motion::motion_common::Point;

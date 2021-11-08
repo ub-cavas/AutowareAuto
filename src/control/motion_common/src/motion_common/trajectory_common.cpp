@@ -13,9 +13,10 @@
 // limitations under the License.
 
 #include "motion_common/trajectory_common.hpp"
-#include "motion_common/motion_common.hpp"
 
 #include <limits>
+
+#include "motion_common/motion_common.hpp"
 
 namespace autoware
 {

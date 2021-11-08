@@ -211,8 +211,7 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   start_route_point.heading.imag = static_cast<float32_t>(start_point.pose.orientation.z);
 
   autoware_auto_msgs::msg::RoutePoint end_route_point;
-  end_route_point.position.x = end_point.pose.position.x;
-  end_route_point.position.y = end_point.pose.position.y;
+  end_route_point.position = end_point.pose.position;
   end_route_point.heading.real = static_cast<float32_t>(end_point.pose.orientation.w);
   end_route_point.heading.imag = static_cast<float32_t>(end_point.pose.orientation.z);
 

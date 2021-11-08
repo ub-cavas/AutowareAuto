@@ -12,19 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <common/types.hpp>
-
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <tf2/LinearMath/Quaternion.h>
-#include <tf2/utils.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
-
 #include <cmath>
 #include <memory>
 #include <iostream>
 #include <fstream>
 
+#include "autoware_auto_msgs/msg/vehicle_kinematic_state.hpp"
+#include "common/types.hpp"
 #include "gtest/gtest.h"
+#include "motion_common/motion_common.hpp"
 #include "ssc_interface/ssc_interface.hpp"
 
 using autoware_auto_msgs::msg::VehicleKinematicState;
@@ -43,9 +39,7 @@ TEST(TestSscInterface, TestDriveStraight) {
   VehicleKinematicState vks;
   vks.state.longitudinal_velocity_mps = 2.0;
   constexpr float32_t kYaw = 1.0471975511965976F;  // 60 deg
-  tf2::Quaternion quat;
-  quat.setRPY(0.0, 0.0, kYaw);
-  vks.state.pose.orientation = tf2::toMsg(quat);
+  vks.state.pose.orientation = ::motion::motion_common::from_angle(kYaw);
   constexpr float32_t dt = 0.1F;
 
   for (float32_t i = 0; i < 50.0F; ++i) {
@@ -93,9 +87,7 @@ TEST(TestSscInterface, TestConstantSteering) {
   vks.state.pose.position.x = 0;
   vks.state.pose.position.y = -radius_m;
   // Make sure the velocity vector is horizontal at the beginning.
-  tf2::Quaternion quat;
-  quat.setRPY(0.0, 0.0, -beta_rad);
-  vks.state.pose.orientation = tf2::toMsg(quat);
+  vks.state.pose.orientation = ::motion::motion_common::from_angle(-beta_rad);
   for (int i = 0; i < kNumSteps; ++i) {
     ssc_interface::SscInterface::kinematic_bicycle_model(
       dt, kRearAxleToCogM, kFrontAxleToCogM,

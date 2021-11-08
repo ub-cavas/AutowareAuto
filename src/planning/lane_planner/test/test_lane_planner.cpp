@@ -161,8 +161,7 @@ TEST_F(LanePlannerTest, PlanSimpleTrajectory)
   ASSERT_FALSE(trajectory.points.empty());
 
   TrajectoryPoint trajectory_start_point;
-  trajectory_start_point.pose.position.x = had_map_route.start_point.position.x;
-  trajectory_start_point.pose.position.y = had_map_route.start_point.position.y;
+  trajectory_start_point.pose.position = had_map_route.start_point.position;
   trajectory_start_point.pose.orientation.w = had_map_route.start_point.heading.real;
   trajectory_start_point.pose.orientation.z = had_map_route.start_point.heading.imag;
 
