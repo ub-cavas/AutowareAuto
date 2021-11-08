@@ -26,6 +26,7 @@
 #include <geometry/common_3d.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <helper_functions/float_comparisons.hpp>
+#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
@@ -47,6 +48,11 @@ namespace common
 namespace comp = helper_functions::comparisons;
 namespace lidar_utils
 {
+
+using CloudModifier =
+  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZIF>;
+using CloudView = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>;
+
 using sensor_msgs::msg::PointCloud2;
 
 using autoware::common::types::bool8_t;

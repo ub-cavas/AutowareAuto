@@ -17,7 +17,6 @@
 #include <benchmark/benchmark.h>
 #include <helper_functions/float_comparisons.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 
@@ -32,8 +31,8 @@ constexpr auto kCloudSize = 100UL;
 sensor_msgs::msg::PointCloud2 create_point_cloud_through_wrapper(const std::size_t size)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "frame_id"};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{msg, "frame_id"};
   modifier.resize(size);
   return msg;
 }
@@ -41,8 +40,8 @@ sensor_msgs::msg::PointCloud2 create_point_cloud_through_wrapper(const std::size
 sensor_msgs::msg::PointCloud2 create_point_cloud_through_utils(const std::size_t kCloudSize)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "frame_id"};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{msg, "frame_id"};
   modifier.reserve(kCloudSize);
   modifier.clear();
   return msg;
@@ -52,10 +51,10 @@ sensor_msgs::msg::PointCloud2 create_point_cloud_through_utils(const std::size_t
 
 static void BenchMsgWrapperAddPointToCloud(benchmark::State & state)
 {
-  using autoware::common::types::PointXYZIF;
   auto msg = create_point_cloud_through_wrapper(kCloudSize);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg};
-  const PointXYZIF point{};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{msg};
+  const CloudModifier::value_type point{};
   for (auto _ : state) {
     for (auto i = 0U; i < kCloudSize; ++i) {
       modifier[i] = point;
@@ -66,10 +65,10 @@ static void BenchMsgWrapperAddPointToCloud(benchmark::State & state)
 
 static void BenchMsgWrapperResizeAndAddPointToCloud(benchmark::State & state)
 {
-  using autoware::common::types::PointXYZIF;
   auto msg = create_point_cloud_through_wrapper(kCloudSize);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg};
-  const PointXYZIF point{};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{msg};
+  const CloudModifier::value_type point{};
   for (auto _ : state) {
     modifier.clear();
     modifier.resize(kCloudSize);
@@ -82,10 +81,10 @@ static void BenchMsgWrapperResizeAndAddPointToCloud(benchmark::State & state)
 
 static void BenchMsgWrapperPushBackPointToCloud(benchmark::State & state)
 {
-  using autoware::common::types::PointXYZIF;
   auto msg = create_point_cloud_through_wrapper(kCloudSize);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg};
-  const PointXYZIF point{};
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier modifier{msg};
+  const CloudModifier::value_type point{};
   for (auto _ : state) {
     modifier.clear();
     modifier.reserve(kCloudSize);
@@ -99,10 +98,10 @@ static void BenchMsgWrapperPushBackPointToCloud(benchmark::State & state)
 
 static void BenchMsgWrapperAccessPoint(benchmark::State & state)
 {
-  using autoware::common::types::PointXYZIF;
   auto msg = create_point_cloud_through_wrapper(kCloudSize);
-  const PointXYZIF point{};
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg};
+  using autoware::common::lidar_utils::CloudModifier;
+  const CloudModifier::value_type point{};
+  CloudModifier modifier{msg};
   modifier.resize(kCloudSize);
   for (auto & p : modifier) {
     p = point;
