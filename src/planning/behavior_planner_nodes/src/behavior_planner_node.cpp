@@ -399,14 +399,18 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   checkpoints.header.frame_id = "map";
   for (const auto subroute : subroutes) {
     TrajectoryPoint trajectory_start_point;
-    trajectory_start_point.x = static_cast<float32_t>(subroute.route.start_point.position.x);
-    trajectory_start_point.y = static_cast<float32_t>(subroute.route.start_point.position.y);
-    trajectory_start_point.heading = subroute.route.start_point.heading;
+    trajectory_start_point.pose.position.x = subroute.route.start_point.position.x;
+    trajectory_start_point.pose.position.y = subroute.route.start_point.position.y;
+    trajectory_start_point.pose.orientation.w = subroute.route.start_point.heading.real;
+    trajectory_start_point.pose.orientation.z = subroute.route.start_point.heading.imag;
 
     TrajectoryPoint trajectory_goal_point;
-    trajectory_goal_point.x = static_cast<float32_t>(subroute.route.goal_point.position.x);
-    trajectory_goal_point.y = static_cast<float32_t>(subroute.route.goal_point.position.y);
-    trajectory_goal_point.heading = subroute.route.goal_point.heading;
+    trajectory_goal_point.pose.position.x =
+      static_cast<float32_t>(subroute.route.goal_point.position.x);
+    trajectory_goal_point.pose.position.y =
+      static_cast<float32_t>(subroute.route.goal_point.position.y);
+    trajectory_goal_point.pose.orientation.w = subroute.route.goal_point.heading.real;
+    trajectory_goal_point.pose.orientation.z = subroute.route.goal_point.heading.imag;
 
     checkpoints.points.push_back(trajectory_start_point);
     checkpoints.points.push_back(trajectory_goal_point);
