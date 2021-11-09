@@ -16,7 +16,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_filter_transform_nodes/point_cloud_filter_transform_node.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <memory>
 #include <string>
@@ -34,8 +34,10 @@ namespace point_cloud_filter_transform_nodes
 {
 using autoware::common::lidar_utils::has_intensity_and_throw_if_no_xyz;
 using autoware::common::lidar_utils::sanitize_point_cloud;
+using autoware::common::lidar_utils::CloudModifier;
 using autoware::common::types::float64_t;
 using autoware::common::types::PointXYZI;
+using autoware::common::types::PointXYZIF;
 using geometry_msgs::msg::TransformStamped;
 using sensor_msgs::msg::PointCloud2;
 
@@ -160,6 +162,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   auto && intensity_it = autoware::common::lidar_utils::IntensityIteratorWrapper(msg);
 
+  using autoware::common::types::PointXYZIF;
   CloudModifier modifier{m_filtered_transformed_msg};
   modifier.clear();
   modifier.reserve(m_pcl_size);

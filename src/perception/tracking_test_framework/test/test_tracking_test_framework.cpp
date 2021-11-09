@@ -177,7 +177,7 @@ TEST(TestTrackingTestFramework, TestSceneWithMultipleLidarBeamsMultipleObject) {
   std::vector<Eigen::Vector2f> intersection_pts {Eigen::Vector2f{1.0F, 0.0F},
     Eigen::Vector2f{-0.8660F, 1.5F}, Eigen::Vector2f{-0.8660F, -1.5F},
     Eigen::Vector2f{1.0F, 1.748455e-7F}};
-  std::vector<CloudModifier::value_type> points_vec{};
+  std::vector<autoware::common::types::PointXYZIF> points_vec{};
 
   for (const auto & point : intersection_pts) {
     points_vec.push_back(

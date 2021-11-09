@@ -13,7 +13,7 @@
 // limitations under the License.
 
 #include <common/types.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <random>
 #include <memory>
@@ -52,7 +52,8 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
   const float32_t bound_y_max)
 {
   PointCloud2::SharedPtr cloud_input_ptr = std::make_shared<PointCloud2>();
-  using CloudModifier = CloudModifier;
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier cloud_modifier_input(*cloud_input_ptr, "");
 
   // Populate it with random points within a selected area
@@ -175,7 +176,8 @@ TEST(TestPolygonRemover, ShapeToPolylinePolygon) {
 
   PointCloud2::SharedPtr cloud_filtered_ptr =
     polygon_remover.remove_updated_polygon_from_cloud(cloud_input_ptr);
-  using CloudModifier = CloudModifier;
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier cloud_modifier_filtered(*cloud_filtered_ptr);
   EXPECT_EQ(cloud_modifier_filtered.size(), count_points_outside_rect);
 }

@@ -16,7 +16,7 @@
 
 #include <common/types.hpp>
 #include <point_cloud_fusion_nodes/point_cloud_fusion_node.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <tf2_sensor_msgs/tf2_sensor_msgs.h>
 
@@ -57,6 +57,7 @@ void PointCloudFusionNode::init()
     m_cloud_capacity,
     m_input_topics.size());
 
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier{
     m_cloud_concatenated, m_output_frame_id}.reserve(m_cloud_capacity);
 
@@ -103,6 +104,7 @@ PointCloudFusionNode::pointcloud_callback(
     msg8};
 
   // reset pointcloud before using
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier modifier{m_cloud_concatenated};
   modifier.clear();
   modifier.reserve(m_cloud_capacity);

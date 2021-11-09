@@ -82,13 +82,14 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   sensor_msgs::msg::PointCloud2 cloud;
   pcl_conversions::moveFromPCL(pcl_cloud, cloud);
 
-  using autoware::common::lidar_utils::CloudModifier;
-  using autoware::common::lidar_utils::CloudView;
   using autoware::common::types::float32_t;
   using autoware::common::types::PointXYZI;
+  using autoware::common::types::PointXYZIF;
   using point_cloud_msg_wrapper::PointCloud2View;
+  using point_cloud_msg_wrapper::PointCloud2Modifier;
+  using autoware::common::lidar_utils::CloudModifier;
 
-  if (CloudView::can_be_created_from(cloud)) {
+  if (PointCloud2View<PointXYZIF>::can_be_created_from(cloud)) {
     // The cloud already has correct fields.
     *msg = std::move(cloud);
     return;
@@ -103,7 +104,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const CloudModifier::value_type point{
+      const PointXYZIF point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -131,7 +132,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const CloudModifier::value_type point{
+      const PointXYZIF point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -164,7 +165,7 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const CloudModifier::value_type point{
+      const PointXYZIF point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -185,8 +186,8 @@ geocentric_pose_t load_map(
   const std::string & pcl_file_name,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  CloudModifier modifier {pc_out};
-  modifier.clear();
+  using autoware::common::lidar_utils::CloudModifier;
+  CloudModifier{pc_out}.clear();
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   if (!yaml_file_name.empty()) {

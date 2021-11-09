@@ -20,6 +20,7 @@
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2/LinearMath/Quaternion.h>
+#include <lidar_utils/point_cloud_utils.hpp>
 
 #include <memory>
 #include <string>
@@ -37,6 +38,7 @@ namespace ndt_nodes
 /// Clear the given pointcloud message
 void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
 {
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier{msg}.clear();
 }
 
@@ -88,6 +90,7 @@ void NDTMapPublisherNode::init(
 {
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
 
+  using autoware::common::lidar_utils::CloudModifier;
   CloudModifier initializer{
     m_source_pc, map_frame};
 
@@ -114,7 +117,7 @@ void NDTMapPublisherNode::init(
       10000000U);
 
     // Initialize Voxel Grid and output message for downsampling map
-    using autoware::common::types::PointXYZI;
+    using autoware::common::lidar_utils::CloudModifier;
     CloudModifier downsampled_pc_initializer{
       m_downsampled_pc, map_frame};
     m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_viz_map_config_ptr);

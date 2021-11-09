@@ -107,7 +107,7 @@ void RayGroundClassifier::structured_partition(
   for (const PointXYZIF * pt : raw_block) {
     const uint16_t id = pt->id;
     // terminal scan, add to both
-    if (static_cast<uint16_t>(CloudModifier::value_type::END_OF_SCAN_ID) == id) {
+    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) == id) {
       insert(ground_block, pt);
       insert(nonground_block, pt);
       break;

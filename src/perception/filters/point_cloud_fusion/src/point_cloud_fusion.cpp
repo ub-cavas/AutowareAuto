@@ -60,6 +60,8 @@ void PointCloudFusion::concatenate_pointcloud(
     throw Error::TOO_LARGE;
   }
 
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudView;
   CloudView view{pc_in};
 
   auto view_it = view.cbegin();

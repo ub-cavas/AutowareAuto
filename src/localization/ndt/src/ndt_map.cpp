@@ -17,7 +17,7 @@
 #include <ndt/ndt_map.hpp>
 #include <ndt/utils.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <algorithm>
 #include <string>
 
@@ -58,6 +58,8 @@ void DynamicNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 
 void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
 {
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudView;
   CloudView msg_view{msg};
 
   for (const auto & point : msg_view) {

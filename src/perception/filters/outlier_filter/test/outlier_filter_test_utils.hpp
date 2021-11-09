@@ -22,7 +22,6 @@
 #include "geometry_msgs/msg/point32.hpp"
 #include "pcl_conversions/pcl_conversions.h"
 #include "lidar_utils/point_cloud_utils.hpp"
-#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 
 
 using PointXYZ = geometry_msgs::msg::Point32;
@@ -36,6 +35,8 @@ pcl::PointCloud<pcl::PointXYZ> make_pc(
   std::vector<pcl::PointXYZ> points,
   builtin_interfaces::msg::Time stamp)
 {
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
   sensor_msgs::msg::PointCloud2 msg;
   CloudModifier modifier{msg, "base_link"};
   modifier.reserve(points.size());

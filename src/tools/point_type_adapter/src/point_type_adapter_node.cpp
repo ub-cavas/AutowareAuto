@@ -15,13 +15,13 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <common/types.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <memory>
 #include <algorithm>
 #include <exception>
 #include <string>
 #include <vector>
 #include "point_type_adapter/point_type_adapter_node.hpp"
-#include "lidar_utils/point_cloud_utils.hpp"
 
 namespace
 {
@@ -68,6 +68,7 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
 PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
   const PointCloud2::ConstSharedPtr cloud_in) const
 {
+  using autoware::common::types::PointXYZIF;
   using autoware::common::lidar_utils::CloudModifier;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
 
@@ -112,6 +113,7 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
   sensor_msgs::PointCloud2ConstIterator<float32_t> iter_y(*cloud_in, "y");
   sensor_msgs::PointCloud2ConstIterator<float32_t> iter_z(*cloud_in, "z");
 
+
   CloudModifier cloud_modifier_out(*cloud_out_ptr, cloud_in->header.frame_id);
   cloud_out_ptr->header = cloud_in->header;
 
@@ -122,7 +124,7 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
     iter_z != iter_z.end() ||
     !intensity_iter_wrapper.is_end())
   {
-    CloudModifier::value_type point_xyzif{*iter_x, *iter_y, *iter_z,
+    PointXYZIF point_xyzif{*iter_x, *iter_y, *iter_z,
       intensity_iter_wrapper.get_current_value<float32_t>()};
     cloud_modifier_out.push_back(point_xyzif);
     iter_x += 1;

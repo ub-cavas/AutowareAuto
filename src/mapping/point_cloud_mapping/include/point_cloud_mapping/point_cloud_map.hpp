@@ -21,7 +21,7 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <voxel_grid/voxel_grid.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <helper_functions/crtp.hpp>
 #include <helper_functions/template_utils.hpp>
 #include <common/types.hpp>
@@ -126,6 +126,7 @@ public:
 
     MapUpdateSummary ret{MapUpdateType::NO_CHANGE, 0U};
 
+    using autoware::common::lidar_utils::CloudView;
     CloudView observation_view{observation};
 
     ret.update_type = m_grid.empty() ? MapUpdateType::NEW : MapUpdateType::UPDATE;

@@ -25,6 +25,7 @@ namespace
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::lidar_utils::CloudView;
 
 using autoware::localization::ndt::P2DNDTScan;
 using autoware::localization::ndt::P2DNDTOptimizationProblem;
@@ -234,7 +235,7 @@ INSTANTIATE_TEST_CASE_P(
 
 pcl::PointCloud<pcl::PointXYZ> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type> msg_view{msg};
+  CloudView msg_view{msg};
   pcl::PointCloud<pcl::PointXYZ> res{};
 
   for (const auto & pt_in : msg_view) {

@@ -27,9 +27,9 @@ namespace voxel_grid
 {
 // Instantiation of common types
 template class ApproximateVoxel<PointXYZ>;
-template class ApproximateVoxel<CloudModifier::value_type>;
+template class ApproximateVoxel<autoware::common::types::PointXYZIF>;
 template class CentroidVoxel<PointXYZ>;
-template class CentroidVoxel<CloudModifier::value_type>;
+template class CentroidVoxel<autoware::common::types::PointXYZIF>;
 }  // namespace voxel_grid
 }  // namespace filters
 }  // namespace perception

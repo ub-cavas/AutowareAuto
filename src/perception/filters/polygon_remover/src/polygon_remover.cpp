@@ -14,7 +14,7 @@
 
 #include <CGAL/Exact_predicates_inexact_constructions_kernel.h>
 #include <CGAL/Polygon_2_algorithms.h>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <tuple>
@@ -58,8 +58,9 @@ PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
 {
   PointCloud2::SharedPtr cloud_filtered_ptr = std::make_shared<PointCloud2>();
 
-  using CloudModifier = CloudModifier;
-  using CloudView = CloudView;
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
+  using autoware::common::lidar_utils::CloudView;
 
   CloudModifier cloud_modifier_filtered(*cloud_filtered_ptr, "");
   cloud_filtered_ptr->header = cloud_in_ptr->header;

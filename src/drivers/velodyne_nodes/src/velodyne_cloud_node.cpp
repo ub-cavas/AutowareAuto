@@ -21,6 +21,7 @@
 
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+#include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
 
@@ -102,8 +103,8 @@ template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
   using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier modifier{output, m_frame_id};
-  modifier.reserve(m_cloud_size);
+  CloudModifier{
+    output, m_frame_id}.reserve(m_cloud_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,6 +114,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   sensor_msgs::msg::PointCloud2 & output)
 {
   // This handles the case when the below loop exited due to containing extra points
+  using autoware::common::types::PointXYZIF;
   using autoware::common::lidar_utils::CloudModifier;
   CloudModifier modifier{output};
   if (m_published_cloud) {
@@ -124,7 +126,7 @@ bool8_t VelodyneCloudNode<T>::convert(
     // deserialize remainder into pointcloud
     m_published_cloud = false;
     for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
-      const CloudModifier::value_type & pt = m_point_block[idx];
+      const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
       modifier.push_back(pt);
       m_point_cloud_idx++;
     }
@@ -132,7 +134,7 @@ bool8_t VelodyneCloudNode<T>::convert(
   m_translator.convert(pkt, m_point_block);
   for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
     const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-    if (static_cast<uint16_t>(CloudModifier::value_type::END_OF_SCAN_ID) != pt.id) {
+    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
       modifier.push_back(pt);
       m_point_cloud_idx++;
       if (modifier.size() >= m_cloud_size) {

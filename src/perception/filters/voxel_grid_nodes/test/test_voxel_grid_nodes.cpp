@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <common/types.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
@@ -103,6 +103,7 @@ protected:
   using VoxelAlgorithm::make;
   void make(sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
+    using autoware::common::lidar_utils::CloudModifier;
     CloudModifier mod{cloud, "frame_id"};
     for (std::size_t idx = 0U; idx < N; ++idx) {
       mod.push_back(obs_points1[idx]);
@@ -110,6 +111,7 @@ protected:
   }
   bool8_t check(const sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
+    using autoware::common::lidar_utils::CloudView;
     CloudView cloud_view{cloud};
     bool8_t ret = true;
     constexpr float32_t TOL = 1.0E-6F;

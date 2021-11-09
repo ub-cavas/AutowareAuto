@@ -156,6 +156,8 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
   sensor_msgs::msg::PointCloud2 test_pc1;
   sensor_msgs::msg::PointCloud2 test_pc2;
 
+  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
 
   CloudModifier modifier1{test_pc1, "base_link"};
   modifier1.clear();
@@ -177,7 +179,7 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
     modifier2.push_back(pt);
   }
 
-  uint32_t expected_gnd_pcl_size = sizeof(CloudModifier::value_type) * mini_cloud_size;
+  uint32_t expected_gnd_pcl_size = sizeof(autoware::common::types::PointXYZIF) * mini_cloud_size;
   uint32_t expected_nongnd_pcl_size = 0U;  // no points will be classified as nonground
   uint32_t expected_num_received = 2U;
 

@@ -32,6 +32,8 @@ namespace filters
 {
 namespace point_cloud_fusion
 {
+using autoware::common::types::PointXYZIF;
+using autoware::common::lidar_utils::CloudModifier;
 
 class POINT_CLOUD_FUSION_PUBLIC PointCloudFusion
 {

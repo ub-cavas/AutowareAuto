@@ -27,9 +27,11 @@
 #include <map>
 #include <string>
 #include "common/types.hpp"
+#include "lidar_utils/point_cloud_utils.hpp"
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::lidar_utils::CloudModifier;
 
 using autoware::localization::ndt::DynamicNDTMap;
 constexpr auto kNumConfigPoints = DynamicNDTMap::kNumConfigPoints;
@@ -52,6 +54,7 @@ sensor_msgs::msg::PointField make_pf(
 void populate_pc(
   sensor_msgs::msg::PointCloud2 & pc,
   size_t num_points);
+using autoware::common::types::PointXYZIF;
 
 PointXYZIF get_point_from_vector(const Eigen::Vector3d & v);
 

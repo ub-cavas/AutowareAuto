@@ -23,7 +23,7 @@
 #include <geometry/spatial_hash_config.hpp>
 #include <voxel_grid/config.hpp>
 #include <geometry_msgs/msg/point32.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <Eigen/Core>
 #include <vector>
 #include <set>
@@ -32,6 +32,9 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
+using autoware::common::types::PointXYZIF;
+using autoware::common::lidar_utils::CloudModifier;
+using autoware::common::lidar_utils::CloudView;
 
 PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
 {
@@ -131,8 +134,8 @@ protected:
 pcl::PointCloud<pcl::PointXYZI> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
   pcl::PointCloud<pcl::PointXYZI> res{};
-  point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type>
-  msg_view{msg};
+  CloudView
+    msg_view{msg};
 
   for (const auto & pt_in : msg_view) {
     pcl::PointXYZI pt;

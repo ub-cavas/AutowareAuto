@@ -20,7 +20,7 @@
 #include <common/types.hpp>
 #include <helper_functions/crtp.hpp>
 #include <ndt/visibility_control.hpp>
-#include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+#include <lidar_utils/point_cloud_utils.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <sensor_msgs/point_cloud2_iterator.hpp>
 #include <time_utils/time_utils.hpp>
@@ -158,6 +158,7 @@ public:
     if (msg.width > m_points.capacity()) {
       throw std::length_error(container_full_error);
     }
+    using autoware::common::lidar_utils::CloudView;
     CloudView msg_view{msg};
     for (const auto & point : msg_view) {
       m_points.emplace_back(point.x, point.y, point.z);
