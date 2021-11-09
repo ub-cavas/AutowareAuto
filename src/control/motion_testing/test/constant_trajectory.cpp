@@ -27,10 +27,12 @@ TEST(ConstantTrajectory, Stationary)
     x0, y0, 0.0F, 0.0F, std::chrono::milliseconds(100LL));
   for (auto i = 0U; i < traj.points.size(); ++i) {
     const auto & t = traj.points[i];
-    EXPECT_FLOAT_EQ(t.x, x0);
-    EXPECT_FLOAT_EQ(t.y, y0);
-    EXPECT_FLOAT_EQ(t.heading.real, 1.0F);
-    EXPECT_FLOAT_EQ(t.heading.imag, 0.0F);
+    EXPECT_DOUBLE_EQ(t.pose.position.x, x0);
+    EXPECT_DOUBLE_EQ(t.pose.position.y, y0);
+    EXPECT_DOUBLE_EQ(t.pose.orientation.w, 1.0F);
+    EXPECT_DOUBLE_EQ(t.pose.orientation.x, 0.0F);
+    EXPECT_DOUBLE_EQ(t.pose.orientation.y, 0.0F);
+    EXPECT_DOUBLE_EQ(t.pose.orientation.z, 0.0F);
     EXPECT_FLOAT_EQ(t.longitudinal_velocity_mps, 0.0F);
     EXPECT_FLOAT_EQ(t.lateral_velocity_mps, 0.0F);
     EXPECT_FLOAT_EQ(t.acceleration_mps2, 0.0F);
@@ -64,14 +66,14 @@ TEST(ConstantTrajectory, ConstantVelocity)
     const auto & t = traj.points[i];
     const auto ds = v0 * static_cast<float_t>(i) * dt_s;
     constexpr auto TOL = 1.0E-4F;
-    EXPECT_LT(std::abs(t.x - (x0 + (ds * c))), TOL);
-    EXPECT_LT(std::abs(t.y - (y0 + (ds * s))), TOL);
-    EXPECT_LT(std::abs(t.heading.real - (w)), TOL);
-    EXPECT_LT(std::abs(t.heading.imag - (z)), TOL);
-    EXPECT_LT(std::abs(t.longitudinal_velocity_mps - (v0)), TOL);
-    EXPECT_LT(std::abs(t.lateral_velocity_mps - (0.0F)), TOL);
-    EXPECT_LT(std::abs(t.acceleration_mps2 - (0.0F)), TOL);
-    EXPECT_LT(std::abs(t.heading_rate_rps - (0.0F)), TOL);
+    EXPECT_LT(std::fabs(static_cast<float>(t.pose.position.x) - (x0 + (ds * c))), TOL);
+    EXPECT_LT(std::fabs(static_cast<float>(t.pose.position.y) - (y0 + (ds * s))), TOL);
+    EXPECT_LT(std::fabs(static_cast<float>(t.pose.orientation.w) - (w)), TOL);
+    EXPECT_LT(std::fabs(static_cast<float>(t.pose.orientation.z) - (z)), TOL);
+    EXPECT_LT(std::fabs(t.longitudinal_velocity_mps - (v0)), TOL);
+    EXPECT_LT(std::fabs(t.lateral_velocity_mps - (0.0F)), TOL);
+    EXPECT_LT(std::fabs(t.acceleration_mps2 - (0.0F)), TOL);
+    EXPECT_LT(std::fabs(t.heading_rate_rps - (0.0F)), TOL);
     // TODO(c.ho) check time
     if (i > 0U) {
       const auto dt_curr = from_message(t.time_from_start);
@@ -103,10 +105,10 @@ TEST(ConstantTrajectory, ConstantAcceleration)
     const auto dT = static_cast<float_t>(i) * dt_s;
     const auto ds = dT * (v0 + (0.5F * dT * a0));
     constexpr auto TOL = 1.0E-4F;
-    EXPECT_LT(std::abs(t.x - (x0 + (ds * c))), TOL);
-    EXPECT_LT(std::abs(t.y - (y0 + (ds * s))), TOL);
-    EXPECT_LT(std::abs(t.heading.real - (w)), TOL);
-    EXPECT_LT(std::abs(t.heading.imag - (z)), TOL);
+    EXPECT_LT(std::abs(static_cast<float>(t.pose.position.x) - (x0 + (ds * c))), TOL);
+    EXPECT_LT(std::abs(static_cast<float>(t.pose.position.y) - (y0 + (ds * s))), TOL);
+    EXPECT_LT(std::abs(static_cast<float>(t.pose.orientation.w) - (w)), TOL);
+    EXPECT_LT(std::abs(static_cast<float>(t.pose.orientation.z) - (z)), TOL);
     EXPECT_LT(std::abs(t.longitudinal_velocity_mps - (v0 + (dT * a0))), TOL);
     EXPECT_LT(std::abs(t.lateral_velocity_mps - (0.0F)), TOL);
     EXPECT_LT(std::abs(t.acceleration_mps2 - (a0)), TOL);

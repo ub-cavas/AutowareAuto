@@ -79,24 +79,27 @@ void object_collision_estimator_test(
   if (obstacle_bbox_idx < trajectory_length) {
     BoundingBox obstacle_bbox{};
 
-    auto obstacle_point = trajectory.points[obstacle_bbox_idx];
-    obstacle_bbox.centroid = make_point(obstacle_point.x, obstacle_point.y);
+    const auto obstacle_point_x =
+      static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.x);
+    const auto obstacle_point_y =
+      static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.y);
+    obstacle_bbox.centroid = make_point(obstacle_point_x, obstacle_point_y);
     obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
     obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
     obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
     obstacle_bbox.corners = {
       make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
+        obstacle_point_x - obstacle_bbox.size.x / 2,
+        obstacle_point_y - obstacle_bbox.size.y / 2),
       make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y - obstacle_bbox.size.y / 2),
+        obstacle_point_x + obstacle_bbox.size.x / 2,
+        obstacle_point_y - obstacle_bbox.size.y / 2),
       make_point(
-        obstacle_point.x + obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2),
+        obstacle_point_x + obstacle_bbox.size.x / 2,
+        obstacle_point_y + obstacle_bbox.size.y / 2),
       make_point(
-        obstacle_point.x - obstacle_bbox.size.x / 2,
-        obstacle_point.y + obstacle_bbox.size.y / 2)
+        obstacle_point_x - obstacle_bbox.size.x / 2,
+        obstacle_point_y + obstacle_bbox.size.y / 2)
     };
 
     bbox_array.boxes.push_back(obstacle_bbox);

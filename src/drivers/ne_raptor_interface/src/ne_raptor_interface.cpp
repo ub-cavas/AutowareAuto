@@ -636,10 +636,10 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     m_seen_misc_rpt = true;
     m_vehicle_kin_state.header.stamp = msg->header.stamp;
     // Position = (0,0) at time = 0
-    m_vehicle_kin_state.state.x = 0.0F;
-    m_vehicle_kin_state.state.y = 0.0F;
-    m_vehicle_kin_state.state.heading =
-      motion::motion_common::from_angle(0.0F);
+    m_vehicle_kin_state.state.pose.position.x = 0.0;
+    m_vehicle_kin_state.state.pose.position.y = 0.0;
+    m_vehicle_kin_state.state.pose.orientation =
+      motion::motion_common::from_angle(0.0);
     return;
   }
 
@@ -808,9 +808,7 @@ void NERaptorInterface::kinematic_bicycle_model(
 
   // convert to yaw – copied from trajectory_spoofer.cpp
   // The below formula could probably be simplified if it would be derived directly for heading
-  const float32_t sin_y = 2.0F * vks->state.heading.real * vks->state.heading.imag;
-  const float32_t cos_y = 1.0F - 2.0F * vks->state.heading.imag * vks->state.heading.imag;
-  float32_t yaw = std::atan2(sin_y, cos_y);
+  float32_t yaw = motion::motion_common::to_angle(vks->state.pose.orientation);
   if (yaw < 0) {
     yaw += TAU;
   }
@@ -850,23 +848,24 @@ void NERaptorInterface::kinematic_bicycle_model(
 
   // Threshold chosen so as to not result in division by 0
   if (std::abs(yaw_rate) < 1e-18f) {
-    vks->state.x += std::cos(course) * (v0 * dt + 0.5f * a * dt * dt);
-    vks->state.y += std::sin(course) * (v0 * dt + 0.5f * a * dt * dt);
+    vks->state.pose.position.x +=
+      static_cast<float64_t>(std::cos(course) * (v0 * dt + 0.5f * a * dt * dt));
+    vks->state.pose.position.y +=
+      static_cast<float64_t>(std::sin(course) * (v0 * dt + 0.5f * a * dt * dt));
   } else {
-    vks->state.x +=
+    vks->state.pose.position.x += static_cast<float64_t>(
       (v0 + a * dt) / yaw_rate * std::sin(course + yaw_rate * dt) -
       v0 / yaw_rate * std::sin(course) +
       a / (yaw_rate * yaw_rate) * std::cos(course + yaw_rate * dt) -
-      a / (yaw_rate * yaw_rate) * std::cos(course);
-    vks->state.y +=
+      a / (yaw_rate * yaw_rate) * std::cos(course));
+    vks->state.pose.position.y += static_cast<float64_t>(
       -(v0 + a * dt) / yaw_rate * std::cos(course + yaw_rate * dt) +
       v0 / yaw_rate * std::cos(course) +
       a / (yaw_rate * yaw_rate) * std::sin(course + yaw_rate * dt) -
-      a / (yaw_rate * yaw_rate) * std::sin(course);
+      a / (yaw_rate * yaw_rate) * std::sin(course));
   }
   yaw += std::cos(beta) * std::tan(delta) / wheelbase * (v0 * dt + 0.5f * a * dt * dt);
-  vks->state.heading.real = std::cos(yaw / 2.0f);
-  vks->state.heading.imag = std::sin(yaw / 2.0f);
+  vks->state.pose.orientation = motion::motion_common::from_angle(yaw);
 
   // Rotations per second or rad per second?
   vks->state.heading_rate_rps = yaw_rate;

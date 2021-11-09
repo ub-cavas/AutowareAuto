@@ -3,7 +3,7 @@
     cycle_time_ms: 10
     # Only one of the four control command topics need be specified
     # "raw", "basic", "ackermann", or "high_level"
-    control_command: "ackermann"
+    control_command: "basic"
     lgsvl:
       use_nav_odometry_topic: True
       throttle:

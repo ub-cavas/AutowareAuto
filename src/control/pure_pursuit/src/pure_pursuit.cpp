@@ -1,4 +1,4 @@
-// Copyright 2019 the Autoware Foundation
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,9 +81,7 @@ void PurePursuit::compute_errors(const TrajectoryPoint & current_point)
   const auto & traj = get_reference_trajectory();
   if (traj.points.empty()) {
     // Do nothing
-    target.x = current_point.x;
-    target.y = current_point.y;
-    target.heading = current_point.heading;
+    target.pose = current_point.pose;
     target.longitudinal_velocity_mps = 0.0F;  // should be stopped
     target.heading_rate_rps = 0.0F;
     target.acceleration_mps2 = 0.0F;
@@ -184,54 +182,60 @@ void PurePursuit::compute_interpolate_target_point(
   // The center of circle is the current position and moved into (0, 0)
   // compute the linear equation (ax + by + c = 0) from the prev and current points
   // link: https://cp-algorithms.com/geometry/circle-line-intersection.html
-  const float32_t target_rel_x = target_point.x - current_point.x;
-  const float32_t target_rel_y = target_point.y - current_point.y;
-  const float32_t prev_target_rel_x = prev_target_point.x - current_point.x;
-  const float32_t prev_target_rel_y = prev_target_point.y - current_point.y;
-  const float32_t diff_x = target_rel_x - prev_target_rel_x;
-  const float32_t diff_y = target_rel_y - prev_target_rel_y;
-  const float32_t a = diff_y;
-  const float32_t b = -diff_x;
-  const float32_t c = -(diff_y * prev_target_rel_x) + (diff_x * prev_target_rel_y);
+  using autoware::common::types::float64_t;
+  const float64_t target_rel_x = target_point.pose.position.x - current_point.pose.position.x;
+  const float64_t target_rel_y = target_point.pose.position.y - current_point.pose.position.y;
+  const float64_t prev_target_rel_x = prev_target_point.pose.position.x -
+    current_point.pose.position.x;
+  const float64_t prev_target_rel_y = prev_target_point.pose.position.y -
+    current_point.pose.position.y;
+  const float64_t diff_x = target_rel_x - prev_target_rel_x;
+  const float64_t diff_y = target_rel_y - prev_target_rel_y;
+  const float64_t a = diff_y;
+  const float64_t b = -diff_x;
+  const float64_t c = -(diff_y * prev_target_rel_x) + (diff_x * prev_target_rel_y);
   // Using the distance between the point and line, and the circule radius, compute the intersection
-  const float32_t aa_bb = (a * a) + (b * b);
-  const float32_t aa_bb_inv = 1.0F / aa_bb;
-  const float32_t cc = c * c;
-  const float32_t rr = m_lookahead_distance * m_lookahead_distance;
-  constexpr float32_t epsilon = 0.001F;
+  const float64_t aa_bb = (a * a) + (b * b);
+  const float64_t aa_bb_inv = 1.0 / aa_bb;
+  const float64_t cc = c * c;
+  const float64_t rr = m_lookahead_distance * m_lookahead_distance;
+  constexpr float64_t epsilon = 0.001;
   if ((aa_bb < epsilon) || ((cc - (rr * aa_bb)) > epsilon)) {
     // No intersection. Do not interpolate, and use the original target point
     m_target_point = target_point;
   } else {
-    const float32_t origin_x = -(a * c) * aa_bb_inv;
-    const float32_t origin_y = -(b * c) * aa_bb_inv;
-    if (fabsf(cc - (rr * aa_bb)) < epsilon) {
+    const float64_t origin_x = -(a * c) * aa_bb_inv;
+    const float64_t origin_y = -(b * c) * aa_bb_inv;
+    if (fabs(cc - (rr * aa_bb)) < epsilon) {
       // 1 intersection
-      m_target_point.x = origin_x + current_point.x;
-      m_target_point.y = origin_y + current_point.y;
+      m_target_point.pose.position.x = origin_x + current_point.pose.position.x;
+      m_target_point.pose.position.y = origin_y + current_point.pose.position.y;
     } else {
       // 2 intersections
-      const float32_t d = rr - (cc * aa_bb_inv);
-      const float32_t offset = sqrtf(d * aa_bb_inv);
-      const float32_t point1_x = origin_x + (b * offset);
-      const float32_t point1_y = origin_y - (a * offset);
+      const float64_t d = rr - (cc * aa_bb_inv);
+      const float64_t offset = sqrt(d * aa_bb_inv);
+      const float64_t point1_x = origin_x + (b * offset);
+      const float64_t point1_y = origin_y - (a * offset);
       // the predicted point should be between current and its previous target points
-      const float32_t dist_prev_current_target = sqrtf(aa_bb);
-      const float32_t diff_pred_curr_x = target_rel_x - point1_x;
-      const float32_t diff_pred_curr_y = target_rel_y - point1_y;
-      const float32_t dist_pred_current_target =
-        sqrtf((diff_pred_curr_x * diff_pred_curr_x) + (diff_pred_curr_y * diff_pred_curr_y));
+      const float64_t dist_prev_current_target = sqrt(aa_bb);
+      const float64_t diff_pred_curr_x = target_rel_x - point1_x;
+      const float64_t diff_pred_curr_y = target_rel_y - point1_y;
+      const float64_t dist_pred_current_target =
+        sqrt((diff_pred_curr_x * diff_pred_curr_x) + (diff_pred_curr_y * diff_pred_curr_y));
       if (dist_pred_current_target <= dist_prev_current_target) {
-        m_target_point.x = point1_x + current_point.x;
-        m_target_point.y = point1_y + current_point.y;
+        m_target_point.pose.position.x = point1_x + current_point.pose.position.x;
+        m_target_point.pose.position.y = point1_y + current_point.pose.position.y;
       } else {
-        m_target_point.x = (origin_x - (b * offset)) + current_point.x;
-        m_target_point.y = (origin_y + (a * offset)) + current_point.y;
+        m_target_point.pose.position.x = (origin_x - (b * offset)) + current_point.pose.position.x;
+        m_target_point.pose.position.y = (origin_y + (a * offset)) + current_point.pose.position.y;
       }
     }
     // a^2 - r^2 = b^2 - (c - r)^2 -> rate_a = r / c
     const float32_t rate_a =
-      sqrtf(compute_points_distance_squared(m_target_point, prev_target_point) / aa_bb);
+      sqrtf(
+      compute_points_distance_squared(
+        m_target_point,
+        prev_target_point) / static_cast<float32_t>(aa_bb));
     m_target_point = ::motion::motion_common::interpolate(prev_target_point, target_point, rate_a);
   }
 }
@@ -282,20 +286,22 @@ float32_t PurePursuit::compute_points_distance_squared(
   const TrajectoryPoint & point1,
   const TrajectoryPoint & point2)
 {
-  const float32_t diff_x = point1.x - point2.x;
-  const float32_t diff_y = point1.y - point2.y;
-  return (diff_x * diff_x) + (diff_y * diff_y);
+  using autoware::common::types::float64_t;
+  const float64_t diff_x = point1.pose.position.x - point2.pose.position.x;
+  const float64_t diff_y = point1.pose.position.y - point2.pose.position.y;
+  return static_cast<float32_t>((diff_x * diff_x) + (diff_y * diff_y));
 }
 ////////////////////////////////////////////////////////////////////////////////
 std::pair<float32_t, float32_t> PurePursuit::compute_relative_xy_offset(
   const TrajectoryPoint & current,
   const TrajectoryPoint & target) const
 {
-  const float32_t diff_x = target.x - current.x;
-  const float32_t diff_y = target.y - current.y;
-  const auto cos_pose =
-    (current.heading.real + current.heading.imag) * (current.heading.real - current.heading.imag);
-  const auto sin_pose = 2.0F * current.heading.real * current.heading.imag;
+  using autoware::common::types::float64_t;
+  const float32_t diff_x = static_cast<float32_t>(target.pose.position.x - current.pose.position.x);
+  const float32_t diff_y = static_cast<float32_t>(target.pose.position.y - current.pose.position.y);
+  const auto yaw = ::motion::motion_common::to_angle(current.pose.orientation);
+  const auto cos_pose = std::cos(yaw);
+  const auto sin_pose = std::sin(yaw);
   const float32_t relative_x = (cos_pose * diff_x) + (sin_pose * diff_y);
   const float32_t relative_y = (-sin_pose * diff_x) + (cos_pose * diff_y);
   const std::pair<float32_t, float32_t> relative_xy(relative_x, relative_y);

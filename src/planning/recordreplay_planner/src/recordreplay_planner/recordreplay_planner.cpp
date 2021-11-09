@@ -113,7 +113,6 @@ namespace planning
 namespace recordreplay_planner
 {
 using geometry_msgs::msg::Point32;
-using motion::motion_common::to_angle;
 
 RecordReplayPlanner::RecordReplayPlanner() {}
 
@@ -194,12 +193,13 @@ bool RecordReplayPlanner::record_state(const State & state_to_record)
   }
 
   auto previous_state = m_record_buffer.back();
-  auto distance_sq = (state_to_record.state.x - previous_state.state.x) *
-    (state_to_record.state.x - previous_state.state.x) +
-    (state_to_record.state.y - previous_state.state.y) *
-    (state_to_record.state.y - previous_state.state.y);
+  auto distance_sq =
+    (state_to_record.state.pose.position.x - previous_state.state.pose.position.x) *
+    (state_to_record.state.pose.position.x - previous_state.state.pose.position.x) +
+    (state_to_record.state.pose.position.y - previous_state.state.pose.position.y) *
+    (state_to_record.state.pose.position.y - previous_state.state.pose.position.y);
 
-  if (static_cast<float64_t>(distance_sq) >= (m_min_record_distance * m_min_record_distance) ) {
+  if (distance_sq >= (m_min_record_distance * m_min_record_distance) ) {
     m_record_buffer.push_back(state_to_record);
     return true;
   } else {
@@ -219,8 +219,11 @@ std::size_t RecordReplayPlanner::get_closest_state(const State & current_state)
   const auto distance_from_current_state =
     [this, &current_state](State & other_state) {
       const auto s1 = current_state.state, s2 = other_state.state;
-      return (s1.x - s2.x) * (s1.x - s2.x) + (s1.y - s2.y) * (s1.y - s2.y) +
-             static_cast<float32_t>(m_heading_weight) * std::abs(to_angle(s1.heading - s2.heading));
+      return (s1.pose.position.x - s2.pose.position.x) * (s1.pose.position.x - s2.pose.position.x) +
+             (s1.pose.position.y - s2.pose.position.y) * (s1.pose.position.y - s2.pose.position.y) +
+             m_heading_weight * std::abs(
+        static_cast<float64_t>(::motion::motion_common::to_angle(
+          s1.pose.orientation - s2.pose.orientation)));
     };
   const auto comparison_function =
     [&distance_from_current_state](State & one, State & two)
@@ -266,12 +269,13 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
   // Adjust time stamp from velocity
   float32_t t = 0.0;
   for (std::size_t i = 1; i < publication_len; ++i) {
-    auto & p0 = trajectory.points[i - 1];
-    auto & p1 = trajectory.points[i];
-    auto dx = p1.x - p0.x;
-    auto dy = p1.y - p0.y;
-    auto v = 0.5f * (p0.longitudinal_velocity_mps + p1.longitudinal_velocity_mps);
-    t += std::sqrt(dx * dx + dy * dy) / std::max(std::fabs(v), 1.0e-5f);
+    const auto & p0 = trajectory.points[i - 1];
+    const auto & p1 = trajectory.points[i];
+    const auto dx = p1.pose.position.x - p0.pose.position.x;
+    const auto dy = p1.pose.position.y - p0.pose.position.y;
+    const auto v =
+      0.5 * static_cast<float64_t>(p0.longitudinal_velocity_mps + p1.longitudinal_velocity_mps);
+    t += static_cast<float32_t>(std::sqrt(dx * dx + dy * dy) / std::max(std::fabs(v), 1.0e-5));
     float32_t t_s = 0;
     float32_t t_ns = std::modf(t, &t_s) * 1.0e9f;
     trajectory.points[i].time_from_start.sec = static_cast<int32_t>(t_s);
@@ -304,17 +308,19 @@ void RecordReplayPlanner::writeTrajectoryBufferToFile(const std::string & record
   if (!ofs.is_open()) {
     throw std::runtime_error("Could not open file.");
   }
-  ofs << "t_sec, t_nanosec, x, y, heading_real, heading_imag, longitudinal_velocity_mps, " <<
-    "lateral_velocity_mps, acceleration_mps2, heading_rate_rps, front_wheel_angle_rad, " <<
-    "rear_wheel_angle_rad" << std::endl;
+  ofs << "t_sec, t_nanosec, x, y, orientation_x, orientation_y, orientation_z, orientation_w, " <<
+    "longitudinal_velocity_mps, lateral_velocity_mps, acceleration_mps2, heading_rate_rps, " <<
+    "front_wheel_angle_rad, rear_wheel_angle_rad" << std::endl;
 
   for (const auto & trajectory_point : m_record_buffer) {
     const auto & s = trajectory_point.state;
     const auto & t = s.time_from_start;
-    ofs << t.sec << ", " << t.nanosec << ", " << s.x << ", " << s.y << ", " << s.heading.real <<
-      ", " << s.heading.imag << ", " << s.longitudinal_velocity_mps << ", " <<
-      s.lateral_velocity_mps << ", " << s.acceleration_mps2 << ", " << s.heading_rate_rps <<
-      ", " << s.front_wheel_angle_rad << ", " << s.rear_wheel_angle_rad << std::endl;
+    ofs << t.sec << ", " << t.nanosec << ", " << s.pose.position.x << ", " << s.pose.position.y <<
+      ", " << s.pose.orientation.x << ", " << s.pose.orientation.y << ", " <<
+      s.pose.orientation.z << ", " << s.pose.orientation.w << ", " <<
+      s.longitudinal_velocity_mps << ", " << s.lateral_velocity_mps << ", " <<
+      s.acceleration_mps2 << ", " << s.heading_rate_rps << ", " << s.front_wheel_angle_rad <<
+      ", " << s.rear_wheel_angle_rad << std::endl;
   }
   ofs.close();
 }
@@ -344,13 +350,17 @@ void RecordReplayPlanner::readTrajectoryBufferFromFile(const std::string & repla
       } else if (map.at("t_nanosec") == _j) {
         s.state.time_from_start.nanosec = static_cast<uint32_t>(std::stoi(file_data.at(i).at(j)));
       } else if (map.at("x") == _j) {
-        s.state.x = std::stof(file_data.at(i).at(j));
+        s.state.pose.position.x = std::stof(file_data.at(i).at(j));
       } else if (map.at("y") == _j) {
-        s.state.y = std::stof(file_data.at(i).at(j));
-      } else if (map.at("heading_real") == _j) {
-        s.state.heading.real = std::stof(file_data.at(i).at(j));
-      } else if (map.at("heading_imag") == _j) {
-        s.state.heading.imag = std::stof(file_data.at(i).at(j));
+        s.state.pose.position.y = std::stof(file_data.at(i).at(j));
+      } else if (map.at("orientation_x") == _j) {
+        s.state.pose.orientation.x = std::stof(file_data.at(i).at(j));
+      } else if (map.at("orientation_y") == _j) {
+        s.state.pose.orientation.y = std::stof(file_data.at(i).at(j));
+      } else if (map.at("orientation_z") == _j) {
+        s.state.pose.orientation.z = std::stof(file_data.at(i).at(j));
+      } else if (map.at("orientation_w") == _j) {
+        s.state.pose.orientation.w = std::stof(file_data.at(i).at(j));
       } else if (map.at("longitudinal_velocity_mps") == _j) {
         s.state.longitudinal_velocity_mps = std::stof(file_data.at(i).at(j));
       } else if (map.at("lateral_velocity_mps") == _j) {
@@ -380,10 +390,11 @@ bool8_t RecordReplayPlanner::reached_goal(
 
   const auto & goal_state = m_trajectory.points.back();
   const auto & ego_state = current_state.state;
-  const auto distance2d =
-    static_cast<float64_t>(std::hypot(ego_state.x - goal_state.x, ego_state.y - goal_state.y));
-  const auto angle_diff_rad =
-    static_cast<float64_t>(std::abs(to_angle(ego_state.heading - goal_state.heading)));
+  const auto distance2d = std::hypot(
+    ego_state.pose.position.x - goal_state.pose.position.x,
+    ego_state.pose.position.y - goal_state.pose.position.y);
+  const auto angle_diff_rad = static_cast<float64_t>(std::abs(
+      ::motion::motion_common::to_angle(ego_state.pose.orientation - goal_state.pose.orientation)));
   if (distance2d < distance_thresh &&
     angle_diff_rad < angle_thresh)
   {

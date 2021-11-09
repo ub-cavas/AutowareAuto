@@ -203,9 +203,9 @@ protected:
       const auto fdx = static_cast<float32_t>(idx);
       const auto r = r0 + (r_rate * fdx);
       const auto th = th_per_iter * fdx;
-      pt.x = r * std::cos(th);
-      pt.y = r * std::sin(th);
-      pt.heading = ::motion::motion_common::from_angle(th + (3.14159F / 2.0F));
+      pt.pose.position.x = r * std::cos(th);
+      pt.pose.position.y = r * std::sin(th);
+      pt.pose.orientation = ::motion::motion_common::from_angle(th + (3.14159F / 2.0F));
       pt.longitudinal_velocity_mps = 10.0F;
       pt.time_from_start = ::time_utils::to_message(std::chrono::milliseconds{100LL} *idx);
       ret.points.push_back(pt);

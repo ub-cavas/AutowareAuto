@@ -12,9 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "motion_common/trajectory_common.hpp"
+
 #include <limits>
 
-#include "motion_common/trajectory_common.hpp"
+#include "motion_common/motion_common.hpp"
 
 namespace autoware
 {
@@ -22,6 +24,7 @@ namespace motion
 {
 namespace motion_common
 {
+using ::motion::motion_common::to_angle;
 
 void validateNonEmpty(const Points & points)
 {
@@ -82,7 +85,7 @@ std::experimental::optional<size_t> findNearestIndex(
   bool is_nearest_found = false;
   size_t min_idx = 0;
 
-  const auto target_yaw = tf2::getYaw(pose.orientation);
+  const auto target_yaw = to_angle(pose.orientation);
   for (size_t i = 0; i < points.size(); ++i) {
     const auto dist =
       autoware::common::geometry::distance_2d<float64_t>(points.at(i), pose.position);
@@ -90,7 +93,7 @@ std::experimental::optional<size_t> findNearestIndex(
       continue;
     }
 
-    const auto base_yaw = ::motion::motion_common::to_angle(points.at(i).heading);
+    const auto base_yaw = to_angle(points.at(i).pose.orientation);
     const auto yaw = calcYawDeviation(base_yaw, target_yaw);
     if (std::fabs(yaw) > max_yaw) {
       continue;
@@ -115,10 +118,10 @@ float64_t calcLongitudinalOffsetToSegment(
 
   const auto p_front = points.at(seg_idx);
   const auto p_back = points.at(seg_idx + 1);
-  const auto x_front = static_cast<float64_t>(p_front.x);
-  const auto y_front = static_cast<float64_t>(p_front.y);
-  const auto x_back = static_cast<float64_t>(p_back.x);
-  const auto y_back = static_cast<float64_t>(p_back.y);
+  const auto x_front = static_cast<float64_t>(p_front.pose.position.x);
+  const auto y_front = static_cast<float64_t>(p_front.pose.position.y);
+  const auto x_back = static_cast<float64_t>(p_back.pose.position.x);
+  const auto y_back = static_cast<float64_t>(p_back.pose.position.y);
 
   const Vector3f segment_vec{x_back - x_front, y_back - y_front, 0.0};
   const Vector3f target_vec{static_cast<float64_t>(p_target.x) - x_front,
@@ -202,7 +205,7 @@ float64_t calcLongitudinalDeviation(
 {
   const auto & base_point = base_pose.position;
 
-  const auto yaw = tf2::getYaw(base_pose.orientation);
+  const auto yaw = to_angle(base_pose.orientation);
   const Vector3f base_unit_vec{std::cos(yaw), std::sin(yaw), 0};
 
   const auto dx = target_point.x - base_point.x;

@@ -1,4 +1,4 @@
-// Copyright 2019 Christopher Ho
+// Copyright 2019-2021 Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -205,11 +205,11 @@ void MpcController::set_reference(
   for (auto i = Index{}; i < count; ++i) {
     const auto & pt = traj.points[traj_start + i];
     const auto ydx = (y_start + i) * NY;
-    acadoVariables.y[ydx + IDY_X] = static_cast<AcadoReal>(pt.x);
-    acadoVariables.y[ydx + IDY_Y] = static_cast<AcadoReal>(pt.y);
+    acadoVariables.y[ydx + IDY_X] = static_cast<AcadoReal>(pt.pose.position.x);
+    acadoVariables.y[ydx + IDY_Y] = static_cast<AcadoReal>(pt.pose.position.y);
     acadoVariables.y[ydx + IDY_VEL_LONG] = static_cast<AcadoReal>(pt.longitudinal_velocity_mps);
     acadoVariables.y[ydx + IDY_HEADING] =
-      static_cast<AcadoReal>(motion_common::to_angle(pt.heading));
+      static_cast<AcadoReal>(motion_common::to_angle(pt.pose.orientation));
   }
 }
 
@@ -241,10 +241,11 @@ bool MpcController::ensure_reference_consistency(Index horizon)
 ////////////////////////////////////////////////////////////////////////////////
 void MpcController::set_terminal_reference(const Point & pt) noexcept
 {
-  acadoVariables.yN[IDYN_X] = static_cast<AcadoReal>(pt.x);
-  acadoVariables.yN[IDYN_Y] = static_cast<AcadoReal>(pt.y);
+  acadoVariables.yN[IDYN_X] = static_cast<AcadoReal>(pt.pose.position.x);
+  acadoVariables.yN[IDYN_Y] = static_cast<AcadoReal>(pt.pose.position.y);
   acadoVariables.yN[IDYN_VEL_LONG] = static_cast<AcadoReal>(pt.longitudinal_velocity_mps);
-  acadoVariables.yN[IDYN_HEADING] = static_cast<AcadoReal>(motion_common::to_angle(pt.heading));
+  acadoVariables.yN[IDYN_HEADING] =
+    static_cast<AcadoReal>(motion_common::to_angle(pt.pose.orientation));
 }
 
 ////////////////////////////////////////////////////////////////////////////////
