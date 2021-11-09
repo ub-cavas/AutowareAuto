@@ -20,7 +20,6 @@
 #include <common/types.hpp>
 #include <vector>
 
-using autoware::common::types::PointXYZIF;
 using autoware::common::types::float32_t;
 using autoware::perception::filters::ray_ground_classifier::PointPtrBlock;
 using autoware::perception::filters::ray_ground_classifier::PointXYZIFR;

@@ -39,7 +39,7 @@ VoxelCloudCentroid::VoxelCloudCentroid(const voxel_grid::Config & cfg)
   m_grid(cfg)
 {
   // frame id is arbitrary, not the responsibility of this component
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{m_cloud, "base_link"};
+  CloudModifier{m_cloud, "base_link"};
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -54,12 +54,12 @@ void VoxelCloudCentroid::insert(
     throw std::runtime_error("VoxelCloudCentroid: Malformed PointCloud2");
   }
   // Verify the point cloud format and assign correct point_step
-  constexpr auto field_size = sizeof(decltype(autoware::common::types::PointXYZIF::x));
+  constexpr auto field_size = sizeof(decltype(CloudModifier::value_type::x));
   auto point_step = 4U * field_size;
   if (!has_intensity_and_throw_if_no_xyz(msg)) {
     point_step = 3U * field_size;
   }
-  point_step += sizeof(decltype(autoware::common::types::PointXYZIF::id));
+  point_step += sizeof(decltype(CloudModifier::value_type::id));
 
   // Iterate through the data, but skip intensity in case the point cloud does not have it.
   // For example:
@@ -82,8 +82,7 @@ void VoxelCloudCentroid::insert(
 ////////////////////////////////////////////////////////////////////////////////
 const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
 {
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{m_cloud};
+  CloudModifier modifier{m_cloud};
   modifier.clear();
   modifier.reserve(m_grid.size());
 

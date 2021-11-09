@@ -26,7 +26,6 @@
 #include "ray_ground_classifier/ray_ground_point_classifier.hpp"
 #include "ray_ground_classifier/ray_ground_classifier.hpp"
 
-using autoware::common::types::PointXYZIF;
 using autoware::common::types::POINT_BLOCK_CAPACITY;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -53,7 +52,7 @@ public:
 
 protected:
   std::vector<std::tuple<float32_t, float32_t, uint8_t>> dat;
-  std::vector<autoware::common::types::PointXYZIF> pts;
+  std::vector<CloudModifier::value_type> pts;
   std::vector<bool8_t> labels;
   Config cfg;
 };

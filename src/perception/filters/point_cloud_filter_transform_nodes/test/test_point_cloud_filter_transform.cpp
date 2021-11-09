@@ -78,8 +78,7 @@ sensor_msgs::msg::PointCloud2 make_pc(
   builtin_interfaces::msg::Time stamp)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
+  CloudModifier modifier{msg, "base_link"};
   modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {
@@ -134,7 +133,7 @@ protected:
 
 bool check_filtered_points(
   const std::vector<sensor_msgs::msg::PointCloud2> points,
-  const std::vector<std::vector<autoware::common::types::PointXYZIF>> expected_points,
+  const std::vector<std::vector<CloudModifier::value_type>> expected_points,
   const std::string expected_frame_id)
 {
   if (points.size() != expected_points.size()) {
@@ -161,7 +160,7 @@ bool check_filtered_points(
     for (uint32_t pc_idx = 0, pt_cnt = 0; pc_idx < points[i].data.size(); pc_idx +=
       points[i].point_step, ++pt_cnt)
     {
-      autoware::common::types::PointXYZIF pt;
+      CloudModifier::value_type pt;
       //lint -e{925, 9110} Need to convert pointers and use bit for external API NOLINT
       (void)memmove(
         static_cast<void *>(&pt.x),
@@ -292,7 +291,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
 
 // Add 5 points but 2 of them are outside the desired angle/distance.
 TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
-  using PointXYZIF = autoware::common::types::PointXYZIF;
+  using PointXYZIF = CloudModifier::value_type;
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
   using autoware::perception::filters::point_cloud_filter_transform_nodes
   ::PointCloud2FilterTransformNode;
@@ -302,8 +301,7 @@ TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
 
   std::vector<std::vector<PointXYZIF>> expected_filter_output_points(1);
   PointCloud2 raw_msg;
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{raw_msg, "lidar_front"};
+  CloudModifier modifier{raw_msg, "lidar_front"};
   modifier.reserve(5);
 
   PointXYZIF pt;

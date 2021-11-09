@@ -21,7 +21,6 @@
 #include "gtest/gtest.h"
 #include "polygon_remover_nodes/polygon_remover_node.hpp"
 
-using autoware::common::types::PointXYZIF;
 using sensor_msgs::msg::PointCloud2;
 using autoware::common::types::float32_t;
 
@@ -53,7 +52,7 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
   const float32_t bound_y_max)
 {
   PointCloud2::SharedPtr cloud_input_ptr = std::make_shared<PointCloud2>();
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
+  using CloudModifier = CloudModifier;
   CloudModifier cloud_modifier_input(*cloud_input_ptr, "");
 
   // Populate it with random points within a selected area
@@ -69,7 +68,6 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
 
   auto generate_random_point_within_rect =
     [&dist_within_x, &dist_within_y, &dist_within_z, &mt]() {
-      using autoware::common::types::PointXYZIF;
       PointXYZIF point_xyzif;
       point_xyzif.x = dist_within_x(mt);
       point_xyzif.y = dist_within_y(mt);
@@ -170,7 +168,7 @@ TEST(TestPolygonRemoverNodes, TestRemoveRectangle) {
   auto callback_cloud_polygon_removed =
     [&test_completed, &count_points_outside_rect](
     const sensor_msgs::msg::PointCloud2::SharedPtr msg) {
-      using CloudView = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
+      using CloudView = CloudView;
       CloudView cloud_view_input(*msg);
       EXPECT_EQ(cloud_view_input.size(), count_points_outside_rect);
       test_completed = true;

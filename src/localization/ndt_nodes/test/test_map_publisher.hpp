@@ -32,7 +32,6 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware::common::types::PointXYZIF;
 
 PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
 {
@@ -55,7 +54,7 @@ protected:
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance
   void add_cell(
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> & msg_wrapper,
+    CloudModifier & msg_wrapper,
     const Eigen::Vector3d & center, float64_t fixed_deviation)
   {
     msg_wrapper.push_back(get_point_from_vector(center));
@@ -107,7 +106,7 @@ protected:
 
   uint32_t m_pc_idx{0U};
   sensor_msgs::msg::PointCloud2 m_pc;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> m_pc_wrapper;
+  CloudModifier m_pc_wrapper;
   std::map<uint64_t, Eigen::Vector3d> m_voxel_centers;
   PointXYZ m_min_point;
   PointXYZ m_max_point;
@@ -132,7 +131,7 @@ protected:
 pcl::PointCloud<pcl::PointXYZI> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
   pcl::PointCloud<pcl::PointXYZI> res{};
-  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>
+  point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type>
   msg_view{msg};
 
   for (const auto & pt_in : msg_view) {

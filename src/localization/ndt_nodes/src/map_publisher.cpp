@@ -37,8 +37,7 @@ namespace ndt_nodes
 /// Clear the given pointcloud message
 void reset_pc_msg(sensor_msgs::msg::PointCloud2 & msg)
 {
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{msg}.clear();
+  CloudModifier{msg}.clear();
 }
 
 NDTMapPublisherNode::NDTMapPublisherNode(
@@ -89,8 +88,7 @@ void NDTMapPublisherNode::init(
 {
   m_ndt_map_ptr = std::make_unique<ndt::DynamicNDTMap>(*m_map_config_ptr);
 
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> initializer{
+  CloudModifier initializer{
     m_source_pc, map_frame};
 
   m_pub = create_publisher<sensor_msgs::msg::PointCloud2>(
@@ -117,7 +115,7 @@ void NDTMapPublisherNode::init(
 
     // Initialize Voxel Grid and output message for downsampling map
     using autoware::common::types::PointXYZI;
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> downsampled_pc_initializer{
+    CloudModifier downsampled_pc_initializer{
       m_downsampled_pc, map_frame};
     m_voxelgrid_ptr = std::make_unique<VoxelGrid>(*m_viz_map_config_ptr);
 

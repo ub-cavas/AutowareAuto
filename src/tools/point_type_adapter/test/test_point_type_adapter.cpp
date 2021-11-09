@@ -50,7 +50,6 @@ struct PointSvl
 };
 
 TEST(TestPointTypeAdapter, TestCloudConverter) {
-  using autoware::common::types::PointXYZIF;
   using sensor_msgs::msg::PointCloud2;
   PointCloud2::SharedPtr cloud_svl_ptr = std::make_shared<PointCloud2>();
   using CloudModifierSvl = point_cloud_msg_wrapper::PointCloud2Modifier<PointSvl>;
@@ -74,8 +73,7 @@ TEST(TestPointTypeAdapter, TestCloudConverter) {
     cloud_svl_ptr);
   rclcpp::shutdown();
 
-  using CloudViewXyzif = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
-  CloudViewXyzif cloud_view_xyzif(*cloud_xyzif_ptr);
+  CloudView cloud_view_xyzif(*cloud_xyzif_ptr);
   EXPECT_EQ(cloud_xyzif_ptr->header, cloud_svl_ptr->header);
   EXPECT_EQ(cloud_xyzif_ptr->width, cloud_svl_ptr->width);
   EXPECT_EQ(cloud_xyzif_ptr->fields.size(), 5UL);

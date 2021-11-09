@@ -83,9 +83,9 @@ RayGroundClassifierCloudNode::RayGroundClassifierCloudNode(
       "points_nonground", rclcpp::QoS(10)))
 {
   // initialize messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  CloudModifier{
     m_ground_msg, m_frame_id}.reserve(m_pcl_size);
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{
+  CloudModifier{
     m_nonground_msg, m_frame_id}.reserve(m_pcl_size);
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -97,8 +97,8 @@ RayGroundClassifierCloudNode::callback(const PointCloud2::SharedPtr msg)
   const ray_ground_classifier::PointXYZIFR eos_pt{&pt_tmp};
 
   try {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> ground_msg_modifier{m_ground_msg};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> nonground_msg_modifier{
+    CloudModifier ground_msg_modifier{m_ground_msg};
+    CloudModifier nonground_msg_modifier{
       m_nonground_msg};
 
     // Reset messages and aggregator to ensure they are in a good state
@@ -252,10 +252,10 @@ void RayGroundClassifierCloudNode::reset()
   //                   which would lead to filled rays and overflow during next callback
   m_aggregator.reset();
   // reset messages
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier1{m_ground_msg};
+  CloudModifier modifier1{m_ground_msg};
   modifier1.clear();
 
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier2{m_nonground_msg};
+  CloudModifier modifier2{m_nonground_msg};
   modifier2.clear();
 }
 }  // namespace ray_ground_classifier_nodes

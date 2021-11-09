@@ -58,9 +58,8 @@ PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
 {
   PointCloud2::SharedPtr cloud_filtered_ptr = std::make_shared<PointCloud2>();
 
-  using autoware::common::types::PointXYZIF;
-  using CloudModifier = point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>;
-  using CloudView = point_cloud_msg_wrapper::PointCloud2View<PointXYZIF>;
+  using CloudModifier = CloudModifier;
+  using CloudView = CloudView;
 
   CloudModifier cloud_modifier_filtered(*cloud_filtered_ptr, "");
   cloud_filtered_ptr->header = cloud_in_ptr->header;

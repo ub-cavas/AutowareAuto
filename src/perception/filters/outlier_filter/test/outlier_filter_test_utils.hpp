@@ -36,9 +36,8 @@ pcl::PointCloud<pcl::PointXYZ> make_pc(
   std::vector<pcl::PointXYZ> points,
   builtin_interfaces::msg::Time stamp)
 {
-  using autoware::common::types::PointXYZIF;
   sensor_msgs::msg::PointCloud2 msg;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{msg, "base_link"};
+  CloudModifier modifier{msg, "base_link"};
   modifier.reserve(points.size());
 
   for (auto point : points) {

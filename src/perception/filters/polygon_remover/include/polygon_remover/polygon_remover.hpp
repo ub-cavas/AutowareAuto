@@ -49,7 +49,7 @@ public:
   using SharedPtr = std::shared_ptr<PolygonRemover>;
   using ConstSharedPtr = const std::shared_ptr<PolygonRemover>;
 
-  using PointXYZIF = autoware::common::types::PointXYZIF;
+  using PointXYZIF = CloudModifier::value_type;
   using PointCloud2 = sensor_msgs::msg::PointCloud2;
   using Polygon = geometry_msgs::msg::Polygon;
   using Marker = visualization_msgs::msg::Marker;

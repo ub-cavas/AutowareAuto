@@ -151,8 +151,7 @@ void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
 {
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
 
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud, "base_link"};
+  CloudModifier modifier{cloud, "base_link"};
 
   for (auto seed : seeds) {
     PointXYZIF pt;
@@ -170,9 +169,9 @@ void check_pc(
   sensor_msgs::msg::PointCloud2 & msg2)
 {
   // Convert to using the wrapper
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg1_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type> msg1_wrapper{
     msg1};
-  const point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg2_wrapper{
+  const point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type> msg2_wrapper{
     msg2};
 
   EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);

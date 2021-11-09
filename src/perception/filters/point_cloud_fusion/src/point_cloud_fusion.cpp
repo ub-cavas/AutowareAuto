@@ -42,7 +42,7 @@ uint32_t PointCloudFusion::fuse_pc_msgs(
   uint32_t pc_concat_idx = 0;
 
   using autoware::common::types::PointXYZI;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> modifier{cloud_concatenated};
+  CloudModifier modifier{cloud_concatenated};
 
   for (size_t i = 0; i < m_input_topics_size; ++i) {
     concatenate_pointcloud(*msgs[i], pc_concat_idx, modifier);
@@ -54,14 +54,13 @@ uint32_t PointCloudFusion::fuse_pc_msgs(
 void PointCloudFusion::concatenate_pointcloud(
   const sensor_msgs::msg::PointCloud2 & pc_in,
   uint32_t & concat_idx,
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> & modifier) const
+  CloudModifier & modifier) const
 {
   if ((pc_in.width + concat_idx) > m_cloud_capacity) {
     throw Error::TOO_LARGE;
   }
 
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> view{pc_in};
+  CloudView view{pc_in};
 
   auto view_it = view.cbegin();
   while (view_it != view.cend()) {

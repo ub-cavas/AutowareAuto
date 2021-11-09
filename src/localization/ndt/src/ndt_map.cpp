@@ -58,8 +58,7 @@ void DynamicNDTMap::set(const sensor_msgs::msg::PointCloud2 & msg)
 
 void DynamicNDTMap::insert(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> msg_view{msg};
+  CloudView msg_view{msg};
 
   for (const auto & point : msg_view) {
     m_grid.add_observation({point.x, point.y, point.z});

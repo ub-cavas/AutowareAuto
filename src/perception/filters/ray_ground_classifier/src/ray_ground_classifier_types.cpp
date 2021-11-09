@@ -30,7 +30,6 @@ namespace filters
 namespace ray_ground_classifier
 {
 
-using autoware::common::types::PointXYZIF;
 using autoware::common::types::float32_t;
 
 Config::Config(

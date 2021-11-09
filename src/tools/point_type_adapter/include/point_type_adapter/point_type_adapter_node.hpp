@@ -52,8 +52,6 @@ private:
   using float32_t = autoware::common::types::float32_t;
   using float64_t = autoware::common::types::float64_t;
 
-  using PointXYIF = autoware::common::types::PointXYZIF;
-
   rclcpp::Publisher<PointCloud2>::SharedPtr pub_ptr_cloud_output_;
   rclcpp::Subscription<PointCloud2>::SharedPtr sub_ptr_cloud_input_;
 

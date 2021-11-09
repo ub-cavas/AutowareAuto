@@ -158,8 +158,7 @@ public:
     if (msg.width > m_points.capacity()) {
       throw std::length_error(container_full_error);
     }
-    using autoware::common::types::PointXYZIF;
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> msg_view{msg};
+    CloudView msg_view{msg};
     for (const auto & point : msg_view) {
       m_points.emplace_back(point.x, point.y, point.z);
     }

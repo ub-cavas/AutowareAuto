@@ -126,8 +126,7 @@ public:
 
     MapUpdateSummary ret{MapUpdateType::NO_CHANGE, 0U};
 
-    using autoware::common::types::PointXYZIF;
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> observation_view{observation};
+    CloudView observation_view{observation};
 
     ret.update_type = m_grid.empty() ? MapUpdateType::NEW : MapUpdateType::UPDATE;
     auto obs_idx = 0U;

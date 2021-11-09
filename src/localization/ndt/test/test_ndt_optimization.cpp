@@ -41,7 +41,7 @@ sensor_msgs::msg::PointCloud2 create_xz_plane_point_cloud(
   const float step)
 {
   sensor_msgs::msg::PointCloud2 msg;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> msg_modifier{msg, "map"};
+  CloudModifier msg_modifier{msg, "map"};
   const auto intensity = 1.0F;
   msg_modifier.push_back({corner.x, corner.y, corner.z, intensity});
   for (auto coord = step; coord < size; coord += step) {
@@ -234,7 +234,7 @@ INSTANTIATE_TEST_CASE_P(
 
 pcl::PointCloud<pcl::PointXYZ> from_pointcloud2(const sensor_msgs::msg::PointCloud2 & msg)
 {
-  point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF> msg_view{msg};
+  point_cloud_msg_wrapper::PointCloud2View<CloudModifier::value_type> msg_view{msg};
   pcl::PointCloud<pcl::PointXYZ> res{};
 
   for (const auto & pt_in : msg_view) {

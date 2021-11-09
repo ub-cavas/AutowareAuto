@@ -103,14 +103,14 @@ protected:
   using VoxelAlgorithm::make;
   void make(sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> mod{cloud, "frame_id"};
+    CloudModifier mod{cloud, "frame_id"};
     for (std::size_t idx = 0U; idx < N; ++idx) {
       mod.push_back(obs_points1[idx]);
     }
   }
   bool8_t check(const sensor_msgs::msg::PointCloud2 & cloud, std::size_t N)
   {
-    point_cloud_msg_wrapper::PointCloud2View<PointXYZIF> cloud_view{cloud};
+    CloudView cloud_view{cloud};
     bool8_t ret = true;
     constexpr float32_t TOL = 1.0E-6F;
     for (const auto & msg_point_ref : cloud_view) {

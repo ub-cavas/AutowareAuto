@@ -82,13 +82,13 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   sensor_msgs::msg::PointCloud2 cloud;
   pcl_conversions::moveFromPCL(pcl_cloud, cloud);
 
+  using autoware::common::lidar_utils::CloudModifier;
+  using autoware::common::lidar_utils::CloudView;
   using autoware::common::types::float32_t;
   using autoware::common::types::PointXYZI;
-  using autoware::common::types::PointXYZIF;
   using point_cloud_msg_wrapper::PointCloud2View;
-  using point_cloud_msg_wrapper::PointCloud2Modifier;
 
-  if (PointCloud2View<PointXYZIF>::can_be_created_from(cloud)) {
+  if (CloudView::can_be_created_from(cloud)) {
     // The cloud already has correct fields.
     *msg = std::move(cloud);
     return;
@@ -98,12 +98,12 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     // We need to convert the intensity field.
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointXYZI> old_cloud_view{cloud};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
+    CloudModifier adjusted_cloud_modifier{
       adjusted_cloud, msg->header.frame_id};
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const CloudModifier::value_type point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -126,12 +126,12 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   if (PointCloud2View<PointWithoutIntensity>::can_be_created_from(cloud)) {
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointWithoutIntensity> old_cloud_view{cloud};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
+    CloudModifier adjusted_cloud_modifier{
       adjusted_cloud, msg->header.frame_id};
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const CloudModifier::value_type point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -159,12 +159,12 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     // We need to convert the intensity field.
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointWithUintIntensity> old_cloud_view{cloud};
-    point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF> adjusted_cloud_modifier{
+    CloudModifier adjusted_cloud_modifier{
       adjusted_cloud, msg->header.frame_id};
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const CloudModifier::value_type point{
         old_point.x,
         old_point.y,
         old_point.z,
@@ -185,8 +185,8 @@ geocentric_pose_t load_map(
   const std::string & pcl_file_name,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  using autoware::common::types::PointXYZIF;
-  point_cloud_msg_wrapper::PointCloud2Modifier<PointXYZIF>{pc_out}.clear();
+  CloudModifier modifier {pc_out};
+  modifier.clear();
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   if (!yaml_file_name.empty()) {
