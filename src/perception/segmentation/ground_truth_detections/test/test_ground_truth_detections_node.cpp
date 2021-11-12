@@ -328,10 +328,6 @@ TEST_F(GroundTruth3dDetectionsTest, ReceiveDetections)
     EXPECT_EQ(k.orientation.y, CAR_ORIENTATION_Y);
     EXPECT_EQ(k.orientation.z, CAR_ORIENTATION_Z);
     EXPECT_EQ(k.orientation.w, CAR_ORIENTATION_W);
-
-    EXPECT_EQ(k.twist.twist.linear.x, CAR_TWIST_LINEAR_X);
-    EXPECT_EQ(k.twist.twist.linear.y, CAR_TWIST_LINEAR_Y);
-    EXPECT_EQ(k.twist.twist.linear.z, CAR_TWIST_LINEAR_Z);
   }
 
   // shape

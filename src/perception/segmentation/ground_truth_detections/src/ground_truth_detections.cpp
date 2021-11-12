@@ -81,10 +81,12 @@ autoware_auto_msgs::msg::ObjectClassification make_classification(const std::str
   classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
 
   static constexpr const char * car_labels[] = {"Hatchback", "Jeep", "Sedan", "SUV"};
+  static constexpr const char * truck_labels[] = {"BoxTruck", "SchoolBus"};
   auto found_car_label = std::find(std::begin(car_labels), std::end(car_labels), label);
+  auto found_truck_label = std::find(std::begin(truck_labels), std::end(truck_labels), label);
   if (found_car_label != std::end(car_labels)) {
     classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
-  } else if (label == "BoxTruck") {
+  } else if (found_truck_label != std::end(truck_labels)) {
     classification = autoware_auto_msgs::msg::ObjectClassification::TRUCK;
   } else if (label == "Pedestrian") {
     classification = autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
@@ -129,7 +131,6 @@ autoware_auto_msgs::msg::DetectedObjectKinematics make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection)
 {
   geometry_msgs::msg::TwistWithCovariance twist;
-  twist.twist = detection.velocity;
 
   return autoware_auto_msgs::build<autoware_auto_msgs::msg::DetectedObjectKinematics>()
          .centroid_position(detection.bbox.position.position)
