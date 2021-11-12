@@ -73,6 +73,7 @@ using ObjectClassificationState = common::state_vector::FloatState<
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::UNKNOWN>,
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::CAR>,
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::TRUCK>,
+  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::BUS>,
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::TRAILER>,
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::MOTORCYCLE>,
   ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::BICYCLE>,
