@@ -120,6 +120,8 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   br->sendTransform(transform);
   // Empty trajectory: expect a stopped command
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   traj_msg.header.stamp = node->now();
   state_msg.header.stamp = node->now();
@@ -165,6 +167,8 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
@@ -227,6 +231,8 @@ TEST_F(FakeNodeFixture, right_turn)
   // Right turning trajectory: expect right steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -254,10 +260,8 @@ TEST_F(FakeNodeFixture, right_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -291,6 +295,8 @@ TEST_F(FakeNodeFixture, left_turn)
   // Left turning trajectory: expect left steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -318,10 +324,8 @@ TEST_F(FakeNodeFixture, left_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -355,6 +359,8 @@ TEST_F(FakeNodeFixture, stopped)
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
@@ -383,16 +389,12 @@ TEST_F(FakeNodeFixture, stopped)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  // when stopped we expect a command that do not change the current state
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_EQ(cmd_msg->steering_tire_angle, state_msg.state.front_wheel_angle_rad);
-  */
   EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-// TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_set_lateral_param_smoke_test)
+TEST_F(FakeNodeFixture, set_lateral_param_smoke_test)
 {
   // rclcpp::Node
   std::shared_ptr<rclcpp::Node> node = makeLateralNode();

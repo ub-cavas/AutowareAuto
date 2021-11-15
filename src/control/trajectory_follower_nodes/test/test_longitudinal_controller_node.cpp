@@ -90,6 +90,7 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
@@ -100,6 +101,8 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -158,6 +161,7 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
@@ -168,6 +172,8 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -226,6 +232,7 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 0.5;
   state_pub->publish(state);
@@ -236,6 +243,8 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -294,6 +303,7 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
@@ -304,6 +314,8 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   state_pub->publish(state);
   // Publish stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -354,6 +366,7 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
@@ -364,6 +377,8 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   state_pub->publish(state);
   // Publish reverse
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -414,6 +429,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
+  state.header.frame_id = "base_link";
   state.header.stamp = node->now();
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
@@ -424,6 +440,8 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   state_pub->publish(state);
   // Publish trajectory starting away from the current ego pose
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 10.0;
   point.y = 0.0;
@@ -446,8 +464,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   EXPECT_LT(cmd_msg->acceleration, 0.0f);
 }
 
-// TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
+TEST_F(FakeNodeFixture, longitudinal_set_param_smoke_test)
 {
   // Node
   std::shared_ptr<rclcpp::Node> node = makeLongitudinalNode();

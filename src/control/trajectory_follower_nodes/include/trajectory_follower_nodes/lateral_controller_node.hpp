@@ -130,6 +130,7 @@ private:
 
   //!< @brief buffer for transforms
   tf2::BufferCore m_tf_buffer{tf2::BUFFER_CORE_DEFAULT_CACHE_TIME};
+  tf2_ros::TransformListener m_tf_listener{m_tf_buffer};
 
   //!< initialize timer to work in real, simulation, and replay
   void initTimer(float64_t period_s);
@@ -142,18 +143,6 @@ private:
    * @brief set m_current_trajectory with received message
    */
   void onTrajectory(const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr);
-
-  /**
-   * @brief callback for TF message
-   * @param [in] msg transform message
-   */
-  void callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
-
-  /**
-   * @brief callback for static TF message
-   * @param [in] msg static transform message
-   */
-  void callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg);
 
   /**
    * @brief update current_pose from tf
