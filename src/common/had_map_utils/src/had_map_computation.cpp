@@ -35,7 +35,7 @@ using CGAL_Polygon_with_holes = CGAL::Polygon_with_holes_2<Kernel>;
 
 // TODO(s.me) this is getting a bit long, break up
 lanelet::Polygon3d coalesce_drivable_areas(
-  const autoware_auto_msgs::msg::HADMapRoute & had_map_route,
+  const autoware_auto_planning_msgs::msg::HADMapRoute & had_map_route,
   const lanelet::LaneletMapPtr & lanelet_map_ptr)
 {
   CGAL_Polygon_with_holes drivable_area;

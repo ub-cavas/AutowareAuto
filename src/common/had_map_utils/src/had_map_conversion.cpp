@@ -39,7 +39,7 @@ namespace had_map_utils
 
 void toBinaryMsg(
   const std::shared_ptr<lanelet::LaneletMap> & map,
-  autoware_auto_msgs::msg::HADMapBin & msg)
+  autoware_auto_mapping_msgs::msg::HADMapBin & msg)
 {
   std::stringstream ss;
   boost::archive::binary_oarchive oa(ss);
@@ -54,7 +54,7 @@ void toBinaryMsg(
 }
 
 void fromBinaryMsg(
-  const autoware_auto_msgs::msg::HADMapBin & msg,
+  const autoware_auto_mapping_msgs::msg::HADMapBin & msg,
   std::shared_ptr<lanelet::LaneletMap> & map)
 {
   std::string data_str;

@@ -30,7 +30,7 @@ namespace control
 namespace pure_pursuit
 {
 
-constexpr uint32_t CAPACITY = autoware_auto_msgs::msg::Trajectory::CAPACITY;
+constexpr uint32_t CAPACITY = autoware_auto_planning_msgs::msg::Trajectory::CAPACITY;
 ////////////////////////////////////////////////////////////////////////////////
 PurePursuit::PurePursuit(const Config & cfg)
 : ControllerBase{::motion::control::controller_common::BehaviorConfig{

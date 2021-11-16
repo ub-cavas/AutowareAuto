@@ -31,11 +31,11 @@ using autoware::state_monitor::State;
 using autoware::state_monitor::AutowareStateMonitorNode;
 using namespace std::chrono_literals;
 
-using autoware_auto_msgs::msg::VehicleStateReport;
-using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::Engage;
-using autoware_auto_msgs::msg::AutowareState;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_vehicle_msgs::msg::Engage;
+using autoware_auto_system_msgs::msg::AutowareState;
 
 
 class AutowareStateMonitorNodeNoParametersTest : public ::testing::Test

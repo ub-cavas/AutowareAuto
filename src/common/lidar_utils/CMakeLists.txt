@@ -35,7 +35,7 @@ if(BUILD_TESTING)
   )
   ament_target_dependencies(test_lidar_utils
     "autoware_auto_common"
-    "autoware_auto_msgs"
+    "autoware_auto_perception_msgs"
     "autoware_auto_geometry"
   )
   target_link_libraries(test_lidar_utils ${PROJECT_NAME})

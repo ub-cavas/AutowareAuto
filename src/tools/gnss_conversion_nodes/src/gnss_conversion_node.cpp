@@ -44,7 +44,7 @@ static constexpr auto kOverrideCovarianceTag = "override_variances";
 static constexpr auto kDefaultFrameId = "earth";
 static constexpr auto kDefaultLoggingInterval = 1000;  // Milliseconds.
 
-using autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
+using autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped;
 
 template<typename ArrayT>
 Eigen::Matrix3d to_eigen(const ArrayT & covariance)
@@ -82,7 +82,7 @@ geometry_msgs::msg::Point to_point(const Eigen::Vector3d & v)
 
 
 void switch_frames_if_needed(
-  autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg,
+  autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped & msg,
   const std_msgs::msg::Header::_frame_id_type & new_frame_id,
   const tf2::BufferCore & buffer)
 {

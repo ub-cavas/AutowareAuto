@@ -14,7 +14,7 @@
 
 #include <common/types.hpp>
 
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
 #include <cmath>
 #include <memory>
@@ -24,7 +24,7 @@
 #include "gtest/gtest.h"
 #include "ssc_interface/ssc_interface.hpp"
 
-using autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using autoware::common::types::float32_t;
 

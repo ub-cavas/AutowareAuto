@@ -172,7 +172,7 @@ const SafetyStateMachine VehicleInterfaceNode::get_state_machine() const noexcep
 /*lint -save -e9073 see above*/
 template<>
 void VehicleInterfaceNode::on_command_message(
-  const autoware_auto_msgs::msg::RawControlCommand & msg)
+  const autoware_auto_vehicle_msgs::msg::RawControlCommand & msg)
 {
   if (!m_interface->send_control_command(msg)) {
     on_control_send_failure();
@@ -184,7 +184,7 @@ void VehicleInterfaceNode::on_command_message(
 ////////////////////////////////////////////////////////////////////////////////
 template<>
 void VehicleInterfaceNode::on_command_message(
-  const autoware_auto_msgs::msg::AckermannControlCommand & msg)
+  const autoware_auto_control_msgs::msg::AckermannControlCommand & msg)
 {
   const auto stamp = time_utils::from_message(msg.stamp);
   const auto dt = stamp - m_last_command_stamp;
@@ -204,7 +204,7 @@ void VehicleInterfaceNode::on_command_message(
 ////////////////////////////////////////////////////////////////////////////////
 template<>
 void VehicleInterfaceNode::on_command_message(
-  const autoware_auto_msgs::msg::VehicleControlCommand & msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleControlCommand & msg)
 {
   const auto stamp = time_utils::from_message(msg.stamp);
   const auto dt = stamp - m_last_command_stamp;
@@ -243,7 +243,7 @@ void VehicleInterfaceNode::on_command_message(
 //lint -e{1762} NOLINT see above, not implemented
 template<>
 void VehicleInterfaceNode::on_command_message(
-  const autoware_auto_msgs::msg::HighLevelControlCommand & msg)
+  const autoware_auto_control_msgs::msg::HighLevelControlCommand & msg)
 {
   (void)msg;
   throw std::logic_error{"Not yet implemented"};
@@ -288,41 +288,43 @@ void VehicleInterfaceNode::init(
       }
     });
   // Make publishers
-  m_state_pub = create_publisher<autoware_auto_msgs::msg::VehicleStateReport>(
+  m_state_pub = create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(
     state_report.topic + "_out", rclcpp::QoS{10U});
   m_odom_pub =
-    create_publisher<autoware_auto_msgs::msg::VehicleOdometry>(odometry.topic, rclcpp::QoS{10U});
+    create_publisher<autoware_auto_vehicle_msgs::msg::VehicleOdometry>(
+    odometry.topic,
+    rclcpp::QoS{10U});
   // Make subordinate subscriber TODO(c.ho) parameterize time better
-  using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
+  using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
   m_state_sub = create_subscription<VSC>(
     state_command.topic, rclcpp::QoS{10U},
     [this](VSC::SharedPtr msg) {m_last_state_command = *msg;});
 
   // Feature subscriptions/publishers
   if (m_enabled_features.find(ViFeature::HEADLIGHTS) != m_enabled_features.end()) {
-    m_headlights_rpt_pub = create_publisher<autoware_auto_msgs::msg::HeadlightsReport>(
+    m_headlights_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::HeadlightsReport>(
       "headlights_report", rclcpp::QoS{10U});
-    m_headlights_cmd_sub = create_subscription<autoware_auto_msgs::msg::HeadlightsCommand>(
+    m_headlights_cmd_sub = create_subscription<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>(
       "headlights_command", rclcpp::QoS{10U},
-      [this](autoware_auto_msgs::msg::HeadlightsCommand::SharedPtr msg)
+      [this](autoware_auto_vehicle_msgs::msg::HeadlightsCommand::SharedPtr msg)
       {m_interface->send_headlights_command(*msg);});
   }
 
   if (m_enabled_features.find(ViFeature::HORN) != m_enabled_features.end()) {
-    m_horn_rpt_pub = create_publisher<autoware_auto_msgs::msg::HornReport>(
+    m_horn_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::HornReport>(
       "horn_report", rclcpp::QoS{10U});
-    m_horn_cmd_sub = create_subscription<autoware_auto_msgs::msg::HornCommand>(
+    m_horn_cmd_sub = create_subscription<autoware_auto_vehicle_msgs::msg::HornCommand>(
       "horn_command", rclcpp::QoS{10U},
-      [this](autoware_auto_msgs::msg::HornCommand::SharedPtr msg)
+      [this](autoware_auto_vehicle_msgs::msg::HornCommand::SharedPtr msg)
       {m_interface->send_horn_command(*msg);});
   }
 
   if (m_enabled_features.find(ViFeature::WIPERS) != m_enabled_features.end()) {
-    m_wipers_rpt_pub = create_publisher<autoware_auto_msgs::msg::WipersReport>(
+    m_wipers_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::WipersReport>(
       "wipers_report", rclcpp::QoS{10U});
-    m_wipers_cmd_sub = create_subscription<autoware_auto_msgs::msg::WipersCommand>(
+    m_wipers_cmd_sub = create_subscription<autoware_auto_vehicle_msgs::msg::WipersCommand>(
       "wipers_command", rclcpp::QoS{10U},
-      [this](autoware_auto_msgs::msg::WipersCommand::SharedPtr msg)
+      [this](autoware_auto_vehicle_msgs::msg::WipersCommand::SharedPtr msg)
       {m_interface->send_wipers_command(*msg);});
   }
 
@@ -345,7 +347,7 @@ void VehicleInterfaceNode::init(
              };
     };
   if (control_command.topic == "high_level") {
-    using HCC = autoware_auto_msgs::msg::HighLevelControlCommand;
+    using HCC = autoware_auto_control_msgs::msg::HighLevelControlCommand;
     m_command_sub =
       create_subscription<HCC>("high_level_command", rclcpp::QoS{10U}, cmd_callback(HCC{}));
     m_state_machine = state_machine();
@@ -357,19 +359,19 @@ void VehicleInterfaceNode::init(
       "vehicle_command", rclcpp::QoS{10U}, cmd_callback(BasicControlCommand{}));
     m_state_machine = state_machine();
   } else if (control_command.topic == "ackermann") {
-    using AckermannCC = autoware_auto_msgs::msg::AckermannControlCommand;
+    using AckermannCC = autoware_auto_control_msgs::msg::AckermannControlCommand;
     m_command_sub = create_subscription<AckermannCC>(
       "ackermann_vehicle_command", rclcpp::QoS{10U}, cmd_callback(AckermannCC{}));
     m_state_machine = state_machine();
   } else if (control_command.topic == "raw") {
-    using RCC = autoware_auto_msgs::msg::RawControlCommand;
+    using RCC = autoware_auto_vehicle_msgs::msg::RawControlCommand;
     m_command_sub =
       create_subscription<RCC>("raw_command", rclcpp::QoS{10U}, cmd_callback(RCC{}));
   } else {
     throw std::domain_error{"Vehicle interface must have exactly one command subscription"};
   }
   // Create services
-  m_mode_service = create_service<autoware_auto_msgs::srv::AutonomyModeChange>(
+  m_mode_service = create_service<autoware_auto_vehicle_msgs::srv::AutonomyModeChange>(
     "autonomy_mode", [this](
       ModeChangeRequest::SharedPtr request,
       ModeChangeResponse::SharedPtr response) -> void

@@ -63,7 +63,7 @@ Projection is done by executing the following steps:
 Inputs:
 * Camera intrinsics
 * Camera transformation
-* `autoware_auto_msgs::msg::Shape` representing the 3D shape.
+* `autoware_auto_perception_msgs::msg::Shape` representing the 3D shape.
 
 Outputs:
 * A list of vertices representing the projection shape.

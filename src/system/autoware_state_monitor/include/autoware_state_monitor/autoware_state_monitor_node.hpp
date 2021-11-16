@@ -28,11 +28,11 @@
 #include "tf2_ros/transform_listener.h"
 
 // Autoware
-#include "autoware_auto_msgs/msg/autoware_state.hpp"
-#include "autoware_auto_msgs/msg/engage.hpp"
-#include "autoware_auto_msgs/msg/had_map_route.hpp"
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+#include "autoware_auto_system_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/engage.hpp"
+#include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
 
 // Local
 #include "autoware_state_monitor/state.hpp"
@@ -54,10 +54,10 @@ public:
   explicit AutowareStateMonitorNode(const rclcpp::NodeOptions & node_options);
 
 private:
-  using VehicleStateReport = autoware_auto_msgs::msg::VehicleStateReport;
-  using VehicleOdometry = autoware_auto_msgs::msg::VehicleOdometry;
-  using HADMapRoute = autoware_auto_msgs::msg::HADMapRoute;
-  using Engage = autoware_auto_msgs::msg::Engage;
+  using VehicleStateReport = autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+  using VehicleOdometry = autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+  using HADMapRoute = autoware_auto_planning_msgs::msg::HADMapRoute;
+  using Engage = autoware_auto_vehicle_msgs::msg::Engage;
 
   // Parameters
   double update_rate_;
@@ -94,7 +94,7 @@ private:
     std::shared_ptr<std_srvs::srv::Trigger::Response> response);
 
   // Publisher
-  rclcpp::Publisher<autoware_auto_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
+  rclcpp::Publisher<autoware_auto_system_msgs::msg::AutowareState>::SharedPtr pub_autoware_state_;
 
   // Timer
   void onTimer();

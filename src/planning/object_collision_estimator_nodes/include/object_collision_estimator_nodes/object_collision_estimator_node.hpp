@@ -12,8 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_auto_msgs/srv/modify_trajectory.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <tf2_ros/transform_listener.h>
@@ -36,7 +36,7 @@ namespace object_collision_estimator_nodes
 {
 
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using visualization_msgs::msg::MarkerArray;
 using visualization_msgs::msg::Marker;
 
@@ -59,8 +59,8 @@ private:
   /// \param[out] response The output of the service. Contains the trajectory modified by the
   ///                      collision estimator to avoid any collisions.
   void estimate_collision(
-    const std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Request> request,
-    std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Response> response);
+    const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
+    std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response);
 
   /// \brief Pointer to the subscriber listening for a list of obstacles
   rclcpp::Subscription<BoundingBoxArray>::SharedPtr m_obstacles_sub{nullptr};
@@ -87,7 +87,7 @@ private:
   std::string m_target_frame_id{};
 
   /// \brief Pointer to the service interface of the service that estimates collisions.
-  rclcpp::Service<autoware_auto_msgs::srv::ModifyTrajectory>::SharedPtr
+  rclcpp::Service<autoware_auto_planning_msgs::srv::ModifyTrajectory>::SharedPtr
     m_service_interface{nullptr};
 
   /// \brief Pointer to the tf interface used to transform obstacle bounding box coordinates.

@@ -24,8 +24,8 @@
 #include <lanelet2_map_provider/lanelet2_map_provider.hpp>
 #include <memory>
 
-#include "autoware_auto_msgs/srv/had_map_service.hpp"
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 
 namespace autoware
 {
@@ -55,8 +55,8 @@ public:
   /// \param response Service repsone to request, containing a sub-set of map data
   /// but nethertheless containing a complete and valid lanelet2 map
   void handle_request(
-    std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request> request,
-    std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Response> response);
+    std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request> request,
+    std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Response> response);
 
 private:
   /// If the origin is not defined by parameters, get the transform describing
@@ -66,7 +66,7 @@ private:
   geometry_msgs::msg::TransformStamped get_map_origin();
 
   std::unique_ptr<Lanelet2MapProvider> m_map_provider;
-  rclcpp::Service<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_map_service;
+  rclcpp::Service<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr m_map_service;
 };
 
 }  // namespace lanelet2_map_provider

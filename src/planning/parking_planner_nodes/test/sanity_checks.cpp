@@ -14,8 +14,8 @@
 
 #include <gtest/gtest.h>
 #include <parking_planner_nodes/parking_planner_node.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <motion_common/config.hpp>
@@ -28,14 +28,14 @@
 #include <vector>
 #include <memory>
 
-using autoware_auto_msgs::srv::HADMapService;
+using autoware_auto_mapping_msgs::srv::HADMapService;
 using autoware::motion::planning::parking_planner_nodes::ParkingPlannerNode;
 using motion::motion_testing::make_state;
 using std::chrono::system_clock;
-using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::Trajectory;
 
-using autoware_auto_msgs::action::PlanTrajectory;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::action::PlanTrajectory;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using GoalHandlePlanTrajectory = rclcpp_action::ServerGoalHandle<PlanTrajectory>;
 
 using autoware::common::types::float32_t;

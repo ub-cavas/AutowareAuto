@@ -22,20 +22,20 @@ The emergency state can be also cleared by the specific service.
 
 Inputs
 
-* `autoware_auto_msgs/msg/DrivingCapability` is used to determine a vehicle capabilities
-* `autoware_auto_msgs/msg/AutowareState` is used to determine the Autoware system state.
-* `autoware_auto_msgs/msg/VehicleControlCommand` is used to determine current wheels angle.
-* `autoware_auto_msgs/msg/VehicleStateReport` is used to determine if the vehicle
+* `autoware_auto_system_msgs/msg/DrivingCapability` is used to determine a vehicle capabilities
+* `autoware_auto_system_msgs/msg/AutowareState` is used to determine the Autoware system state.
+* `autoware_auto_vehicle_msgs/msg/VehicleControlCommand` is used to determine current wheels angle.
+* `autoware_auto_vehicle_msgs/msg/VehicleStateReport` is used to determine if the vehicle
   is in manual or autonomous mode.
-* `autoware_auto_msgs/msg/VehicleOdometry` is used to calculate a current vehicle velocity.
+* `autoware_auto_vehicle_msgs/msg/VehicleOdometry` is used to calculate a current vehicle velocity.
 
 Outputs
 
-* `autoware_auto_msgs/msg/VehicleControlCommand` contains emergency control commands.
-* `autoware_auto_msgs/msg/VehicleStateCommand` contains the vehicle state commands.
-* `autoware_auto_msgs/msg/EmergencyMode` is used to propagate information about emergency mode.
-* `autoware_auto_msgs/msg/HazardStatusStamped` contains details about the hazard state.
-* `autoware_auto_msgs/msg/DiagnosticArray` contains diagnostic information about the current state.
+* `autoware_auto_vehicle_msgs/msg/VehicleControlCommand` contains emergency control commands.
+* `autoware_auto_vehicle_msgs/msg/VehicleStateCommand` contains the vehicle state commands.
+* `autoware_auto_system_msgs/msg/EmergencyMode` is used to propagate information about emergency mode.
+* `autoware_auto_system_msgs/msg/HazardStatusStamped` contains details about the hazard state.
+* `autoware_auto_system_msgs/msg/DiagnosticArray` contains diagnostic information about the current state.
 
 Services
 

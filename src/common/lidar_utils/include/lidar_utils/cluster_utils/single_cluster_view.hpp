@@ -17,7 +17,7 @@
 #ifndef LIDAR_UTILS__CLUSTER_UTILS__SINGLE_CLUSTER_VIEW_HPP_
 #define LIDAR_UTILS__CLUSTER_UTILS__SINGLE_CLUSTER_VIEW_HPP_
 
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/visibility_control.hpp>
 
@@ -40,7 +40,7 @@ namespace lidar_utils
 ///
 class LIDAR_UTILS_PUBLIC SingleClusterView
 {
-  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
+  using ClustersMsg = autoware_auto_perception_msgs::msg::PointClusters;
   using Point = ClustersMsg::_points_type::value_type;
   using PointConstIterator = ClustersMsg::_points_type::const_iterator;
   using PointConstReverseIterator = ClustersMsg::_points_type::const_reverse_iterator;

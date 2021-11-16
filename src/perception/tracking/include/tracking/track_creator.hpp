@@ -17,8 +17,8 @@
 #ifndef TRACKING__TRACK_CREATOR_HPP_
 #define TRACKING__TRACK_CREATOR_HPP_
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <message_filters/cache.h>
 #include <tf2/buffer_core.h>
@@ -91,11 +91,12 @@ public:
   TrackCreationResult create(const ObjectsWithAssociations & objects) const;
 
   void add_objects(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & vision_rois,
     const AssociatorResult & associator_result);
 
 private:
-  using VisionCache = message_filters::Cache<autoware_auto_msgs::msg::ClassifiedRoiArray>;
+  using VisionCache =
+    message_filters::Cache<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
 
   void create_using_cache(
     const ObjectsWithAssociations & objects,

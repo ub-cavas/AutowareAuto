@@ -16,8 +16,8 @@
 
 #include "ground_truth_detections/ground_truth_detections_node.hpp"
 
-#include <autoware_auto_msgs/msg/classified_roi.hpp>
-#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
 #include <algorithm>
 
 namespace autoware
@@ -29,14 +29,14 @@ constexpr char GroundTruthDetectionsNode::kFrameId3d[];
 
 GroundTruthDetectionsNode::GroundTruthDetectionsNode(const rclcpp::NodeOptions & options)
 : Node("ground_truth_detections", options),
-  m_detection2d_pub{create_publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>(
+  m_detection2d_pub{create_publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>(
       "/perception/ground_truth_detections_2d", rclcpp::QoS{10})},
   m_detection2d_sub{create_subscription<lgsvl_msgs::msg::Detection2DArray>(
       "/simulator/ground_truth/detections2D", rclcpp::QoS{10},
       [this](lgsvl_msgs::msg::Detection2DArray::SharedPtr msg) {on_detection(*msg);}
     )},
   m_vision_frame_id(this->declare_parameter("vision_frame_id", "camera")),
-  m_detection3d_pub{create_publisher<autoware_auto_msgs::msg::DetectedObjects>(
+  m_detection3d_pub{create_publisher<autoware_auto_perception_msgs::msg::DetectedObjects>(
     "/perception/ground_truth_detections_3d", rclcpp::QoS{10})},
 m_detection3d_sub{create_subscription<lgsvl_msgs::msg::Detection3DArray>(
     "/simulator/ground_truth/detections3D", rclcpp::QoS{10},
@@ -47,7 +47,7 @@ m_detection3d_sub{create_subscription<lgsvl_msgs::msg::Detection3DArray>(
 
 void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DArray & msg)
 {
-  autoware_auto_msgs::msg::ClassifiedRoiArray roi_array;
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray roi_array;
   roi_array.header = msg.header;
   roi_array.header.frame_id = m_vision_frame_id;
 
@@ -55,7 +55,8 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DA
   std::transform(
     msg.detections.begin(), msg.detections.end(), roi_array.rois.begin(),
     [](const lgsvl_msgs::msg::Detection2D & detection) {
-      return autoware_auto_msgs::build<autoware_auto_msgs::msg::ClassifiedRoi>()
+      return autoware_auto_perception_msgs::build<
+        autoware_auto_perception_msgs::msg::ClassifiedRoi>()
       .classifications({make_classification(detection.label)})
       .polygon(make_polygon(detection));
     });
@@ -64,14 +65,15 @@ void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection2DA
 
 void GroundTruthDetectionsNode::on_detection(const lgsvl_msgs::msg::Detection3DArray & msg)
 {
-  autoware_auto_msgs::msg::DetectedObjects detected_objects;
+  autoware_auto_perception_msgs::msg::DetectedObjects detected_objects;
   detected_objects.header = msg.header;
   detected_objects.header.frame_id = kFrameId3d;
 
   detected_objects.objects.resize(msg.detections.size());
   const auto create_detected_object =
     [](const lgsvl_msgs::msg::Detection3D & detection) {
-      return autoware_auto_msgs::build<autoware_auto_msgs::msg::DetectedObject>()
+      return autoware_auto_perception_msgs::build<
+        autoware_auto_perception_msgs::msg::DetectedObject>()
              .existence_probability(1.0F)
              .classification({make_classification(detection.label)})
              .kinematics(make_kinematics(detection))

@@ -35,8 +35,8 @@ Inputs:
 * Camera transformation
 * A vector of `autoware::perception::tracking::TrackedObject`s
   or
-  A vector of `autoware_auto_msgs::msg::DetectedObjects`
-* `autoware_auto_msgs::msg::ClassifiedRoiArray`
+  A vector of `autoware_auto_perception_msgs::msg::DetectedObjects`
+* `autoware_auto_perception_msgs::msg::ClassifiedRoiArray`
 
 Outputs:
 * [AssociatorResult](@ref autoware::perception::tracking::AssociatorResult)

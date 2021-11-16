@@ -24,8 +24,8 @@
 #include "lonely_world_prediction/init_from_tracked.hpp"
 #include "lonely_world_prediction/lonely_world_prediction.hpp"
 
-#include "autoware_auto_msgs/msg/predicted_object.hpp"
-#include "autoware_auto_msgs/msg/predicted_object_kinematics.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_object.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_object_kinematics.hpp"
 
 namespace
 {

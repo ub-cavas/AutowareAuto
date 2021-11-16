@@ -27,7 +27,7 @@
 #include <string>
 #include <memory>
 
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 
 using autoware::common::types::float64_t;
 

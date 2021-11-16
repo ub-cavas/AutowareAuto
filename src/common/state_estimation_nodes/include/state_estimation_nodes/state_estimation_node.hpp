@@ -22,7 +22,7 @@
 #define STATE_ESTIMATION_NODES__STATE_ESTIMATION_NODE_HPP_
 
 
-#include <autoware_auto_msgs/msg/relative_position_with_covariance_stamped.hpp>
+#include <autoware_auto_geometry_msgs/msg/relative_position_with_covariance_stamped.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/quaternion_stamped.hpp>
@@ -74,7 +74,7 @@ private:
   using OdomMsgT = nav_msgs::msg::Odometry;
   using PoseMsgT = geometry_msgs::msg::PoseWithCovarianceStamped;
   using TwistMsgT = geometry_msgs::msg::TwistWithCovarianceStamped;
-  using RelativePosMsgT = autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
+  using RelativePosMsgT = autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped;
   using TfMsgT = tf2_msgs::msg::TFMessage;
   using FilterWrapperT = ConstantAccelerationFilterWrapperXYZRPY;
 

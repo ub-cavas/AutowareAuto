@@ -30,10 +30,10 @@
 #include <lanelet2_global_planner/lanelet2_global_planner.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <common/types.hpp>
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
-#include <autoware_auto_msgs/msg/had_map_bin.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 #include <common/types.hpp>
 
@@ -62,22 +62,22 @@ public:
 
   void request_osm_binary_map();
   void goal_pose_cb(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
-  void current_pose_cb(const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg);
+  void current_pose_cb(const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg);
   void send_global_path(
     const std::vector<lanelet::Id> & had_map_route,
-    const autoware_auto_msgs::msg::TrajectoryPoint & start_point,
-    const autoware_auto_msgs::msg::TrajectoryPoint & end_point,
+    const autoware_auto_planning_msgs::msg::TrajectoryPoint & start_point,
+    const autoware_auto_planning_msgs::msg::TrajectoryPoint & end_point,
     const std_msgs::msg::Header & header);
   bool8_t transform_pose_to_map(
     const geometry_msgs::msg::PoseStamped & pose_in, geometry_msgs::msg::PoseStamped & pose_out);
 
 private:
   std::shared_ptr<Lanelet2GlobalPlanner> lanelet2_global_planner;
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr map_client;
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr map_client;
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_sub_ptr;
-  rclcpp::Subscription<autoware_auto_msgs::msg::VehicleKinematicState>::SharedPtr
+  rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
     current_pose_sub_ptr;
-  rclcpp::Publisher<autoware_auto_msgs::msg::HADMapRoute>::SharedPtr global_path_pub_ptr;
+  rclcpp::Publisher<autoware_auto_planning_msgs::msg::HADMapRoute>::SharedPtr global_path_pub_ptr;
   geometry_msgs::msg::PoseStamped start_pose;
   geometry_msgs::msg::PoseStamped goal_pose;
   bool8_t start_pose_init;

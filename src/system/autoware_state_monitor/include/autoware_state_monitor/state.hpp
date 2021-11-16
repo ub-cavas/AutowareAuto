@@ -19,7 +19,7 @@
 
 #include <string>
 
-#include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_system_msgs/msg/autoware_state.hpp"
 
 namespace autoware
 {
@@ -32,7 +32,7 @@ using State = uint8_t;
 /// \brief Converts AutowareState to string
 inline std::string toString(const State state)
 {
-  using autoware_auto_msgs::msg::AutowareState;
+  using autoware_auto_system_msgs::msg::AutowareState;
 
   switch (state) {
     case AutowareState::INITIALIZING:

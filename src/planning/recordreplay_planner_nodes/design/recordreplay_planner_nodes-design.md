@@ -37,16 +37,17 @@ This node uses two actions to control its behavior:
   are published on that topic, the node publishes a trajectory starting approximately at that point (see the
   `recordreplay_planner` design documentation on how that point is determined).  
 
-The actions are defined in `autoware_auto_msgs`.
+The actions are defined in `autoware_auto_vehicle_msgs`, `autoware_auto_planning_msgs` and
+`autoware_auto_perception_msgs`.
 
 Inputs:
 
-* `autoware_auto_msgs/msg/VehicleKinematicState` is the state used as recorded points for replaym, and also to prune starting point of replay trajectory
-* `autoware_auto_msgs/msg/BoundingBoxArray` is list of bounding boxes of obstacle, that thre reaply trajectory stops for to avoid collision.
+* `autoware_auto_vehicle_msgs/msg/VehicleKinematicState` is the state used as recorded points for replaym, and also to prune starting point of replay trajectory
+* `autoware_auto_perception_msgs/msg/BoundingBoxArray` is list of bounding boxes of obstacle, that thre reaply trajectory stops for to avoid collision.
 
 Outputs:
 
-* `autoware_auto_msgs/msg/Trajectory` is the trajectory that gets published
+* `autoware_auto_planning_msgs/msg/Trajectory` is the trajectory that gets published
 
 ## Complexity
 

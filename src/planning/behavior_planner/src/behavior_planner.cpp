@@ -52,10 +52,10 @@ PlannerType get_planner_type_from_primitive(
   }
 }
 
-autoware_auto_msgs::msg::RoutePoint convert_to_route_point(
+autoware_auto_planning_msgs::msg::RoutePoint convert_to_route_point(
   const lanelet::ConstPoint2d & pt)
 {
-  autoware_auto_msgs::msg::RoutePoint route_point;
+  autoware_auto_planning_msgs::msg::RoutePoint route_point;
   route_point.position.x = pt.x();
   route_point.position.y = pt.y();
   return route_point;
@@ -147,7 +147,7 @@ void BehaviorPlanner::set_route(
   RouteWithType subroute;
   subroute.route.start_point = route.start_point;
   auto prev_type = PlannerType::UNKNOWN;
-  autoware_auto_msgs::msg::HADMapSegment prev_segment;
+  autoware_auto_mapping_msgs::msg::HADMapSegment prev_segment;
   if (!route.segments.empty()) {
     const auto & first_segment = route.segments.front();
     prev_type = get_planner_type_from_primitive(first_segment.primitives.front());

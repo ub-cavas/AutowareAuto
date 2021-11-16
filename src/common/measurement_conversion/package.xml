@@ -13,7 +13,7 @@
   <depend>geometry_msgs</depend>
   <depend>nav_msgs</depend>
   <depend>autoware_auto_common</depend>
-  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_geometry_msgs</depend>
   <depend>rclcpp</depend>
   <depend>eigen</depend>
   <depend>state_vector</depend>

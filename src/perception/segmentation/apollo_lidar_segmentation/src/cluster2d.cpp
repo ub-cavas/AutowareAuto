@@ -214,33 +214,34 @@ void Cluster2D::classify(const float32_t * inferred_data)
   }
 }
 
-autoware_auto_msgs::msg::BoundingBox Cluster2D::obstacleToObject(const Obstacle & in_obstacle) const
+autoware_auto_perception_msgs::msg::BoundingBox Cluster2D::obstacleToObject(
+  const Obstacle & in_obstacle) const
 {
   auto in_points = in_obstacle.cloud_ptr->points;
 
-  autoware_auto_msgs::msg::BoundingBox resulting_object =
+  autoware_auto_perception_msgs::msg::BoundingBox resulting_object =
     common::geometry::bounding_box::lfit_bounding_box_2d(in_points.begin(), in_points.end());
   common::geometry::bounding_box::compute_height(
     in_points.begin(), in_points.end(), resulting_object);
 
   resulting_object.class_likelihood = in_obstacle.score;
   if (in_obstacle.meta_type == MetaType::META_PEDESTRIAN) {
-    resulting_object.vehicle_label = autoware_auto_msgs::msg::BoundingBox::PEDESTRIAN;
+    resulting_object.vehicle_label = autoware_auto_perception_msgs::msg::BoundingBox::PEDESTRIAN;
   } else if (in_obstacle.meta_type == MetaType::META_NONMOT) {
-    resulting_object.vehicle_label = autoware_auto_msgs::msg::BoundingBox::MOTORCYCLE;
+    resulting_object.vehicle_label = autoware_auto_perception_msgs::msg::BoundingBox::MOTORCYCLE;
   } else if (in_obstacle.meta_type == MetaType::META_SMALLMOT) {
-    resulting_object.vehicle_label = autoware_auto_msgs::msg::BoundingBox::CAR;
+    resulting_object.vehicle_label = autoware_auto_perception_msgs::msg::BoundingBox::CAR;
   } else {
-    resulting_object.vehicle_label = autoware_auto_msgs::msg::BoundingBox::NO_LABEL;
+    resulting_object.vehicle_label = autoware_auto_perception_msgs::msg::BoundingBox::NO_LABEL;
   }
 
   return resulting_object;
 }
 
-std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> Cluster2D::getObjects(
+std::shared_ptr<autoware_auto_perception_msgs::msg::BoundingBoxArray> Cluster2D::getObjects(
   const float32_t confidence_thresh, const float32_t height_thresh, const int32_t min_pts_num)
 {
-  auto object_array = std::make_shared<autoware_auto_msgs::msg::BoundingBoxArray>();
+  auto object_array = std::make_shared<autoware_auto_perception_msgs::msg::BoundingBoxArray>();
 
   for (size_t i = 0; i < point2grid_.size(); ++i) {
     int32_t grid = point2grid_[i];
@@ -267,7 +268,7 @@ std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> Cluster2D::getObjects
     if (static_cast<int>(obs->cloud_ptr->size()) < min_pts_num) {
       continue;
     }
-    autoware_auto_msgs::msg::BoundingBox out_obj = obstacleToObject(*obs);
+    autoware_auto_perception_msgs::msg::BoundingBox out_obj = obstacleToObject(*obs);
     object_array->boxes.push_back(out_obj);
   }
 

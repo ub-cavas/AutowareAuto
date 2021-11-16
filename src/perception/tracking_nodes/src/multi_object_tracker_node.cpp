@@ -49,8 +49,8 @@ using autoware::perception::tracking::VisionPolicyConfig;
 using autoware::perception::tracking::LidarOnlyPolicy;
 using autoware::perception::tracking::LidarClusterIfVisionPolicy;
 using autoware::perception::tracking::TrackCreator;
-using autoware_auto_msgs::msg::DetectedObjects;
-using autoware_auto_msgs::msg::TrackedObjects;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::TrackedObjects;
 using nav_msgs::msg::Odometry;
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -101,7 +101,7 @@ T get_closest_match(const std::vector<T> & matched_msgs, const rclcpp::Time & st
 }
 
 DetectedObjects convert_unassigned_clusters_to_detected_objects(
-  const autoware_auto_msgs::msg::PointClusters & clusters,
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
   const DetectedObjectsUpdateResult & update_result)
 {
   using geometry_msgs::msg::Point32;
@@ -115,11 +115,12 @@ DetectedObjects convert_unassigned_clusters_to_detected_objects(
     if (idx >= clusters_msg_view.size()) {
       throw std::runtime_error("Wrong cluster idx");
     }
-    autoware_auto_msgs::msg::DetectedObject detected_object;
+    autoware_auto_perception_msgs::msg::DetectedObject detected_object;
     detected_object.existence_probability = 1.0F;
     // Set shape as a convex hull of the cluster.
     auto cluster_view = clusters_msg_view[static_cast<std::uint32_t>(idx)];
-    std::list<autoware_auto_msgs::msg::PointClusters::_points_type::value_type> point_list{
+    std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type>
+    point_list{
       cluster_view.begin(), cluster_view.end()};
     const auto hull_end_iter = common::geometry::convex_hull(point_list);
 
@@ -150,8 +151,8 @@ DetectedObjects convert_unassigned_clusters_to_detected_objects(
     }
 
     // Compute the classification
-    autoware_auto_msgs::msg::ObjectClassification label;
-    label.classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+    autoware_auto_perception_msgs::msg::ObjectClassification label;
+    label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
     label.probability = 1.0F;
     detected_object.classification.emplace_back(label);
 

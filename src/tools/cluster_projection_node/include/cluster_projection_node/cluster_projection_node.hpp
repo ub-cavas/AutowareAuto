@@ -21,8 +21,8 @@
 #ifndef CLUSTER_PROJECTION_NODE__CLUSTER_PROJECTION_NODE_HPP_
 #define CLUSTER_PROJECTION_NODE__CLUSTER_PROJECTION_NODE_HPP_
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <cluster_projection_node/visibility_control.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <tracking/projection.hpp>
@@ -45,11 +45,13 @@ public:
 
   /// Project and publish clusters
   void cluster_callback(
-    autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg);
+    autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg);
 
 private:
-  rclcpp::Subscription<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_clusters_sub;
-  rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_projection_pub;
+  rclcpp::Subscription<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_clusters_sub;
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr
+    m_projection_pub;
   autoware::perception::tracking::CameraModel m_camera_model;
   tf2::BufferCore m_buffer;
   tf2_ros::TransformListener m_tf_listener;

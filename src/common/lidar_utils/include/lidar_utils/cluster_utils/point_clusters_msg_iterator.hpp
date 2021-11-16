@@ -19,7 +19,7 @@
 
 #include <lidar_utils/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/cluster_utils/single_cluster_view.hpp>
 
@@ -43,7 +43,7 @@ namespace lidar_utils
 ///
 class LIDAR_UTILS_PUBLIC PointClustersMsgIterator
 {
-  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
+  using ClustersMsg = autoware_auto_perception_msgs::msg::PointClusters;
 
 public:
   using iterator_category = std::random_access_iterator_tag;

@@ -29,8 +29,8 @@ namespace
 {
 
 using autoware::ground_truth_detections::GroundTruthDetectionsNode;
-using autoware_auto_msgs::msg::ClassifiedRoiArray;
-using autoware_auto_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
 using geometry_msgs::msg::Vector3;
 using lgsvl_msgs::msg::Detection2DArray;
 using lgsvl_msgs::msg::Detection2D;
@@ -164,7 +164,7 @@ TEST_F(GroundTruth2dDetectionsTest, ReceiveDetections)
   EXPECT_FLOAT_EQ(car_detection.classifications.front().probability, 1.0);
   EXPECT_EQ(
     car_detection.classifications.front().classification,
-    autoware_auto_msgs::msg::ObjectClassification::CAR);
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR);
 
   ASSERT_EQ(car_detection.polygon.points.size(), 4U);
 
@@ -201,7 +201,7 @@ TEST_F(GroundTruth2dDetectionsTest, ReceiveDetections)
     const auto & truck_roi = last_received_msg->rois[N_CARS];
     EXPECT_EQ(
       truck_roi.classifications.at(0).classification,
-      autoware_auto_msgs::msg::ObjectClassification::TRUCK);
+      autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK);
     EXPECT_EQ(truck_roi.polygon, car_detection.polygon);
   }
 
@@ -209,7 +209,7 @@ TEST_F(GroundTruth2dDetectionsTest, ReceiveDetections)
   {
     EXPECT_EQ(
       pedestrian_roi.classifications.at(0).classification,
-      autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN);
+      autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN);
     EXPECT_NE(pedestrian_roi.polygon, car_detection.polygon);
 
     // check clipping to non-negative values
@@ -222,7 +222,7 @@ TEST_F(GroundTruth2dDetectionsTest, ReceiveDetections)
     const auto & unknown_roi = last_received_msg->rois.back();
     EXPECT_EQ(
       unknown_roi.classifications.at(0).classification,
-      autoware_auto_msgs::msg::ObjectClassification::UNKNOWN);
+      autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN);
     EXPECT_EQ(unknown_roi.polygon, pedestrian_roi.polygon);
   }
 }
@@ -309,7 +309,7 @@ TEST_F(GroundTruth3dDetectionsTest, ReceiveDetections)
     EXPECT_FLOAT_EQ(car_detection.classification.front().probability, 1.0);
     EXPECT_EQ(
       car_detection.classification.front().classification,
-      autoware_auto_msgs::msg::ObjectClassification::CAR);
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR);
   }
 
   // kinematics
@@ -323,7 +323,7 @@ TEST_F(GroundTruth3dDetectionsTest, ReceiveDetections)
 
     ASSERT_EQ(
       k.orientation_availability,
-      autoware_auto_msgs::msg::DetectedObjectKinematics::AVAILABLE);
+      autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE);
     EXPECT_EQ(k.orientation.x, CAR_ORIENTATION_X);
     EXPECT_EQ(k.orientation.y, CAR_ORIENTATION_Y);
     EXPECT_EQ(k.orientation.z, CAR_ORIENTATION_Z);

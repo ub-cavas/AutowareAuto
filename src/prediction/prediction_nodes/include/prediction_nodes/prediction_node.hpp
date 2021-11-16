@@ -30,9 +30,9 @@
 #include "tf2/buffer_core.h"
 #include "tf2_ros/transform_listener.h"
 
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
-#include "autoware_auto_msgs/msg/route.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
+#include "autoware_auto_planning_msgs/msg/route.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_objects.hpp"
 
 namespace autoware
 {
@@ -42,8 +42,8 @@ namespace prediction
 class PREDICTION_NODES_PUBLIC PredictionNode : public rclcpp::Node
 {
 public:
-  using PredictedMsgT = autoware_auto_msgs::msg::PredictedObjects;
-  using TrackedMsgT = autoware_auto_msgs::msg::TrackedObjects;
+  using PredictedMsgT = autoware_auto_perception_msgs::msg::PredictedObjects;
+  using TrackedMsgT = autoware_auto_perception_msgs::msg::TrackedObjects;
 
   /// \brief default constructor, starts node
   /// \throw runtime error if failed to start threads or configure driver

@@ -28,7 +28,7 @@
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 // autoware
 #include <lanelet2_global_planner/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <common/types.hpp>
 // c++
 #include <chrono>
@@ -49,7 +49,7 @@ namespace planning
 namespace lanelet2_global_planner
 {
 
-using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
 class LANELET2_GLOBAL_PLANNER_PUBLIC Lanelet2GlobalPlanner
 {

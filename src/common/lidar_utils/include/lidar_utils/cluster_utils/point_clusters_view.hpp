@@ -17,7 +17,7 @@
 #ifndef LIDAR_UTILS__CLUSTER_UTILS__POINT_CLUSTERS_VIEW_HPP_
 #define LIDAR_UTILS__CLUSTER_UTILS__POINT_CLUSTERS_VIEW_HPP_
 
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/cluster_utils/point_clusters_msg_iterator.hpp>
 #include <lidar_utils/visibility_control.hpp>
@@ -42,7 +42,7 @@ namespace lidar_utils
 ///
 class PointClustersView
 {
-  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
+  using ClustersMsg = autoware_auto_perception_msgs::msg::PointClusters;
 
 public:
   /// @brief      Constructs a new view.

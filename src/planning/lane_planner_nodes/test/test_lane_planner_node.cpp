@@ -25,11 +25,11 @@ using autoware::common::types::float64_t;
 using motion::motion_common::Real;
 using motion::motion_common::VehicleConfig;
 
-using autoware_auto_msgs::srv::HADMapService;
-using autoware_auto_msgs::action::PlanTrajectory;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::HADMapSegment;
-using autoware_auto_msgs::msg::MapPrimitive;
+using autoware_auto_mapping_msgs::srv::HADMapService;
+using autoware_auto_planning_msgs::action::PlanTrajectory;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_mapping_msgs::msg::HADMapSegment;
+using autoware_auto_mapping_msgs::msg::MapPrimitive;
 
 // returns a map with a lane has given number of points(n_points)
 // length of the lane will be n_points meters in y direction
@@ -123,7 +123,7 @@ public:
   {
     (void)request_header;
     (void)request;
-    autoware_auto_msgs::msg::HADMapBin map_msg;
+    autoware_auto_mapping_msgs::msg::HADMapBin map_msg;
     const auto map_ptr = get_lanelet_map(m_lane_id, 1, 10);
     autoware::common::had_map_utils::toBinaryMsg(map_ptr, map_msg);
     response->map = map_msg;

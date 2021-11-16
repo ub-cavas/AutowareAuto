@@ -40,8 +40,8 @@ For further details, check @ref lonely_world_prediction-package-design and `auto
 
 | input topic | input type | note |
 |-----|---|---|
-| **triggering** `/tracked_objects` | [`TrackedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/TrackedObjects.idl) |   |
-| `/route`                          | [`Route`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/Route.idl)   |   |
+| **triggering** `/tracked_objects` | [`TrackedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/TrackedObjects.idl) |   |
+| `/route`                          | [`Route`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_planning_msgs/msg/Route.idl)   |   |
 | `/tracked_signals`                | [`TrafficSignalArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/TrafficSignalArray.idl)                                                                                                                                 |   |
 
 The node additionally connects to the map server providing the `HADMapService`.
@@ -50,7 +50,7 @@ The node additionally connects to the map server providing the `HADMapService`.
 
 | output topic | output type |
 |-----|---|
-| `/prediction/predicted_objects` | [`PredictedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/PredictedObjects.idl)  |
+| `/prediction/predicted_objects` | [`PredictedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/PredictedObjects.idl)  |
 
 <!-- ## Inner-workings / Algorithms -->
 <!-- If applicable -->

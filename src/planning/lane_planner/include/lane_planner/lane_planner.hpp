@@ -21,9 +21,9 @@
 
 #include <lane_planner/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
 #include <common/types.hpp>
 #include <motion_common/config.hpp>
 
@@ -43,11 +43,11 @@ namespace lane_planner
 using motion::motion_common::VehicleConfig;
 using motion::motion_common::to_angle;
 
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using TrajectoryPoints = std::vector<TrajectoryPoint>;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::Trajectory;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using Heading = decltype(decltype(State::state)::heading);
 
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
@@ -82,7 +82,7 @@ public:
     const LanePlannerConfig & planner_config);
 
   Trajectory plan_trajectory(
-    const autoware_auto_msgs::msg::HADMapRoute & had_map_route,
+    const autoware_auto_planning_msgs::msg::HADMapRoute & had_map_route,
     const LaneletMapConstPtr & map);
 
 private:

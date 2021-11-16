@@ -93,8 +93,8 @@ struct SubAndMsg
 
 TEST_P(JoyViTest, BasicMapping)
 {
-  using autoware_auto_msgs::msg::HeadlightsCommand;
-  using autoware_auto_msgs::msg::WipersCommand;
+  using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
+  using autoware_auto_vehicle_msgs::msg::WipersCommand;
 
   const auto param = GetParam();
   const std::string control_command =
@@ -106,13 +106,13 @@ TEST_P(JoyViTest, BasicMapping)
   const auto test_nd = std::make_shared<rclcpp::Node>("test_joystick_vehicle_interface_talker");
   const auto qos = rclcpp::SensorDataQoS{};
   const auto joy_pub = test_nd->create_publisher<sensor_msgs::msg::Joy>("joy", qos);
-  SubAndMsg<autoware_auto_msgs::msg::RawControlCommand>
+  SubAndMsg<autoware_auto_vehicle_msgs::msg::RawControlCommand>
   raw{*test_nd, (control_command == "raw") ? "raw_command" : "null"};
-  SubAndMsg<autoware_auto_msgs::msg::HighLevelControlCommand>
+  SubAndMsg<autoware_auto_control_msgs::msg::HighLevelControlCommand>
   high_level{*test_nd, (control_command == "high_level") ? "high_level_command" : "null"};
-  SubAndMsg<autoware_auto_msgs::msg::VehicleControlCommand>
+  SubAndMsg<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>
   basic{*test_nd, (control_command == "basic") ? "basic_command" : "null"};
-  SubAndMsg<autoware_auto_msgs::msg::VehicleStateCommand> state{*test_nd, "state_command"};
+  SubAndMsg<autoware_auto_vehicle_msgs::msg::VehicleStateCommand> state{*test_nd, "state_command"};
   SubAndMsg<std_msgs::msg::UInt8> recordreplay{*test_nd, "recordreplay_cmd"};
 
   ASSERT_NE(state.sub_, nullptr);
@@ -343,7 +343,7 @@ TEST_P(JoyViTest, BasicMapping)
   if (state.msg_) {
     EXPECT_EQ(joy_msg.header.stamp, state.msg_->stamp);
     // It's all buttons here
-    using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
+    using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
     // Toggle buttons depend on state
     // Since joy message is always the same, these buttons can be in one of two states
     const auto toggle_case1 =

@@ -21,7 +21,7 @@
 #include <string>
 #include <type_traits>
 
-#include "autoware_auto_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
@@ -116,13 +116,13 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   }
   // State commands
   m_state_cmd_pub =
-    create_publisher<autoware_auto_msgs::msg::VehicleStateCommand>(
+    create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>(
     "state_command",
     rclcpp::QoS{10U}.reliable().durability_volatile());
 
   // Headlights commands
   m_headlights_cmd_pub =
-    create_publisher<autoware_auto_msgs::msg::HeadlightsCommand>(
+    create_publisher<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>(
     "headlights_command",
     rclcpp::QoS{10U}.reliable().durability_volatile());
 
@@ -150,7 +150,7 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   // State command: modify state first
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
-    autoware_auto_msgs::msg::HeadlightsCommand headlights_cmd;
+    autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
     headlights_cmd.command = state_command.headlight;
     m_headlights_cmd_pub->publish(headlights_cmd);
     m_state_cmd_pub->publish(state_command);

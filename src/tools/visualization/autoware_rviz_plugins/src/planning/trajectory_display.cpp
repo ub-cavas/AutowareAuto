@@ -30,7 +30,7 @@ namespace rviz_plugins
 
 
 TrajectoryDisplay::TrajectoryDisplay()
-: rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::Trajectory>(),
+: rviz_common::RosTopicDisplay<autoware_auto_planning_msgs::msg::Trajectory>(),
   m_marker_common(std::make_unique<MarkerCommon>(this))
 {
   color_property_ = new rviz_common::properties::ColorProperty(

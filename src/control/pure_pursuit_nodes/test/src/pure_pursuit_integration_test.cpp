@@ -16,11 +16,11 @@
 
 #include <common/types.hpp>
 #include <rclcpp/rclcpp.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/control_diagnostic.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <pure_pursuit/pure_pursuit.hpp>
@@ -40,11 +40,11 @@ using autoware::common::types::bool8_t;
 namespace
 {
 
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using TrajectoryPointStamped = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPointStamped = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::motion::control::pure_pursuit::ControllerDiagnostic;
-using autoware_auto_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 
 constexpr auto PI = 3.14159F;
 

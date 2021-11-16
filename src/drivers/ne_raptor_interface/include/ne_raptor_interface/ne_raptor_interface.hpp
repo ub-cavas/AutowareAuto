@@ -53,18 +53,18 @@
 #include <raptor_dbw_msgs/msg/wiper_front.hpp>
 #include <raptor_dbw_msgs/msg/wiper_rear.hpp>
 
-#include <autoware_auto_msgs/msg/headlights_command.hpp>
-#include <autoware_auto_msgs/msg/wipers_command.hpp>
-#include <autoware_auto_msgs/msg/high_level_control_command.hpp>
-#include <autoware_auto_msgs/msg/raw_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-#include <autoware_auto_msgs/msg/hazard_lights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
+#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
-#include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
+#include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
 
 #include <std_msgs/msg/bool.hpp>
 #include <motion_common/motion_common.hpp>
@@ -109,23 +109,23 @@ using raptor_dbw_msgs::msg::TurnSignal;
 using raptor_dbw_msgs::msg::WiperFront;
 using raptor_dbw_msgs::msg::WiperRear;
 
-using autoware_auto_msgs::msg::HeadlightsCommand;
-using autoware_auto_msgs::msg::WipersCommand;
-using autoware_auto_msgs::msg::HighLevelControlCommand;
-using autoware_auto_msgs::msg::RawControlCommand;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::AckermannControlCommand;
-using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
+using autoware_auto_vehicle_msgs::msg::WipersCommand;
+using autoware_auto_control_msgs::msg::HighLevelControlCommand;
+using autoware_auto_vehicle_msgs::msg::RawControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 
-using autoware_auto_msgs::msg::HazardLightsCommand;
+using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 
-using autoware_auto_msgs::msg::VehicleStateReport;
-using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
-using autoware_auto_msgs::srv::AutonomyModeChange;
-using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
-using ModeChangeResponse = autoware_auto_msgs::srv::AutonomyModeChange_Response;
+using autoware_auto_vehicle_msgs::srv::AutonomyModeChange;
+using ModeChangeRequest = autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request;
+using ModeChangeResponse = autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Response;
 
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;

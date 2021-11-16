@@ -16,9 +16,9 @@
 #include <trajectory_spoofer/trajectory_spoofer.hpp>
 #include <trajectory_spoofer/trajectory_spoofer_node.hpp>
 
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <common/types.hpp>
 #include <time_utils/time_utils.hpp>
 
@@ -36,9 +36,9 @@
 #endif
 
 
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::trajectory_spoofer::TrajectorySpoofer;
 using autoware::trajectory_spoofer::TrajectorySpooferNode;
 

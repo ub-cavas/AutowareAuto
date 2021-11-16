@@ -26,15 +26,15 @@
 
 using namespace std::chrono_literals;
 
-using autoware_auto_msgs::msg::VehicleStateReport;
-using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::DrivingCapability;
-using autoware_auto_msgs::msg::AutowareState;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::EmergencyState;
-using autoware_auto_msgs::msg::HazardStatusStamped;
-using autoware_auto_msgs::msg::HazardStatus;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+using autoware_auto_system_msgs::msg::DrivingCapability;
+using autoware_auto_system_msgs::msg::AutowareState;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_system_msgs::msg::EmergencyState;
+using autoware_auto_system_msgs::msg::HazardStatusStamped;
+using autoware_auto_system_msgs::msg::HazardStatus;
 using autoware::emergency_handler::EmergencyHandlerNode;
 
 using diagnostic_msgs::msg::DiagnosticArray;
@@ -368,7 +368,7 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_no_input_data)
   // Node expect data after initialization: DrivingCapability, AutowareState, VehicleStateReport
   {
     auto msg = hazard_status_spy->expectMsg();
-    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    EXPECT_EQ(msg.status.level, autoware_auto_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
     ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
     EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
     EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
@@ -394,7 +394,7 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_autoware_
 
   {
     auto msg = hazard_status_spy->expectMsg();
-    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    EXPECT_EQ(msg.status.level, autoware_auto_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
     ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
     EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
     EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
@@ -420,7 +420,7 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_driving_c
 
   {
     auto msg = hazard_status_spy->expectMsg();
-    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    EXPECT_EQ(msg.status.level, autoware_auto_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
     ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
     EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
     EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");
@@ -446,7 +446,7 @@ TEST_F(EmergencyHandlerNodeTest, input_data_timeout_because_of_missing_vehicle_s
 
   {
     auto msg = hazard_status_spy->expectMsg();
-    EXPECT_EQ(msg.status.level, autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
+    EXPECT_EQ(msg.status.level, autoware_auto_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT);
     ASSERT_EQ(msg.status.diag_single_point_fault.size(), 1);
     EXPECT_EQ(msg.status.diag_single_point_fault[0].hardware_id, "emergency_handler");
     EXPECT_EQ(msg.status.diag_single_point_fault[0].name, "input_data_timeout");

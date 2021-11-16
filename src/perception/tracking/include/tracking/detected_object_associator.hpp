@@ -16,7 +16,7 @@
 
 #include <tracking/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <hungarian_assigner/hungarian_assigner.hpp>
 #include <tracking/objects_with_associations.hpp>
@@ -85,7 +85,7 @@ public:
   /// \param tracks List of tracks
   /// \return Returns Associator result struct
   Associations assign(
-    const autoware_auto_msgs::msg::DetectedObjects & detections,
+    const autoware_auto_perception_msgs::msg::DetectedObjects & detections,
     const TrackedObjects & tracks);
 
   const Associations & track_associations() const noexcept
@@ -99,11 +99,13 @@ private:
 
   /// \brief Loop through all detections and tracks and set weights between them in the assigner
   void compute_weights(
-    const autoware_auto_msgs::msg::DetectedObjects & detections, const TrackedObjects & tracks);
+    const autoware_auto_perception_msgs::msg::DetectedObjects & detections,
+    const TrackedObjects & tracks);
 
   /// \brief Check if the given track and detection are similar enough to compute weight
   bool consider_associating(
-    const autoware_auto_msgs::msg::DetectedObject & detection, const TrackedObject & track) const;
+    const autoware_auto_perception_msgs::msg::DetectedObject & detection,
+    const TrackedObject & track) const;
 
   /// Set weight in the assigner (Has to determine which idx is row and which is column)
   void set_weight(const float32_t weight, const size_t det_idx, const size_t track_idx);

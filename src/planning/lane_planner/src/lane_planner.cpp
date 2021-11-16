@@ -77,11 +77,11 @@ LanePlanner::LanePlanner(
 {
 }
 
-autoware_auto_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
+autoware_auto_planning_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
   const lanelet::ConstPoint3d & pt,
   const float32_t velocity)
 {
-  autoware_auto_msgs::msg::TrajectoryPoint trajectory_point;
+  autoware_auto_planning_msgs::msg::TrajectoryPoint trajectory_point;
   trajectory_point.x = static_cast<float32_t>(pt.x());
   trajectory_point.y = static_cast<float32_t>(pt.y());
   trajectory_point.longitudinal_velocity_mps = velocity;
@@ -89,13 +89,13 @@ autoware_auto_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
 }
 
 lanelet::Point3d convertToLaneletPoint(
-  const autoware_auto_msgs::msg::TrajectoryPoint & pt)
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
   return lanelet::Point3d(lanelet::InvalId, pt.x, pt.y, 0.0);
 }
 
 Trajectory LanePlanner::plan_trajectory(
-  const autoware_auto_msgs::msg::HADMapRoute & had_map_route,
+  const autoware_auto_planning_msgs::msg::HADMapRoute & had_map_route,
   const lanelet::LaneletMapConstPtr & map)
 {
   // generate trajectory. Only x, y, and velocity is filled in at this point

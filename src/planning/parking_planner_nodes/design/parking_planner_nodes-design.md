@@ -29,11 +29,11 @@ This node uses an action to control its behavior:
   It takes a while, and while it is running, it currently does not publish any updates. 
   This is because the bulk of the computation happens in 
 
-The actions are defined the `autoware_auto_msgs` package. 
+The actions are defined the `autoware_auto_planning_msgs` package. 
 
 Inputs:
 
-* Action call of type `autoware_auto_msgs/action/PlanTrajectory`
+* Action call of type `autoware_auto_planning_msgs/action/PlanTrajectory`
 
 Outputs:
 

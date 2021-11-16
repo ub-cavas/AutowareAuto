@@ -39,7 +39,7 @@ ApolloLidarSegmentationNode::ApolloLidarSegmentationNode(const rclcpp::NodeOptio
       "points_in",
       rclcpp::QoS{10},
       [this](const sensor_msgs::msg::PointCloud2::SharedPtr msg) {pointCloudCallback(msg);})},
-  m_box_pub_ptr{create_publisher<autoware_auto_msgs::msg::BoundingBoxArray>(
+  m_box_pub_ptr{create_publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>(
     "lidar_bounding_boxes",
     rclcpp::QoS{10})},
 m_marker_pub_ptr{create_publisher<visualization_msgs::msg::MarkerArray>(
@@ -62,7 +62,7 @@ m_detector_ptr{std::make_shared<apollo_lidar_segmentation::ApolloLidarSegmentati
 void ApolloLidarSegmentationNode::pointCloudCallback(
   const sensor_msgs::msg::PointCloud2::SharedPtr & msg)
 {
-  std::shared_ptr<const autoware_auto_msgs::msg::BoundingBoxArray> output_msg;
+  std::shared_ptr<const autoware_auto_perception_msgs::msg::BoundingBoxArray> output_msg;
   try {
     output_msg = m_detector_ptr->detectDynamicObjects(*msg);
   } catch (const std::exception & e) {

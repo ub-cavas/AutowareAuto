@@ -25,7 +25,7 @@
 #include <memory>
 #include <string>
 
-#include "autoware_auto_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
 
 using autoware::common::types::bool8_t;
 
@@ -61,17 +61,19 @@ private:
   /// Callback for joystick subscription: compute control and state command and publish
   JOYSTICK_VEHICLE_INTERFACE_NODES_LOCAL void on_joy(const sensor_msgs::msg::Joy::SharedPtr msg);
 
-  using HighLevelControl = autoware_auto_msgs::msg::HighLevelControlCommand;
-  using BasicControl = autoware_auto_msgs::msg::VehicleControlCommand;
-  using RawControl = autoware_auto_msgs::msg::RawControlCommand;
+  using HighLevelControl = autoware_auto_control_msgs::msg::HighLevelControlCommand;
+  using BasicControl = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+  using RawControl = autoware_auto_vehicle_msgs::msg::RawControlCommand;
   template<typename T>
   using PubT = typename rclcpp::Publisher<T>::SharedPtr;
 
   using ControlPub = mpark::variant<PubT<RawControl>, PubT<BasicControl>, PubT<HighLevelControl>>;
 
   ControlPub m_cmd_pub{};
-  rclcpp::Publisher<autoware_auto_msgs::msg::VehicleStateCommand>::SharedPtr m_state_cmd_pub{};
-  rclcpp::Publisher<autoware_auto_msgs::msg::HeadlightsCommand>::SharedPtr m_headlights_cmd_pub{};
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr m_state_cmd_pub
+  {};
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>::SharedPtr
+    m_headlights_cmd_pub{};
   rclcpp::Publisher<std_msgs::msg::UInt8>::SharedPtr m_recordreplay_cmd_pub{};
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr m_joy_sub{nullptr};
 };  // class JoystickVehicleInterfaceNode

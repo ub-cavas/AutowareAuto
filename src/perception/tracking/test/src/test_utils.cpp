@@ -14,7 +14,7 @@
 
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <gtest/gtest.h>
@@ -26,13 +26,13 @@ using autoware::common::geometry::point_adapter::y_;
 using autoware::common::geometry::point_adapter::z_;
 
 using CameraIntrinsics = autoware::perception::tracking::CameraIntrinsics;
-using ClassifiedRoi = autoware_auto_msgs::msg::ClassifiedRoi;
+using ClassifiedRoi = autoware_auto_perception_msgs::msg::ClassifiedRoi;
 using Projection = autoware::perception::tracking::Projection;
 using Point32 = geometry_msgs::msg::Point32;
-using Shape = autoware_auto_msgs::msg::Shape;
+using Shape = autoware_auto_perception_msgs::msg::Shape;
 
 std::vector<geometry_msgs::msg::Point32> expand_shape_to_vector(
-  const autoware_auto_msgs::msg::Shape & shape)
+  const autoware_auto_perception_msgs::msg::Shape & shape)
 {
   std::vector<geometry_msgs::msg::Point32> result{shape.polygon.points};
   const auto num_corners = shape.polygon.points.size();

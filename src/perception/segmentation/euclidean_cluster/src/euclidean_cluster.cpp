@@ -64,10 +64,10 @@ const PointXYZI & PointXYZIR::get_point() const
   return m_point;
 }
 ////////////////////////////////////////////////////////////////////////////////
-PointXYZIR::operator autoware_auto_msgs::msg::PointXYZIF() const
+PointXYZIR::operator autoware_auto_perception_msgs::msg::PointXYZIF() const
 {
   /*lint -e{1793} it's safe to call non-const member function on a temporary in this case*/
-  autoware_auto_msgs::msg::PointXYZIF ret;
+  autoware_auto_perception_msgs::msg::PointXYZIF ret;
 
   ret.x = m_point.x;
   ret.y = m_point.y;
@@ -249,9 +249,9 @@ void EuclideanCluster::add_point_to_last_cluster(Clusters & clusters, const Poin
   // overwrite the non-valid points, otherwise emplace new point
   if (clusters.cluster_boundary.back() < clusters.points.size()) {
     clusters.points[clusters.cluster_boundary.back()] =
-      static_cast<autoware_auto_msgs::msg::PointXYZIF>(pt);
+      static_cast<autoware_auto_perception_msgs::msg::PointXYZIF>(pt);
   } else {
-    clusters.points.emplace_back(static_cast<autoware_auto_msgs::msg::PointXYZIF>(pt));
+    clusters.points.emplace_back(static_cast<autoware_auto_perception_msgs::msg::PointXYZIF>(pt));
   }
   clusters.cluster_boundary.back() = clusters.cluster_boundary.back() + 1U;
 }

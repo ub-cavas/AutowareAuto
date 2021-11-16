@@ -24,7 +24,7 @@
 
 #include <tracking_test_framework/lidar.hpp>
 
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 
 #include <chrono>
 #include <memory>
@@ -52,7 +52,7 @@ public:
   /// returned or all
   /// \return returns the DetectedObjects filled with the TrackedObjects information in
   /// the scene
-  autoware_auto_msgs::msg::DetectedObjects get_detected_objects_array(
+  autoware_auto_perception_msgs::msg::DetectedObjects get_detected_objects_array(
     const bool closest_only) const;
 
 private:

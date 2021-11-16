@@ -17,18 +17,18 @@
 #include <parking_planner/parking_planner.hpp>
 #include <parking_planner/configuration.hpp>
 #include <parking_planner/geometry.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <lanelet2_core/primitives/Polygon.h>
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <had_map_utils/had_map_computation.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 #include <had_map_utils/had_map_visualization.hpp>
 #include <had_map_utils/had_map_query.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
-#include <autoware_auto_msgs/msg/had_map_bin.hpp>
+#include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <geometry/bounding_box/rotating_calipers.hpp>
 #include <motion_common/motion_common.hpp>
 #include <chrono>
@@ -63,9 +63,9 @@ using ParkerModelParameters =
 using ParkingPolytope = autoware::motion::planning::parking_planner::Polytope2D<float64_t>;
 using ParkingStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 
-using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::BoundingBoxArray;
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBox;
 
 using Point = geometry_msgs::msg::Point32;
 using autoware::common::types::float32_t;
@@ -164,12 +164,14 @@ void ParkingPlannerNode::init(
     "parking_debug_obstacles",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
-  m_debug_trajectory_publisher = this->create_publisher<autoware_auto_msgs::msg::Trajectory>(
+  m_debug_trajectory_publisher =
+    this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
     "parking_debug_trajectory",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
 
-  m_debug_start_end_publisher = this->create_publisher<autoware_auto_msgs::msg::BoundingBoxArray>(
+  m_debug_start_end_publisher =
+    this->create_publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>(
     "parking_debug_start_end",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }
@@ -187,7 +189,7 @@ HADMapService::Request ParkingPlannerNode::create_map_request(const HADMapRoute 
 {
   HADMapService::Request request{};
   request.requested_primitives.push_back(
-    autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
+    autoware_auto_mapping_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
 
   const auto BOX_PADDING = 10.0f;
   request.geom_upper_bound.push_back(

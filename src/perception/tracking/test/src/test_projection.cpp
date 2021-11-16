@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <tracking/projection.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <tracking/test_utils.hpp>
 #include <tf2_eigen/tf2_eigen.h>
@@ -25,7 +25,7 @@
 #include <limits>
 #include <vector>
 
-using Shape = autoware_auto_msgs::msg::Shape;
+using Shape = autoware_auto_perception_msgs::msg::Shape;
 using Polygon = Shape::_polygon_type;
 using Point32 = geometry_msgs::msg::Point32;
 using CameraModel = autoware::perception::tracking::CameraModel;
@@ -71,7 +71,7 @@ public:
   float32_t half_image_width{static_cast<float32_t>(image_width) / 2.0F};
   float32_t half_image_height{static_cast<float32_t>(image_heigth) / 2.0F};
   float32_t distance_from_origin{8.0F};
-  autoware_auto_msgs::msg::Shape rectangular_prism;
+  autoware_auto_perception_msgs::msg::Shape rectangular_prism;
 };
 
 /// \brief Project the prism's bottom face to the image plane. Since the prism and the camera

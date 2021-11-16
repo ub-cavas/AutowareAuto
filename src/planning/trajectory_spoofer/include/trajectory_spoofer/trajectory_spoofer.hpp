@@ -21,10 +21,10 @@
 
 #include <trajectory_spoofer/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/complex32.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <builtin_interfaces/msg/duration.hpp>
 #include <common/types.hpp>
 #include <rclcpp/duration.hpp>
@@ -37,11 +37,11 @@ namespace autoware
 {
 namespace trajectory_spoofer
 {
-using Complex32 = autoware_auto_msgs::msg::Complex32;
+using Complex32 = autoware_auto_geometry_msgs::msg::Complex32;
 using DurationMsg = builtin_interfaces::msg::Duration;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
-using VehicleKinematicState = autoware_auto_msgs::msg::VehicleKinematicState;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;

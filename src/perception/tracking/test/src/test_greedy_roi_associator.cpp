@@ -23,14 +23,14 @@
 using autoware::perception::tracking::TrackedObject;
 using autoware::perception::tracking::TrackedObjects;
 
-using autoware_auto_msgs::msg::DetectedObjects;
-using autoware_auto_msgs::msg::DetectedObject;
-using autoware_auto_msgs::msg::Shape;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::DetectedObject;
+using autoware_auto_perception_msgs::msg::Shape;
 using autoware::perception::tracking::Projection;
 using autoware::perception::tracking::CameraModel;
 using autoware::perception::tracking::CameraIntrinsics;
-using autoware_auto_msgs::msg::ClassifiedRoi;
-using autoware_auto_msgs::msg::ClassifiedRoiArray;
+using autoware_auto_perception_msgs::msg::ClassifiedRoi;
+using autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
 using geometry_msgs::msg::Point32;
 
 namespace tracking = autoware::perception::tracking;

@@ -292,7 +292,7 @@ std::vector<Polytope2D<float64_t>> convert_drivable_area_to_obstacles(
   return obstacles;
 }
 
-autoware_auto_msgs::msg::Trajectory convert_parking_planner_to_autoware_trajectory(
+autoware_auto_planning_msgs::msg::Trajectory convert_parking_planner_to_autoware_trajectory(
   const Trajectory<float64_t> & parking_trajectory)
 {
   // These constants come from parking_planner/configuration.hpp
@@ -300,13 +300,13 @@ autoware_auto_msgs::msg::Trajectory convert_parking_planner_to_autoware_trajecto
   const float32_t time_step = static_cast<float32_t>(INTEGRATION_STEP_SIZE);
 
   // Create one trajectory point for each parking planner trajectory point.
-  autoware_auto_msgs::msg::Trajectory trajectory{};
+  autoware_auto_planning_msgs::msg::Trajectory trajectory{};
   trajectory.header.frame_id = "map";
   for (const auto & step : parking_trajectory) {
     auto parking_state = step.get_state();
     auto parking_command = step.get_command();
 
-    autoware_auto_msgs::msg::TrajectoryPoint pt{};
+    autoware_auto_planning_msgs::msg::TrajectoryPoint pt{};
     pt.x = static_cast<float32_t>(parking_state.get_x());
     pt.y = static_cast<float32_t>(parking_state.get_y());
     pt.heading = from_angle(static_cast<float32_t>(parking_state.get_heading()));

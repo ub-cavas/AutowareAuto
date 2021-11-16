@@ -17,7 +17,7 @@
 #ifndef TRACKING__PROJECTION_HPP_
 #define TRACKING__PROJECTION_HPP_
 
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <geometry_msgs/msg/transform.hpp>

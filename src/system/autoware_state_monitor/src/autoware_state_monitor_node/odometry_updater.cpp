@@ -31,7 +31,7 @@ OdometryUpdater::OdometryUpdater(
 {}
 
 void OdometryUpdater::update(
-  const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
   if (!msg) {
     return;

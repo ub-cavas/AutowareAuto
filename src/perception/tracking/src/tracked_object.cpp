@@ -52,8 +52,8 @@ using CA = autoware::common::state_vector::ConstAccelerationXY64;
 using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
 using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
 using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
-using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
-using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
+using TrackedObjectMsg = autoware_auto_perception_msgs::msg::TrackedObject;
+using DetectedObjectMsg = autoware_auto_perception_msgs::msg::DetectedObject;
 
 EKF init_ekf(
   const DetectedObjectMsg & detection, float64_t default_variance,
@@ -156,7 +156,7 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
 
   // It needs to be determined which parts of the DetectedObject message are set, and can be used
   // to update the state. Also, even if a variable is set, its covariance might not be set.
-  autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped position;
+  autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped position;
   position.position.x = detection.kinematics.centroid_position.x;
   position.position.y = detection.kinematics.centroid_position.y;
   position.position.z = detection.kinematics.centroid_position.z;

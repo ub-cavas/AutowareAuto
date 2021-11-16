@@ -21,9 +21,9 @@
 #ifndef TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 #define TRACKING_NODES__MULTI_OBJECT_TRACKER_NODE_HPP_
 
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <message_filters/cache.h>
 #include <message_filters/subscriber.h>
@@ -53,9 +53,9 @@ namespace tracking_nodes
 ///        PoseWithCovairanceStamped (depends on use_ndt param) and produces TrackedObjects
 class TRACKING_NODES_PUBLIC MultiObjectTrackerNode : public rclcpp::Node
 {
-  using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-  using ClassifiedRoiArray = autoware_auto_msgs::msg::ClassifiedRoiArray;
-  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
+  using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
+  using ClassifiedRoiArray = autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
+  using ClustersMsg = autoware_auto_perception_msgs::msg::PointClusters;
   using OdometryMsg = nav_msgs::msg::Odometry;
   using PoseMsg = geometry_msgs::msg::PoseWithCovarianceStamped;
   using OdomCache = message_filters::Cache<OdometryMsg>;
@@ -102,9 +102,11 @@ private:
   std::unique_ptr<OdomCache> m_odom_cache{};
 
   /// A Publisher for tracked objects.
-  rclcpp::Publisher<autoware_auto_msgs::msg::TrackedObjects>::SharedPtr m_track_publisher{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::TrackedObjects>::SharedPtr m_track_publisher
+  {};
   /// A publisher for all the leftover objects.
-  rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_leftover_publisher{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_leftover_publisher{};
 
   // Visualization variables & functions
   void maybe_visualize(

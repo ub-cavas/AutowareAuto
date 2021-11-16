@@ -17,8 +17,8 @@
 #ifndef TRACKING__CLASSIFICATION_TRACKER_HPP_
 #define TRACKING__CLASSIFICATION_TRACKER_HPP_
 
-#include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_msgs/msg/object_classification.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <helper_functions/float_comparisons.hpp>
 #include <state_estimation/kalman_filter/kalman_filter.hpp>
 #include <state_estimation/measurement/linear_measurement.hpp>
@@ -78,7 +78,8 @@ public:
   /// @param[in]  classification_vector  A vector of classifications with their probabilities.
   ///
   void update(
-    const autoware_auto_msgs::msg::DetectedObject::_classification_type & classification_vector)
+    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type &
+    classification_vector)
   {
     update(classification_vector, m_default_observation_covariance);
   }
@@ -94,7 +95,8 @@ public:
   /// @param[in]  observation_covariance  A custom observation covariance.
   ///
   void update(
-    const autoware_auto_msgs::msg::DetectedObject::_classification_type & classification_vector,
+    const autoware_auto_perception_msgs::msg::DetectedObject::_classification_type &
+    classification_vector,
     const common::types::float32_t observation_covariance)
   {
     auto measurement =
@@ -118,7 +120,8 @@ public:
       // Any gap in the total probability mass contributes to the likelihood of an unknown state.
       std::cerr << "WARNING: Sum of all classification probabilities is less than one. "
         "Assigning the missing probability to the UNKNOWN class." << std::endl;
-      measurement.state()[autoware_auto_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F - sum;
+      measurement.state()[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN] =
+        1.0F - sum;
     }
     m_tracker.correct(measurement);
   }
@@ -141,11 +144,12 @@ public:
   ///
   /// @return     The object classification vector.
   ///
-  autoware_auto_msgs::msg::DetectedObject::_classification_type object_classification_vector() const
+  autoware_auto_perception_msgs::msg::DetectedObject::_classification_type
+  object_classification_vector() const
   {
-    autoware_auto_msgs::msg::DetectedObject::_classification_type classification_vector;
+    autoware_auto_perception_msgs::msg::DetectedObject::_classification_type classification_vector;
     for (uint8_t label = 0U; label < ClassificationStateT::size(); ++label) {
-      autoware_auto_msgs::msg::ObjectClassification object_classification;
+      autoware_auto_perception_msgs::msg::ObjectClassification object_classification;
       object_classification.classification = label;
       object_classification.probability = m_tracker.state()[label];
       classification_vector.emplace_back(object_classification);
@@ -170,7 +174,7 @@ private:
     assert_indices_match_classification_constants<ClassificationStateT>();
 
     ClassificationStateT initial_state{};
-    initial_state[autoware_auto_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F;
+    initial_state[autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN] = 1.0F;
     return initial_state;
   }
 

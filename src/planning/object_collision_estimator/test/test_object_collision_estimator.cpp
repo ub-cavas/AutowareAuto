@@ -26,10 +26,10 @@ using motion::planning::trajectory_smoother::TrajectorySmoother;
 using motion::motion_testing::constant_velocity_trajectory;
 using autoware::common::types::float32_t;
 using motion::motion_common::VehicleConfig;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_perception_msgs::msg::BoundingBox;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 
 const auto make_point(const float32_t x, const float32_t y)
 {

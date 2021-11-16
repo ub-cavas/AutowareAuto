@@ -19,7 +19,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <lidar_integration/visibility_control.hpp>
 #include <common/types.hpp>
 #include <string>
@@ -28,7 +28,7 @@ namespace lidar_integration
 {
 
 using sensor_msgs::msg::PointCloud2;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;

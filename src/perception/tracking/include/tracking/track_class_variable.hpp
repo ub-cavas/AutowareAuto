@@ -18,7 +18,7 @@
 #define TRACKING__TRACK_CLASS_VARIABLE_HPP_
 
 
-#include <autoware_auto_msgs/msg/object_classification.hpp>
+#include <autoware_auto_perception_msgs/msg/object_classification.hpp>
 #include <state_vector/generic_state.hpp>
 #include <state_vector/variable.hpp>
 
@@ -70,14 +70,14 @@ static inline void assert_indices_match_classification_constants()
 
 /// A common state used for classification in the tracker.
 using ObjectClassificationState = common::state_vector::FloatState<
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::UNKNOWN>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::CAR>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::TRUCK>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::BUS>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::TRAILER>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::MOTORCYCLE>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::BICYCLE>,
-  ClassificationVariable<autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN>>;
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::CAR>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::BUS>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE>,
+  ClassificationVariable<autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN>>;
 
 }  // namespace tracking
 }  // namespace perception

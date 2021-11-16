@@ -18,17 +18,17 @@
 
 #include <algorithm>
 
-#include "autoware_auto_msgs/msg/predicted_object.hpp"
-#include "autoware_auto_msgs/msg/predicted_object_kinematics.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_object.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_object_kinematics.hpp"
 
 namespace autoware
 {
 namespace prediction
 {
 geometry_msgs::msg::PoseWithCovariance make_pose(
-  const autoware_auto_msgs::msg::TrackedObjectKinematics & tracked)
+  const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked)
 {
-  using autoware_auto_msgs::msg::TrackedObjectKinematics;
+  using autoware_auto_perception_msgs::msg::TrackedObjectKinematics;
 
   geometry_msgs::msg::PoseWithCovariance pose;
   pose.pose.position = tracked.centroid_position;
@@ -66,11 +66,11 @@ geometry_msgs::msg::PoseWithCovariance make_pose(
   return pose;
 }
 
-autoware_auto_msgs::msg::PredictedObjects from_tracked(
-  const autoware_auto_msgs::msg::TrackedObjects & tracked)
+autoware_auto_perception_msgs::msg::PredictedObjects from_tracked(
+  const autoware_auto_perception_msgs::msg::TrackedObjects & tracked)
 {
   // safest initialization in cases new members are added to TrackedMsgT
-  autoware_auto_msgs::msg::PredictedObjects predicted{
+  autoware_auto_perception_msgs::msg::PredictedObjects predicted{
     rosidl_runtime_cpp::MessageInitialization::ZERO};
   predicted.header = tracked.header;
 
@@ -79,15 +79,15 @@ autoware_auto_msgs::msg::PredictedObjects from_tracked(
     tracked.objects.begin(),
     tracked.objects.end(),
     std::back_inserter(predicted.objects),
-    [](const autoware_auto_msgs::msg::TrackedObject & t) {return from_tracked(t);});
+    [](const autoware_auto_perception_msgs::msg::TrackedObject & t) {return from_tracked(t);});
 
   return predicted;
 }
 
-autoware_auto_msgs::msg::PredictedObject from_tracked(
-  const autoware_auto_msgs::msg::TrackedObject & tracked)
+autoware_auto_perception_msgs::msg::PredictedObject from_tracked(
+  const autoware_auto_perception_msgs::msg::TrackedObject & tracked)
 {
-  return autoware_auto_msgs::build<autoware_auto_msgs::msg::PredictedObject>()
+  return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::PredictedObject>()
          .object_id(tracked.object_id)
          .existence_probability(tracked.existence_probability)
          .classification(tracked.classification)
@@ -95,10 +95,11 @@ autoware_auto_msgs::msg::PredictedObject from_tracked(
          .shape(tracked.shape);
 }
 
-autoware_auto_msgs::msg::PredictedObjectKinematics from_tracked(
-  const autoware_auto_msgs::msg::TrackedObjectKinematics & tracked)
+autoware_auto_perception_msgs::msg::PredictedObjectKinematics from_tracked(
+  const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked)
 {
-  return autoware_auto_msgs::build<autoware_auto_msgs::msg::PredictedObjectKinematics>()
+  return autoware_auto_perception_msgs::build<
+    autoware_auto_perception_msgs::msg::PredictedObjectKinematics>()
          .initial_pose(make_pose(tracked))
          .initial_twist(tracked.twist)
          .initial_acceleration(tracked.acceleration)

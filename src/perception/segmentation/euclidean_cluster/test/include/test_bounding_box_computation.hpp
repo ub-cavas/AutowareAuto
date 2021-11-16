@@ -23,12 +23,12 @@
 
 #include "gtest/gtest.h"
 
-using Clusters = autoware_auto_msgs::msg::PointClusters;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
-using Pt = autoware_auto_msgs::msg::PointXYZIF;
+using Clusters = autoware_auto_perception_msgs::msg::PointClusters;
+using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
+using DetectedObject = autoware_auto_perception_msgs::msg::DetectedObject;
+using Pt = autoware_auto_perception_msgs::msg::PointXYZIF;
 
 using autoware::perception::segmentation::euclidean_cluster::details::compute_bounding_boxes;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
@@ -116,7 +116,7 @@ protected:
     ASSERT_EQ(object.classification.size(), 1U);
     EXPECT_EQ(
       object.classification[0U].classification,
-      autoware_auto_msgs::msg::ObjectClassification::UNKNOWN);
+      autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN);
     EXPECT_EQ(object.classification[0U].probability, 1.0F);
   }
 

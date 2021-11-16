@@ -20,7 +20,7 @@
 #ifndef MEASUREMENT_CONVERSION__MEASUREMENT_CONVERSION_HPP_
 #define MEASUREMENT_CONVERSION__MEASUREMENT_CONVERSION_HPP_
 
-#include <autoware_auto_msgs/msg/relative_position_with_covariance_stamped.hpp>
+#include <autoware_auto_geometry_msgs/msg/relative_position_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <geometry_msgs/msg/twist_with_covariance_stamped.hpp>
 #include <measurement_conversion/measurement_typedefs.hpp>
@@ -45,8 +45,8 @@ inline const geometry_msgs::msg::PoseWithCovariance & unstamp(
 {
   return msg.pose;
 }
-inline const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & unstamp(
-  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg) {return msg;}
+inline const autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped & unstamp(
+  const autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped & msg) {return msg;}
 
 }  // namespace detail
 
@@ -109,7 +109,7 @@ template<>
 struct MEASUREMENT_CONVERSION_PUBLIC convert_to<PoseMeasurementXYZ64>
 {
   static PoseMeasurementXYZ64 from(
-    const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg);
+    const autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped & msg);
 };
 
 }  // namespace state_estimation

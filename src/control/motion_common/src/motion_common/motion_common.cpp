@@ -216,7 +216,7 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept
 }
 }  // namespace motion_common
 }  // namespace motion
-namespace autoware_auto_msgs
+namespace autoware_auto_geometry_msgs
 {
 namespace msg
 {
@@ -246,4 +246,4 @@ Complex32 operator-(Complex32 a, Complex32 b) noexcept
   return a + (-b);
 }
 }  // namespace msg
-}  // namespace autoware_auto_msgs
+}  // namespace autoware_auto_geometry_msgs

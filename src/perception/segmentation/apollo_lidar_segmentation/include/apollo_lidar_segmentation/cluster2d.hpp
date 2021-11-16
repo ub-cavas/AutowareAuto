@@ -18,9 +18,9 @@
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 #include <pcl/point_cloud.h>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <common/types.hpp>
 
 #include <apollo_lidar_segmentation/disjoint_set.hpp>
@@ -101,13 +101,14 @@ public:
   ///                          object height by height_thresh are filtered out.
   /// \param[in] min_pts_num The candidate clusters with less than min_pts_num points are removed.
   /// \return The detected objects.
-  std::shared_ptr<autoware_auto_msgs::msg::BoundingBoxArray> getObjects(
+  std::shared_ptr<autoware_auto_perception_msgs::msg::BoundingBoxArray> getObjects(
     float32_t confidence_thresh, float32_t height_thresh, int32_t min_pts_num);
 
   /// \brief Transform an obstacle from the internal representation to the external one.
   /// \param[in] in_obstacle
   /// \return Output obstacle.
-  autoware_auto_msgs::msg::BoundingBox obstacleToObject(const Obstacle & in_obstacle) const;
+  autoware_auto_perception_msgs::msg::BoundingBox obstacleToObject(const Obstacle & in_obstacle)
+  const;
 
 private:
   const int32_t rows_;

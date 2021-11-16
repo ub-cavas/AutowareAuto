@@ -112,8 +112,8 @@ ambiguities between angles, and angle distances. In addition, it conveniently re
 precomputed sine and cosine values, obviating the need for additional computations.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_planning_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ### Vehicle Kinematic State Message
 
@@ -164,8 +164,8 @@ transforms would allow for a controller to properly follow the trajectory.
 and usage of this field.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ## Outputs
 
@@ -214,8 +214,8 @@ such as forklifts.
 **Rationale**: A frame is not provided since it is implied that it is fixed to the vehicle frame.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ### Controller Diagnostic Message
 
@@ -249,8 +249,8 @@ uint32 iterations
 behavior leading up to a fault. It can also be used for infotainment applications.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_system_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ## Behaviors
 

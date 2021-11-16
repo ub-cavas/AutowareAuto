@@ -41,9 +41,9 @@ using autoware::common::types::bool8_t;
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;
 
-std::pair<autoware_auto_msgs::msg::PointClusters::_points_type::iterator,
-  autoware_auto_msgs::msg::PointClusters::_points_type::iterator>
-get_cluster(autoware_auto_msgs::msg::PointClusters & clusters, const std::size_t cls_id)
+std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator,
+  autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator>
+get_cluster(autoware_auto_perception_msgs::msg::PointClusters & clusters, const std::size_t cls_id)
 {
   if (cls_id >= clusters.cluster_boundary.size()) {
     return {clusters.points.end(), clusters.points.end()};
@@ -62,9 +62,11 @@ get_cluster(autoware_auto_msgs::msg::PointClusters & clusters, const std::size_t
   return {clusters.points.begin() + cls_begin_offset, clusters.points.begin() + cls_end_offset};
 }
 
-std::pair<autoware_auto_msgs::msg::PointClusters::_points_type::const_iterator,
-  autoware_auto_msgs::msg::PointClusters::_points_type::const_iterator>
-get_cluster(const autoware_auto_msgs::msg::PointClusters & clusters, const std::size_t cls_id)
+std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator,
+  autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator>
+get_cluster(
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
+  const std::size_t cls_id)
 {
   if (cls_id >= clusters.cluster_boundary.size()) {
     return {clusters.points.end(), clusters.points.end()};

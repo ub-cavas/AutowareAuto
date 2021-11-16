@@ -94,7 +94,9 @@ AutowareStateMonitorNode::AutowareStateMonitorNode(const rclcpp::NodeOptions & n
 
   // Publisher
   pub_autoware_state_ =
-    this->create_publisher<autoware_auto_msgs::msg::AutowareState>("output/autoware_state", 1);
+    this->create_publisher<autoware_auto_system_msgs::msg::AutowareState>(
+    "output/autoware_state",
+    1);
 
   // Timer
   auto timer_callback = std::bind(&AutowareStateMonitorNode::onTimer, this);
@@ -120,7 +122,7 @@ void AutowareStateMonitorNode::onVehicleStateReport(
 
 void AutowareStateMonitorNode::onRoute(const HADMapRoute::ConstSharedPtr msg)
 {
-  using RoutePoint = autoware_auto_msgs::msg::RoutePoint;
+  using RoutePoint = autoware_auto_planning_msgs::msg::RoutePoint;
 
   state_input_.route = msg;
 
@@ -149,7 +151,9 @@ bool AutowareStateMonitorNode::onShutdownService(
   constexpr double timeout = 3.0;
 
   while (rclcpp::ok()) {
-    if (state_machine_->getCurrentState() == autoware_auto_msgs::msg::AutowareState::FINALIZING) {
+    if (state_machine_->getCurrentState() ==
+      autoware_auto_system_msgs::msg::AutowareState::FINALIZING)
+    {
       response->success = true;
       response->message = "Shutdown Autoware.";
       return true;
@@ -195,7 +199,7 @@ State AutowareStateMonitorNode::updateState()
 
 void AutowareStateMonitorNode::publishAutowareState(const State & state)
 {
-  autoware_auto_msgs::msg::AutowareState autoware_state_msg;
+  autoware_auto_system_msgs::msg::AutowareState autoware_state_msg;
   autoware_state_msg.stamp = get_clock()->now();
   autoware_state_msg.state = state;
   pub_autoware_state_->publish(autoware_state_msg);

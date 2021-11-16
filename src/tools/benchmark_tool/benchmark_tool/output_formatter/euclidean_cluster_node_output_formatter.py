@@ -19,7 +19,7 @@ from rclpy.qos import QoSProfile
 import numpy as np
 from benchmark_tool.output_formatter.output_formatter import OutputFormatter
 from benchmark_tool.utility import error, euler_from_quaternion
-from autoware_auto_msgs.msg import BoundingBoxArray
+from autoware_auto_perception_msgs.msg import BoundingBoxArray
 from benchmark_tool.kittiobjdetsdk.kitti_obj_detection_utils \
     import KittiObjDetectionUtils
 
@@ -116,15 +116,15 @@ class EuclideanClusterNodeOutputFormatter(OutputFormatter):
         Save a new text files containing all the detection using the kitti object detection format.
 
         This function is a callback for the euclidean_cluster_node output topic node.
-        Each autoware_auto_msgs.msg.BoundingBoxArray message received creates a text file whose
-        name is incremental.
+        Each autoware_auto_perception_msgs.msg.BoundingBoxArray message received creates a text
+        file whose name is incremental.
         In this function the output of the node is transformed and formatted into the format
         expected by the kitti object detection SDK.
         The kitti SDK expects data in camera rectified reference frame for the 3d data and it
         expects 2d coordinates into left color camera reference frame.
 
         @param msg: Received message from euclidean_cluster_node node
-        @type  msg: autoware_auto_msgs.msg.BoundingBoxArray
+        @type  msg: autoware_auto_perception_msgs.msg.BoundingBoxArray
         @return: None
         """
         assert isinstance(msg, BoundingBoxArray)

@@ -31,7 +31,7 @@ namespace perception
 namespace tracking
 {
 
-using autoware_auto_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
 using autoware::common::state_vector::variable::X;
 using autoware::common::state_vector::variable::Y;
 using autoware::common::types::float32_t;
@@ -124,7 +124,7 @@ void DetectedObjectAssociator::compute_weights(
 }
 
 bool DetectedObjectAssociator::consider_associating(
-  const autoware_auto_msgs::msg::DetectedObject & detection,
+  const autoware_auto_perception_msgs::msg::DetectedObject & detection,
   const TrackedObject & track) const
 {
   const auto get_shortest_edge_size_squared = [&]() -> float32_t {

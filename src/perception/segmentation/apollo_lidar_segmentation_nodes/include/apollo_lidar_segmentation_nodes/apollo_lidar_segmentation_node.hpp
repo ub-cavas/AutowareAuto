@@ -39,7 +39,8 @@ class APOLLO_LIDAR_SEGMENTATION_NODES_PUBLIC ApolloLidarSegmentationNode : publi
 {
 private:
   const rclcpp::Subscription<sensor_msgs::msg::PointCloud2>::SharedPtr m_cloud_sub_ptr;
-  const rclcpp::Publisher<autoware_auto_msgs::msg::BoundingBoxArray>::SharedPtr m_box_pub_ptr;
+  const rclcpp::Publisher<autoware_auto_perception_msgs::msg::BoundingBoxArray>::SharedPtr
+    m_box_pub_ptr;
   const rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_marker_pub_ptr;
   const std::shared_ptr<apollo_lidar_segmentation::ApolloLidarSegmentation> m_detector_ptr;
   /// \brief Main callback function.

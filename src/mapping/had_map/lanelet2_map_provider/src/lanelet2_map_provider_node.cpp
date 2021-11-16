@@ -33,8 +33,8 @@
 #include <memory>
 #include <utility>
 
-#include "autoware_auto_msgs/srv/had_map_service.hpp"
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 #include "had_map_utils/had_map_conversion.hpp"
 #include "had_map_utils/had_map_query.hpp"
 
@@ -66,7 +66,7 @@ Lanelet2MapProviderNode::Lanelet2MapProviderNode(const rclcpp::NodeOptions & opt
   }
 
   m_map_service =
-    this->create_service<autoware_auto_msgs::srv::HADMapService>(
+    this->create_service<autoware_auto_mapping_msgs::srv::HADMapService>(
     "HAD_Map_Service", std::bind(
       &Lanelet2MapProviderNode::handle_request, this,
       std::placeholders::_1, std::placeholders::_2));
@@ -105,10 +105,10 @@ geometry_msgs::msg::TransformStamped Lanelet2MapProviderNode::get_map_origin()
 // This function should extract requested correct submap from the fullmap
 // convert to binary format and then fill response
 void Lanelet2MapProviderNode::handle_request(
-  std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Request> request,
-  std::shared_ptr<autoware_auto_msgs::srv::HADMapService_Response> response)
+  std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Request> request,
+  std::shared_ptr<autoware_auto_mapping_msgs::srv::HADMapService_Response> response)
 {
-  autoware_auto_msgs::msg::HADMapBin msg;
+  autoware_auto_mapping_msgs::msg::HADMapBin msg;
   msg.header.frame_id = "map";
 
   // TODO(simon) add map version and format information to message header
@@ -119,7 +119,7 @@ void Lanelet2MapProviderNode::handle_request(
 
   // special case where we send existing map as is
   if (primitive_sequence.size() == 1 && *(primitive_sequence.begin()) ==
-    autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP)
+    autoware_auto_mapping_msgs::srv::HADMapService_Request::FULL_MAP)
   {
     autoware::common::had_map_utils::toBinaryMsg(m_map_provider->m_map, msg);
     response->map = msg;
@@ -144,7 +144,7 @@ void Lanelet2MapProviderNode::handle_request(
   }
 
   for (auto primitive : primitive_sequence) {
-    if (primitive == autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY) {
+    if (primitive == autoware_auto_mapping_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY) {
       lanelet::LineStrings3d linestrings;
 
       if (!geom_bound_requested) {

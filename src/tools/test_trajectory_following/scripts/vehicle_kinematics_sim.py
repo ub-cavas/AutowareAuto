@@ -19,8 +19,8 @@ import math
 import rclpy
 from rclpy.node import Node
 
-from autoware_auto_msgs.msg import VehicleKinematicState
-from autoware_auto_msgs.msg import VehicleControlCommand
+from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
+from autoware_auto_vehicle_msgs.msg import VehicleControlCommand
 
 from rclpy.qos import QoSProfile
 from rclpy.duration import Duration

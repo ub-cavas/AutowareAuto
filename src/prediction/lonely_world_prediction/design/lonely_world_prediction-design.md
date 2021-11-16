@@ -34,7 +34,7 @@ and call
 
 ```cpp
 void predict_stationary(
-  autoware_auto_msgs::msg::PredictedObjects & predicted_objects,
+  autoware_auto_perception_msgs::msg::PredictedObjects & predicted_objects,
   const autoware::prediction::Parameters & parameters);
 ```
 
@@ -44,15 +44,15 @@ the initial state is preserved in the output but ignored for the purpose of pred
 prediction may be unphysical.
 
 The
-[`PredictedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/PredictedObjects.idl)
+[`PredictedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/PredictedObjects.idl)
 can be initialized from
-[`TrackedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/TrackedObjects.idl)
+[`TrackedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/TrackedObjects.idl)
 using
 
 ```cpp
 // #include "lonely_world_prediction/init_from_tracked.hpp"
-autoware_auto_msgs::msg::PredictedObjects
-from_tracked(const autoware_auto_msgs::msg::TrackedObjects &);
+autoware_auto_perception_msgs::msg::PredictedObjects
+from_tracked(const autoware_auto_perception_msgs::msg::TrackedObjects &);
 ```
 
 The [Parameters](@ref autoware::prediction::Parameters) define the

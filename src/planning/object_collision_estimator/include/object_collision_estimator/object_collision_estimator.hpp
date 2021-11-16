@@ -15,10 +15,10 @@
 #ifndef OBJECT_COLLISION_ESTIMATOR__OBJECT_COLLISION_ESTIMATOR_HPP_
 #define OBJECT_COLLISION_ESTIMATOR__OBJECT_COLLISION_ESTIMATOR_HPP_
 
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
 #include <motion_common/config.hpp>
 #include <trajectory_smoother/trajectory_smoother.hpp>
 #include <common/types.hpp>
@@ -37,10 +37,10 @@ namespace object_collision_estimator
 
 using motion::motion_common::VehicleConfig;
 using motion::planning::trajectory_smoother::TrajectorySmoother;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::BoundingBox;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_perception_msgs::msg::BoundingBox;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware::common::types::float32_t;
 using autoware::common::types::PI;
 

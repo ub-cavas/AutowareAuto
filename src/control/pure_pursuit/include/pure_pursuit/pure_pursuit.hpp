@@ -17,10 +17,10 @@
 #ifndef PURE_PURSUIT__PURE_PURSUIT_HPP_
 #define PURE_PURSUIT__PURE_PURSUIT_HPP_
 
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <controller_common/controller_base.hpp>
 #include <utility>
 #include "pure_pursuit/config.hpp"
@@ -34,11 +34,11 @@ namespace control
 /// \brief Resources relating to the pure pursuit package
 namespace pure_pursuit
 {
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
-using TrajectoryPointStamped = autoware_auto_msgs::msg::VehicleKinematicState;
-using ControllerDiagnostic = autoware_auto_msgs::msg::ControlDiagnostic;
-using VehicleControlCommand = autoware_auto_msgs::msg::VehicleControlCommand;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPointStamped = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using ControllerDiagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
+using VehicleControlCommand = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 
 /// \brief Given a trajectory and the current state, compute the control command
 class PURE_PURSUIT_PUBLIC PurePursuit

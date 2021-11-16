@@ -156,7 +156,7 @@ MpcControllerNode::MpcControllerNode(const std::string & name, const std::string
     const auto cycle_duration =
       std::chrono::milliseconds{debug_cycle_duration_param.get<std::int64_t>()};
     if (decltype(cycle_duration)::zero() != cycle_duration) {
-      m_debug_traj_pub = create_publisher<autoware_auto_msgs::msg::Trajectory>(
+      m_debug_traj_pub = create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
         "mpc_debug_computed_trajectory",
         rclcpp::QoS{10LL});
       const auto debug_publish = [this, ctrl_ptr]() -> void {

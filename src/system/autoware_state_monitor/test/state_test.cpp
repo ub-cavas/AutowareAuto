@@ -18,13 +18,13 @@
 
 #include "gtest/gtest.h"
 
-#include "autoware_auto_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_system_msgs/msg/autoware_state.hpp"
 
 #include "test_utils.hpp"
 
 using autoware::state_monitor::State;
 using autoware::state_monitor::toString;
-using autoware_auto_msgs::msg::AutowareState;
+using autoware_auto_system_msgs::msg::AutowareState;
 
 TEST(StateTest, autoware_state_to_string)
 {

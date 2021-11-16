@@ -41,11 +41,11 @@ Parameters:
 
 Inputs:
 
-* `autoware_auto_msgs/msg/VehicleKinematicState` is the state that is set as the starting point and also triggers trajectory publishing
+* `autoware_auto_vehicle_msgs/msg/VehicleKinematicState` is the state that is set as the starting point and also triggers trajectory publishing
 
 Outputs:
 
-* `autoware_auto_msgs/msg/Trajectory` is the trajectory that gets published
+* `autoware_auto_planning_msgs/msg/Trajectory` is the trajectory that gets published
 
 Launch:
 

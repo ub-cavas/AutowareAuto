@@ -25,7 +25,7 @@
 #include <apollo_lidar_segmentation/visibility_control.hpp>
 #include <tvm_utility/pipeline.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <common/types.hpp>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_ros/transform_listener.h>
@@ -46,7 +46,7 @@ namespace apollo_lidar_segmentation
 {
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using tvm_utility::pipeline::TVMArrayContainer;
 using tvm_utility::pipeline::TVMArrayContainerVector;
 

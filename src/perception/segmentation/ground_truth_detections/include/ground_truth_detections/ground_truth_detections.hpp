@@ -23,9 +23,9 @@
 
 #include <ground_truth_detections/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_object_kinematics.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object_kinematics.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <lgsvl_msgs/msg/detection2_d_array.hpp>
 #include <lgsvl_msgs/msg/detection3_d_array.hpp>
@@ -45,7 +45,8 @@ namespace ground_truth_detections
  * @param label The label of an detection assumed to come from SVL
  * @return the classification
  */
-autoware_auto_msgs::msg::ObjectClassification GROUND_TRUTH_DETECTIONS_PUBLIC make_classification(
+autoware_auto_perception_msgs::msg::ObjectClassification GROUND_TRUTH_DETECTIONS_PUBLIC
+make_classification(
   const std::string & label);
 
 /**
@@ -63,7 +64,8 @@ geometry_msgs::msg::Polygon GROUND_TRUTH_DETECTIONS_PUBLIC make_polygon(
  *
  * @param detection The 3D input detection
  */
-autoware_auto_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC make_kinematics(
+autoware_auto_perception_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC
+make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection);
 
 /**
@@ -79,7 +81,7 @@ autoware_auto_msgs::msg::DetectedObjectKinematics GROUND_TRUTH_DETECTIONS_PUBLIC
  *
  * @param detection The 3D input detection
  */
-autoware_auto_msgs::msg::Shape GROUND_TRUTH_DETECTIONS_PUBLIC make_shape(
+autoware_auto_perception_msgs::msg::Shape GROUND_TRUTH_DETECTIONS_PUBLIC make_shape(
   const lgsvl_msgs::msg::Detection3D & detection);
 
 }  // namespace ground_truth_detections

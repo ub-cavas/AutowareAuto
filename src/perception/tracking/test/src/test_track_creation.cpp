@@ -28,11 +28,11 @@
 using autoware::perception::tracking::AssociatorResult;
 using autoware::perception::tracking::CameraModel;
 using autoware::perception::tracking::CameraIntrinsics;
-using autoware_auto_msgs::msg::ClassifiedRoi;
-using autoware_auto_msgs::msg::ClassifiedRoiArray;
+using autoware_auto_perception_msgs::msg::ClassifiedRoi;
+using autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
 using autoware::perception::tracking::TrackCreationPolicy;
-using autoware_auto_msgs::msg::DetectedObject;
-using autoware_auto_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::DetectedObject;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
 using autoware::perception::tracking::TrackedObject;
 using autoware::perception::tracking::VisionPolicyConfig;
 using autoware::perception::tracking::TrackCreator;

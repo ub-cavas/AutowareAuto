@@ -45,7 +45,7 @@ public:
     const mpc_controller::Config & config);
 
 private:
-  rclcpp::Publisher<autoware_auto_msgs::msg::Trajectory>::SharedPtr m_debug_traj_pub{};
+  rclcpp::Publisher<autoware_auto_planning_msgs::msg::Trajectory>::SharedPtr m_debug_traj_pub{};
   rclcpp::TimerBase::SharedPtr m_debug_timer{};
 };  // class MpcControllerNode
 }  // namespace mpc_controller_nodes

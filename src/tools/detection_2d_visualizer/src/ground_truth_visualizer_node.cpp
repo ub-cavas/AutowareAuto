@@ -44,7 +44,7 @@ GroundTruthVisualizerNode::GroundTruthVisualizerNode(const rclcpp::NodeOptions &
 
 void GroundTruthVisualizerNode::process(
   sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg,
-  autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg)
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg)
 {
   constexpr std::int32_t thickness = 5;
   const cv::Scalar color{0, 255, 0};

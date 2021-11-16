@@ -19,7 +19,7 @@
 
 #include <deque>
 
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
 
 namespace autoware
@@ -28,7 +28,7 @@ namespace state_monitor
 {
 
 /// \brief Buffer for odometry messages storage
-using OdometryBuffer = std::deque<autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr>;
+using OdometryBuffer = std::deque<autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr>;
 
 }  // namespace state_monitor
 }  // namespace autoware

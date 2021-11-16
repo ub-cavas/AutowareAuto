@@ -72,7 +72,7 @@ void test_segmentation(bool use_intensity_feature, bool use_constant_feature, bo
   input.is_dense = false;
   input.data = v;
 
-  std::shared_ptr<const autoware_auto_msgs::msg::BoundingBoxArray> output;
+  std::shared_ptr<const autoware_auto_perception_msgs::msg::BoundingBoxArray> output;
   bool has_thrown = false;
   try {
     output = segmentation.detectDynamicObjects(input);

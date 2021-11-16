@@ -39,8 +39,9 @@ namespace tracking
 {
 namespace
 {
-using Classification = autoware_auto_msgs::msg::ObjectClassification;
-using ClassificationsType = autoware_auto_msgs::msg::DetectedObject::_classification_type;
+using Classification = autoware_auto_perception_msgs::msg::ObjectClassification;
+using ClassificationsType =
+  autoware_auto_perception_msgs::msg::DetectedObject::_classification_type;
 static const ClassificationsType kUnknownClass = {
   Classification{}.set__classification(Classification::UNKNOWN).set__probability(1.0F)};
 static constexpr float32_t KLidarClassificationCovariance = 1.0F;
@@ -49,10 +50,10 @@ static constexpr float32_t kVisionClassificationCovariance = 0.1F;
 using autoware::common::types::float64_t;
 using geometry_msgs::build;
 using geometry_msgs::msg::Point32;
-using autoware_auto_msgs::msg::DetectedObjects;
-using autoware_auto_msgs::msg::DetectedObjectKinematics;
+using autoware_auto_perception_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::DetectedObjectKinematics;
 using nav_msgs::msg::Odometry;
-using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
+using TrackedObjectsMsg = autoware_auto_perception_msgs::msg::TrackedObjects;
 
 bool is_gravity_aligned(const geometry_msgs::msg::Quaternion & quat)
 {

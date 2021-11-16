@@ -21,7 +21,7 @@
 
 #include <lidar_utils/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <common/types.hpp>
 #include <geometry/common_3d.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -80,18 +80,20 @@ LIDAR_UTILS_PUBLIC SafeCloudIndices sanitize_point_cloud(const sensor_msgs::msg:
 /// \param[in] cls_id The id of the target cluster
 /// \return Pointers pair which are begin and end of the target cluster in clusters points
 LIDAR_UTILS_PUBLIC
-std::pair<autoware_auto_msgs::msg::PointClusters::_points_type::iterator,
-  autoware_auto_msgs::msg::PointClusters::_points_type::iterator>
-get_cluster(autoware_auto_msgs::msg::PointClusters & clusters, const std::size_t cls_id);
+std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator,
+  autoware_auto_perception_msgs::msg::PointClusters::_points_type::iterator>
+get_cluster(autoware_auto_perception_msgs::msg::PointClusters & clusters, const std::size_t cls_id);
 
 /// \brief Get cluster from clusters based on the cluster id
 /// \param[in] clusters The clusters object
 /// \param[in] cls_id The id of the target cluster
 /// \return Pointers pair which are begin and end of the target cluster in clusters points
 LIDAR_UTILS_PUBLIC
-std::pair<autoware_auto_msgs::msg::PointClusters::_points_type::const_iterator,
-  autoware_auto_msgs::msg::PointClusters::_points_type::const_iterator>
-get_cluster(const autoware_auto_msgs::msg::PointClusters & clusters, const std::size_t cls_id);
+std::pair<autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator,
+  autoware_auto_perception_msgs::msg::PointClusters::_points_type::const_iterator>
+get_cluster(
+  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
+  const std::size_t cls_id);
 
 
 /// Check that the pointcloud msg has x, y, z of type float32_t as the first three fields,

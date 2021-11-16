@@ -24,10 +24,10 @@
 
 // Autoware packages
 #include <common/types.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
 // lanelet headers
 #include <lanelet2_core/LaneletMap.h>
@@ -52,11 +52,11 @@ constexpr const char Lane[] = "lane";
 }  // namespace PrimitiveType
 
 
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::MapPrimitive;
-using autoware_auto_msgs::msg::RoutePoint;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_mapping_msgs::msg::MapPrimitive;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 
 using autoware::common::types::uchar8_t;
 using autoware::common::types::bool8_t;

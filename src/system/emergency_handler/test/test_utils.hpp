@@ -24,9 +24,9 @@
 #include "rclcpp/time.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
 
-using autoware_auto_msgs::msg::VehicleOdometry;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
 
 template<typename T,
   typename = typename std::enable_if<rosidl_generator_traits::is_message<T>::value>::type>

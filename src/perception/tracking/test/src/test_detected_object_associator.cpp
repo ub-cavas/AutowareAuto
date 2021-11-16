@@ -20,11 +20,11 @@
 
 #include <vector>
 
-using TrackedObjects = autoware_auto_msgs::msg::TrackedObjects;
-using TrackedObject = autoware_auto_msgs::msg::TrackedObject;
+using TrackedObjects = autoware_auto_perception_msgs::msg::TrackedObjects;
+using TrackedObject = autoware_auto_perception_msgs::msg::TrackedObject;
 
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
-using DetectedObject = autoware_auto_msgs::msg::DetectedObject;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
+using DetectedObject = autoware_auto_perception_msgs::msg::DetectedObject;
 
 namespace tracking = autoware::perception::tracking;
 
@@ -48,9 +48,9 @@ protected:
   }
 
   // Square will be centered on origin since vertices are not used for any check except area
-  autoware_auto_msgs::msg::Shape create_square(float area)
+  autoware_auto_perception_msgs::msg::Shape create_square(float area)
   {
-    autoware_auto_msgs::msg::Shape shape;
+    autoware_auto_perception_msgs::msg::Shape shape;
     const float side_length = std::sqrt(area);
 
     shape.polygon.points.push_back(

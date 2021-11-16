@@ -78,11 +78,11 @@ of the mapping between steering wheel angle to wheel angle.
 **Rationale**: The rear wheel angle is also provided to enable support for rear drive vehicles,
 such as forklifts.
 
-**Rational**: A frame is not provided since it is implied that it is fixed to the vehicle frame.
+**Rationale**: A frame is not provided since it is implied that it is fixed to the vehicle frame.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ### Vehicle State Command Message
 
@@ -142,8 +142,8 @@ gears, etc.), this message only prescribes the minimal set of states that most o
 can satisfy.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 
 ## Outputs
@@ -185,8 +185,8 @@ vehicle interface is acting as a sensor driver.
 frame, and heading information is not available.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ### Vehicle State Report Message
 
@@ -240,8 +240,8 @@ manual, and two modes of unintentionally being in manual mode: due to preconditi
 or due to some failure of the autonomous driving stack.
 
 For more details on the message, see the formal message definition in the package
-`autoware_auto_msgs`. While this message and it's rationales are duplicated here for convenience,
-the message package should be taken as the source of truth.
+`autoware_auto_vehicle_msgs`. While this message and its rationales are duplicated here for
+convenience, the message package should be taken as the source of truth.
 
 ## Behaviors
 

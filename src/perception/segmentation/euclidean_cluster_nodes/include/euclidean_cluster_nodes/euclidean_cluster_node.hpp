@@ -20,10 +20,10 @@
 #define EUCLIDEAN_CLUSTER_NODES__EUCLIDEAN_CLUSTER_NODE_HPP_
 
 #include <rclcpp/rclcpp.hpp>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <euclidean_cluster_nodes/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <euclidean_cluster/euclidean_cluster.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
@@ -44,9 +44,9 @@ using autoware::common::types::bool8_t;
 using Clusters = euclidean_cluster::Clusters;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
 /// \brief Combined object detection node, primarily does clustering, can also do in-place
 ///        downsampling and bounding box formation
 class EUCLIDEAN_CLUSTER_NODES_PUBLIC EuclideanClusterNode : public rclcpp::Node

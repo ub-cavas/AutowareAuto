@@ -16,7 +16,7 @@
 
 #include <gtest/gtest.h>
 #include <common/types.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <motion_common/motion_common.hpp>
 #include <osrf_testing_tools_cpp/memory_tools/memory_tools.hpp>
 #include <time_utils/time_utils.hpp>
@@ -27,12 +27,12 @@
 
 using autoware::motion::control::pure_pursuit::Config;
 using autoware::motion::control::pure_pursuit::PurePursuit;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using TrajectoryPointStamped = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using TrajectoryPointStamped = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::motion::control::pure_pursuit::ControllerDiagnostic;
 using ::motion::motion_common::from_angle;
-using autoware_auto_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using autoware::common::types::float32_t;
 
 constexpr auto PI = 3.14159F;

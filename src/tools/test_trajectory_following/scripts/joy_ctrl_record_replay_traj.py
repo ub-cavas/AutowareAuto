@@ -20,11 +20,11 @@ import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
 
-from autoware_auto_msgs.msg import VehicleKinematicState
+from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
 from std_msgs.msg import UInt8
 
-from autoware_auto_msgs.action import RecordTrajectory
-from autoware_auto_msgs.action import ReplayTrajectory
+from autoware_auto_planning_msgs.action import RecordTrajectory
+from autoware_auto_planning_msgs.action import ReplayTrajectory
 
 
 class InternalState(IntEnum):

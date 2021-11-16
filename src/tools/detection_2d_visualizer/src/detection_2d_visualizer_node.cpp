@@ -52,8 +52,8 @@ Detection2dVisualizerNode::Detection2dVisualizerNode(const rclcpp::NodeOptions &
 
 void Detection2dVisualizerNode::process(
   sensor_msgs::msg::CompressedImage::ConstSharedPtr img_msg,
-  autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg,
-  autoware_auto_msgs::msg::ClassifiedRoiArray::ConstSharedPtr projection_msg)
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray::ConstSharedPtr roi_msg,
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray::ConstSharedPtr projection_msg)
 {
   static const cv::Scalar ground_truth_color{0, 255, 0};
   static const cv::Scalar projection_color{0, 0, 255};

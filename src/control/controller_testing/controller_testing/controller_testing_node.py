@@ -18,12 +18,12 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.time import Time
 
-from autoware_auto_msgs.msg import Complex32
-from autoware_auto_msgs.msg import ControlDiagnostic
-from autoware_auto_msgs.msg import Trajectory
-from autoware_auto_msgs.msg import TrajectoryPoint
-from autoware_auto_msgs.msg import VehicleKinematicState
-from autoware_auto_msgs.msg import VehicleControlCommand
+from autoware_auto_geometry_msgs.msg import Complex32
+from autoware_auto_system_msgs.msg import ControlDiagnostic
+from autoware_auto_planning_msgs.msg import Trajectory
+from autoware_auto_planning_msgs.msg import TrajectoryPoint
+from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
+from autoware_auto_vehicle_msgs.msg import VehicleControlCommand
 
 from geometry_msgs.msg import TransformStamped
 from tf2_msgs.msg import TFMessage

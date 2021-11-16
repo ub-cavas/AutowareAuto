@@ -18,9 +18,9 @@
 #define TRACKING__OBJECTS_WITH_ASSOCIATIONS_HPP_
 
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <tracking/visibility_control.hpp>
 
 #include <utility>
@@ -39,7 +39,7 @@ template<class MsgT>
 std::size_t get_size(const MsgT & msg);
 
 template<>
-inline std::size_t get_size(const autoware_auto_msgs::msg::DetectedObjects & msg)
+inline std::size_t get_size(const autoware_auto_perception_msgs::msg::DetectedObjects & msg)
 {
   return msg.objects.size();
 }
@@ -108,9 +108,9 @@ private:
   Associations m_associations;
 };
 
-using ObjectsWithAssociations = Associated<autoware_auto_msgs::msg::DetectedObjects>;
-using RoisWithAssociations = Associated<autoware_auto_msgs::msg::ClassifiedRoiArray>;
-using TracksWithAssociations = Associated<autoware_auto_msgs::msg::ClassifiedRoiArray>;
+using ObjectsWithAssociations = Associated<autoware_auto_perception_msgs::msg::DetectedObjects>;
+using RoisWithAssociations = Associated<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
+using TracksWithAssociations = Associated<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>;
 
 }  // namespace tracking
 }  // namespace perception

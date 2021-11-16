@@ -25,6 +25,10 @@
 #include <vehicle_interface/platform_interface.hpp>
 #include <vehicle_interface/dbw_state_machine.hpp>
 
+#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
+
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+
 #include <automotive_platform_msgs/msg/gear_command.hpp>
 #include <automotive_platform_msgs/msg/gear_feedback.hpp>
 #include <automotive_platform_msgs/msg/speed_mode.hpp>
@@ -32,16 +36,16 @@
 #include <automotive_platform_msgs/msg/steer_mode.hpp>
 #include <automotive_platform_msgs/msg/turn_signal_command.hpp>
 #include <automotive_platform_msgs/msg/velocity_accel_cov.hpp>
-#include <autoware_auto_msgs/msg/headlights_command.hpp>
-#include <autoware_auto_msgs/msg/high_level_control_command.hpp>
-#include <autoware_auto_msgs/msg/raw_control_command.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/ackermann_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
-#include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
+
+#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
+#include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
+
 #include <std_msgs/msg/bool.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -62,16 +66,16 @@ using automotive_platform_msgs::msg::SteeringFeedback;
 using automotive_platform_msgs::msg::SteerMode;
 using automotive_platform_msgs::msg::TurnSignalCommand;
 using automotive_platform_msgs::msg::VelocityAccelCov;
-using autoware_auto_msgs::msg::HeadlightsCommand;
-using autoware_auto_msgs::msg::HighLevelControlCommand;
-using autoware_auto_msgs::msg::RawControlCommand;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::AckermannControlCommand;
-using autoware_auto_msgs::msg::VehicleKinematicState;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::srv::AutonomyModeChange;
-using ModeChangeRequest = autoware_auto_msgs::srv::AutonomyModeChange_Request;
+using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
+using autoware_auto_control_msgs::msg::HighLevelControlCommand;
+using autoware_auto_vehicle_msgs::msg::RawControlCommand;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::srv::AutonomyModeChange;
+using ModeChangeRequest = autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request;
 
 using autoware::drivers::vehicle_interface::DbwStateMachine;
 using autoware::drivers::vehicle_interface::DbwState;

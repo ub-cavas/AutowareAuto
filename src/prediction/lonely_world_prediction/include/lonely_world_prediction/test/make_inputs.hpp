@@ -19,9 +19,9 @@
 
 #include "lonely_world_prediction/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
-#include "autoware_auto_msgs/msg/tracked_object_kinematics.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_object_kinematics.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_objects.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
 
 namespace autoware
@@ -37,13 +37,13 @@ template<typename T>
 T LONELY_WORLD_PREDICTION_PUBLIC make();
 
 template<>
-autoware_auto_msgs::msg::PredictedObjects LONELY_WORLD_PREDICTION_PUBLIC make();
+autoware_auto_perception_msgs::msg::PredictedObjects LONELY_WORLD_PREDICTION_PUBLIC make();
 
 template<>
-autoware_auto_msgs::msg::TrackedObjectKinematics LONELY_WORLD_PREDICTION_PUBLIC make();
+autoware_auto_perception_msgs::msg::TrackedObjectKinematics LONELY_WORLD_PREDICTION_PUBLIC make();
 
 template<>
-autoware_auto_msgs::msg::TrackedObjects LONELY_WORLD_PREDICTION_PUBLIC make();
+autoware_auto_perception_msgs::msg::TrackedObjects LONELY_WORLD_PREDICTION_PUBLIC make();
 
 template<>
 geometry_msgs::msg::Polygon LONELY_WORLD_PREDICTION_PUBLIC make();

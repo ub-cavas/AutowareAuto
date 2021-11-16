@@ -18,12 +18,12 @@
 #ifndef JOYSTICK_VEHICLE_INTERFACE__JOYSTICK_VEHICLE_INTERFACE_HPP_
 #define JOYSTICK_VEHICLE_INTERFACE__JOYSTICK_VEHICLE_INTERFACE_HPP_
 
-#include <autoware_auto_msgs/msg/headlights_command.hpp>
-#include <autoware_auto_msgs/msg/wipers_command.hpp>
-#include <autoware_auto_msgs/msg/high_level_control_command.hpp>
-#include <autoware_auto_msgs/msg/raw_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
+#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <joystick_vehicle_interface/visibility_control.hpp>
 #include <sensor_msgs/msg/joy.hpp>
 #include <std_msgs/msg/u_int8.hpp>
@@ -88,9 +88,9 @@ static constexpr AxisValue DEFAULT_SCALE = 100.0F;
 static constexpr AxisValue DEFAULT_OFFSET = 0.0F;
 static constexpr AxisValue VELOCITY_INCREMENT = 1.0F;
 
-using autoware_auto_msgs::msg::HeadlightsCommand;
-using autoware_auto_msgs::msg::WipersCommand;
-using autoware_auto_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
+using autoware_auto_vehicle_msgs::msg::WipersCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 
 /// A core class which performs all basic functions which are not ROS-related for
 /// joystick_vehicle_interface.
@@ -112,7 +112,7 @@ public:
   const VehicleStateCommand & get_previous_state_command();
   const std_msgs::msg::UInt8 & get_recordreplay_command();
   void update_headlights_state(
-    const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd);
+    const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd);
 
 private:
   /// Given an active button, update the state command
@@ -123,9 +123,9 @@ private:
     const sensor_msgs::msg::Joy & msg,
     Axes axis, T & value) const;
 
-  using HighLevelControl = autoware_auto_msgs::msg::HighLevelControlCommand;
-  using BasicControl = autoware_auto_msgs::msg::VehicleControlCommand;
-  using RawControl = autoware_auto_msgs::msg::RawControlCommand;
+  using HighLevelControl = autoware_auto_control_msgs::msg::HighLevelControlCommand;
+  using BasicControl = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+  using RawControl = autoware_auto_vehicle_msgs::msg::RawControlCommand;
 
   AxisMap m_axis_map{};
   AxisScaleMap m_axis_scale_map{};

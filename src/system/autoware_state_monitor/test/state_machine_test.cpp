@@ -27,12 +27,12 @@ using autoware::state_monitor::StateInput;
 using autoware::state_monitor::StateMachine;
 using autoware::state_monitor::StateMachineParams;
 
-using autoware_auto_msgs::msg::AutowareState;
-using autoware_auto_msgs::msg::Engage;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::VehicleStateReport;
+using autoware_auto_system_msgs::msg::AutowareState;
+using autoware_auto_vehicle_msgs::msg::Engage;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::PoseStamped;

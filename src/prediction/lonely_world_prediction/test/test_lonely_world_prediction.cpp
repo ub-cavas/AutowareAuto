@@ -20,7 +20,7 @@
 #include "lonely_world_prediction/test/make_inputs.hpp"
 #include "time_utils/time_utils.hpp"
 
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 
 namespace
 {
@@ -69,7 +69,7 @@ TEST(parameters, time_step_smaller_than_horizon) {
 
 TEST(rule_based, stationary)
 {
-  const auto input = make<autoware_auto_msgs::msg::PredictedObjects>();
+  const auto input = make<autoware_auto_perception_msgs::msg::PredictedObjects>();
   ASSERT_EQ(input.objects.size(), 1UL);
 
   Parameters parameters(27ms, 1800ms);
@@ -78,7 +78,7 @@ TEST(rule_based, stationary)
   predict_stationary(output, parameters);
 
   ASSERT_EQ(output.objects.size(), input.objects.size());
-  const autoware_auto_msgs::msg::PredictedObject & obj = output.objects.front();
+  const autoware_auto_perception_msgs::msg::PredictedObject & obj = output.objects.front();
   EXPECT_THAT(input.objects.front().kinematics.initial_pose, Eq(obj.kinematics.initial_pose));
 
   ASSERT_EQ(obj.kinematics.predicted_paths.size(), 1UL);

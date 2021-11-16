@@ -19,8 +19,8 @@
 
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
@@ -33,8 +33,8 @@
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
 
 namespace autoware
 {

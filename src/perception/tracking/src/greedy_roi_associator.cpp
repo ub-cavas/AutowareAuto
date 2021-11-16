@@ -79,7 +79,7 @@ GreedyRoiAssociator::GreedyRoiAssociator(
 : m_camera{config.intrinsics}, m_iou_threshold{config.iou_threshold}, m_tf_buffer{tf_buffer} {}
 
 AssociatorResult GreedyRoiAssociator::assign(
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
+  const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois,
   const TrackedObjects & tracks) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), tracks.objects.size());
@@ -109,8 +109,8 @@ AssociatorResult GreedyRoiAssociator::assign(
 }
 
 AssociatorResult GreedyRoiAssociator::assign(
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-  const autoware_auto_msgs::msg::DetectedObjects & objects) const
+  const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois,
+  const autoware_auto_perception_msgs::msg::DetectedObjects & objects) const
 {
   AssociatorResult result = create_and_init_result(rois.rois.size(), objects.objects.size());
   geometry_msgs::msg::TransformStamped tf_roi_from_detection;
@@ -159,7 +159,7 @@ geometry_msgs::msg::TransformStamped GreedyRoiAssociator::lookup_transform_handl
 std::size_t GreedyRoiAssociator::project_and_match_detection(
   const std::vector<geometry_msgs::msg::Point32> & object_shape_in_camera_frame,
   const std::unordered_set<std::size_t> & available_roi_indices,
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const
+  const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois) const
 {
   const auto & maybe_projection = m_camera.project(object_shape_in_camera_frame);
 
@@ -186,7 +186,7 @@ ShapeTransformer::ShapeTransformer(const geometry_msgs::msg::Transform & tf)
 }
 
 std::vector<geometry_msgs::msg::Point32> ShapeTransformer::operator()(
-  const autoware_auto_msgs::msg::Shape & shape,
+  const autoware_auto_perception_msgs::msg::Shape & shape,
   const geometry_msgs::msg::Point & centroid,
   const geometry_msgs::msg::Quaternion & orientation) const
 {

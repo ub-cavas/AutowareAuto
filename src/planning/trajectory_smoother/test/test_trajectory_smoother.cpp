@@ -22,7 +22,7 @@
 
 using motion::motion_testing::constant_velocity_trajectory;
 using motion::motion_testing::constant_acceleration_trajectory;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using TrajectorySmoother = motion::planning::trajectory_smoother::TrajectorySmoother;
 using TrajectorySmootherConfig = motion::planning::trajectory_smoother::TrajectorySmootherConfig;
 

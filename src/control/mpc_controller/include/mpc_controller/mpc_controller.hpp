@@ -15,9 +15,9 @@
 #define MPC_CONTROLLER__MPC_CONTROLLER_HPP_
 
 #include <mpc_controller/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
 #include <controller_common/controller_base.hpp>
 #include <mpc_controller/config.hpp>
@@ -43,9 +43,9 @@ public:
   MpcController & operator=(const MpcController &) = delete;
   MpcController & operator=(MpcController &&) noexcept = delete;
 
-  using Command = autoware_auto_msgs::msg::VehicleControlCommand;
-  using State = autoware_auto_msgs::msg::VehicleKinematicState;
-  using Trajectory = autoware_auto_msgs::msg::Trajectory;
+  using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+  using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+  using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 
   /// \brief Constructor
   explicit MpcController(const Config & config);

@@ -24,8 +24,9 @@ import launch_testing
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-from autoware_auto_msgs.action import RecordTrajectory, ReplayTrajectory
-from autoware_auto_msgs.msg import VehicleKinematicState, Trajectory
+from autoware_auto_planning_msgs.action import RecordTrajectory, ReplayTrajectory
+from autoware_auto_planning_msgs.msg import Trajectory
+from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
 
 import subprocess
 import time
@@ -159,7 +160,7 @@ class TestBasicUsage(unittest.TestCase):
             mock_publisher.publish_a_state()  # FIXME(s.me) This does not appear to get seen
             helper_pub_topic_one(  # This does get seen
                 "/vehicle_kinematic_state",
-                "autoware_auto_msgs/msg/VehicleKinematicState",
+                "autoware_auto_vehicle_msgs/msg/VehicleKinematicState",
             )
 
         # - Cancel recording action, then wait for the cancel action to complete
@@ -187,7 +188,7 @@ class TestBasicUsage(unittest.TestCase):
             mock_publisher.publish_a_state()
             helper_pub_topic_one(  # This does get seen
                 "/vehicle_kinematic_state",
-                "autoware_auto_msgs/msg/VehicleKinematicState",
+                "autoware_auto_vehicle_msgs/msg/VehicleKinematicState",
             )
             time.sleep(0.1)
 

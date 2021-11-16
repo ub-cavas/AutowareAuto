@@ -25,7 +25,6 @@ import launch_testing
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
-# from autoware_auto_msgs.msg import VehicleKinematicState, Trajectory
 
 from parking_planner_actions.action import PlanParkingManeuver
 

@@ -21,8 +21,8 @@
 
 #include <trajectory_spoofer/trajectory_spoofer.hpp>
 
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <common/types.hpp>
 #include <rclcpp/rclcpp.hpp>
 
@@ -33,8 +33,8 @@ namespace autoware
 {
 namespace trajectory_spoofer
 {
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using VehicleKinematicState = autoware_auto_msgs::msg::VehicleKinematicState;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using std::placeholders::_1;
 
 /// \class TrajectorySpooferNode

@@ -46,7 +46,8 @@ static_assert(
   "We expect the PoseWithCovariance covariance matrix to have 36 entries.");
 static_assert(
   std::tuple_size<
-    autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type>::value ==
+    autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped::_covariance_type
+  >::value ==
   kCovarianceMatrixRowsRelativePosSquared,
   "We expect the RelativePositionWithCovarianceStamped covariance matrix to have 9 entries.");
 }  // namespace
@@ -82,7 +83,7 @@ PoseMeasurementXYZRPY64 convert_to<PoseMeasurementXYZRPY64>::from(
 }
 
 PoseMeasurementXYZ64 convert_to<PoseMeasurementXYZ64>::from(
-  const autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped & msg)
+  const autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped & msg)
 {
   const Eigen::Vector3d mean{msg.position.x, msg.position.y, msg.position.z};
   const auto & cov = msg.covariance;

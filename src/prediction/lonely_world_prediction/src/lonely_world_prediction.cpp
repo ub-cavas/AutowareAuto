@@ -25,7 +25,7 @@ namespace autoware
 namespace prediction
 {
 void predict_stationary(
-  autoware_auto_msgs::msg::PredictedObject & predicted_object,
+  autoware_auto_perception_msgs::msg::PredictedObject & predicted_object,
   const autoware::prediction::Parameters & parameters)
 {
   // need an extra state in the end if the division has remainder
@@ -36,7 +36,7 @@ void predict_stationary(
   }
 
   // TODO(frederik.beaujean) predicted path only has one pose, not multiple for each shape
-  autoware_auto_msgs::msg::PredictedPath predicted_path;
+  autoware_auto_perception_msgs::msg::PredictedPath predicted_path;
   predicted_path.path =
     decltype(predicted_path.path) {n_steps, predicted_object.kinematics.initial_pose.pose};
   predicted_path.confidence = 1.0;
@@ -46,13 +46,13 @@ void predict_stationary(
 }
 
 void predict_stationary(
-  autoware_auto_msgs::msg::PredictedObjects & predicted_objects,
+  autoware_auto_perception_msgs::msg::PredictedObjects & predicted_objects,
   const autoware::prediction::Parameters & parameters)
 {
   std::for_each(
     predicted_objects.objects.begin(),
     predicted_objects.objects.end(),
-    [&](autoware_auto_msgs::msg::PredictedObject & object) {
+    [&](autoware_auto_perception_msgs::msg::PredictedObject & object) {
       predict_stationary(object, parameters);
     });
 }

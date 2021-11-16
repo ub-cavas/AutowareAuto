@@ -15,8 +15,8 @@
 #include <gtest/gtest.h>
 #include <recordreplay_planner/recordreplay_planner.hpp>
 #include <motion_testing/motion_testing.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <motion_common/config.hpp>
 #include <motion_common/motion_common.hpp>
 #include <geometry_msgs/msg/point32.hpp>
@@ -32,8 +32,8 @@
 using motion::planning::recordreplay_planner::RecordReplayPlanner;
 using std::chrono::system_clock;
 using motion::motion_testing::make_state;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using geometry_msgs::msg::Point32;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;

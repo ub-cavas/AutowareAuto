@@ -18,13 +18,13 @@
 #include <tf2_ros/buffer.h>
 #include <recordreplay_planner_nodes/visibility_control.hpp>
 #include <recordreplay_planner/recordreplay_planner.hpp>
-#include <autoware_auto_msgs/action/record_trajectory.hpp>
-#include <autoware_auto_msgs/action/replay_trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/record_trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/replay_trajectory.hpp>
 
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/srv/modify_trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_common/config.hpp>
@@ -47,12 +47,12 @@ namespace planning
 namespace recordreplay_planner_nodes
 {
 using PlannerPtr = std::unique_ptr<motion::planning::recordreplay_planner::RecordReplayPlanner>;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::srv::ModifyTrajectory;
-using autoware_auto_msgs::action::RecordTrajectory;
-using autoware_auto_msgs::action::ReplayTrajectory;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::srv::ModifyTrajectory;
+using autoware_auto_planning_msgs::action::RecordTrajectory;
+using autoware_auto_planning_msgs::action::ReplayTrajectory;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using Transform = geometry_msgs::msg::TransformStamped;
 using motion::motion_common::Real;
 using visualization_msgs::msg::Marker;

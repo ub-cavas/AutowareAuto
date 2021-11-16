@@ -22,9 +22,9 @@
 #include <behavior_planner/visibility_control.hpp>
 
 #include <common/types.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
 #include <iostream>
 #include <vector>
@@ -35,9 +35,9 @@ namespace autoware
 namespace behavior_planner
 {
 
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;

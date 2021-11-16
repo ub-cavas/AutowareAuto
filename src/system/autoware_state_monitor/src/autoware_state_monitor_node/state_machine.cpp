@@ -37,7 +37,7 @@ StateMachine::StateMachine(const StateMachineParams & state_param)
 
 bool StateMachine::isNearGoal(
   const geometry_msgs::msg::Pose & current_pose,
-  const autoware_auto_msgs::msg::RoutePoint & goal_pose,
+  const autoware_auto_planning_msgs::msg::RoutePoint & goal_pose,
   const double th_dist) const
 {
   return distance2d(current_pose.position, goal_pose.position) < th_dist;
@@ -72,7 +72,7 @@ bool StateMachine::isPlanningCompleted() const
 
 bool StateMachine::isAutonomousMode() const
 {
-  using autoware_auto_msgs::msg::VehicleStateReport;
+  using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
   if (!state_input_.vehicle_state_report) {
     return false;
   }
@@ -145,7 +145,7 @@ State StateMachine::updateState(const StateInput & state_input)
 
 State StateMachine::judgeAutowareState() const
 {
-  using autoware_auto_msgs::msg::AutowareState;
+  using autoware_auto_system_msgs::msg::AutowareState;
 
   if (isFinalizing()) {
     return AutowareState::FINALIZING;

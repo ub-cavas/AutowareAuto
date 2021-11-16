@@ -26,7 +26,7 @@
 #include <vector>
 
 using autoware::gnss_conversion_nodes::GnssConversionNode;
-using autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
+using autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped;
 
 namespace
 {

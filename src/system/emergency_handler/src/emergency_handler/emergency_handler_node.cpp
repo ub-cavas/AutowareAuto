@@ -29,7 +29,8 @@ namespace emergency_handler
 using namespace std::chrono_literals;
 
 diagnostic_msgs::msg::DiagnosticArray convertHazardStatusToDiagnosticArray(
-  rclcpp::Clock::SharedPtr clock, const autoware_auto_msgs::msg::HazardStatus & hazard_status)
+  rclcpp::Clock::SharedPtr clock,
+  const autoware_auto_system_msgs::msg::HazardStatus & hazard_status)
 {
   diagnostic_msgs::msg::DiagnosticArray diag_array;
   diag_array.header.stamp = clock->now();
@@ -77,36 +78,37 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
     this->declare_parameter<double>("stopped_velocity_threshold", 0.001);
 
   // Subscribers
-  sub_autoware_state_ = create_subscription<autoware_auto_msgs::msg::AutowareState>(
+  sub_autoware_state_ = create_subscription<autoware_auto_system_msgs::msg::AutowareState>(
     "input/autoware_state", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onAutowareState, this, _1));
-  sub_driving_capability_ = create_subscription<autoware_auto_msgs::msg::DrivingCapability>(
+  sub_driving_capability_ = create_subscription<autoware_auto_system_msgs::msg::DrivingCapability>(
     "input/driving_capability", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onDrivingCapability, this, _1));
-  sub_prev_control_command_ = create_subscription<autoware_auto_msgs::msg::VehicleControlCommand>(
+  sub_prev_control_command_ =
+    create_subscription<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
     "input/prev_control_command", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onPrevControlCommand, this, _1));
-  sub_state_report_ = create_subscription<autoware_auto_msgs::msg::VehicleStateReport>(
+  sub_state_report_ = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleStateReport>(
     "input/state_report", rclcpp::QoS{1},
     std::bind(&EmergencyHandlerNode::onStateReport, this, _1));
-  sub_odometry_ = create_subscription<autoware_auto_msgs::msg::VehicleOdometry>(
+  sub_odometry_ = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleOdometry>(
     "input/odometry", rclcpp::QoS{1}, std::bind(&EmergencyHandlerNode::onOdometry, this, _1));
 
   // Publishers
-  pub_control_command_ = create_publisher<autoware_auto_msgs::msg::VehicleControlCommand>(
+  pub_control_command_ = create_publisher<autoware_auto_vehicle_msgs::msg::VehicleControlCommand>(
     "output/control_command", rclcpp::QoS{1});
-  pub_state_command_ = create_publisher<autoware_auto_msgs::msg::VehicleStateCommand>(
+  pub_state_command_ = create_publisher<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>(
     "output/state_command", rclcpp::QoS{1});
-  pub_is_emergency_ = create_publisher<autoware_auto_msgs::msg::EmergencyState>(
+  pub_is_emergency_ = create_publisher<autoware_auto_system_msgs::msg::EmergencyState>(
     "output/is_emergency", rclcpp::QoS{1});
-  pub_hazard_status_ = create_publisher<autoware_auto_msgs::msg::HazardStatusStamped>(
+  pub_hazard_status_ = create_publisher<autoware_auto_system_msgs::msg::HazardStatusStamped>(
     "output/hazard_status", rclcpp::QoS{1});
   pub_diagnostics_err_ = create_publisher<diagnostic_msgs::msg::DiagnosticArray>(
     "output/diagnostics_err", rclcpp::QoS{1});
 
   // Heartbeat
   heartbeat_driving_capability_ =
-    std::make_shared<HeartbeatChecker<autoware_auto_msgs::msg::DrivingCapability>>(
+    std::make_shared<HeartbeatChecker<autoware_auto_system_msgs::msg::DrivingCapability>>(
     *this, "input/driving_capability", timeout_driving_capability_);
 
   // Service
@@ -115,10 +117,10 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
     std::bind(&EmergencyHandlerNode::onClearEmergencyService, this, _1, _2, _3));
 
   // Initialize messages
-  odometry_ = autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr(
-    new autoware_auto_msgs::msg::VehicleOdometry);
-  prev_control_command_ = autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr(
-    new autoware_auto_msgs::msg::VehicleControlCommand);
+  odometry_ = autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr(
+    new autoware_auto_vehicle_msgs::msg::VehicleOdometry);
+  prev_control_command_ = autoware_auto_vehicle_msgs::msg::VehicleControlCommand::ConstSharedPtr(
+    new autoware_auto_vehicle_msgs::msg::VehicleControlCommand);
 
   // Timer
   initialized_time_ = this->now();
@@ -133,31 +135,31 @@ EmergencyHandlerNode::EmergencyHandlerNode(const rclcpp::NodeOptions & node_opti
 }
 
 void EmergencyHandlerNode::onAutowareState(
-  const autoware_auto_msgs::msg::AutowareState::ConstSharedPtr msg)
+  const autoware_auto_system_msgs::msg::AutowareState::ConstSharedPtr msg)
 {
   autoware_state_ = msg;
 }
 
 void EmergencyHandlerNode::onDrivingCapability(
-  const autoware_auto_msgs::msg::DrivingCapability::ConstSharedPtr msg)
+  const autoware_auto_system_msgs::msg::DrivingCapability::ConstSharedPtr msg)
 {
   driving_capability_ = msg;
 }
 
 void EmergencyHandlerNode::onPrevControlCommand(
-  const autoware_auto_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleControlCommand::ConstSharedPtr msg)
 {
   prev_control_command_ = msg;
 }
 
 void EmergencyHandlerNode::onStateReport(
-  const autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleStateReport::ConstSharedPtr msg)
 {
   state_report_ = msg;
 }
 
 void EmergencyHandlerNode::onOdometry(
-  const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr msg)
 {
   odometry_ = msg;
 }
@@ -187,9 +189,9 @@ bool EmergencyHandlerNode::onClearEmergencyService(
 }
 
 void EmergencyHandlerNode::publishHazardStatus(
-  const autoware_auto_msgs::msg::HazardStatus & hazard_status)
+  const autoware_auto_system_msgs::msg::HazardStatus & hazard_status)
 {
-  using autoware_auto_msgs::msg::EmergencyState;
+  using autoware_auto_system_msgs::msg::EmergencyState;
 
   // Create EmergencyState msg
   EmergencyState emergency_state;
@@ -200,7 +202,7 @@ void EmergencyHandlerNode::publishHazardStatus(
   }
 
   // Create HazardStatusStamped msg
-  autoware_auto_msgs::msg::HazardStatusStamped hazard_status_stamped;
+  autoware_auto_system_msgs::msg::HazardStatusStamped hazard_status_stamped;
   hazard_status_stamped.stamp = this->now();
   hazard_status_stamped.status = hazard_status;
 
@@ -217,7 +219,7 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
 
   // Publish ControlCommand
   {
-    autoware_auto_msgs::msg::VehicleControlCommand msg;
+    autoware_auto_vehicle_msgs::msg::VehicleControlCommand msg;
     msg.stamp = stamp;
     msg.front_wheel_angle_rad = prev_control_command_->front_wheel_angle_rad;
     msg.velocity_mps = 0.0;
@@ -228,16 +230,16 @@ void EmergencyHandlerNode::publishControlAndStateCommands()
 
   // Publish StateCommand
   {
-    autoware_auto_msgs::msg::VehicleStateCommand msg;
+    autoware_auto_vehicle_msgs::msg::VehicleStateCommand msg;
     msg.stamp = stamp;
-    msg.blinker = autoware_auto_msgs::msg::VehicleStateCommand::BLINKER_HAZARD;
-    msg.headlight = autoware_auto_msgs::msg::VehicleStateCommand::HEADLIGHT_NO_COMMAND;
-    msg.wiper = autoware_auto_msgs::msg::VehicleStateCommand::WIPER_NO_COMMAND;
+    msg.blinker = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::BLINKER_HAZARD;
+    msg.headlight = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::HEADLIGHT_NO_COMMAND;
+    msg.wiper = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::WIPER_NO_COMMAND;
 
     if (use_parking_after_stopped_ && isStopped()) {
-      msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_PARK;
+      msg.gear = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::GEAR_PARK;
     } else {
-      msg.gear = autoware_auto_msgs::msg::VehicleStateCommand::GEAR_NO_COMMAND;
+      msg.gear = autoware_auto_vehicle_msgs::msg::VehicleStateCommand::GEAR_NO_COMMAND;
     }
 
     pub_state_command_->publish(msg);
@@ -268,8 +270,8 @@ void EmergencyHandlerNode::onTimer()
   // Wait for data ready
   if (!isDataReady()) {
     if ((this->now() - initialized_time_).seconds() > data_ready_timeout_) {
-      autoware_auto_msgs::msg::HazardStatus hazard_status;
-      hazard_status.level = autoware_auto_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
+      autoware_auto_system_msgs::msg::HazardStatus hazard_status;
+      hazard_status.level = autoware_auto_system_msgs::msg::HazardStatus::SINGLE_POINT_FAULT;
       hazard_status.emergency = true;
 
       const auto diag = createDiagnosticStatus(
@@ -308,16 +310,16 @@ bool EmergencyHandlerNode::isStopped()
 }
 
 bool EmergencyHandlerNode::isEmergency(
-  const autoware_auto_msgs::msg::HazardStatus & hazard_status)
+  const autoware_auto_system_msgs::msg::HazardStatus & hazard_status)
 {
   return hazard_status.emergency;
 }
 
-autoware_auto_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
+autoware_auto_system_msgs::msg::HazardStatus EmergencyHandlerNode::judgeHazardStatus()
 {
-  using autoware_auto_msgs::msg::AutowareState;
-  using autoware_auto_msgs::msg::HazardStatus;
-  using autoware_auto_msgs::msg::VehicleStateReport;
+  using autoware_auto_system_msgs::msg::AutowareState;
+  using autoware_auto_system_msgs::msg::HazardStatus;
+  using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
   if (!state_report_ || !autoware_state_) {
     throw std::runtime_error(std::string(__func__) + ": No state report or autoware state.");

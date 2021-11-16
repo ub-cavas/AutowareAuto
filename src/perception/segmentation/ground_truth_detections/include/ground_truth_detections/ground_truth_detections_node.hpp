@@ -23,8 +23,8 @@
 
 #include <ground_truth_detections/ground_truth_detections.hpp>
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <lgsvl_msgs/msg/detection2_d_array.hpp>
 #include <lgsvl_msgs/msg/detection3_d_array.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -53,11 +53,13 @@ private:
   /// @param msg Input message
   void on_detection(const lgsvl_msgs::msg::Detection3DArray & msg);
 
-  rclcpp::Publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>::SharedPtr m_detection2d_pub{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>::SharedPtr
+    m_detection2d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection2DArray>::SharedPtr m_detection2d_sub{};
   std::string m_vision_frame_id;
 
-  rclcpp::Publisher<autoware_auto_msgs::msg::DetectedObjects>::SharedPtr m_detection3d_pub{};
+  rclcpp::Publisher<autoware_auto_perception_msgs::msg::DetectedObjects>::SharedPtr
+    m_detection3d_pub{};
   rclcpp::Subscription<lgsvl_msgs::msg::Detection3DArray>::SharedPtr m_detection3d_sub{};
   static constexpr char kFrameId3d[] = "base_link";
 };

@@ -24,8 +24,8 @@
 #include "lonely_world_prediction/parameters.hpp"
 #include "lonely_world_prediction/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_objects.hpp"
 
 namespace autoware
 {
@@ -44,7 +44,7 @@ namespace prediction
  * after the `time_horizon` if `time_step` divides `time_horizon` with a remainder.
  */
 void LONELY_WORLD_PREDICTION_PUBLIC predict_stationary(
-  autoware_auto_msgs::msg::PredictedObject & predicted_object,
+  autoware_auto_perception_msgs::msg::PredictedObject & predicted_object,
   const autoware::prediction::Parameters & parameters);
 
 /**
@@ -54,7 +54,7 @@ void LONELY_WORLD_PREDICTION_PUBLIC predict_stationary(
  * \param[in] parameters
  */
 void LONELY_WORLD_PREDICTION_PUBLIC predict_stationary(
-  autoware_auto_msgs::msg::PredictedObjects & predicted_objects,
+  autoware_auto_perception_msgs::msg::PredictedObjects & predicted_objects,
   const autoware::prediction::Parameters & parameters);
 
 }  // namespace prediction

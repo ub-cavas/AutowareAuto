@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_auto_msgs/srv/modify_trajectory.hpp>
+#include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <motion_common/config.hpp>
 #include <tf2_ros/transform_listener.h>
@@ -119,10 +119,11 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   m_estimator = std::make_unique<ObjectCollisionEstimator>(config, smoother);
 
   // Set up service interface for collision_detection
-  m_service_interface = create_service<autoware_auto_msgs::srv::ModifyTrajectory>(
+  m_service_interface = create_service<autoware_auto_planning_msgs::srv::ModifyTrajectory>(
     "estimate_collision",
-    [this](const std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Request> request,
-    std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Response> response) {
+    [this](const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request>
+    request,
+    std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response) {
       estimate_collision(request, response);
     });
 
@@ -208,8 +209,8 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
 }
 
 void ObjectCollisionEstimatorNode::estimate_collision(
-  const std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Request> request,
-  std::shared_ptr<autoware_auto_msgs::srv::ModifyTrajectory::Response> response)
+  const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
+  std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response)
 {
   rclcpp::Time request_time{request->original_trajectory.header.stamp,
     m_last_obstacle_msg_time.get_clock_type()};

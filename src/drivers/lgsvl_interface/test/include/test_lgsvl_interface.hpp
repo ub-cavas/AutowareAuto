@@ -26,8 +26,8 @@
 
 
 using Table1D = ::autoware::common::helper_functions::LookupTable1D<double>;
-using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
-using VSR = autoware_auto_msgs::msg::VehicleStateReport;
+using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using VSR = autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
 const auto sim_ctrl_cmd_topic = "test_lgsvl/vehicle_control_cmd";
 const auto sim_state_cmd_topic = "test_lgsvl/vehicle_state_cmd";

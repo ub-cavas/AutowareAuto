@@ -15,7 +15,7 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include "ground_truth_detections/ground_truth_detections.hpp"
-#include <autoware_auto_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
 #include <algorithm>
@@ -71,25 +71,26 @@ namespace autoware
 namespace ground_truth_detections
 {
 
-autoware_auto_msgs::msg::ObjectClassification make_classification(const std::string & label)
+autoware_auto_perception_msgs::msg::ObjectClassification make_classification(
+  const std::string & label)
 {
-  autoware_auto_msgs::msg::ObjectClassification obj_classification;
+  autoware_auto_perception_msgs::msg::ObjectClassification obj_classification;
   obj_classification.probability = 1.0;
   auto & classification = obj_classification.classification;
 
   // default classification
-  classification = autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+  classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
 
   static constexpr const char * car_labels[] = {"Hatchback", "Jeep", "Sedan", "SUV"};
   static constexpr const char * truck_labels[] = {"BoxTruck", "SchoolBus"};
   auto found_car_label = std::find(std::begin(car_labels), std::end(car_labels), label);
   auto found_truck_label = std::find(std::begin(truck_labels), std::end(truck_labels), label);
   if (found_car_label != std::end(car_labels)) {
-    classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
+    classification = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
   } else if (found_truck_label != std::end(truck_labels)) {
-    classification = autoware_auto_msgs::msg::ObjectClassification::TRUCK;
+    classification = autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK;
   } else if (label == "Pedestrian") {
-    classification = autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
+    classification = autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN;
   }
   return obj_classification;
 }
@@ -127,25 +128,27 @@ geometry_msgs::msg::Polygon make_polygon(const lgsvl_msgs::msg::Detection2D & de
   return polygon;
 }
 
-autoware_auto_msgs::msg::DetectedObjectKinematics make_kinematics(
+autoware_auto_perception_msgs::msg::DetectedObjectKinematics make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection)
 {
   geometry_msgs::msg::TwistWithCovariance twist;
 
-  return autoware_auto_msgs::build<autoware_auto_msgs::msg::DetectedObjectKinematics>()
+  return autoware_auto_perception_msgs::build<
+    autoware_auto_perception_msgs::msg::DetectedObjectKinematics>()
          .centroid_position(detection.bbox.position.position)
          .position_covariance({})
          .has_position_covariance(false)
          .orientation(detection.bbox.position.orientation)
-         .orientation_availability(autoware_auto_msgs::msg::DetectedObjectKinematics::AVAILABLE)
+         .orientation_availability(
+    autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE)
          .twist(twist)
          .has_twist(true)
          .has_twist_covariance(false);
 }
 
-autoware_auto_msgs::msg::Shape make_shape(const lgsvl_msgs::msg::Detection3D & detection)
+autoware_auto_perception_msgs::msg::Shape make_shape(const lgsvl_msgs::msg::Detection3D & detection)
 {
-  return autoware_auto_msgs::build<autoware_auto_msgs::msg::Shape>()
+  return autoware_auto_perception_msgs::build<autoware_auto_perception_msgs::msg::Shape>()
          .polygon(make_polygon_around_origin(detection))
          .height(static_cast<float_t>(detection.bbox.size.z));
 }

@@ -19,9 +19,9 @@
 #ifndef EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 #define EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry/spatial_hash.hpp>
 #include <euclidean_cluster/visibility_control.hpp>
 #include <common/types.hpp>
@@ -74,7 +74,7 @@ public:
   const PointXYZI & get_point() const;
   /// \brief Explicit conversion operator from PointXYZIR to msg type PointXYZIF
   /// \return a PointXYZIF type
-  explicit operator autoware_auto_msgs::msg::PointXYZIF() const;
+  explicit operator autoware_auto_perception_msgs::msg::PointXYZIF() const;
 
 private:
   // This could instead be a pointer; I'm pretty sure ownership would work out, but I'm
@@ -85,7 +85,7 @@ private:
 
 using HashConfig = autoware::common::geometry::spatial_hash::Config2d;
 using Hash = autoware::common::geometry::spatial_hash::SpatialHash2d<PointXYZIR>;
-using Clusters = autoware_auto_msgs::msg::PointClusters;
+using Clusters = autoware_auto_perception_msgs::msg::PointClusters;
 
 /// \brief Configuration class for euclidean cluster
 /// In the future this can become a base class with subclasses defining different
@@ -231,9 +231,9 @@ private:
 /// \brief Common euclidean cluster functions not intended for external use
 namespace details
 {
-using BoundingBox = autoware_auto_msgs::msg::BoundingBox;
-using BoundingBoxArray = autoware_auto_msgs::msg::BoundingBoxArray;
-using DetectedObjects = autoware_auto_msgs::msg::DetectedObjects;
+using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using DetectedObjects = autoware_auto_perception_msgs::msg::DetectedObjects;
 
 enum class BboxMethod
 {

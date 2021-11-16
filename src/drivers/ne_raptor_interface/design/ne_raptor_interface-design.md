@@ -22,10 +22,10 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - Raptor DBW Command messages are sent periodically (every 20-100ms advised)
 
 #### From Autoware
-- autoware_auto_msgs::msg::HighLevelControlCommand
-- autoware_auto_msgs::msg::VehicleControlCommand
-- autoware_auto_msgs::msg::AckermannControlCommand (untested).
-- autoware_auto_msgs::msg::VehicleStateCommand
+- autoware_auto_control_msgs::msg::HighLevelControlCommand
+- autoware_auto_vehicle_msgs::msg::VehicleControlCommand
+- autoware_auto_control_msgs::msg::AckermannControlCommand (untested).
+- autoware_auto_vehicle_msgs::msg::VehicleStateCommand
 
 #### To Raptor
 - raptor_dbw_msgs::msg::AcceleratorPedalCmd
@@ -40,9 +40,9 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - Autoware Report messages are passed on once all relevant data has been compiled from the Raptor DBW Reports
 
 #### To Autoware
-- autoware_auto_msgs::msg::VehicleOdometry
-- autoware_auto_msgs::msg::VehicleStateReport
-- autoware_auto_msgs::msg::VehicleKinematicState
+- autoware_auto_vehicle_msgs::msg::VehicleOdometry
+- autoware_auto_vehicle_msgs::msg::VehicleStateReport
+- autoware_auto_vehicle_msgs::msg::VehicleKinematicState
 
 #### From Raptor
 - raptor_dbw_msgs::msg::BrakeReport
@@ -91,7 +91,7 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 
 
 # Future extensions / Unimplemented parts
-- `autoware_auto_msgs::msg::RawControlCommand` not implemented - command units are undefined
+- `autoware_auto_vehicle_msgs::msg::RawControlCommand` not implemented - Command units are undefined
 
 
 # Related issues

@@ -22,8 +22,8 @@
 #include <memory>
 #include <chrono>
 
-#include "autoware_auto_msgs/srv/had_map_service.hpp"
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 #include "had_map_utils/had_map_conversion.hpp"
 #include "lanelet2_map_provider/lanelet2_map_provider.hpp"
 
@@ -37,8 +37,8 @@ int32_t main(const int32_t argc, char ** const argv)
     rclcpp::NodeOptions options;
 
     std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("HAD_Map_Client");
-    rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr client =
-      node->create_client<autoware_auto_msgs::srv::HADMapService>("HAD_Map_Service");
+    rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr client =
+      node->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Service");
 
     while (!client->wait_for_service(1s)) {
       if (!rclcpp::ok()) {
@@ -47,11 +47,11 @@ int32_t main(const int32_t argc, char ** const argv)
       }
     }
 
-    auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
+    auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Request>();
     request->requested_primitives.push_back(
-      autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
+      autoware_auto_mapping_msgs::srv::HADMapService_Request::FULL_MAP);
     request->requested_primitives.push_back(
-      autoware_auto_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
+      autoware_auto_mapping_msgs::srv::HADMapService_Request::DRIVEABLE_GEOMETRY);
 
     request->geom_upper_bound.push_back(1.0);
     request->geom_upper_bound.push_back(1.0);
@@ -72,7 +72,7 @@ int32_t main(const int32_t argc, char ** const argv)
 
     std::shared_ptr<lanelet::LaneletMap> sub_map = std::make_shared<lanelet::LaneletMap>();
 
-    autoware_auto_msgs::msg::HADMapBin msg = result.get()->map;
+    autoware_auto_mapping_msgs::msg::HADMapBin msg = result.get()->map;
     autoware::common::had_map_utils::fromBinaryMsg(msg, sub_map);
     std::cerr << "had map client - size of received map " << sub_map->size() << "\n";
     ret = 0;

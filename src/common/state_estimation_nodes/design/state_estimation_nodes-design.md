@@ -14,7 +14,7 @@ Note that the outgoing messages will be timestamped in the same time reference f
 
 The inputs are measurements that update the prediction of the underlying filter estimate. Currently, the node supports the following inputs:
 - `geometry_msgs/msg/PoseWithCovariance` - provides the position and orientation
-- `autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped` - provides the position
+- `autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped` - provides the position
 - `geometry_msgs/msg/TwistWithCovariance` - provides a speed measurement
 - `nav_msgs/msg/Odometry` - provides both position and speed measurements
 

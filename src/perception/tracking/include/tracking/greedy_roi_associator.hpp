@@ -14,8 +14,8 @@
 #ifndef TRACKING__GREEDY_ROI_ASSOCIATOR_HPP_
 #define TRACKING__GREEDY_ROI_ASSOCIATOR_HPP_
 
-#include <autoware_auto_msgs/msg/classified_roi_array.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <geometry/common_2d.hpp>
 #include <geometry/intersection.hpp>
 #include <helper_functions/template_utils.hpp>
@@ -82,7 +82,7 @@ public:
   /// \param tracks Tracks
   /// \return The association between the tracks and the rois
   AssociatorResult assign(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois,
     const TrackedObjects & tracks) const;
 
   /// \brief Assign the objects to the ROIs. The assignment is done by first projecting the
@@ -93,8 +93,8 @@ public:
   /// \return The association between the objects and the rois. In this case, "tracks" in the
   ///         return struct refers to the 3D objects and "detections" refer to the ROIs
   AssociatorResult assign(
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois,
-    const autoware_auto_msgs::msg::DetectedObjects & objects) const;
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois,
+    const autoware_auto_perception_msgs::msg::DetectedObjects & objects) const;
 
 private:
   // Handles extrapolation exception alone. Caller responsible for all else
@@ -108,7 +108,7 @@ private:
   std::size_t project_and_match_detection(
     const std::vector<geometry_msgs::msg::Point32> & object_shape_in_camera_frame,
     const std::unordered_set<std::size_t> & available_roi_indices,
-    const autoware_auto_msgs::msg::ClassifiedRoiArray & rois) const;
+    const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & rois) const;
 
   CameraModel m_camera;
   IOUHeuristic m_iou_func{};
@@ -132,7 +132,7 @@ public:
   /// \param orientation Orientation of the object
   /// \return Transformed vertices of the bottom and the top face.
   std::vector<Point32> operator()(
-    const autoware_auto_msgs::msg::Shape & shape,
+    const autoware_auto_perception_msgs::msg::Shape & shape,
     const geometry_msgs::msg::Point & centroid,
     const geometry_msgs::msg::Quaternion & orientation) const;
 

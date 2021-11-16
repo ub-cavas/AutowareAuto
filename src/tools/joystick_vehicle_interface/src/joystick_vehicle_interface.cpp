@@ -204,7 +204,7 @@ const VehicleStateCommand & JoystickVehicleInterface::get_previous_state_command
 }
 
 void JoystickVehicleInterface::update_headlights_state(
-  const autoware_auto_msgs::msg::HeadlightsCommand & headlights_cmd)
+  const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd)
 {
   m_state_command.headlight = headlights_cmd.command;
 }

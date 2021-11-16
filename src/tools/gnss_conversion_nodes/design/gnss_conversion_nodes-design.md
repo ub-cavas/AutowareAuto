@@ -19,7 +19,7 @@ place.
     - How does it work? -->
 
 The node subscribes to the GNSS messages and publishes
-`autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped` messages on the `/gnss_position`
+`autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped` messages on the `/gnss_position`
 topic setting the covariance from the user-provided values. The covariance will be set in the
 `output_frame_id` frame (`"earth"` that represents the ECEF frame by default).
 

@@ -38,9 +38,9 @@ using motion::motion_common::Real;
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 
-using autoware_auto_msgs::srv::HADMapService;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_mapping_msgs::srv::HADMapService;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_planning_msgs::msg::Trajectory;
 
 /// \class LanePlannerNode
 /// \brief ROS 2 Node for hello world.

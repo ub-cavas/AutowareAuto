@@ -61,16 +61,16 @@ Parameters
 * `wait_time_after_arrived_goal` is a delay after `ArrivedGoal` state, before switch to the new state
 
 Inputs
-* `autoware_auto_msgs/msg/Engage` is used to check if the vehicle has been engaged or not.
-* `autoware_auto_msgs/msg/HADMapRoute` is used to extract goal point and correct
+* `autoware_auto_vehicle_msgs/msg/Engage` is used to check if the vehicle has been engaged or not.
+* `autoware_auto_planning_msgs/msg/HADMapRoute` is used to extract goal point and correct
   transitions between states.
-* `autoware_auto_msgs/msg/VehicleOdometry` is used to calculate a current vehicle velocity.
-* `autoware_auto_msgs/msg/VehicleStateReport` is used to determine if the vehicle
+* `autoware_auto_vehicle_msgs/msg/VehicleOdometry` is used to calculate a current vehicle velocity.
+* `autoware_auto_vehicle_msgs/msg/VehicleStateReport` is used to determine if the vehicle
   is in manual or autonomous mode.
 * `tf/tfMessage` is used to determine a vehicle pose in a global frame.
 
 Outputs
-* `autoware_auto_msgs/msg/AutowareState` contains the system state.
+* `autoware_auto_system_msgs/msg/AutowareState` contains the system state.
 
 Services
 * `std_srvs/srv/Trigger` (/autoware/shutdown) is used to request shutdown of

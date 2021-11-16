@@ -27,7 +27,7 @@ The input are non-ground points as a PointCloud2 message from the sensor_msgs pa
 
 ### Outputs
 
-The output is a [BoundingBoxArray](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/raw/master/autoware_auto_msgs/msg/BoundingBoxArray.msg).
+The output is a [BoundingBoxArray](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/BoundingBoxArray.idl).
 
 ### Parameters
 

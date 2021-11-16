@@ -74,11 +74,11 @@ LidarClusterIfVisionPolicy::LidarClusterIfVisionPolicy(
   m_associator{cfg.associator_cfg, tf_buffer} {}
 
 void LidarClusterIfVisionPolicy::add_objects(
-  const autoware_auto_msgs::msg::ClassifiedRoiArray & vision_rois,
+  const autoware_auto_perception_msgs::msg::ClassifiedRoiArray & vision_rois,
   const AssociatorResult & associator_result)
 {
-  autoware_auto_msgs::msg::ClassifiedRoiArray::SharedPtr vision_rois_msg =
-    std::make_shared<autoware_auto_msgs::msg::ClassifiedRoiArray>();
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray::SharedPtr vision_rois_msg =
+    std::make_shared<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>();
   vision_rois_msg->header = vision_rois.header;
   for (const auto & unassigned_idx : associator_result.unassigned_detection_indices) {
     vision_rois_msg->rois.push_back(vision_rois.rois[unassigned_idx]);

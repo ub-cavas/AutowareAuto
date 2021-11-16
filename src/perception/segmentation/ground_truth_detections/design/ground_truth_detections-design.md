@@ -95,15 +95,15 @@ This node has no ROS2 parameters.
 
 | input topic                            | input type                                                                                                      | output topic                             | output type                                                                                                                                                                         | output frame |
 |-----|----|----|----|---|
-| `/simulator/ground_truth/detections2D` | [`lgsvl_msgs::msg::Detection2DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection2DArray.msg) | `/perception/ground_truth_detections_2d` | [`autoware_auto_msgs::msg::ClassifiedRoiArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/ClassifiedRoiArray.idl) | `camera`     |
-| `/simulator/ground_truth/detections3D` | [`lgsvl_msgs::msg::Detection3DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection3DArray.msg) | `/perception/ground_truth_detections_3d` | [`autoware_auto_msgs::msg::DetectedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/DetectedObjects.idl)       | `base_link`  |
+| `/simulator/ground_truth/detections2D` | [`lgsvl_msgs::msg::Detection2DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection2DArray.msg) | `/perception/ground_truth_detections_2d` | [`autoware_auto_perception_msgs::msg::ClassifiedRoiArray`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/ClassifiedRoiArray.idl) | `camera`     |
+| `/simulator/ground_truth/detections3D` | [`lgsvl_msgs::msg::Detection3DArray`](https://github.com/lgsvl/lgsvl_msgs/blob/master/msg/Detection3DArray.msg) | `/perception/ground_truth_detections_3d` | [`autoware_auto_perception_msgs::msg::DetectedObjects`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/DetectedObjects.idl)       | `base_link`  |
 
 ## Inner-workings / Algorithms
 <!-- If applicable -->
 
 The labels of objects are character strings in SVL and can take arbitrary values. The following
 mapping to
-[`autoware_auto_msgs::msg::ObjectClassification`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/ObjectClassification.idl)
+[`autoware_auto_perception_msgs::msg::ObjectClassification`](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/ObjectClassification.idl)
 values is performed:
 
 | label in SVL  | object class |
@@ -136,10 +136,10 @@ object in object-local coordinates and are ordered counter-clockwise:
 -# front left
 
 Check the `Shape` [message
-definition](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/Shape.idl)
+definition](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/Shape.idl)
 to learn more about constraints on its members. The z value of each corner is zero. The position and
 orientation of the object (in `base_link` coordinates) are not stored in the shape but rather in the
-[kinematics](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_msgs/msg/DetectedObjectKinematics.idl).
+[kinematics](https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs/-/blob/master/autoware_auto_perception_msgs/msg/DetectedObjectKinematics.idl).
 
 ## Error detection and handling
 <!-- Required -->

@@ -23,10 +23,10 @@ namespace
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware_auto_msgs::msg::PointXYZIF;
+using autoware_auto_perception_msgs::msg::PointXYZIF;
 using autoware::common::lidar_utils::PointClustersView;
 
-using autoware_auto_msgs::msg::PointClusters;
+using autoware_auto_perception_msgs::msg::PointClusters;
 
 PointXYZIF make_point(float32_t x, float32_t y, float32_t z) noexcept
 {

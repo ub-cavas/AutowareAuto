@@ -14,7 +14,6 @@
 
   <buildtool_export_depend>autoware_auto_cmake</buildtool_export_depend>
 
-  <depend>autoware_auto_msgs</depend>
   <depend>geometry_msgs</depend>
   <depend>motion_common</depend>
   <depend>motion_model</depend>

@@ -15,7 +15,7 @@
 #ifndef HAD_MAP_UTILS__HAD_MAP_CONVERSION_HPP_
 #define HAD_MAP_UTILS__HAD_MAP_CONVERSION_HPP_
 
-#include <autoware_auto_msgs/msg/had_map_bin.hpp>
+#include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <lanelet2_core/LaneletMap.h>
 #include <memory>
 #include "had_map_utils/visibility_control.hpp"
@@ -29,10 +29,10 @@ namespace had_map_utils
 
 void HAD_MAP_UTILS_PUBLIC toBinaryMsg(
   const std::shared_ptr<lanelet::LaneletMap> & map,
-  autoware_auto_msgs::msg::HADMapBin & msg);
+  autoware_auto_mapping_msgs::msg::HADMapBin & msg);
 
 void HAD_MAP_UTILS_PUBLIC fromBinaryMsg(
-  const autoware_auto_msgs::msg::HADMapBin & msg,
+  const autoware_auto_mapping_msgs::msg::HADMapBin & msg,
   std::shared_ptr<lanelet::LaneletMap> & map);
 
 }  // namespace had_map_utils

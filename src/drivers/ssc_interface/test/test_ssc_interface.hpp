@@ -20,8 +20,8 @@
 #include <ssc_interface/ssc_interface.hpp>
 #include <memory>
 
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
 class SscInterface_test : public ::testing::Test
 {

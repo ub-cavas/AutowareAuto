@@ -26,17 +26,17 @@
 #include "rclcpp/rclcpp.hpp"
 
 
-#include "autoware_auto_msgs/msg/complex32.hpp"
-#include "autoware_auto_msgs/msg/engage.hpp"
-#include "autoware_auto_msgs/msg/had_map_route.hpp"
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+#include "autoware_auto_geometry_msgs/msg/complex32.hpp"
+#include "autoware_auto_vehicle_msgs/msg/engage.hpp"
+#include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
 
-using autoware_auto_msgs::msg::Complex32;
-using autoware_auto_msgs::msg::Engage;
-using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::VehicleOdometry;
-using autoware_auto_msgs::msg::VehicleStateReport;
+using autoware_auto_geometry_msgs::msg::Complex32;
+using autoware_auto_vehicle_msgs::msg::Engage;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
 using geometry_msgs::msg::Point;
 using geometry_msgs::msg::PoseStamped;

@@ -245,10 +245,10 @@ std::vector<float64_t> calcTrajectoryCurvature(
 }
 
 bool8_t convertToMPCTrajectory(
-  const autoware_auto_msgs::msg::Trajectory & input, MPCTrajectory & output)
+  const autoware_auto_planning_msgs::msg::Trajectory & input, MPCTrajectory & output)
 {
   output.clear();
-  for (const autoware_auto_msgs::msg::TrajectoryPoint & p : input.points) {
+  for (const autoware_auto_planning_msgs::msg::TrajectoryPoint & p : input.points) {
     const float64_t x = p.x;
     const float64_t y = p.y;
     const float64_t z = 0.0;
@@ -263,10 +263,10 @@ bool8_t convertToMPCTrajectory(
 }
 
 bool8_t convertToAutowareTrajectory(
-  const MPCTrajectory & input, autoware_auto_msgs::msg::Trajectory & output)
+  const MPCTrajectory & input, autoware_auto_planning_msgs::msg::Trajectory & output)
 {
   output.points.clear();
-  autoware_auto_msgs::msg::TrajectoryPoint p;
+  autoware_auto_planning_msgs::msg::TrajectoryPoint p;
   for (size_t i = 0; i < input.size(); ++i) {
     p.x = static_cast<decltype(p.x)>(input.x.at(i));
     p.y = static_cast<decltype(p.y)>(input.y.at(i));
@@ -345,7 +345,8 @@ int64_t calcNearestIndex(
 }
 
 int64_t calcNearestIndex(
-  const autoware_auto_msgs::msg::Trajectory & traj, const geometry_msgs::msg::Pose & self_pose)
+  const autoware_auto_planning_msgs::msg::Trajectory & traj,
+  const geometry_msgs::msg::Pose & self_pose)
 {
   if (traj.points.empty()) {
     return -1;
@@ -449,7 +450,7 @@ bool8_t calcNearestPoseInterp(
 }
 
 float64_t calcStopDistance(
-  const autoware_auto_msgs::msg::Trajectory & current_trajectory,
+  const autoware_auto_planning_msgs::msg::Trajectory & current_trajectory,
   const int64_t origin)
 {
   constexpr float zero_velocity = std::numeric_limits<float>::epsilon();

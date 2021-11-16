@@ -22,7 +22,7 @@
   <depend>lanelet2_projection</depend>
   <depend>lanelet2</depend>
 
-  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_mapping_msgs</depend>
   <depend>visualization_msgs</depend>
   <depend>autoware_auto_common</depend>
   <depend>had_map_utils</depend>

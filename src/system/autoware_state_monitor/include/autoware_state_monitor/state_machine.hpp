@@ -20,10 +20,10 @@
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
 
-#include "autoware_auto_msgs/msg/autoware_state.hpp"
-#include "autoware_auto_msgs/msg/engage.hpp"
-#include "autoware_auto_msgs/msg/had_map_route.hpp"
-#include "autoware_auto_msgs/msg/vehicle_state_report.hpp"
+#include "autoware_auto_system_msgs/msg/autoware_state.hpp"
+#include "autoware_auto_vehicle_msgs/msg/engage.hpp"
+#include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
 
 #include "autoware_state_monitor/state.hpp"
 #include "autoware_state_monitor/odometry_buffer.hpp"
@@ -42,13 +42,13 @@ struct StateInput
   /// Current pose of the vehicle.
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
   /// Goal pose of the vehicle.
-  autoware_auto_msgs::msg::RoutePoint::ConstSharedPtr goal_pose;
+  autoware_auto_planning_msgs::msg::RoutePoint::ConstSharedPtr goal_pose;
   /// Determines if the vehicle should be engaged or disengaged.
-  autoware_auto_msgs::msg::Engage::ConstSharedPtr engage;
+  autoware_auto_vehicle_msgs::msg::Engage::ConstSharedPtr engage;
   /// Report about the current state of the vehicle.
-  autoware_auto_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
+  autoware_auto_vehicle_msgs::msg::VehicleStateReport::ConstSharedPtr vehicle_state_report;
   /// Planned global route.
-  autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr route;
+  autoware_auto_planning_msgs::msg::HADMapRoute::ConstSharedPtr route;
   /// Buffer that stores odometry messages.
   OdometryBuffer odometry_buffer;
   /// Determines if the system should be finalized.
@@ -114,7 +114,7 @@ private:
 
   bool isNearGoal(
     const geometry_msgs::msg::Pose & current_pose,
-    const autoware_auto_msgs::msg::RoutePoint & goal_pose,
+    const autoware_auto_planning_msgs::msg::RoutePoint & goal_pose,
     const double th_dist) const;
 
   bool isStopped(
@@ -123,13 +123,13 @@ private:
 
   State judgeAutowareState() const;
 
-  State autoware_state_ = autoware_auto_msgs::msg::AutowareState::INITIALIZING;
+  State autoware_state_ = autoware_auto_system_msgs::msg::AutowareState::INITIALIZING;
   StateInput state_input_;
   const StateMachineParams state_param_;
 
   mutable Times times_;
   mutable Flags flags_;
-  mutable autoware_auto_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
+  mutable autoware_auto_planning_msgs::msg::HADMapRoute::ConstSharedPtr executing_route_ = nullptr;
 };
 
 }  // namespace state_monitor

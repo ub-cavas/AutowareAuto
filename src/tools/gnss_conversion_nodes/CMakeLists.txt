@@ -71,7 +71,7 @@ if(BUILD_TESTING)
       "rclcpp"
       "rclcpp_components"
       "autoware_auto_common"
-      "autoware_auto_msgs"
+      "autoware_auto_geometry_msgs"
       "sensor_msgs"
   )
 endif()

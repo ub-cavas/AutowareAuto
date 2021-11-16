@@ -21,10 +21,10 @@
 #ifndef TRACKING__TRACKED_OBJECT_HPP_
 #define TRACKING__TRACKED_OBJECT_HPP_
 
-#include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_msgs/msg/detected_objects.hpp>
-#include <autoware_auto_msgs/msg/shape.hpp>
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/shape.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <common/types.hpp>
 #include <motion_model/linear_motion_model.hpp>
 #include <state_estimation/kalman_filter/kalman_filter.hpp>
@@ -53,10 +53,11 @@ public:
   using MotionModel = autoware::common::motion_model::LinearMotionModel<CA>;
   using NoiseModel = autoware::common::state_estimation::WienerNoise<CA>;
   using EKF = autoware::common::state_estimation::KalmanFilter<MotionModel, NoiseModel>;
-  using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
-  using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
-  using ObjectClassifications = autoware_auto_msgs::msg::TrackedObject::_classification_type;
-  using ShapeMsg = autoware_auto_msgs::msg::Shape;
+  using TrackedObjectMsg = autoware_auto_perception_msgs::msg::TrackedObject;
+  using DetectedObjectMsg = autoware_auto_perception_msgs::msg::DetectedObject;
+  using ObjectClassifications =
+    autoware_auto_perception_msgs::msg::TrackedObject::_classification_type;
+  using ShapeMsg = autoware_auto_perception_msgs::msg::Shape;
 
   /// Constructor
   ///

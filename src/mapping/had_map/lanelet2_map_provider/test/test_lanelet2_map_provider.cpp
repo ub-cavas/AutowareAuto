@@ -89,10 +89,10 @@ TEST(TestLanelet2MapProviderNode, TestService) {
   rclcpp::spin_some(map_node_ptr);
 
   std::shared_ptr<rclcpp::Node> node = rclcpp::Node::make_shared("HAD_Map_Clinet");
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr client =
-    node->create_client<autoware_auto_msgs::srv::HADMapService>("HAD_Map_Service");
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr client =
+    node->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Service");
 
-  auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
+  auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Request>();
   request->requested_primitives.push_back(1);
   while (!client->wait_for_service(1s)) {
     if (!rclcpp::ok()) {

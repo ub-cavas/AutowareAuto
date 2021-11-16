@@ -22,7 +22,7 @@
 #include <rviz_common/properties/float_property.hpp>
 #include <rviz_default_plugins/displays/marker/marker_common.hpp>
 #include <rviz_default_plugins/displays/marker_array/marker_array_display.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <visibility_control.hpp>
 #include <common/types.hpp>
 #include <memory>
@@ -35,7 +35,7 @@ namespace rviz_plugins
 {
 
 class AUTOWARE_RVIZ_PLUGINS_PUBLIC TrajectoryDisplay
-  : public rviz_common::RosTopicDisplay<autoware_auto_msgs::msg::Trajectory>
+  : public rviz_common::RosTopicDisplay<autoware_auto_planning_msgs::msg::Trajectory>
 {
   Q_OBJECT
 
@@ -52,8 +52,8 @@ private Q_SLOTS:
 private:
   using MarkerCommon = rviz_default_plugins::displays::MarkerCommon;
   using Marker = visualization_msgs::msg::Marker;
-  using Trajectory = autoware_auto_msgs::msg::Trajectory;
-  using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+  using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+  using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
   // Convert boxes into markers, push them to the display queue
   void processMessage(Trajectory::ConstSharedPtr msg) override;

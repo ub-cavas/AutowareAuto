@@ -36,7 +36,8 @@ if(BUILD_TESTING)
   target_include_directories(${PROJECT_NAME}_test PRIVATE "include")
   target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
   ament_target_dependencies(vehicle_interface_test
-    "autoware_auto_msgs"
+    "autoware_auto_control_msgs"
+    "autoware_auto_vehicle_msgs"
     "rclcpp"
     "reference_tracking_controller"
     "signal_filters")

@@ -23,15 +23,15 @@
 
 #include "lonely_world_prediction/visibility_control.hpp"
 
-#include "autoware_auto_msgs/msg/predicted_objects.hpp"
-#include "autoware_auto_msgs/msg/tracked_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_objects.hpp"
 
 namespace autoware
 {
 namespace prediction
 {
 geometry_msgs::msg::PoseWithCovariance LONELY_WORLD_PREDICTION_PUBLIC
-make_pose(const autoware_auto_msgs::msg::TrackedObjectKinematics & tracked);
+make_pose(const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & tracked);
 
 /**
  * @brief Create one `PredictedObject` from each `TrackedObject` and copy over all members that are
@@ -40,8 +40,8 @@ make_pose(const autoware_auto_msgs::msg::TrackedObjectKinematics & tracked);
  * @param[in] objects Input tracked objects
  * @return predicted objects
  */
-autoware_auto_msgs::msg::PredictedObjects LONELY_WORLD_PREDICTION_PUBLIC
-from_tracked(const autoware_auto_msgs::msg::TrackedObjects & objects);
+autoware_auto_perception_msgs::msg::PredictedObjects LONELY_WORLD_PREDICTION_PUBLIC
+from_tracked(const autoware_auto_perception_msgs::msg::TrackedObjects & objects);
 
 /**
  * @brief Create a `PredictedObject` from a `TrackedObject` and copy over all members that are
@@ -50,8 +50,8 @@ from_tracked(const autoware_auto_msgs::msg::TrackedObjects & objects);
  * @param[in] object Input tracked object
  * @return predicted object
  */
-autoware_auto_msgs::msg::PredictedObject LONELY_WORLD_PREDICTION_PUBLIC
-from_tracked(const autoware_auto_msgs::msg::TrackedObject & object);
+autoware_auto_perception_msgs::msg::PredictedObject LONELY_WORLD_PREDICTION_PUBLIC
+from_tracked(const autoware_auto_perception_msgs::msg::TrackedObject & object);
 
 /**
  * @brief Create `PredictedObjectKinematics` from `TrackedObjectKinematics` and copy over all
@@ -60,8 +60,8 @@ from_tracked(const autoware_auto_msgs::msg::TrackedObject & object);
  * @param[in] kinematics Input kinematics
  * @return predicted objects
  */
-autoware_auto_msgs::msg::PredictedObjectKinematics LONELY_WORLD_PREDICTION_PUBLIC
-from_tracked(const autoware_auto_msgs::msg::TrackedObjectKinematics & kinematics);
+autoware_auto_perception_msgs::msg::PredictedObjectKinematics LONELY_WORLD_PREDICTION_PUBLIC
+from_tracked(const autoware_auto_perception_msgs::msg::TrackedObjectKinematics & kinematics);
 
 }  // namespace prediction
 }  // namespace autoware

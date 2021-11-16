@@ -16,7 +16,6 @@
 
     <depend>autoware_auto_common</depend>
     <depend>autoware_auto_geometry</depend>
-    <depend>autoware_auto_msgs</depend>
     <depend>geometry_msgs</depend>
     <depend>lidar_utils</depend>
     <depend>localization_common</depend>

@@ -23,7 +23,7 @@
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using model_zoo::perception::lidar_obstacle_detection::baidu_cnn::onnx_bcnn::config;
 
 namespace autoware

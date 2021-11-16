@@ -21,10 +21,10 @@
 #include "lonely_world_prediction/test/make_inputs.hpp"
 #include "prediction_nodes/prediction_node.hpp"
 
-#include "autoware_auto_msgs/msg/object_classification.hpp"
-#include "autoware_auto_msgs/msg/shape.hpp"
-#include "autoware_auto_msgs/msg/tracked_object.hpp"
-#include "autoware_auto_msgs/msg/tracked_object_kinematics.hpp"
+#include "autoware_auto_perception_msgs/msg/object_classification.hpp"
+#include "autoware_auto_perception_msgs/msg/shape.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_object.hpp"
+#include "autoware_auto_perception_msgs/msg/tracked_object_kinematics.hpp"
 
 namespace
 {

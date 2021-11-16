@@ -11,7 +11,7 @@
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
 
-  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_perception_msgs</depend>
   <depend>time_utils</depend>
 
   <test_depend>ament_cmake_gmock</test_depend>

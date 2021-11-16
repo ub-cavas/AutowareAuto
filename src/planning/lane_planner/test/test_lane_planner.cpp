@@ -18,10 +18,10 @@
 
 #include "gtest/gtest.h"
 
-using autoware_auto_msgs::msg::MapPrimitive;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::HADMapSegment;
-using autoware_auto_msgs::msg::TrajectoryPoint;
+using autoware_auto_mapping_msgs::msg::MapPrimitive;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_mapping_msgs::msg::HADMapSegment;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 
 using motion::motion_common::VehicleConfig;
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;

@@ -15,8 +15,8 @@
 #define MOTION_TESTING_NODES__MOTION_TESTING_PUBLISHER_HPP_
 
 #include <motion_testing_nodes/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <tf2_msgs/msg/tf_message.hpp>
 
 #include <rclcpp/rclcpp.hpp>
@@ -30,10 +30,10 @@ namespace motion
 {
 namespace motion_testing_nodes
 {
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using TFMessage = tf2_msgs::msg::TFMessage;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
-using TrajectoryPoint = autoware_auto_msgs::msg::TrajectoryPoint;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
+using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using TransformStamped = geometry_msgs::msg::TransformStamped;
 
 /// Characterizes one part/profile of the test sequence

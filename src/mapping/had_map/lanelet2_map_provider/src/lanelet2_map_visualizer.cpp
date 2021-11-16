@@ -28,8 +28,8 @@
 #include <unordered_set>
 
 #include "lanelet2_map_provider/lanelet2_map_provider.hpp"
-#include "autoware_auto_msgs/srv/had_map_service.hpp"
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 
 #include "had_map_utils/had_map_conversion.hpp"
 #include "had_map_utils/had_map_query.hpp"
@@ -56,7 +56,7 @@ void insertMarkerArray(
 }
 
 void Lanelet2MapVisualizer::visualize_map_callback(
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture response)
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture response)
 {
   auto msg = response.get()->map;
 
@@ -135,13 +135,13 @@ Lanelet2MapVisualizer::Lanelet2MapVisualizer(const rclcpp::NodeOptions & options
 : Node("lanelet2_map_visualizer", options)
 {
   m_client =
-    this->create_client<autoware_auto_msgs::srv::HADMapService>("HAD_Map_Service");
+    this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Service");
 
   m_viz_pub = this->create_publisher<visualization_msgs::msg::MarkerArray>(
     "viz_had_map",
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 
-  auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService::Request>();
+  auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService::Request>();
   bool8_t use_geom_bounds = false;
 
   float64_t d = 20.0;
@@ -152,10 +152,10 @@ Lanelet2MapVisualizer::Lanelet2MapVisualizer(const rclcpp::NodeOptions & options
   request->geom_lower_bound.clear();
   if (!use_geom_bounds) {
     request->requested_primitives.push_back(
-      autoware_auto_msgs::srv::HADMapService::Request::FULL_MAP);
+      autoware_auto_mapping_msgs::srv::HADMapService::Request::FULL_MAP);
   } else {
     request->requested_primitives.push_back(
-      autoware_auto_msgs::srv::HADMapService::Request::DRIVEABLE_GEOMETRY);
+      autoware_auto_mapping_msgs::srv::HADMapService::Request::DRIVEABLE_GEOMETRY);
     for (size_t i = 0; i < 3; i++) {
       request->geom_upper_bound.push_back(upper[i]);
       request->geom_lower_bound.push_back(lower[i]);

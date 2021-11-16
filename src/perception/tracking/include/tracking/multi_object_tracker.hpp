@@ -27,11 +27,11 @@
 #include <tracking/tracked_object.hpp>
 #include <tracking/visibility_control.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
-#include <autoware_auto_msgs/msg/detected_object.hpp>
-#include <autoware_auto_msgs/msg/point_clusters.hpp>
-#include <autoware_auto_msgs/msg/tracked_object.hpp>
-#include <autoware_auto_msgs/msg/tracked_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/detected_object.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_object.hpp>
+#include <autoware_auto_perception_msgs/msg/tracked_objects.hpp>
 #include <common/types.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_model/linear_motion_model.hpp>
@@ -80,7 +80,7 @@ enum class TrackerUpdateStatus
 struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
   /// The existing tracks output.
-  autoware_auto_msgs::msg::TrackedObjects tracks;
+  autoware_auto_perception_msgs::msg::TrackedObjects tracks;
   /// Indices of unassigned clusters.
   std::vector<std::size_t> unassigned_clusters_indices;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
@@ -109,12 +109,12 @@ template<class TrackCreatorT>
 class TRACKING_PUBLIC MultiObjectTracker
 {
 private:
-  using ClustersMsg = autoware_auto_msgs::msg::PointClusters;
-  using DetectedObjectsMsg = autoware_auto_msgs::msg::DetectedObjects;
-  using DetectedObjectKinematics = autoware_auto_msgs::msg::DetectedObjectKinematics;
-  using BoundingBoxArrayMsg = autoware_auto_msgs::msg::BoundingBoxArray;
-  using ClassifiedRoiArrayMsg = autoware_auto_msgs::msg::ClassifiedRoiArray;
-  using TrackedObjectsMsg = autoware_auto_msgs::msg::TrackedObjects;
+  using ClustersMsg = autoware_auto_perception_msgs::msg::PointClusters;
+  using DetectedObjectsMsg = autoware_auto_perception_msgs::msg::DetectedObjects;
+  using DetectedObjectKinematics = autoware_auto_perception_msgs::msg::DetectedObjectKinematics;
+  using BoundingBoxArrayMsg = autoware_auto_perception_msgs::msg::BoundingBoxArray;
+  using ClassifiedRoiArrayMsg = autoware_auto_perception_msgs::msg::ClassifiedRoiArray;
+  using TrackedObjectsMsg = autoware_auto_perception_msgs::msg::TrackedObjects;
 
 public:
   /// Constructor

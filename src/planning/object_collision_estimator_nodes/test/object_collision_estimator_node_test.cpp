@@ -28,10 +28,10 @@
 
 using motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimatorNode;
 using motion::motion_testing::constant_velocity_trajectory;
-using autoware_auto_msgs::msg::BoundingBoxArray;
-using autoware_auto_msgs::msg::BoundingBox;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBox;
 using motion::motion_common::VehicleConfig;
-using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware::common::types::float32_t;
 using std::chrono::system_clock;
 
@@ -116,9 +116,10 @@ void object_collision_estimator_node_test(
   // create a client node to call the service interface of the collision estimator node
   std::shared_ptr<rclcpp::Node> estimate_collision_client_node = rclcpp::Node::make_shared(
     "estimate_collision_client");
-  rclcpp::Client<autoware_auto_msgs::srv::ModifyTrajectory>::SharedPtr estimate_collision_client =
-    estimate_collision_client_node->create_client<autoware_auto_msgs::srv::ModifyTrajectory>(
-    "estimate_collision");
+  rclcpp::Client<autoware_auto_planning_msgs::srv::ModifyTrajectory>::SharedPtr
+    estimate_collision_client =
+    estimate_collision_client_node->create_client<
+    autoware_auto_planning_msgs::srv::ModifyTrajectory>("estimate_collision");
 
   // create a executor and add all nodes to it
   rclcpp::executors::SingleThreadedExecutor exec;
@@ -176,7 +177,7 @@ void object_collision_estimator_node_test(
   }
 
   // create a request message that can be sent to the service interface
-  auto request = std::make_shared<autoware_auto_msgs::srv::ModifyTrajectory::Request>();
+  auto request = std::make_shared<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request>();
   request->original_trajectory = trajectory;
 
   // sent the request to the service interface

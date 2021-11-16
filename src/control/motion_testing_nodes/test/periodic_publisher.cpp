@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 #include <gtest/gtest.h>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <motion_testing_nodes/periodic_publisher.hpp>
 
 #include <memory>
@@ -53,9 +53,9 @@ protected:
 };  // class PeriodicPublisherTest
 
 
-using Command = autoware_auto_msgs::msg::VehicleControlCommand;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using TestTypes = ::testing::Types<State, Trajectory, Command>;
 
 // cppcheck-suppress syntaxError

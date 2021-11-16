@@ -26,10 +26,10 @@ namespace cluster_projection_node
 {
 ClusterProjectionNode::ClusterProjectionNode(const rclcpp::NodeOptions & options)
 :  Node("cluster_projection_node", options),
-  m_clusters_sub{create_subscription<autoware_auto_msgs::msg::DetectedObjects>(
+  m_clusters_sub{create_subscription<autoware_auto_perception_msgs::msg::DetectedObjects>(
       "clusters_in", rclcpp::QoS{30},
       std::bind(&ClusterProjectionNode::cluster_callback, this, std::placeholders::_1))},
-  m_projection_pub{create_publisher<autoware_auto_msgs::msg::ClassifiedRoiArray>(
+  m_projection_pub{create_publisher<autoware_auto_perception_msgs::msg::ClassifiedRoiArray>(
       "/projected_clusters", rclcpp::QoS{30})},
   m_camera_model{{
         static_cast<std::size_t>(declare_parameter(
@@ -53,9 +53,9 @@ ClusterProjectionNode::ClusterProjectionNode(const rclcpp::NodeOptions & options
 {}
 
 void ClusterProjectionNode::cluster_callback(
-  autoware_auto_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg)
+  autoware_auto_perception_msgs::msg::DetectedObjects::ConstSharedPtr objects_msg)
 {
-  autoware_auto_msgs::msg::ClassifiedRoiArray projections;
+  autoware_auto_perception_msgs::msg::ClassifiedRoiArray projections;
   projections.header = objects_msg->header;
   projections.header.frame_id = m_camera_frame;
 
@@ -65,7 +65,7 @@ void ClusterProjectionNode::cluster_callback(
         m_camera_frame, objects_msg->header.frame_id,
         time_utils::from_message(objects_msg->header.stamp));
 
-      autoware_auto_msgs::msg::ClassifiedRoi projection_roi;
+      autoware_auto_perception_msgs::msg::ClassifiedRoi projection_roi;
 
       perception::tracking::details::ShapeTransformer transformer{tf.transform};
       const auto projected_pts = m_camera_model.project(

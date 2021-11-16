@@ -12,8 +12,9 @@ frame transforms. This is true even to the extent that the tf2 contains the pack
 types defined in `geometry_msgs` and `sensor_msgs`, respectively. However, AutowareAuto contains
 some specialized message types which are not transformable between frames using the ROS2 library.
 The `autoware_auto_tf2` package aims to provide developers with tools to transform applicable
-`autoware_auto_msgs` types. In addition to this, this package also provides transform tools for
-messages types in `geometry_msgs` missing in `tf2_geometry_msgs`. 
+`autoware_auto_geometry_msgs` and `autoware_auto_perception_msgs` types. In addition to this, this
+package also provides transform tools for messages types in `geometry_msgs` missing in
+`tf2_geometry_msgs`.
 
 
 # Design
@@ -67,7 +68,7 @@ were not added; such as `Vector3`, `Point`, or ported in this commit ros/geometr
 The non-stamped data with `toMsg` and `fromMsg` are `Quaternion`, `Transform`. `Pose` has the
 modified `toMsg` and not used by `PoseStamped`.
 
-## Plan for autoware_auto_msgs::msg::BoundingBoxArray
+## Plan for autoware_auto_perception_msgs::msg::BoundingBoxArray
 
 The initial rough plan was to implement some of the common tf2 functions like `toMsg`, `fromMsg`,
 and `doTransform`, as needed for all the underlying data types in `BoundingBoxArray`. Examples
@@ -93,9 +94,9 @@ geometry_msgs::Point& toMsg(const tf2::Vector3& in, geometry_msgs::Point& out)
 <!-- Required -->
 
 The library provides API `doTransform` for the following data-types that are either not available
-in `tf2_geometry_msgs` or the messages types are part of `autoware_auto_msgs` and are therefore
-custom and not inherently supported by any of the tf2 libraries. The following APIs are provided
-for the following data types:
+in `tf2_geometry_msgs` or the messages types are part of `autoware_auto_geometry_msgs` and
+`autoware_auto_perception_msgs` are therefore custom and not inherently supported by any of the tf2
+libraries. The following APIs are provided for the following data types:
 
 * `Point32`
 ```
@@ -104,14 +105,14 @@ inline void doTransform(
   geometry_msgs::msg::Point32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
-* `Quarternion32` (`autoware_auto_msgs`)
+* `Quarternion32` (`autoware_auto_geometry_msgs`)
 ```
 inline void doTransform(
-  const autoware_auto_msgs::msg::Quaternion32 & t_in,
-  autoware_auto_msgs::msg::Quaternion32 & t_out,
+  const autoware_auto_geometry_msgs::msg::Quaternion32 & t_in,
+  autoware_auto_geometry_msgs::msg::Quaternion32 & t_out,
   const geometry_msgs::msg::TransformStamped & transform)
 ```
-* `BoundingBox` (`autoware_auto_msgs`)
+* `BoundingBox` (`autoware_auto_perception_msgs`)
 ```
 inline void doTransform(
   const BoundingBox & t_in, BoundingBox & t_out,

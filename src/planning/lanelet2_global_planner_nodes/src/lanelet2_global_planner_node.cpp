@@ -23,7 +23,7 @@
 #include <time_utils/time_utils.hpp>
 #include <motion_common/motion_common.hpp>
 
-#include <autoware_auto_msgs/msg/complex32.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -41,7 +41,7 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::TAU;
 using autoware::planning::lanelet2_global_planner::Lanelet2GlobalPlanner;
-using autoware_auto_msgs::msg::Complex32;
+using autoware_auto_geometry_msgs::msg::Complex32;
 using std::placeholders::_1;
 
 namespace autoware
@@ -51,10 +51,10 @@ namespace planning
 namespace lanelet2_global_planner_nodes
 {
 
-autoware_auto_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
+autoware_auto_planning_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
   const geometry_msgs::msg::Pose & pose)
 {
-  autoware_auto_msgs::msg::TrajectoryPoint pt;
+  autoware_auto_planning_msgs::msg::TrajectoryPoint pt;
   pt.x = static_cast<float>(pose.position.x);
   pt.y = static_cast<float>(pose.position.y);
   const auto angle = tf2::getYaw(pose.orientation);
@@ -78,17 +78,18 @@ Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
 
   // Subcribers Current Pose
   current_pose_sub_ptr =
-    this->create_subscription<autoware_auto_msgs::msg::VehicleKinematicState>(
+    this->create_subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
     "vehicle_kinematic_state", rclcpp::QoS(10),
     std::bind(&Lanelet2GlobalPlannerNode::current_pose_cb, this, _1));
 
   // Global path publisher
   global_path_pub_ptr =
-    this->create_publisher<autoware_auto_msgs::msg::HADMapRoute>(
+    this->create_publisher<autoware_auto_planning_msgs::msg::HADMapRoute>(
     "global_path", rclcpp::QoS(10));
 
   // Create map client
-  map_client = this->create_client<autoware_auto_msgs::srv::HADMapService>("HAD_Map_Client");
+  map_client =
+    this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Client");
 
   // Request binary map from the map loader node
   this->request_osm_binary_map();
@@ -105,9 +106,9 @@ void Lanelet2GlobalPlannerNode::request_osm_binary_map()
       "Client interrupted while waiting for map service to appear. Exiting.");
   }
 
-  auto request = std::make_shared<autoware_auto_msgs::srv::HADMapService_Request>();
+  auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Request>();
   request->requested_primitives.push_back(
-    autoware_auto_msgs::srv::HADMapService_Request::FULL_MAP);
+    autoware_auto_mapping_msgs::srv::HADMapService_Request::FULL_MAP);
 
   auto result = map_client->async_send_request(request);
   if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) !=
@@ -118,7 +119,7 @@ void Lanelet2GlobalPlannerNode::request_osm_binary_map()
   }
 
   // copy message to map
-  autoware_auto_msgs::msg::HADMapBin msg = result.get()->map;
+  autoware_auto_mapping_msgs::msg::HADMapBin msg = result.get()->map;
 
   // Convert binary map msg to lanelet2 map and set the map for global path planner
   lanelet2_global_planner->osm_map = std::make_shared<lanelet::LaneletMap>();
@@ -166,7 +167,7 @@ void Lanelet2GlobalPlannerNode::goal_pose_cb(
 }
 
 void Lanelet2GlobalPlannerNode::current_pose_cb(
-  const autoware_auto_msgs::msg::VehicleKinematicState::SharedPtr msg)
+  const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg)
 {
   // convert msg to geometry_msgs::msg::Pose
   start_pose.pose.position.x = msg->state.x;
@@ -197,8 +198,9 @@ void Lanelet2GlobalPlannerNode::current_pose_cb(
 
 void Lanelet2GlobalPlannerNode::send_global_path(
   const std::vector<lanelet::Id> & route,
-  const autoware_auto_msgs::msg::TrajectoryPoint & start_point,
-  const autoware_auto_msgs::msg::TrajectoryPoint & end_point, const std_msgs::msg::Header & header)
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & start_point,
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & end_point,
+  const std_msgs::msg::Header & header)
 {
   // the maximum of PlanTrajectory message is 100
   if (route.size() > 100) {
@@ -210,15 +212,15 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   // parking id = first/first to last
   // drivable area = second/second to last
   // main route = other
-  autoware_auto_msgs::msg::HADMapRoute global_route;
+  autoware_auto_planning_msgs::msg::HADMapRoute global_route;
   global_route.header = header;
 
-  autoware_auto_msgs::msg::RoutePoint start_route_point;
+  autoware_auto_planning_msgs::msg::RoutePoint start_route_point;
   start_route_point.position.x = start_point.x;
   start_route_point.position.y = start_point.y;
   start_route_point.heading = start_point.heading;
 
-  autoware_auto_msgs::msg::RoutePoint end_route_point;
+  autoware_auto_planning_msgs::msg::RoutePoint end_route_point;
   end_route_point.position.x = end_point.x;
   end_route_point.position.y = end_point.y;
   end_route_point.heading = end_point.heading;
@@ -228,11 +230,11 @@ void Lanelet2GlobalPlannerNode::send_global_path(
 
   for (const auto & route_id : route) {
     // add data to the global path
-    autoware_auto_msgs::msg::MapPrimitive primitive;
+    autoware_auto_mapping_msgs::msg::MapPrimitive primitive;
     primitive.id = route_id;
     primitive.primitive_type = lanelet2_global_planner->get_primitive_type(route_id);
 
-    autoware_auto_msgs::msg::HADMapSegment new_segment;
+    autoware_auto_mapping_msgs::msg::HADMapSegment new_segment;
     new_segment.preferred_primitive_id = primitive.id;
     new_segment.primitives.push_back(primitive);
     global_route.segments.push_back(new_segment);

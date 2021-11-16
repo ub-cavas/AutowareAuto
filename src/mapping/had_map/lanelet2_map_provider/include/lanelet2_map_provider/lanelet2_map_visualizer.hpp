@@ -40,11 +40,11 @@ public:
   explicit Lanelet2MapVisualizer(const rclcpp::NodeOptions & options);
 
 private:
-  rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedPtr m_client;
+  rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr m_client;
   rclcpp::Publisher<visualization_msgs::msg::MarkerArray>::SharedPtr m_viz_pub;
 
   void visualize_map_callback(
-    rclcpp::Client<autoware_auto_msgs::srv::HADMapService>::SharedFuture response);
+    rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedFuture response);
 };
 
 }  // namespace lanelet2_map_provider

@@ -19,7 +19,7 @@
 #ifndef TRAJECTORY_SMOOTHER__TRAJECTORY_SMOOTHER_HPP_
 #define TRAJECTORY_SMOOTHER__TRAJECTORY_SMOOTHER_HPP_
 
-#include "autoware_auto_msgs/msg/trajectory.hpp"
+#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
 #include <common/types.hpp>
 #include <vector>
 #include <cmath>
@@ -33,7 +33,7 @@ namespace planning
 namespace trajectory_smoother
 {
 
-using autoware_auto_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware::common::types::float32_t;
 
 typedef struct

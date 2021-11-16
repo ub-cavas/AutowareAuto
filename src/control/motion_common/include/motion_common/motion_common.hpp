@@ -15,10 +15,10 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
-#include <autoware_auto_msgs/msg/control_diagnostic.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <time_utils/time_utils.hpp>
 
@@ -30,11 +30,11 @@ namespace motion
 namespace motion_common
 {
 // Use same representation as message type
-using Real = decltype(autoware_auto_msgs::msg::TrajectoryPoint::x);
-using Command = autoware_auto_msgs::msg::VehicleControlCommand;
-using Diagnostic = autoware_auto_msgs::msg::ControlDiagnostic;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::x);
+using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using Diagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using Heading = decltype(decltype(State::state)::heading);
 using Index = decltype(Trajectory::points)::size_type;
 using Point = decltype(Trajectory::points)::value_type;
@@ -252,11 +252,11 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept;
 }  // namespace motion_common
 }  // namespace motion
 
-namespace autoware_auto_msgs
+namespace autoware_auto_geometry_msgs
 {
 namespace msg
 {
-// TODO(c.ho) these should go into some autoware_auto_msgs package
+// TODO(c.ho) these should go into some autoware_auto_geometry_msgs package
 /// Addition operator
 MOTION_COMMON_PUBLIC Complex32 operator+(Complex32 a, Complex32 b) noexcept;
 /// Unary minus
@@ -264,5 +264,5 @@ MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a) noexcept;
 /// Difference operator
 MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a, Complex32 b) noexcept;
 }  // namespace msg
-}  // namespace autoware_auto_msgs
+}  // namespace autoware_auto_geometry_msgs
 #endif  // MOTION_COMMON__MOTION_COMMON_HPP_

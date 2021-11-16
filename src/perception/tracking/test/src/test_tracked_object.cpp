@@ -17,14 +17,14 @@
 #include <chrono>
 #include <vector>
 
-#include "autoware_auto_msgs/msg/detected_object.hpp"
+#include "autoware_auto_perception_msgs/msg/detected_object.hpp"
 #include "gtest/gtest.h"
 #include "tracking/tracked_object.hpp"
 
 using TrackedObject = autoware::perception::tracking::TrackedObject;
-using DetectedObjectMsg = autoware_auto_msgs::msg::DetectedObject;
-using TrackedObjectMsg = autoware_auto_msgs::msg::TrackedObject;
-using autoware_auto_msgs::msg::ObjectClassification;
+using DetectedObjectMsg = autoware_auto_perception_msgs::msg::DetectedObject;
+using TrackedObjectMsg = autoware_auto_perception_msgs::msg::TrackedObject;
+using autoware_auto_perception_msgs::msg::ObjectClassification;
 
 // Test that the has_twist field is respected when initializing the tracked object.
 TEST(TestTrackedObject, TestOptionalTwist) {
@@ -49,7 +49,7 @@ TEST(TestTrackedObject, TestOptionalCovariance) {
   msg.kinematics.position_covariance[4] = 3.0;  // linear y
   msg.kinematics.position_covariance[8] = 3.0;  // linear z
   ObjectClassification classification;
-  classification.classification = autoware_auto_msgs::msg::ObjectClassification::CAR;
+  classification.classification = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
   classification.probability = 1.0;
   msg.classification.emplace_back(classification);
   TrackedObject object{msg, kDefaultVariance, 30.0};
@@ -92,7 +92,8 @@ TEST(TestTrackedObject, TestOptionalCovariance) {
   EXPECT_EQ(object.msg().kinematics.twist.covariance[35], 0.0);
   ASSERT_FALSE(object.msg().classification.empty());
   EXPECT_FLOAT_EQ(
-    object.msg().classification[autoware_auto_msgs::msg::ObjectClassification::CAR].probability,
+    object.msg().classification[
+      autoware_auto_perception_msgs::msg::ObjectClassification::CAR].probability,
     1.0);
 }
 

@@ -28,14 +28,14 @@
 
 // autoware packages
 #include <common/types.hpp>
-#include <autoware_auto_msgs/action/plan_trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory.hpp>
-#include <autoware_auto_msgs/msg/trajectory_point.hpp>
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
-#include <autoware_auto_msgs/srv/modify_trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <behavior_planner/behavior_planner.hpp>
 
 //  Other ROS packages
@@ -51,17 +51,17 @@ namespace autoware
 {
 namespace behavior_planner_nodes
 {
-using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
+using PlanTrajectoryAction = autoware_auto_planning_msgs::action::PlanTrajectory;
 using PlanTrajectoryGoalHandle = rclcpp_action::ClientGoalHandle<PlanTrajectoryAction>;
-using HADMapService = autoware_auto_msgs::srv::HADMapService;
-using autoware_auto_msgs::srv::ModifyTrajectory;
-using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::VehicleStateReport;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using HADMapService = autoware_auto_mapping_msgs::srv::HADMapService;
+using autoware_auto_planning_msgs::srv::ModifyTrajectory;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::behavior_planner::PlannerType;
 using autoware::behavior_planner::RouteWithType;
 

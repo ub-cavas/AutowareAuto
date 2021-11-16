@@ -199,7 +199,7 @@ protected:
     Trajectory ret{};
     ret.points.reserve(size);
     for (auto idx = 0U; idx < size; ++idx) {
-      autoware_auto_msgs::msg::TrajectoryPoint pt{};
+      autoware_auto_planning_msgs::msg::TrajectoryPoint pt{};
       const auto fdx = static_cast<float32_t>(idx);
       const auto r = r0 + (r_rate * fdx);
       const auto th = th_per_iter * fdx;

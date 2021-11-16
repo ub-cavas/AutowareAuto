@@ -29,7 +29,7 @@
 
 #include "euclidean_cluster/euclidean_cluster.hpp"
 
-using autoware_auto_msgs::msg::PointXYZIF;
+using autoware_auto_perception_msgs::msg::PointXYZIF;
 using autoware::perception::segmentation::euclidean_cluster::PointXYZIR;
 using autoware::perception::segmentation::euclidean_cluster::PointXYZI;
 using autoware::perception::segmentation::euclidean_cluster::HashConfig;

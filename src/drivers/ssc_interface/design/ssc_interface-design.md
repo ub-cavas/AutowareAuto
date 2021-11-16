@@ -18,9 +18,9 @@ This package inherits from @ref vehicle-interface-design and, as such, performs 
 ### Inputs
 
 #### From Autoware
-- autoware_auto_msgs::msg::VehicleControlCommand to command speed and steering
-- autoware_auto_msgs::msg::AckermannControlCommand to command speed and steering (untested)
-- autoware_auto_msgs::msg::VehicleStateCommand to control drive-by-wire mode, gear, and turn signals
+- autoware_auto_vehicle_msgs::msg::VehicleControlCommand to command speed and steering
+- autoware_auto_control_msgs::msg::AckermannControlCommand to Command speed and steering (untested)
+- autoware_auto_vehicle_msgs::msg::VehicleStateCommand to control drive-by-wire mode, gear, and turn signals
 
 #### From SSC
 - automotive_platform_msgs::msg::GearFeedback
@@ -30,8 +30,8 @@ This package inherits from @ref vehicle-interface-design and, as such, performs 
 ### Outputs
 
 #### To Autoware
-- autoware_auto_msgs::msg::VehicleOdometry
-- autoware_auto_msgs::msg::VehicleStateReport
+- autoware_auto_vehicle_msgs::msg::VehicleOdometry
+- autoware_auto_vehicle_msgs::msg::VehicleStateReport
 
 #### To SSC
 - automotive_platform_msgs::msg::GearCommand

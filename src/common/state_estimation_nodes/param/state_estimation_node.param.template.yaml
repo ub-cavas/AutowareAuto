@@ -22,7 +22,7 @@
         - /twist_topic_1
         - /twist_topic_2
       # Topics in input_relative_pos subscribe to
-      # autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped messages.
+      # autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped messages.
       input_relative_pos:
         - /relative_pos_topic_1
         - /relative_pos_topic_2

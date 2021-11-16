@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <autoware_auto_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <time_utils/time_utils.hpp>
@@ -32,7 +32,7 @@ namespace planning
 namespace object_collision_estimator_nodes
 {
 
-using autoware_auto_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using visualization_msgs::msg::Marker;
 using visualization_msgs::msg::MarkerArray;
 using autoware::common::types::float64_t;

@@ -17,7 +17,7 @@
 #ifndef AUTOWARE_STATE_MONITOR__ODOMETRY_UPDATER_HPP_
 #define AUTOWARE_STATE_MONITOR__ODOMETRY_UPDATER_HPP_
 
-#include "autoware_auto_msgs/msg/vehicle_odometry.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_state_monitor/visibility_control.hpp"
 #include "autoware_state_monitor/odometry_buffer.hpp"
 
@@ -37,7 +37,7 @@ public:
 
   /// \brief Add new odometry message to buffer
   /// \param msg vehicle odometry message
-  void update(const autoware_auto_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
+  void update(const autoware_auto_vehicle_msgs::msg::VehicleOdometry::ConstSharedPtr msg);
 
 private:
   OdometryBuffer & odometry_buffer_;

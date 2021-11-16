@@ -16,7 +16,7 @@
 
 #include <tracking_test_framework/scene.hpp>
 
-#include <autoware_auto_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
 #include <geometry/bounding_box_2d.hpp>
 #include <time_utils/time_utils.hpp>
 
@@ -46,17 +46,17 @@ std::vector<ObjIntersections> Scene::get_intersections_with_lidar(
   return m_lidar.get_intersections_per_object(m_objects, closest_only);
 }
 
-autoware_auto_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
+autoware_auto_perception_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
   const bool closest_only) const
 {
   std::vector<ObjIntersections> intersections_all_objects =
     this->get_intersections_with_lidar(closest_only);
 
-  autoware_auto_msgs::msg::DetectedObjects detected_object_msg_array{};
+  autoware_auto_perception_msgs::msg::DetectedObjects detected_object_msg_array{};
   for (const auto & intersection_per_object : intersections_all_objects) {
     /// Fill Shape with all intersections of LiDAR and each object
     geometry_msgs::msg::Polygon polygon{};
-    autoware_auto_msgs::msg::BoundingBox bounding_box{};
+    autoware_auto_perception_msgs::msg::BoundingBox bounding_box{};
     std::vector<autoware::common::types::PointXYZIF> points_vec{};
     /// Loop to convert point represented as Eigen::Vector2f to autoware::common::types::PointXYZIF
     for (const auto & point : intersection_per_object.points) {
@@ -81,18 +81,18 @@ autoware_auto_msgs::msg::DetectedObjects Scene::get_detected_objects_array(
     }
 
     /// Detected Object
-    autoware_auto_msgs::msg::DetectedObject detected_object_msg{};
+    autoware_auto_perception_msgs::msg::DetectedObject detected_object_msg{};
     detected_object_msg.existence_probability = 1.0;
-    autoware_auto_msgs::msg::ObjectClassification classification;
+    autoware_auto_perception_msgs::msg::ObjectClassification classification;
     if (intersection_per_object.obj_type == ObjectType::Pedestrian) {
       classification.classification =
-        autoware_auto_msgs::msg::ObjectClassification::PEDESTRIAN;
+        autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN;
     } else if (intersection_per_object.obj_type == ObjectType::Car) {
       classification.classification =
-        autoware_auto_msgs::msg::ObjectClassification::CAR;
+        autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
     } else {
       classification.classification =
-        autoware_auto_msgs::msg::ObjectClassification::UNKNOWN;
+        autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
     }
 
     classification.probability = 1.0;

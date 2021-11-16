@@ -16,7 +16,7 @@
   <depend>libboost-system-dev</depend>
   <depend>python3-dev</depend>
 
-  <exec_depend>autoware_auto_msgs</exec_depend>
+  <exec_depend>autoware_auto_perception_msgs</exec_depend>
   <exec_depend>python3-numpy</exec_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>ros2topic</exec_depend>

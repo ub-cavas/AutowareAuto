@@ -144,7 +144,7 @@ private:
   /**
    * @brief calculate velocity with considering current velocity and gear
    * @param [in] state current state
-   * @param [in] gear current gear (defined in autoware_auto_msgs/VehicleStateCommand)
+   * @param [in] gear current gear (defined in autoware_auto_vehicle_msgs/VehicleStateCommand)
    */
   float64_t calcVelocityWithGear(const Eigen::VectorXd & state, const uint8_t gear) const;
 };

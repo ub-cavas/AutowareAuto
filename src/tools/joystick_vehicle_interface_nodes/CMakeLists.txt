@@ -28,7 +28,10 @@ if(BUILD_TESTING)
   target_link_libraries(joystick_vehicle_interface_nodes_test
     ${JOYSTICK_VEHICLE_INTERFACE_LIB_NODE})
   ament_target_dependencies(joystick_vehicle_interface_nodes_test
-    "rclcpp" "autoware_auto_msgs" "sensor_msgs")
+    "rclcpp"
+    "autoware_auto_control_msgs"
+    "autoware_auto_vehicle_msgs"
+    "sensor_msgs")
 endif()
 
 ament_auto_package(INSTALL_TO_SHARE param launch)

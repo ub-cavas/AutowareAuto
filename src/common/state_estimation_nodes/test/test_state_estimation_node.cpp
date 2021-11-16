@@ -30,7 +30,7 @@
 using nav_msgs::msg::Odometry;
 using geometry_msgs::msg::PoseWithCovarianceStamped;
 using autoware::common::state_estimation::StateEstimationNode;
-using autoware_auto_msgs::msg::RelativePositionWithCovarianceStamped;
+using autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped;
 using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 

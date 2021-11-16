@@ -28,8 +28,8 @@ using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 
 void check_box(
-  const std::vector<autoware_auto_msgs::msg::BoundingBox> & expect,
-  const autoware_auto_msgs::msg::BoundingBox & box,
+  const std::vector<autoware_auto_perception_msgs::msg::BoundingBox> & expect,
+  const autoware_auto_perception_msgs::msg::BoundingBox & box,
   const float32_t TOL = 5.0E-1F)
 {
   bool8_t found = false;
@@ -71,7 +71,7 @@ void check_box(
   EXPECT_TRUE(found);
 }
 
-autoware_auto_msgs::msg::BoundingBox compute_box(Cluster & cls)
+autoware_auto_perception_msgs::msg::BoundingBox compute_box(Cluster & cls)
 {
   EXPECT_EQ(sizeof(PointXYZI), cls.point_step);
   const auto begin = reinterpret_cast<PointXYZI *>(&cls.data[0U]);
@@ -124,8 +124,8 @@ TEST(EuclideanSegmenter, Combined)
   EuclideanCluster cls{cfg, hcfg};
   Clusters res;
   res.clusters.reserve(cfg.max_num_clusters());
-  std::vector<autoware_auto_msgs::msg::BoundingBox> expect;
-  autoware_auto_msgs::msg::BoundingBox box;
+  std::vector<autoware_auto_perception_msgs::msg::BoundingBox> expect;
+  autoware_auto_perception_msgs::msg::BoundingBox box;
   std::vector<std::pair<float32_t, float32_t>> dummy;
   const auto make = [](const float32_t x, const float32_t y) -> geometry_msgs::msg::Point32
     {
@@ -138,7 +138,7 @@ TEST(EuclideanSegmenter, Combined)
   const auto box_fuzz = [](
     EuclideanCluster & cls,
     std::vector<std::pair<float32_t, float32_t>> & dummy,
-    const autoware_auto_msgs::msg::BoundingBox & box) -> void
+    const autoware_auto_perception_msgs::msg::BoundingBox & box) -> void
     {
       insert_point(cls, box.corners[0U].x, box.corners[0U].y);
       insert_point(cls, box.corners[1U].x, box.corners[1U].y);

@@ -13,7 +13,7 @@
   <depend>rclcpp</depend>
   <depend>rclcpp_components</depend>
   <depend>object_collision_estimator</depend>
-  <depend>autoware_auto_msgs</depend>
+  <depend>autoware_auto_planning_msgs</depend>
   <depend>autoware_auto_tf2</depend>
   <depend>visualization_msgs</depend>
   <depend>tf2</depend>

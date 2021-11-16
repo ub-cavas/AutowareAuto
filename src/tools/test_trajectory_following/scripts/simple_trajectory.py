@@ -17,9 +17,9 @@
 import rclpy
 from rclpy.node import Node
 
-from autoware_auto_msgs.msg import Trajectory
-from autoware_auto_msgs.msg import TrajectoryPoint
-from autoware_auto_msgs.msg import VehicleKinematicState
+from autoware_auto_planning_msgs.msg import Trajectory
+from autoware_auto_planning_msgs.msg import TrajectoryPoint
+from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
 
 
 from rclpy.duration import Duration

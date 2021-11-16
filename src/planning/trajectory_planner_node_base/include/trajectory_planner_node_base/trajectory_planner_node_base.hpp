@@ -26,9 +26,9 @@
 #include <rclcpp_action/rclcpp_action.hpp>
 
 // Autoware Package
-#include <autoware_auto_msgs/srv/had_map_service.hpp>
-#include <autoware_auto_msgs/action/plan_trajectory.hpp>
-#include <autoware_auto_msgs/msg/had_map_route.hpp>
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
+#include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
 #include <common/types.hpp>
 
 // external libraries
@@ -43,9 +43,9 @@ namespace trajectory_planner_node_base
 
 using autoware::common::types::bool8_t;
 
-using HADMapService = autoware_auto_msgs::srv::HADMapService;
-using HADMapRoute = autoware_auto_msgs::msg::HADMapRoute;
-using Trajectory = autoware_auto_msgs::msg::Trajectory;
+using HADMapService = autoware_auto_mapping_msgs::srv::HADMapService;
+using HADMapRoute = autoware_auto_planning_msgs::msg::HADMapRoute;
+using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 
 enum class PlannerState
 {
@@ -79,7 +79,7 @@ protected:
     const lanelet::LaneletMapPtr & lanelet_map_ptr) = 0;
 
 private:
-  using PlanTrajectoryAction = autoware_auto_msgs::action::PlanTrajectory;
+  using PlanTrajectoryAction = autoware_auto_planning_msgs::action::PlanTrajectory;
   using GoalHandle = rclcpp_action::ServerGoalHandle<PlanTrajectoryAction>;
 
   // ROS Interface

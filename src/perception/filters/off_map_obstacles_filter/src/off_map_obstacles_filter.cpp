@@ -52,7 +52,7 @@ OffMapObstaclesFilter::OffMapObstaclesFilter(
 /// \return A polygon with the four corners of the bounding box projected into 2D.
 static lanelet::Polygon2d polygon_for_bbox(
   const Eigen::Isometry2f & map_from_base_link,
-  const autoware_auto_msgs::msg::BoundingBox & bbox)
+  const autoware_auto_perception_msgs::msg::BoundingBox & bbox)
 {
   // Create lanelet polygon from bounding box
   // We can neglect z here already, I had a peek into bounding_box.cpp and it's basically 2d only
@@ -104,7 +104,7 @@ static Eigen::Isometry2d convert_2d_transform(const geometry_msgs::msg::Transfor
 
 visualization_msgs::msg::MarkerArray OffMapObstaclesFilter::bboxes_in_map_frame_viz(
   const geometry_msgs::msg::TransformStamped & map_from_base_link,
-  const autoware_auto_msgs::msg::BoundingBoxArray & msg) const
+  const autoware_auto_perception_msgs::msg::BoundingBoxArray & msg) const
 {
   const Eigen::Isometry2d map_from_base_link_isometry = convert_2d_transform(map_from_base_link);
 
@@ -166,7 +166,7 @@ static bool bbox_is_on_map(
   const lanelet::LaneletMap & map,
   const Eigen::Isometry2f & map_from_base_link,
   const float64_t overlap_threshold,
-  const autoware_auto_msgs::msg::BoundingBox & bbox)
+  const autoware_auto_perception_msgs::msg::BoundingBox & bbox)
 {
   const lanelet::Polygon2d bbox_poly = polygon_for_bbox(map_from_base_link, bbox);
   // See https://github.com/fzi-forschungszentrum-informatik/Lanelet2/blob/master/lanelet2_core/doc/GeometryPrimer.md
@@ -220,7 +220,7 @@ static bool bbox_is_on_map(
 
 void OffMapObstaclesFilter::remove_off_map_bboxes(
   const geometry_msgs::msg::TransformStamped & map_from_base_link,
-  autoware_auto_msgs::msg::BoundingBoxArray & msg) const
+  autoware_auto_perception_msgs::msg::BoundingBoxArray & msg) const
 {
   const Eigen::Isometry2d map_from_base_link_isometry = convert_2d_transform(map_from_base_link);
   msg.boxes.erase(
