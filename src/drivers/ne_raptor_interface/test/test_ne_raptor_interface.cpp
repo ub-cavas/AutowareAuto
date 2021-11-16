@@ -705,7 +705,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = true;
     myTests[i].in_vsc.horn = true;
-    myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
+    myTests[i].exp_gc.cmd.gear = GearReport::DRIVE_1;
     myTests[i].exp_gc.enable = true;
     myTests[i].exp_gec.global_enable = true;
     myTests[i].exp_gec.enable_joystick_limits = true;
@@ -732,7 +732,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].in_vsc.hand_brake = false;
   myTests[0].in_vsc.horn = false;
-  myTests[0].exp_gc.cmd.gear = Gear::NONE;
+  myTests[0].exp_gc.cmd.gear = GearReport::NONE;
   myTests[0].exp_gc.enable = false;
   myTests[0].exp_gec.global_enable = false;
   myTests[0].exp_gec.enable_joystick_limits = false;
@@ -755,7 +755,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   myTests[1].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[1].in_vsc.hand_brake = false;
   myTests[1].in_vsc.horn = false;
-  myTests[1].exp_gc.cmd.gear = Gear::PARK;
+  myTests[1].exp_gc.cmd.gear = GearReport::PARK;
   myTests[1].exp_gc.enable = false;
   myTests[1].exp_gec.global_enable = false;
   myTests[1].exp_gec.enable_joystick_limits = false;
@@ -783,7 +783,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   myTests[3].in_vsc.blinker = VehicleStateCommand::BLINKER_LEFT;
   myTests[3].in_vsc.wiper = VehicleStateCommand::WIPER_LOW;
   myTests[3].in_vsc.headlight = HeadlightsCommand::ENABLE_LOW;
-  myTests[3].exp_gc.cmd.gear = Gear::LOW;
+  myTests[3].exp_gc.cmd.gear = GearReport::LOW;
   myTests[3].exp_mc.cmd.value = TurnSignal::LEFT;
   myTests[3].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
   myTests[3].exp_mc.low_beam_cmd.status = LowBeam::ON;
@@ -795,7 +795,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   myTests[4].in_vsc.blinker = VehicleStateCommand::BLINKER_RIGHT;
   myTests[4].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN;
   myTests[4].in_vsc.headlight = HeadlightsCommand::ENABLE_HIGH;
-  myTests[4].exp_gc.cmd.gear = Gear::NEUTRAL;
+  myTests[4].exp_gc.cmd.gear = GearReport::NEUTRAL;
   myTests[4].exp_mc.cmd.value = TurnSignal::RIGHT;
   myTests[4].exp_mc.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
   myTests[4].exp_mc.low_beam_cmd.status = LowBeam::OFF;
@@ -845,10 +845,10 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
 
   // Test invalid: gear
   myTests[kTestValid_VSC + 9].in_vsc.gear = VehicleStateCommand::GEAR_NEUTRAL + 1;
-  myTests[kTestValid_VSC + 9].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 9].exp_gc.cmd.gear = GearReport::NONE;
 
   myTests[kTestValid_VSC + 10].in_vsc.gear = 0xFF;
-  myTests[kTestValid_VSC + 10].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 10].exp_gc.cmd.gear = GearReport::NONE;
 
   // Test invalid: mode (keep previous: on)
   myTests[kTestValid_VSC + 11].exp_success = true;
@@ -1070,7 +1070,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = true;
     myTests[i].in_vsc.horn = true;
-    myTests[i].exp_gc.cmd.gear = Gear::DRIVE;
+    myTests[i].exp_gc.cmd.gear = GearReport::DRIVE_1;
     myTests[i].exp_gc.enable = true;
     myTests[i].exp_gec.global_enable = true;
     myTests[i].exp_gec.enable_joystick_limits = true;
@@ -1097,7 +1097,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   myTests[0].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[0].in_vsc.hand_brake = false;
   myTests[0].in_vsc.horn = false;
-  myTests[0].exp_gc.cmd.gear = Gear::NONE;
+  myTests[0].exp_gc.cmd.gear = GearReport::NONE;
   myTests[0].exp_gc.enable = false;
   myTests[0].exp_gec.global_enable = false;
   myTests[0].exp_gec.enable_joystick_limits = false;
@@ -1120,7 +1120,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   myTests[1].in_mcr = ModeChangeRequest::MODE_MANUAL;
   myTests[1].in_vsc.hand_brake = false;
   myTests[1].in_vsc.horn = false;
-  myTests[1].exp_gc.cmd.gear = Gear::PARK;
+  myTests[1].exp_gc.cmd.gear = GearReport::PARK;
   myTests[1].exp_gc.enable = false;
   myTests[1].exp_gec.global_enable = false;
   myTests[1].exp_gec.enable_joystick_limits = false;
@@ -1148,7 +1148,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   myTests[3].in_vsc.blinker = VehicleStateCommand::BLINKER_LEFT;
   myTests[3].in_vsc.wiper = VehicleStateCommand::WIPER_LOW;
   myTests[3].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_ON;
-  myTests[3].exp_gc.cmd.gear = Gear::LOW;
+  myTests[3].exp_gc.cmd.gear = GearReport::LOW;
   myTests[3].exp_mc.cmd.value = TurnSignal::LEFT;
   myTests[3].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
   myTests[3].exp_mc.low_beam_cmd.status = LowBeam::ON;
@@ -1160,7 +1160,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   myTests[4].in_vsc.blinker = VehicleStateCommand::BLINKER_RIGHT;
   myTests[4].in_vsc.wiper = VehicleStateCommand::WIPER_CLEAN;
   myTests[4].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_HIGH;
-  myTests[4].exp_gc.cmd.gear = Gear::NEUTRAL;
+  myTests[4].exp_gc.cmd.gear = GearReport::NEUTRAL;
   myTests[4].exp_mc.cmd.value = TurnSignal::RIGHT;
   myTests[4].exp_mc.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
   myTests[4].exp_mc.low_beam_cmd.status = LowBeam::OFF;
@@ -1210,10 +1210,10 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
 
   // Test invalid: gear
   myTests[kTestValid_VSC + 9].in_vsc.gear = VehicleStateCommand::GEAR_NEUTRAL + 1;
-  myTests[kTestValid_VSC + 9].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 9].exp_gc.cmd.gear = GearReport::NONE;
 
   myTests[kTestValid_VSC + 10].in_vsc.gear = 0xFF;
-  myTests[kTestValid_VSC + 10].exp_gc.cmd.gear = Gear::NONE;
+  myTests[kTestValid_VSC + 10].exp_gc.cmd.gear = GearReport::NONE;
 
   // Test invalid: mode (keep previous: on)
   myTests[kTestValid_VSC + 11].exp_success = true;
@@ -1331,7 +1331,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
     myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
@@ -1364,7 +1364,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
   /* Test valid input:
    * positive (forward) speed sent w/ Gear in Drive */
   myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_gr.report = GearReport::DRIVE_1;
   myTests[2].in_hlcc.stamp = test_clock.now();
   myTests[2].in_hlcc.velocity_mps = 10.0F;
   myTests[2].in_hlcc.curvature = 0.0F;
@@ -1374,7 +1374,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
   /* Test valid input:
    * negative (backward) speed sent w/ Gear in Reverse */
   myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_gr.report = GearReport::REVERSE;
   myTests[3].in_hlcc.stamp = test_clock.now();
   myTests[3].in_hlcc.velocity_mps = -10.0F;
   myTests[3].in_hlcc.curvature = 0.0F;
@@ -1384,7 +1384,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
   /* Test invalid input:
    * positive (forward) speed sent w/ Gear in Reverse */
   myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_gr.report = GearReport::REVERSE;
   myTests[4].in_hlcc.stamp = test_clock.now();
   myTests[4].in_hlcc.velocity_mps = 10.0F;
   myTests[4].in_hlcc.curvature = 0.0F;
@@ -1395,7 +1395,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControl)
   /* Test invalid input:
    * negative (backward) speed sent w/ Gear in Drive*/
   myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_gr.report = GearReport::DRIVE_1;
   myTests[5].in_hlcc.stamp = test_clock.now();
   myTests[5].in_hlcc.velocity_mps = -10.0F;
   myTests[5].in_hlcc.curvature = 0.0F;
@@ -1618,7 +1618,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
     myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
@@ -1651,7 +1651,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
   /* Test valid input:
    * positive (forward) speed sent w/ Gear in Drive */
   myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_gr.report = GearReport::DRIVE_1;
   myTests[2].in_hlcc.stamp = test_clock.now();
   myTests[2].in_hlcc.velocity_mps = 10.0F;
   myTests[2].in_hlcc.curvature = 0.0F;
@@ -1661,7 +1661,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
   /* Test valid input:
    * negative (backward) speed sent w/ Gear in Reverse */
   myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_gr.report = GearReport::REVERSE;
   myTests[3].in_hlcc.stamp = test_clock.now();
   myTests[3].in_hlcc.velocity_mps = -10.0F;
   myTests[3].in_hlcc.curvature = 0.0F;
@@ -1671,7 +1671,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
   /* Test invalid input:
    * positive (forward) speed sent w/ Gear in Reverse */
   myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_gr.report = GearReport::REVERSE;
   myTests[4].in_hlcc.stamp = test_clock.now();
   myTests[4].in_hlcc.velocity_mps = 10.0F;
   myTests[4].in_hlcc.curvature = 0.0F;
@@ -1682,7 +1682,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdHighLevelControlNoMsgCheck)
   /* Test invalid input:
    * negative (backward) speed sent w/ Gear in Drive*/
   myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_gr.report = GearReport::DRIVE_1;
   myTests[5].in_hlcc.stamp = test_clock.now();
   myTests[5].in_hlcc.velocity_mps = -10.0F;
   myTests[5].in_hlcc.curvature = 0.0F;
@@ -1831,7 +1831,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
     myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
@@ -1870,7 +1870,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
   /* Test valid input:
    * positive (forward) speed sent w/ Gear in Drive */
   myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_gr.report = GearReport::DRIVE_1;
   myTests[2].in_vcc.stamp = test_clock.now();
   myTests[2].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[2].in_vcc.velocity_mps = 10.0F;
@@ -1883,7 +1883,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
   /* Test valid input:
    * negative (backward) speed sent w/ Gear in Reverse */
   myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_gr.report = GearReport::REVERSE;
   myTests[3].in_vcc.stamp = test_clock.now();
   myTests[3].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[3].in_vcc.velocity_mps = -10.0F;
@@ -1896,7 +1896,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
   /* Test invalid input:
    * positive (forward) speed sent w/ Gear in Reverse */
   myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_gr.report = GearReport::REVERSE;
   myTests[4].in_vcc.stamp = test_clock.now();
   myTests[4].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[4].in_vcc.velocity_mps = 10.0F;
@@ -1910,7 +1910,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleControl)
   /* Test invalid input:
    * negative (backward) speed sent w/ Gear in Drive*/
   myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_gr.report = GearReport::DRIVE_1;
   myTests[5].in_vcc.stamp = test_clock.now();
   myTests[5].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[5].in_vcc.velocity_mps = -10.0F;
@@ -2219,7 +2219,7 @@ TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_vsc.hand_brake = false;
     myTests[i].in_vsc.horn = false;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].exp_apc.enable = true;
     myTests[i].exp_bc.enable = true;
     myTests[i].exp_bc.park_brake_cmd.status = ParkingBrake::OFF;
@@ -2258,7 +2258,7 @@ TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
   /* Test valid input:
    * positive (forward) speed sent w/ Gear in Drive */
   myTests[2].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[2].in_gr.state.gear = Gear::DRIVE;
+  myTests[2].in_gr.report = GearReport::DRIVE_1;
   myTests[2].in_vcc.stamp = test_clock.now();
   myTests[2].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[2].in_vcc.velocity_mps = 10.0F;
@@ -2271,7 +2271,7 @@ TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
   /* Test valid input:
    * negative (backward) speed sent w/ Gear in Reverse */
   myTests[3].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[3].in_gr.state.gear = Gear::REVERSE;
+  myTests[3].in_gr.report = GearReport::REVERSE;
   myTests[3].in_vcc.stamp = test_clock.now();
   myTests[3].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[3].in_vcc.velocity_mps = -10.0F;
@@ -2284,7 +2284,7 @@ TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
   /* Test invalid input:
    * positive (forward) speed sent w/ Gear in Reverse */
   myTests[4].in_vsc.gear = VehicleStateCommand::GEAR_REVERSE;
-  myTests[4].in_gr.state.gear = Gear::REVERSE;
+  myTests[4].in_gr.report = GearReport::REVERSE;
   myTests[4].in_vcc.stamp = test_clock.now();
   myTests[4].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[4].in_vcc.velocity_mps = 10.0F;
@@ -2298,7 +2298,7 @@ TEST_F(NERaptorInterfaceTest, TestCmdVehicleControlNoMsgCheck)
   /* Test invalid input:
    * negative (backward) speed sent w/ Gear in Drive*/
   myTests[5].in_vsc.gear = VehicleStateCommand::GEAR_DRIVE;
-  myTests[5].in_gr.state.gear = Gear::DRIVE;
+  myTests[5].in_gr.report = GearReport::DRIVE_1;
   myTests[5].in_vcc.stamp = test_clock.now();
   myTests[5].in_vcc.long_accel_mps2 = 0.0F;  // keep default limits
   myTests[5].in_vcc.velocity_mps = -10.0F;
@@ -2482,7 +2482,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleState)
   for (i = 0; i < kNumTests_VSR; i++) {
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_br.parking_brake.status = ParkingBrake::ON;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].in_mr.fuel_level = 10.0F;
     myTests[i].in_mr.drive_by_wire_enabled = true;
     myTests[i].in_mr.by_wire_ready = true;
@@ -2506,7 +2506,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleState)
    * other inputs off
    */
   myTests[0].in_br.parking_brake.status = ParkingBrake::OFF;
-  myTests[0].in_gr.state.gear = Gear::PARK;
+  myTests[0].in_gr.report = GearReport::PARK;
   myTests[0].in_mr.fuel_level = 0.0F;
   myTests[0].in_mr.drive_by_wire_enabled = true;
   myTests[0].in_oar.turn_signal_state.value = TurnSignal::NONE;
@@ -2529,7 +2529,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleState)
   /* myTests[1]  -> default data */
 
   // gear == low, turn signal == left, wiper == low
-  myTests[2].in_gr.state.gear = Gear::LOW;
+  myTests[2].in_gr.report = GearReport::LOW;
   myTests[2].in_oar.turn_signal_state.value = TurnSignal::LEFT;
   myTests[2].in_oar.front_wiper_state.status = WiperFront::CONSTANT_LOW;
   myTests[2].exp_vsr.gear = VehicleStateReport::GEAR_LOW;
@@ -2545,7 +2545,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleState)
   /* Invalid input: faults
    * for parking brake, gear, turn signal, high beam, wiper, horn */
   myTests[kTestValid_VSR + 0].in_br.parking_brake.status = ParkingBrake::FAULT;
-  myTests[kTestValid_VSR + 0].in_gr.state.gear = Gear::NONE;
+  myTests[kTestValid_VSR + 0].in_gr.report = GearReport::NONE;
   myTests[kTestValid_VSR + 0].in_oar.turn_signal_state.value = TurnSignal::SNA;
   myTests[kTestValid_VSR + 0].in_oar.high_beam_state.value = HighBeamState::RESERVED;
   myTests[kTestValid_VSR + 0].in_oar.front_wiper_state.status = WiperFront::SNA;
@@ -2637,7 +2637,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleStateNoMsgCheck)
   for (i = 0; i < kNumTests_VSR; i++) {
     myTests[i].in_mcr = ModeChangeRequest::MODE_AUTONOMOUS;
     myTests[i].in_br.parking_brake.status = ParkingBrake::ON;
-    myTests[i].in_gr.state.gear = Gear::DRIVE;
+    myTests[i].in_gr.report = GearReport::DRIVE_1;
     myTests[i].in_mr.fuel_level = 10.0F;
     myTests[i].in_mr.drive_by_wire_enabled = true;
     myTests[i].in_mr.by_wire_ready = true;
@@ -2659,7 +2659,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleStateNoMsgCheck)
    * other inputs off
    */
   myTests[0].in_br.parking_brake.status = ParkingBrake::OFF;
-  myTests[0].in_gr.state.gear = Gear::PARK;
+  myTests[0].in_gr.report = GearReport::PARK;
   myTests[0].in_mr.fuel_level = 0.0F;
   myTests[0].in_mr.drive_by_wire_enabled = true;
   myTests[0].in_oar.turn_signal_state.value = TurnSignal::NONE;
@@ -2680,7 +2680,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleStateNoMsgCheck)
   /* myTests[1]  -> default data */
 
   // gear == low, turn signal == left, wiper == low
-  myTests[2].in_gr.state.gear = Gear::LOW;
+  myTests[2].in_gr.report = GearReport::LOW;
   myTests[2].in_oar.turn_signal_state.value = TurnSignal::LEFT;
   myTests[2].in_oar.front_wiper_state.status = WiperFront::CONSTANT_LOW;
   myTests[2].exp_vsr.gear = VehicleStateReport::GEAR_LOW;
@@ -2696,7 +2696,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleStateNoMsgCheck)
   /* Invalid input: faults
    * for parking brake, gear, turn signal, high beam, wiper */
   myTests[kTestValid_VSR + 0].in_br.parking_brake.status = ParkingBrake::FAULT;
-  myTests[kTestValid_VSR + 0].in_gr.state.gear = Gear::NONE;
+  myTests[kTestValid_VSR + 0].in_gr.report = GearReport::NONE;
   myTests[kTestValid_VSR + 0].in_oar.turn_signal_state.value = TurnSignal::SNA;
   myTests[kTestValid_VSR + 0].in_oar.high_beam_state.value = HighBeamState::RESERVED;
   myTests[kTestValid_VSR + 0].in_oar.front_wiper_state.status = WiperFront::SNA;
@@ -2767,13 +2767,13 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleOdometry)
     myTests[i].in_mr.vehicle_speed = 10.0F *
       static_cast<float32_t>(i);  // kph
     // Forward or backward
-    myTests[i].in_gr.enabled = true;
+    // myTests[i].in_gr.enabled = true; NOTE(esteve): no equivalent in GearReport
 
     switch (i) {
       case 12:
       case 14:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels not moving
         myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
@@ -2782,7 +2782,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleOdometry)
         break;
       case 13:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels going different directions
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
@@ -2793,7 +2793,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleOdometry)
       case 16:
       case 17:
         travel_dir = -1.0F;  // moving backward
-        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_gr.report = GearReport::REVERSE;
         myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
@@ -2801,7 +2801,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleOdometry)
         break;
       default:
         travel_dir = 1.0F;  // moving forward
-        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_gr.report = GearReport::DRIVE_1;
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec
@@ -2914,13 +2914,13 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleOdometryNoMsgCheck)
     myTests[i].in_mr.vehicle_speed = 10.0F *
       static_cast<float32_t>(i);  // kph
     // Forward or backward
-    myTests[i].in_gr.enabled = true;
+    // myTests[i].in_gr.enabled = true; NOTE(esteve): no equivalent in GearReport
 
     switch (i) {
       case 12:
       case 14:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels not moving
         myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
@@ -2929,7 +2929,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleOdometryNoMsgCheck)
         break;
       case 13:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels going different directions
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
@@ -2940,7 +2940,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleOdometryNoMsgCheck)
       case 16:
       case 17:
         travel_dir = -1.0F;  // moving backward
-        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_gr.report = GearReport::REVERSE;
         myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
@@ -2948,7 +2948,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleOdometryNoMsgCheck)
         break;
       default:
         travel_dir = 1.0F;  // moving forward
-        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_gr.report = GearReport::DRIVE_1;
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec
@@ -3058,13 +3058,13 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
     myTests[i].in_mr.vehicle_speed = 10.0F *
       static_cast<float32_t>(i);  // kph
     // Forward or backward
-    myTests[i].in_gr.enabled = true;
+    // myTests[i].in_gr.enabled = true; NOTE(esteve): no equivalent in GearReport
 
     switch (i) {
       case 12:
       case 14:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels not moving
         myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
@@ -3073,7 +3073,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
         break;
       case 13:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels going different directions
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
@@ -3084,7 +3084,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
       case 16:
       case 17:
         travel_dir = -1.0F;  // moving backward
-        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_gr.report = GearReport::REVERSE;
         myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
@@ -3092,7 +3092,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestRptVehicleKinematicState)
         break;
       default:
         travel_dir = 1.0F;  // moving forward
-        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_gr.report = GearReport::DRIVE_1;
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec
@@ -3248,13 +3248,13 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
     myTests[i].in_mr.vehicle_speed = 10.0F *
       static_cast<float32_t>(i);  // kph
     // Forward or backward
-    myTests[i].in_gr.enabled = true;
+    // myTests[i].in_gr.enabled = true; NOTE(esteve): no equivalent in GearReport
 
     switch (i) {
       case 12:
       case 14:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels not moving
         myTests[i].in_wsr.front_left = 0.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 0.0F;   // rad/sec
@@ -3263,7 +3263,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
         break;
       case 13:
         travel_dir = 0.0F;  // not moving
-        myTests[i].in_gr.state.gear = Gear::NEUTRAL;
+        myTests[i].in_gr.report = GearReport::NEUTRAL;
         // Wheels going different directions
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
@@ -3274,7 +3274,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
       case 16:
       case 17:
         travel_dir = -1.0F;  // moving backward
-        myTests[i].in_gr.state.gear = Gear::REVERSE;
+        myTests[i].in_gr.report = GearReport::REVERSE;
         myTests[i].in_wsr.front_left = -10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = -10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = -10.0F;     // rad/sec
@@ -3282,7 +3282,7 @@ TEST_F(NERaptorInterfaceTest, TestRptVehicleKinematicStateNoMsgCheck)
         break;
       default:
         travel_dir = 1.0F;  // moving forward
-        myTests[i].in_gr.state.gear = Gear::DRIVE;
+        myTests[i].in_gr.report = GearReport::DRIVE_1;
         myTests[i].in_wsr.front_left = 10.0F;    // rad/sec
         myTests[i].in_wsr.front_right = 10.0F;   // rad/sec
         myTests[i].in_wsr.rear_left = 10.0F;     // rad/sec

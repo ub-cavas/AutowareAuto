@@ -32,6 +32,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
@@ -61,6 +62,7 @@ using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::GearReport;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::behavior_planner::PlannerType;
 using autoware::behavior_planner::RouteWithType;
@@ -90,7 +92,7 @@ private:
   rclcpp::Subscription<HADMapRoute>::SharedPtr m_route_sub{};
   rclcpp::Subscription<Trajectory>::SharedPtr m_lane_trajectory_sub{};
   rclcpp::Subscription<Trajectory>::SharedPtr m_parking_trajectory_sub{};
-  rclcpp::Subscription<VehicleStateReport>::SharedPtr m_vehicle_state_report_sub{};
+  rclcpp::Subscription<GearReport>::SharedPtr m_gear_report_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
@@ -118,7 +120,7 @@ private:
   void on_route(const HADMapRoute::SharedPtr & msg);
   void on_lane_trajectory(const Trajectory::SharedPtr & msg);
   void on_parking_trajectory(const Trajectory::SharedPtr & msg);
-  void on_vehicle_state_report(const VehicleStateReport::SharedPtr & msg);
+  void on_gear_report(const GearReport::SharedPtr & msg);
   void map_response(rclcpp::Client<HADMapService>::SharedFuture future);
   void modify_trajectory_response(rclcpp::Client<ModifyTrajectory>::SharedFuture future);
   void clear_trajectory_cache();

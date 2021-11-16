@@ -22,6 +22,7 @@
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 
+#include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
@@ -42,6 +43,7 @@
 
 using autoware::common::types::bool8_t;
 
+using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
 using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
@@ -134,12 +136,16 @@ public:
   /// \brief Get the most recent state of the wipers feature.
   /// \return A WipersReport message intended to be published.
   const WipersReport & get_wipers_report() const noexcept;
+  /// \brief Get the most recent state of the gear feature.
+  /// \return A GearReport message intended to be published.
+  const GearReport & get_gear_report() const noexcept;
 
   /// \brief Send the headlight control command to the vehicle platform.
   /// If this is not implemented for a specific vehicle but is called,
   /// a runtime error will be thrown.
   /// \param[in] msg The control command to send to the vehicle.
   virtual void send_headlights_command(const HeadlightsCommand & msg);
+
   /// \brief Send the horn control command to the vehicle platform.
   /// If this is not implemented for a specific vehicle but is called,
   /// a runtime error will be thrown.
@@ -169,12 +175,15 @@ protected:
   HornReport & horn_report() noexcept;
   /// Get the underlying wiper state for modification
   WipersReport & wipers_report() noexcept;
+  /// Get the underlying gear state for modification
+  GearReport & gear_report() noexcept;
 
 private:
   HeadlightsReport m_headlights_report{};
   HornReport m_horn_report{};
   WipersReport m_wipers_report{};
   VehicleStateReport m_state_report{};
+  GearReport m_gear_report{};
   VehicleOdometry m_odometry{};
 };  // class PlatformInterface
 }  // namespace vehicle_interface

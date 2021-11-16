@@ -111,7 +111,7 @@ NERaptorInterface::NERaptorInterface(
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
   m_steer_cmd.ignore = false;
 
-  m_gear_cmd.cmd.gear = Gear::NONE;
+  m_gear_cmd.cmd.gear = GearReport::NONE;
 
   m_misc_cmd.door_request_right_rear.value = DoorRequest::NO_REQUEST;
   m_misc_cmd.door_request_left_rear.value = DoorRequest::NO_REQUEST;
@@ -201,25 +201,25 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
   // Set gear values
   switch (msg.gear) {
     case VehicleStateCommand::GEAR_NO_COMMAND:
-      m_gear_cmd.cmd.gear = Gear::NONE;
+      m_gear_cmd.cmd.gear = GearReport::NONE;
       break;
     case VehicleStateCommand::GEAR_DRIVE:
-      m_gear_cmd.cmd.gear = Gear::DRIVE;
+      m_gear_cmd.cmd.gear = GearReport::DRIVE_1;
       break;
     case VehicleStateCommand::GEAR_REVERSE:
-      m_gear_cmd.cmd.gear = Gear::REVERSE;
+      m_gear_cmd.cmd.gear = GearReport::REVERSE;
       break;
     case VehicleStateCommand::GEAR_PARK:
-      m_gear_cmd.cmd.gear = Gear::PARK;
+      m_gear_cmd.cmd.gear = GearReport::PARK;
       break;
     case VehicleStateCommand::GEAR_LOW:
-      m_gear_cmd.cmd.gear = Gear::LOW;
+      m_gear_cmd.cmd.gear = GearReport::LOW;
       break;
     case VehicleStateCommand::GEAR_NEUTRAL:
-      m_gear_cmd.cmd.gear = Gear::NEUTRAL;
+      m_gear_cmd.cmd.gear = GearReport::NEUTRAL;
       break;
     default:  // error
-      m_gear_cmd.cmd.gear = Gear::NONE;
+      m_gear_cmd.cmd.gear = GearReport::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Received command for invalid gear state.");
@@ -564,23 +564,23 @@ void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
 
 void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
 {
-  switch (msg->state.gear) {
-    case Gear::PARK:
+  switch (msg->report) {
+    case GearReport::PARK:
       state_report().gear = VehicleStateReport::GEAR_PARK;
       break;
-    case Gear::REVERSE:
+    case GearReport::REVERSE:
       state_report().gear = VehicleStateReport::GEAR_REVERSE;
       break;
-    case Gear::NEUTRAL:
+    case GearReport::NEUTRAL:
       state_report().gear = VehicleStateReport::GEAR_NEUTRAL;
       break;
-    case Gear::DRIVE:
+    case GearReport::DRIVE_1:
       state_report().gear = VehicleStateReport::GEAR_DRIVE;
       break;
-    case Gear::LOW:
+    case GearReport::LOW:
       state_report().gear = VehicleStateReport::GEAR_LOW;
       break;
-    case Gear::NONE:
+    case GearReport::NONE:
     default:
       state_report().gear = 0;
       RCLCPP_WARN_THROTTLE(

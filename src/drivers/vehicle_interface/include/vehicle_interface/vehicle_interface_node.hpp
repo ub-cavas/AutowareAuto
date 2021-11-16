@@ -74,6 +74,7 @@ struct FilterConfig
 
 enum class ViFeature
 {
+  GEAR,
   HEADLIGHTS,
   HORN,
   WIPERS,
@@ -173,6 +174,7 @@ private:
     nullptr};
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleStateCommand>::SharedPtr
     m_state_sub{nullptr};
+  rclcpp::Publisher<GearReport>::SharedPtr m_gear_rpt_pub{nullptr};
   rclcpp::Publisher<HeadlightsReport>::SharedPtr m_headlights_rpt_pub{nullptr};
   rclcpp::Subscription<HeadlightsCommand>::SharedPtr m_headlights_cmd_sub{nullptr};
   rclcpp::Publisher<HornReport>::SharedPtr m_horn_rpt_pub{nullptr};

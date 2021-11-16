@@ -328,6 +328,11 @@ void VehicleInterfaceNode::init(
       {m_interface->send_wipers_command(*msg);});
   }
 
+  if (m_enabled_features.find(ViFeature::GEAR) != m_enabled_features.end()) {
+    m_gear_rpt_pub = create_publisher<autoware_auto_vehicle_msgs::msg::GearReport>(
+      "gear_report", rclcpp::QoS{10U});
+  }
+
   // State machine boilerplate for better errors
   const auto state_machine = [&state_machine_config]() -> auto {
       if (!state_machine_config) {

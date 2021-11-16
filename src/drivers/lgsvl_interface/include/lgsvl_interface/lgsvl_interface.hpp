@@ -21,6 +21,7 @@
 #include <lgsvl_interface/visibility_control.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/horn_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>

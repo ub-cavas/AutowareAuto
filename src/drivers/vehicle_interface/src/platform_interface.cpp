@@ -79,6 +79,11 @@ autoware_auto_vehicle_msgs::msg::WipersReport & PlatformInterface::wipers_report
   return m_wipers_report;
 }
 
+autoware_auto_vehicle_msgs::msg::GearReport & PlatformInterface::gear_report() noexcept
+{
+  return m_gear_report;
+}
+
 void PlatformInterface::send_headlights_command(
   const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & msg)
 {

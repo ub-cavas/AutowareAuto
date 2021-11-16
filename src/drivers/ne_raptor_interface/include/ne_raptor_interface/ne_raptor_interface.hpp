@@ -81,6 +81,8 @@ using autoware::common::types::float32_t;
 using autoware::common::types::TAU;
 using autoware::common::types::PI;
 
+using autoware_auto_vehicle_msgs::msg::GearReport;
+
 using raptor_dbw_msgs::msg::AcceleratorPedalCmd;
 using raptor_dbw_msgs::msg::BrakeCmd;
 using raptor_dbw_msgs::msg::GearCmd;
@@ -89,7 +91,6 @@ using raptor_dbw_msgs::msg::MiscCmd;
 using raptor_dbw_msgs::msg::SteeringCmd;
 
 using raptor_dbw_msgs::msg::BrakeReport;
-using raptor_dbw_msgs::msg::GearReport;
 using raptor_dbw_msgs::msg::MiscReport;
 using raptor_dbw_msgs::msg::OtherActuatorsReport;
 using raptor_dbw_msgs::msg::SteeringReport;
@@ -98,7 +99,6 @@ using raptor_dbw_msgs::msg::WheelSpeedReport;
 using raptor_dbw_msgs::msg::ActuatorControlMode;
 using raptor_dbw_msgs::msg::DoorRequest;
 using raptor_dbw_msgs::msg::DoorState;
-using raptor_dbw_msgs::msg::Gear;
 using raptor_dbw_msgs::msg::HighBeam;
 using raptor_dbw_msgs::msg::HighBeamState;
 using raptor_dbw_msgs::msg::HornState;
