@@ -28,12 +28,22 @@ namespace test_utils
 {
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
+inline void warmStart(const rclcpp::Node::SharedPtr & node)
+{
+  for (size_t i = 0; i < 10; i++) {
+    rclcpp::spin_some(node);
+    const auto dt{std::chrono::milliseconds{100LL}};
+    std::this_thread::sleep_for(dt);
+  }
+}
+
 inline void waitForMessage(
   const std::shared_ptr<rclcpp::Node> & node, FakeNodeFixture * fixture,
   const bool & received_flag,
   const std::chrono::duration<int64_t> max_wait_time = std::chrono::seconds{10LL},
   const bool fail_on_timeout = true)
 {
+  warmStart(node);
   const auto dt{std::chrono::milliseconds{100LL}};
   auto time_passed{std::chrono::milliseconds{0LL}};
   while (!received_flag) {
@@ -69,6 +79,7 @@ inline geometry_msgs::msg::TransformStamped getDummyTransform()
   transform_stamped.child_frame_id = "base_link";
   return transform_stamped;
 }
+
 }  // namespace test_utils
 
 #endif  // TRAJECTORY_FOLLOWER_TEST_UTILS_HPP_
