@@ -1,10 +1,43 @@
 # This is required for Continuous Integration for Autoware using the simulator
 
+version: 2
+
 services:
-  planning_simulator_v2:
-    type: roslaunch
-    package_name: scenario_simulator_launch
-    file_name: autoware_auto.launch.py
-    params:
-      vehicle_model: lexus
-      sensor_model: aip_xx1
+  planning_sim_v2:
+    components:
+      planning:
+        launch:
+          type: ros2/launch
+          package_name: scenario_simulator_launch
+          file_name: autoware_auto_planning.launch.py
+          params:
+            vehicle_model: lexus
+            sensor_model: aip_xx1
+        runtime:
+          type: component/standard1/arm64/medium
+          cpu: 3
+          memory: 8192
+      perception:
+        launch:
+          type: ros2/launch
+          package_name: scenario_simulator_launch
+          file_name: autoware_auto_perception.launch.py
+          params:
+            vehicle_model: lexus
+            sensor_model: aip_xx1
+        runtime:
+          type: component/standard1/arm64/medium
+          cpu: 3
+          memory: 8192
+      mapping:
+        launch:
+          type: ros2/launch
+          package_name: scenario_simulator_launch
+          file_name: autoware_auto_mapping.launch.py
+          params:
+            vehicle_model: lexus
+            sensor_model: aip_xx1
+        runtime:
+          type: component/standard1/arm64/medium
+          cpu: 2
+          memory: 8192
