@@ -275,9 +275,15 @@ void LateralController::onTrajectory(
     return;
   }
 
+  m_current_trajectory_ptr->points.erase(m_current_trajectory_ptr->points.begin());
   m_mpc.setReferenceTrajectory(
-    *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
-    m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
+    *m_current_trajectory_ptr,
+    m_traj_resample_dist,
+    m_enable_path_smoothing,
+    m_path_filter_moving_ave_num,
+    m_enable_yaw_recalculation,
+    m_curvature_smoothing_num,
+    m_current_pose_ptr);
 }
 
 void LateralController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
