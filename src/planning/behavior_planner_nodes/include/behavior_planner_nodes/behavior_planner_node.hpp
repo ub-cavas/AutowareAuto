@@ -53,15 +53,15 @@ namespace behavior_planner_nodes
 {
 using PlanTrajectoryAction = autoware_auto_planning_msgs::action::PlanTrajectory;
 using PlanTrajectoryGoalHandle = rclcpp_action::ClientGoalHandle<PlanTrajectoryAction>;
-using HADMapService = autoware_auto_msgs::srv::HADMapService;
-using autoware_auto_msgs::srv::ModifyTrajectory;
-using autoware_auto_msgs::msg::RoutePoint;
-using autoware_auto_msgs::msg::Trajectory;
-using autoware_auto_msgs::msg::TrajectoryPoint;
-using autoware_auto_msgs::msg::HADMapRoute;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::VehicleStateReport;
-using State = autoware_auto_msgs::msg::VehicleKinematicState;
+using HADMapService = autoware_auto_mapping_msgs::srv::HADMapService;
+using autoware_auto_planning_msgs::srv::ModifyTrajectory;
+using autoware_auto_planning_msgs::msg::RoutePoint;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::behavior_planner::PlannerType;
 using autoware::behavior_planner::RouteWithType;
 
