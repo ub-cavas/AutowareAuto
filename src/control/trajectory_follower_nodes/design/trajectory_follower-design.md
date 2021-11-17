@@ -19,7 +19,7 @@ Core functionalities are implemented in the @subpage trajectory_follower-package
 
 # Debugging
 
-Debug information are published by the lateral and longitudinal controller using `autoware_auto_msgs/Float32MultiArrayDiagnostic` messages.
+Debug information are published by the lateral and longitudinal controller using `autoware_auto_system_msgs/Float32MultiArrayDiagnostic` messages.
 
 A configuration file for [PlotJuggler](https://github.com/facontidavide/PlotJuggler) is provided in the `config` folder which, when loaded, allow to automatically subscribe and visualize information useful for debugging.
 

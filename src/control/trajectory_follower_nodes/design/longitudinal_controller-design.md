@@ -51,13 +51,13 @@ Also, the benefits of simultaneous longitudinal and lateral control are small if
 
 ### Output
 
-- control_cmd [`autoware_auto_msgs/LongitudinalCommand`] : command to control the longitudinal motion of the vehicle. It contains the target velocity and target acceleration.
-- debug_values [`autoware_auto_msgs/Float32MultiArrayDiagnostic`] : debug values used for the control command generation (e.g. the contributions of each P-I-D terms).
+- control_cmd [`autoware_auto_control_msgs/LongitudinalCommand`] : command to control the longitudinal motion of the vehicle. It contains the target velocity and target acceleration.
+- debug_values [`autoware_auto_system_msgs/Float32MultiArrayDiagnostic`] : debug values used for the control command generation (e.g. the contributions of each P-I-D terms).
 
 ### Input
 
-- current_state [`autoware_auto_msgs/VehicleKinematicState`] : Current ego state including the current pose and velocity.
-- current_trajectory [`autoware_auto_msgs/Trajectory`] : Current target trajectory for the desired velocity on the each trajectory points.
+- current_state [`autoware_auto_vehicle_msgs/VehicleKinematicState`] : Current ego state including the current pose and velocity.
+- current_trajectory [`autoware_auto_planning_msgs/Trajectory`] : Current target trajectory for the desired velocity on the each trajectory points.
 
 # Inner-workings / Algorithms
 
