@@ -187,7 +187,7 @@ TEST_F(BoundingBoxComputationTest, BasicLfit3d)
   ASSERT_EQ(objects_msg.objects.size(), 2U);
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
-    EXPECT_EQ(objects_msg.objects[i].shape.height, 4.0F);
+    EXPECT_EQ(objects_msg.objects[i].shape.height, 8.0F);
   }
 }
 
@@ -209,7 +209,7 @@ TEST_F(BoundingBoxComputationTest, BasicEigen3d)
   ASSERT_EQ(objects_msg.objects.size(), 2U);
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
-    EXPECT_EQ(objects_msg.objects[i].shape.height, 4.0F);
+    EXPECT_EQ(objects_msg.objects[i].shape.height, 8.0F);
   }
 }
 
