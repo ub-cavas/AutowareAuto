@@ -19,6 +19,7 @@
 #include <geometry/bounding_box/rotating_calipers.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
 #include <geometry/bounding_box/lfit.hpp>
+#include <geometry/bounding_box/l_shape_fitting.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 
 #include <algorithm>
@@ -156,6 +157,11 @@ template BoundingBox minimum_perimeter_bounding_box<Point32>(std::list<Point32> 
 using Point32VIT = std::vector<Point32>::iterator;
 template BoundingBox eigenbox_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
 template BoundingBox lfit_bounding_box_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
+
+template BoundingBox l_shape_fit_bounding_box_2d<PointXYZIFVIT>(
+  const PointXYZIFVIT begin, const PointXYZIFVIT end);
+template BoundingBox l_shape_fit_bounding_box_2d<Point32VIT>(const Point32VIT begin, const Point32VIT end);
+
 }  // namespace bounding_box
 }  // namespace geometry
 }  // namespace common

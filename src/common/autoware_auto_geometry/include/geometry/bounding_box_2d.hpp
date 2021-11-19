@@ -21,6 +21,7 @@
 #include <geometry/bounding_box/rotating_calipers.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
 #include <geometry/bounding_box/lfit.hpp>
+#include <geometry/bounding_box/l_shape_fitting.hpp>
 
 namespace autoware
 {
