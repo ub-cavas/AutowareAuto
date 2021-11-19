@@ -22,7 +22,7 @@
 
 #include <limits>
 #include <utility>
-
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <geometry/bounding_box/eigenbox_2d.hpp>
 
 namespace autoware
