@@ -1,11 +1,14 @@
 #!/usr/bin/env bash
 
+echo "Available disk spaces before coverage: "
+df -H
+
 usage_exit() {
   echo "Usage: ${0} [-b -t -u]" 1>&2
   exit 1
 }
 
-COVERAGE_FLAGS="-fprofile-arcs -ftest-coverage -DCOVERAGE_RUN=1"
+COVERAGE_FLAGS="--coverage -DCOVERAGE_RUN=1"
 SKIP_BUILD=0
 SKIP_TEST=0
 FLAG_U=0
@@ -41,9 +44,12 @@ if [ ${SKIP_BUILD} -eq 0 ]; then
       -DCMAKE_CXX_FLAGS="${COVERAGE_FLAGS}" \
       -DCMAKE_C_FLAGS="${COVERAGE_FLAGS}" \
     --cmake-args \
-      -DCMAKE_BUILD_TYPE=RelWithDebInfo
+      -DCMAKE_BUILD_TYPE=Release
   lcov --config-file .lcovrc --base-directory ${PWD} --capture --directory build -o lcov.base --initial > log/latest_lcov_stdout.logs
 fi
+
+echo "Available disk spaces after build: "
+df -H
 
 if [ ${SKIP_TEST} -eq 0 ]; then
   colcon test \
