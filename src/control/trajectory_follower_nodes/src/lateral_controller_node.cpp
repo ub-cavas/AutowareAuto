@@ -302,7 +302,7 @@ bool8_t LateralController::updateCurrentPose()
       ex.what());
     RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), 5000 /*ms*/,
-      m_tf_buffer.allFramesAsString());
+      m_tf_buffer.allFramesAsString().c_str());
     return false;
   }
 
