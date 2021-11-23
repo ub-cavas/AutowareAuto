@@ -2,7 +2,7 @@ repositories:
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
-    version: 34d98a6173ae02572fef10ebc47a2916c2b0d395
+    version: 79f16892e589ce46a7f594ab6bc03715a377a57b
   src/external/casadi_vendor:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor.git
