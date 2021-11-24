@@ -64,12 +64,12 @@ const std::unordered_map<WIPER_TYPE, WIPER_TYPE> LgsvlInterface::autoware_to_lgs
 };
 
 const std::unordered_map<GEAR_TYPE, GEAR_TYPE> LgsvlInterface::autoware_to_lgsvl_gear {
-  {VSC::GEAR_NO_COMMAND, static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
-  {VSC::GEAR_DRIVE, static_cast<GEAR_TYPE>(VSD::GEAR_DRIVE)},
-  {VSC::GEAR_REVERSE, static_cast<GEAR_TYPE>(VSD::GEAR_REVERSE)},
-  {VSC::GEAR_PARK, static_cast<GEAR_TYPE>(VSD::GEAR_PARKING)},
-  {VSC::GEAR_LOW, static_cast<GEAR_TYPE>(VSD::GEAR_LOW)},
-  {VSC::GEAR_NEUTRAL, static_cast<GEAR_TYPE>(VSD::GEAR_NEUTRAL)},
+  {GearReport::NONE, VSD::GEAR_NEUTRAL},
+  {GearReport::DRIVE_1, VSD::GEAR_DRIVE},
+  {GearReport::REVERSE, VSD::GEAR_REVERSE},
+  {GearReport::PARK, VSD::GEAR_PARKING},
+  {GearReport::LOW, VSD::GEAR_LOW},
+  {GearReport::NEUTRAL, VSD::GEAR_NEUTRAL},
 };
 
 const std::unordered_map<MODE_TYPE, MODE_TYPE> LgsvlInterface::autoware_to_lgsvl_mode {
@@ -207,7 +207,11 @@ LgsvlInterface::LgsvlInterface(
         wipers_report().report = WipersReport::DISABLE;
       }
 
-      state_report.set__gear(static_cast<uint8_t>(msg->selected_gear));
+
+      autoware_auto_vehicle_msgs::msg::GearReport gear_report_local;
+      gear_report_local.set__report(static_cast<uint8_t>(msg->selected_gear));
+      on_gear_report(gear_report_local);
+
       // state_report.set__mode();  // no mode status from LGSVL
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
@@ -532,9 +536,8 @@ void LgsvlInterface::on_odometry(const nav_msgs::msg::Odometry & msg)
   }
 }
 
-////////////////////////////////////////////////////////////////////////////////
-void LgsvlInterface::on_state_report(
-  const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg)
+void LgsvlInterface::on_gear_report(
+  const autoware_auto_vehicle_msgs::msg::GearReport & msg)
 {
   auto corrected_report = msg;
 
@@ -544,18 +547,26 @@ void LgsvlInterface::on_state_report(
 
   // Find autoware gear via inverse mapping
   const auto value_same = [&msg](const auto & kv) -> bool {  // also do some capture
-      return msg.gear == kv.second;
+      return msg.report == kv.second;
     };
   const auto it = std::find_if(
     autoware_to_lgsvl_gear.begin(),
     autoware_to_lgsvl_gear.end(), value_same);
 
   if (it != autoware_to_lgsvl_gear.end()) {
-    corrected_report.gear = it->first;
+    corrected_report.report = it->first;
   } else {
-    corrected_report.gear = msg.GEAR_NEUTRAL;
+    corrected_report.report = GearReport::NEUTRAL;
     RCLCPP_WARN(m_logger, "Invalid gear value in state report from LGSVL simulator");
   }
+
+  gear_report() = corrected_report;
+}
+
+void LgsvlInterface::on_state_report(
+  const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg)
+{
+  auto corrected_report = msg;
 
   // Correcting blinker value, they are shifted up by one,
   // as the first value BLINKER_NO_COMMAND does not exisit in LGSVL

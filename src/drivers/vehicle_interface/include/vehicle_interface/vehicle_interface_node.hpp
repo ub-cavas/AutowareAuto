@@ -207,6 +207,7 @@ private:
     {"headlights", ViFeature::HEADLIGHTS},
     {"horn", ViFeature::HORN},
     {"wipers", ViFeature::WIPERS},
+    {"gear", ViFeature::GEAR},
   };
   std::unordered_set<ViFeature> m_enabled_features{};
 };  // class VehicleInterfaceNode

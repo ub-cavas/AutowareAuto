@@ -161,7 +161,7 @@ public:
       node_name,
     {
       ViFeature::HEADLIGHTS,
-      ViFeature::WIPERS,
+      ViFeature::WIPERS
     },
       rclcpp::NodeOptions(options)
       .append_parameter_override("cycle_time_ms", static_cast<int64_t>(30LL))

@@ -84,7 +84,8 @@ constexpr bool NO_PUBLISH = false;
 using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using VSD = lgsvl_msgs::msg::VehicleStateData;
 using WIPER_TYPE = decltype(VSC::wiper);
-using GEAR_TYPE = decltype(VSC::gear);
+using GEAR_TYPE =
+  std::remove_const<decltype(autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1)>::type;
 using MODE_TYPE = decltype(VSC::mode);
 
 /// Platform interface implementation for LGSVL. Bridges data to and from the simulator
@@ -147,7 +148,10 @@ private:
   // Convert odometry into vehicle kinematic state and pose
   void on_odometry(const nav_msgs::msg::Odometry & msg);
 
-  // store state_report with gear value correction
+  // store gear_report with gear value correction
+  void on_gear_report(const autoware_auto_vehicle_msgs::msg::GearReport & msg);
+
+  // store state_report with blinker value correction
   void on_state_report(const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg);
 
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};

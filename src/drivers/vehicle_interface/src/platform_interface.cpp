@@ -59,6 +59,12 @@ PlatformInterface::get_wipers_report() const noexcept
   return m_wipers_report;
 }
 
+const autoware_auto_vehicle_msgs::msg::GearReport &
+PlatformInterface::get_gear_report() const noexcept
+{
+  return m_gear_report;
+}
+
 autoware_auto_vehicle_msgs::msg::VehicleOdometry & PlatformInterface::odometry() noexcept
 {
   return m_odometry;

@@ -129,7 +129,7 @@ void BehaviorPlannerNode::init()
     "route", QoS{10},
     [this](const HADMapRoute::SharedPtr msg) {on_route(msg);});
   m_gear_report_sub = this->create_subscription<GearReport>(
-    "vehicle_state_report", QoS{10},
+    "gear_report", QoS{10},
     [this](const GearReport::SharedPtr msg) {on_gear_report(msg);});
 
   // Setup publishers

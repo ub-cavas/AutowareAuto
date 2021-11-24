@@ -460,6 +460,10 @@ void VehicleInterfaceNode::read_and_publish()
   m_state_pub->publish(m_interface->get_state_report());
 
   // Publish feature reports
+  if (m_gear_rpt_pub) {
+    m_gear_rpt_pub->publish(m_interface->get_gear_report());
+  }
+
   if (m_headlights_rpt_pub) {
     m_headlights_rpt_pub->publish(m_interface->get_headlights_report());
   }

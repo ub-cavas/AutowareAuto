@@ -16,6 +16,7 @@
 #include <lanelet2_core/geometry/LineString.h>
 #include <geometry/common_2d.hpp>
 #include <motion_common/motion_common.hpp>
+#include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
 
 #include <algorithm>
 #include <limits>
@@ -397,13 +398,13 @@ uchar8_t BehaviorPlanner::get_desired_gear(const State & state)
   const auto trajectory = get_trajectory(state);
   for (const auto & pt : trajectory.points) {
     if (pt.longitudinal_velocity_mps > std::numeric_limits<float32_t>::epsilon()) {
-      return VehicleStateCommand::GEAR_DRIVE;
+      return autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1;
     }
     if (pt.longitudinal_velocity_mps < -std::numeric_limits<float32_t>::epsilon()) {
-      return VehicleStateCommand::GEAR_REVERSE;
+      return autoware_auto_vehicle_msgs::msg::GearReport::REVERSE;
     }
   }
-  return VehicleStateCommand::GEAR_DRIVE;
+  return autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1;
 }
 
 std::vector<RouteWithType> BehaviorPlanner::get_subroutes()

@@ -39,6 +39,7 @@ LgsvlInterfaceNode::LgsvlInterfaceNode(
       ViFeature::HEADLIGHTS,
       ViFeature::HORN,
       ViFeature::WIPERS,
+      ViFeature::GEAR,
     },
     options
 }
