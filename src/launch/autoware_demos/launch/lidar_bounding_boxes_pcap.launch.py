@@ -62,7 +62,7 @@ def generate_launch_description():
     # point cloud filter transform param file
     filter_transform_param = get_param_file(
             'point_cloud_filter_transform_nodes',
-            'vlp16_sim_lexus_filter_transform.param.yaml')
+            'vlp16_lexus_filter_transform.param.yaml')
 
     # point cloud filter transform runner definition for front lidar
     filter_transform_front_runner = launch_ros.actions.Node(
