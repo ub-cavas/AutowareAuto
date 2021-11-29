@@ -115,6 +115,7 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   // Empty trajectory: expect a stopped command
   Trajectory traj_msg;
   VehicleKinematicState state_msg;
@@ -159,6 +160,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;
@@ -221,6 +223,7 @@ TEST_F(FakeNodeFixture, right_turn)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   // Right turning trajectory: expect right steering
   received_lateral_command = false;
   Trajectory traj_msg;
@@ -285,6 +288,7 @@ TEST_F(FakeNodeFixture, left_turn)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   // Left turning trajectory: expect left steering
   received_lateral_command = false;
   Trajectory traj_msg;
@@ -349,6 +353,7 @@ TEST_F(FakeNodeFixture, stopped)
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   // Straight trajectory: expect no steering
   received_lateral_command = false;
   Trajectory traj_msg;

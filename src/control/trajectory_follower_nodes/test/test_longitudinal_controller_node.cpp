@@ -84,6 +84,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
@@ -152,6 +153,7 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
@@ -221,6 +223,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
@@ -289,6 +292,7 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
@@ -350,6 +354,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
@@ -410,6 +415,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
+  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
