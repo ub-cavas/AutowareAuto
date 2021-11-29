@@ -10,4 +10,4 @@ repositories:
   src/external/transport_drivers:
     type: git
     url: https://github.com/ros-drivers/transport_drivers.git
-    version: 1.0.1
+    version: f8f5e1845998eaf0bbbbb6ba9e924f64604a1cb8
