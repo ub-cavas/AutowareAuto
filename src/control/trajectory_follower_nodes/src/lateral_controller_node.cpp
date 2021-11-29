@@ -54,7 +54,7 @@ void update_param(
 }  // namespace
 
 LateralController::LateralController(const rclcpp::NodeOptions & node_options)
-: Node("lateral_controller", node_options)
+: Node("lateral_controller", node_options), m_tf_listener(m_tf_buffer, this, false)
 {
   using std::placeholders::_1;
 
@@ -159,11 +159,6 @@ LateralController::LateralController(const rclcpp::NodeOptions & node_options)
   m_sub_steering = create_subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
     "input/current_kinematic_state", rclcpp::QoS{1}, std::bind(
       &LateralController::onState, this, _1));
-  m_tf_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf", rclcpp::QoS{1}, std::bind(&LateralController::callbackTF, this, _1));
-  m_tf_static_sub = create_subscription<tf2_msgs::msg::TFMessage>(
-    "input/tf_static", rclcpp::QoS{1}.transient_local(),
-    std::bind(&LateralController::callbackStaticTF, this, _1));
 
   // TODO(Frederik.Beaujean) ctor is too long, should factor out parameter declarations
   declareMPCparameters();
@@ -284,24 +279,6 @@ void LateralController::onTrajectory(
     m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
 }
 
-void LateralController::callbackTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
-{
-  for (const auto & tf : msg->transforms) {
-    if (!m_tf_buffer.setTransform(tf, "external", false)) {
-      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
-    }
-  }
-}
-
-void LateralController::callbackStaticTF(const tf2_msgs::msg::TFMessage::ConstSharedPtr msg)
-{
-  for (const auto & tf : msg->transforms) {
-    if (!m_tf_buffer.setTransform(tf, "external", true)) {
-      RCLCPP_WARN(get_logger(), "Warning: tf2::BufferCore::setTransform failed");
-    }
-  }
-}
-
 bool8_t LateralController::updateCurrentPose()
 {
   geometry_msgs::msg::TransformStamped transform;
@@ -311,10 +288,10 @@ bool8_t LateralController::updateCurrentPose()
       "base_link",
       tf2::TimePointZero);
   } catch (tf2::TransformException & ex) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+    RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), 5000 /*ms*/,
       ex.what());
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
+    RCLCPP_WARN_THROTTLE(
       get_logger(), *get_clock(), 5000 /*ms*/,
       m_tf_buffer.allFramesAsString());
     return false;
