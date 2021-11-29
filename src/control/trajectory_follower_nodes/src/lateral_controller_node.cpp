@@ -188,7 +188,6 @@ LateralController::~LateralController()
 void LateralController::onTimer()
 {
   if (!checkData() || !updateCurrentPose()) {
-    publishCtrlCmd(getStopControlCommand());
     return;
   }
 
@@ -264,6 +263,11 @@ void LateralController::onTrajectory(
   const autoware_auto_planning_msgs::msg::Trajectory::SharedPtr msg)
 {
   m_current_trajectory_ptr = msg;
+
+  if (!m_current_pose_ptr && !updateCurrentPose()) {
+    RCLCPP_DEBUG(get_logger(), "Current pose is not received yet.");
+    return;
+  }
 
   if (msg->points.size() < 3) {
     RCLCPP_DEBUG(get_logger(), "received path size is < 3, not enough.");
