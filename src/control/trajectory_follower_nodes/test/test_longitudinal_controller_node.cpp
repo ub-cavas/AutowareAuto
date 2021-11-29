@@ -88,6 +88,7 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -97,6 +98,8 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -157,6 +160,7 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -166,6 +170,8 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -226,6 +232,7 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.5;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -235,6 +242,8 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -295,6 +304,7 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -304,6 +314,8 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   state_pub->publish(state);
   // Publish stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -356,6 +368,7 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -365,6 +378,8 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   state_pub->publish(state);
   // Publish reverse
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 0.0;
   point.y = 0.0;
@@ -417,6 +432,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
+  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -426,6 +442,8 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   state_pub->publish(state);
   // Publish trajectory starting away from the current ego pose
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.x = 10.0;
   point.y = 0.0;
