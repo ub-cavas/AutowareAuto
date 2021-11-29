@@ -254,10 +254,8 @@ TEST_F(FakeNodeFixture, right_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -319,10 +317,8 @@ TEST_F(FakeNodeFixture, left_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
@@ -386,9 +382,7 @@ TEST_F(FakeNodeFixture, stopped)
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   // when stopped we expect a command that do not change the current state
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_EQ(cmd_msg->steering_tire_angle, state_msg.state.front_wheel_angle_rad);
-  */
   EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
