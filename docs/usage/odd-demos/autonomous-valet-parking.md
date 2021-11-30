@@ -152,7 +152,7 @@ ready for the next step.
 
 In principle, the vehicle can park in any of the parking spots indicated in the map. In the physical
 demo, the reference parking spot was the 5th spot on the right counting from the end of the lane of
-the drop-off zone.
+the drop-off zone. In the simulator, try parking in the 5th spot from the South end of the West-most group of parking stalls in the AutonomouStuff map.
 
 @anchor avp-parking-spots
 @image html images/avp-parking-spots.png "Location of drop-off area and target parking spot" width=50%
