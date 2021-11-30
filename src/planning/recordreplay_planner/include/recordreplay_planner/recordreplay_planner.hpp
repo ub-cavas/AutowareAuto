@@ -36,7 +36,6 @@ namespace recordreplay_planner
 {
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware_auto_planning_msgs::msg::Trajectory;
-using Heading = decltype(decltype(State::state)::heading);
 
 enum class RecordReplayState
 {

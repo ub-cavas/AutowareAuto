@@ -304,11 +304,11 @@ TEST_F(TestGlobalPlannerFullMap, TestPlanFullRoute)
 {
   // take the parking spot from previous test
   autoware_auto_planning_msgs::msg::TrajectoryPoint from_point;
-  from_point.x = -25.97;
-  from_point.y = 102.12;
+  from_point.pose.position.x = -25.97;
+  from_point.pose.position.y = 102.12;
   autoware_auto_planning_msgs::msg::TrajectoryPoint to_point;
-  to_point.x = -12.53;
-  to_point.y = 67.69;
+  to_point.pose.position.x = -12.53;
+  to_point.pose.position.y = 67.69;
   std::vector<lanelet::Id> route;
   bool8_t result = node_ptr->plan_route(from_point, to_point, route);
   EXPECT_TRUE(result);
@@ -317,11 +317,11 @@ TEST_F(TestGlobalPlannerFullMap, TestPlanFullRoute)
 TEST_F(TestGlobalPlannerFullMapWithoutParkingSpots, TestPlanFullRouteWithoutParkingSpots)
 {
   autoware_auto_planning_msgs::msg::TrajectoryPoint from_point;
-  from_point.x = -25.97;
-  from_point.y = 102.12;
+  from_point.pose.position.x = -25.97;
+  from_point.pose.position.y = 102.12;
   autoware_auto_planning_msgs::msg::TrajectoryPoint to_point;
-  to_point.x = -12.53;
-  to_point.y = 67.69;
+  to_point.pose.position.x = -12.53;
+  to_point.pose.position.y = 67.69;
   std::vector<lanelet::Id> route;
   bool8_t result = node_ptr->plan_route(from_point, to_point, route);
   EXPECT_TRUE(result);

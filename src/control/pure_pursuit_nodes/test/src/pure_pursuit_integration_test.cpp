@@ -1,4 +1,4 @@
-// Copyright 2019 the Autoware Foundation
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,7 @@
 
 using autoware::common::types::char8_t;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 namespace
@@ -50,19 +51,19 @@ constexpr auto PI = 3.14159F;
 
 void create_traj(
   Trajectory & traj,
-  uint32_t traj_size,
-  float32_t heading = PI / 4.0F,
-  float32_t offset = 1.0F,
-  float32_t slope = 1.0F)
+  const uint32_t traj_size,
+  const float32_t heading = PI / 4.0F,
+  const float64_t offset = 1.0F,
+  const float64_t slope = 1.0F)
 {
   traj.points.resize(traj_size);
   traj.header.frame_id = "traj";
   for (uint32_t idx = 0U; idx < traj_size; ++idx) {
-    traj.points[idx].x = (static_cast<float32_t>(idx) * slope) + offset;
-    traj.points[idx].y = (static_cast<float32_t>(idx) * slope) + offset;
-    float32_t velocity = static_cast<float32_t>(idx) + offset;
+    traj.points[idx].pose.position.x = idx * slope + offset;
+    traj.points[idx].pose.position.y = idx * slope + offset;
+    const float32_t velocity = static_cast<float32_t>(idx + offset);
     traj.points[idx].longitudinal_velocity_mps = velocity;
-    traj.points[idx].heading = ::motion::motion_common::from_angle(heading);
+    traj.points[idx].pose.orientation = ::motion::motion_common::from_angle(heading);
   }
 }
 
@@ -76,9 +77,9 @@ void create_current_pose(
   float32_t heading_rate,
   std::string frame_id)
 {
-  current_stamp.state.x = x;
-  current_stamp.state.y = y;
-  current_stamp.state.heading = ::motion::motion_common::from_angle(heading);
+  current_stamp.state.pose.position.x = x;
+  current_stamp.state.pose.position.y = y;
+  current_stamp.state.pose.orientation = ::motion::motion_common::from_angle(heading);
   current_stamp.state.longitudinal_velocity_mps = velocity;
   current_stamp.state.acceleration_mps2 = acceleration;
   current_stamp.state.heading_rate_rps = heading_rate;

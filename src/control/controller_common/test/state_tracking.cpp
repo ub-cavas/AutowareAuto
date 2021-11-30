@@ -142,7 +142,7 @@ TEST_F(StateTracking, PastEnd)
   const auto t0_ = t0 + std::chrono::microseconds(1LL);  // the 1.01 of time
   // First one is normal
   {
-    auto state = make_state(-1.0F, 0.0F, 0.0F, 10.0F, 0.0F, 0.0F, t0 + (dt * 10U));
+    auto state = make_state(-1.01F, 0.0F, 0.0F, 10.0F, 0.0F, 0.0F, t0 + (dt * 10U));
     state.header.frame_id = "foo";
     apex_test_tools::memory_test::resume();
     (void)controller_.compute_command(state);

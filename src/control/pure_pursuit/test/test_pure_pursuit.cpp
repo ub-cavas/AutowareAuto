@@ -34,6 +34,7 @@ using autoware::motion::control::pure_pursuit::ControllerDiagnostic;
 using ::motion::motion_common::from_angle;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 
 constexpr auto PI = 3.14159F;
 
@@ -57,8 +58,8 @@ protected:
 
 void create_traj(Trajectory & traj, uint32_t size, float32_t heading = PI / 4.0F)
 {
-  const float32_t slope = 1.0F;
-  const float32_t offset = 1.0F;
+  const float64_t slope = 1.0;
+  const float64_t offset = 1.0;
   traj.points.resize(size);
   traj.header.frame_id = "traj";
   traj.header.stamp = time_utils::to_message(std::chrono::system_clock::now());
@@ -66,17 +67,18 @@ void create_traj(Trajectory & traj, uint32_t size, float32_t heading = PI / 4.0F
   for (uint32_t idx = 0U; idx < size; ++idx) {
     traj.points[idx].time_from_start.sec = static_cast<int32_t>(idx) / 10;
     traj.points[idx].time_from_start.nanosec = (idx % 10U) * 1'000'000U;
-    traj.points[idx].x = (static_cast<float32_t>(idx) * slope) + offset;
-    traj.points[idx].y = (static_cast<float32_t>(idx) * slope) + offset;
-    traj.points[idx].longitudinal_velocity_mps = (static_cast<float32_t>(idx) + offset);
-    traj.points[idx].heading = q_heading;
+    traj.points[idx].pose.position.x = static_cast<float64_t>(idx) * slope + offset;
+    traj.points[idx].pose.position.y = static_cast<float64_t>(idx) * slope + offset;
+    traj.points[idx].longitudinal_velocity_mps =
+      (static_cast<float32_t>(idx) + static_cast<float32_t>(offset));
+    traj.points[idx].pose.orientation = q_heading;
   }
 }
 
 void create_reverse_traj(Trajectory & traj, uint32_t size, float32_t heading = -(3.0F * PI) / 4.0F)
 {
-  const float32_t slope = 1.0F;
-  const float32_t offset = 1.0F;
+  const float64_t slope = 1.0;
+  const float64_t offset = 1.0;
   traj.points.resize(size);
   traj.header.frame_id = "traj";
   traj.header.stamp = time_utils::to_message(std::chrono::system_clock::now());
@@ -84,25 +86,26 @@ void create_reverse_traj(Trajectory & traj, uint32_t size, float32_t heading = -
   for (uint32_t idx = 0U; idx < size; ++idx) {
     traj.points[idx].time_from_start.sec = static_cast<int32_t>(idx) / 10;
     traj.points[idx].time_from_start.nanosec = (idx % 10U) * 1'000'000U;
-    traj.points[idx].x = -((static_cast<float32_t>(idx) * slope) + offset);
-    traj.points[idx].y = -((static_cast<float32_t>(idx) * slope) + offset);
-    traj.points[idx].longitudinal_velocity_mps = -(static_cast<float32_t>(idx) + offset);
-    traj.points[idx].heading = q_heading;
+    traj.points[idx].pose.position.x = -((static_cast<float64_t>(idx) * slope) + offset);
+    traj.points[idx].pose.position.y = -((static_cast<float64_t>(idx) * slope) + offset);
+    traj.points[idx].longitudinal_velocity_mps =
+      -(static_cast<float32_t>(idx) + static_cast<float32_t>(offset));
+    traj.points[idx].pose.orientation = q_heading;
   }
 }
 
 void create_current_pose(
   TrajectoryPointStamped & current_stamp,
-  float32_t x,
-  float32_t y,
+  float64_t x,
+  float64_t y,
   float32_t heading,
   float32_t velocity,
   float32_t acceleration,
   float32_t heading_rate)
 {
-  current_stamp.state.x = x;
-  current_stamp.state.y = y;
-  current_stamp.state.heading = from_angle(heading);
+  current_stamp.state.pose.position.x = x;
+  current_stamp.state.pose.position.y = y;
+  current_stamp.state.pose.orientation = from_angle(heading);
   current_stamp.state.longitudinal_velocity_mps = velocity;
   current_stamp.state.acceleration_mps2 = acceleration;
   current_stamp.state.heading_rate_rps = heading_rate;
@@ -129,7 +132,7 @@ TEST_F(PurePursuitTest, Simple)
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
   create_traj(traj, size);
-  create_current_pose(current_pose, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.0, 0.0, 0.0F, 1.0F, 0.0F, 0.0F);
 
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   controller.set_trajectory(traj);
@@ -139,7 +142,7 @@ TEST_F(PurePursuitTest, Simple)
   EXPECT_FLOAT_EQ(command.long_accel_mps2, 0.0F);
   EXPECT_FLOAT_EQ(command.front_wheel_angle_rad, atanf(1.0F * dist_front_rear_wheels));
 
-  create_current_pose(current_pose, 1.5F, 1.0F, 0.0F, 5.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 1.5, 1.0, 0.0F, 5.0F, 0.0F, 0.0F);
 
   command = controller.compute_command(current_pose);
 
@@ -148,7 +151,7 @@ TEST_F(PurePursuitTest, Simple)
   // 1.25/2.0
   EXPECT_FLOAT_EQ(command.front_wheel_angle_rad, std::atan(1.6F * dist_front_rear_wheels));
 
-  create_current_pose(current_pose, 0.5F, 2.0F, 0.0F, 5.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.5, 2.0, 0.0F, 5.0F, 0.0F, 0.0F);
 
   controller.set_trajectory(traj);
   command = controller.compute_command(current_pose);
@@ -167,7 +170,7 @@ TEST_F(PurePursuitTest, Reverse)
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
   create_reverse_traj(traj, size);
-  create_current_pose(current_pose, 0.0F, 0.0F, 0.0F, -1.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.0, 0.0, 0.0F, -1.0F, 0.0F, 0.0F);
 
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   controller.set_trajectory(traj);
@@ -177,7 +180,7 @@ TEST_F(PurePursuitTest, Reverse)
   EXPECT_FLOAT_EQ(command.long_accel_mps2, 0.0F);
   EXPECT_FLOAT_EQ(command.front_wheel_angle_rad, -atanf(1.0F * dist_front_rear_wheels));
 
-  create_current_pose(current_pose, -1.5F, -1.0F, 0.0F, -5.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, -1.5, -1.0, 0.0F, -5.0F, 0.0F, 0.0F);
 
   command = controller.compute_command(current_pose);
 
@@ -188,12 +191,12 @@ TEST_F(PurePursuitTest, Reverse)
 
   // heading error: -(7.0 / 4.0) * PI -> (1.0 / 4.0) * PI
   create_reverse_traj(traj, size);
-  create_current_pose(current_pose, 0.0, 0.0F, PI, 1.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.0, 0.0, PI, 1.0F, 0.0F, 0.0F);
   controller.set_trajectory(traj);
   command = controller.compute_command(current_pose);
 
-  traj.points[1].heading = from_angle((3.0F * PI) / 4.0F);
-  create_current_pose(current_pose, -1.5F, -1.5F, PI, 1.0F, 0.0F, 0.0F);
+  traj.points[1].pose.orientation = from_angle((3.0F * PI) / 4.0F);
+  create_current_pose(current_pose, -1.5, -1.5, PI, 1.0F, 0.0F, 0.0F);
   controller.set_trajectory(traj);
   command = controller.compute_command(current_pose);
 
@@ -207,7 +210,7 @@ TEST_F(PurePursuitTest, Interpolation)
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
   create_traj(traj, size);
-  create_current_pose(current_pose, 0.0F, 0.0F, 0.0F, 1.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.0, 0.0, 0.0F, 1.0F, 0.0F, 0.0F);
 
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   controller.set_trajectory(traj);
@@ -221,11 +224,11 @@ TEST_F(PurePursuitTest, Interpolation)
 
   TrajectoryPointStamped current_pose;
   create_current_pose(
-    current_pose, 1.5F, 1.0F, PI / 4.0F, 10.0F, 0.0F, 0.0F);
+    current_pose, 1.5, 1.0, PI / 4.0F, 10.0F, 0.0F, 0.0F);
 
   command = controller.compute_command(current_pose);
 
-  create_current_pose(current_pose, 2.0F, 4.0F, 0.0F, 5.0F * powf(2.0F, 0.5F), 0.0F, 0.0F);
+  create_current_pose(current_pose, 2.0, 4.0, 0.0F, 5.0F * powf(2.0F, 0.5F), 0.0F, 0.0F);
 
   command = controller.compute_command(current_pose);
 
@@ -243,7 +246,7 @@ TEST_F(PurePursuitTest, ReplaceShortTrajectory)
   PurePursuit controller(cfg);
 
   create_traj(traj, 50);
-  create_current_pose(current_pose, 0.0F, 0.0F, PI / 4.0F, 1.0F, 0.0F, 0.0F);
+  create_current_pose(current_pose, 0.0, 0.0, PI / 4.0F, 1.0F, 0.0F, 0.0F);
 
   EXPECT_NO_MEMORY_OPERATIONS_BEGIN();
   controller.set_trajectory(traj);

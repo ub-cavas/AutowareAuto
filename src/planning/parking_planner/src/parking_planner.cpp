@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland. Arm Limited. All rights reserved.
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland. Arm Limited. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -307,9 +307,9 @@ autoware_auto_planning_msgs::msg::Trajectory convert_parking_planner_to_autoware
     auto parking_command = step.get_command();
 
     autoware_auto_planning_msgs::msg::TrajectoryPoint pt{};
-    pt.x = static_cast<float32_t>(parking_state.get_x());
-    pt.y = static_cast<float32_t>(parking_state.get_y());
-    pt.heading = from_angle(static_cast<float32_t>(parking_state.get_heading()));
+    pt.pose.position.x = parking_state.get_x();
+    pt.pose.position.y = parking_state.get_y();
+    pt.pose.orientation = from_angle(parking_state.get_heading());
     pt.longitudinal_velocity_mps = static_cast<float32_t>(parking_state.get_velocity());
     pt.lateral_velocity_mps = 0.0f;  // The parking planner has the kinematic model, there
                                      // is no lateral velocity in that

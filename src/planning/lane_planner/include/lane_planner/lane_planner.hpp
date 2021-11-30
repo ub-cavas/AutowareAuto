@@ -48,7 +48,6 @@ using TrajectoryPoints = std::vector<TrajectoryPoint>;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_planning_msgs::msg::Trajectory;
-using Heading = decltype(decltype(State::state)::heading);
 
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
 using motion::planning::trajectory_smoother::TrajectorySmoother;

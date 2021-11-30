@@ -249,14 +249,9 @@ LgsvlInterface::LgsvlInterface(
 
         // Create Vehicle Kinematic State from the transform between nav_base and
         // the odometry child frame from the simulator
-        m_nav_base_in_child_frame.state.x =
-        static_cast<decltype(m_nav_base_in_child_frame.state.x)>(
-          nav_base_tf.transform.translation.x);
-        m_nav_base_in_child_frame.state.y =
-        static_cast<decltype(m_nav_base_in_child_frame.state.y)>(
-          nav_base_tf.transform.translation.y);
-        m_nav_base_in_child_frame.state.heading =
-        motion::motion_common::from_quat(nav_base_tf.transform.rotation);
+        m_nav_base_in_child_frame.state.pose.position.x = nav_base_tf.transform.translation.x;
+        m_nav_base_in_child_frame.state.pose.position.y = nav_base_tf.transform.translation.y;
+        m_nav_base_in_child_frame.state.pose.orientation = nav_base_tf.transform.rotation;
       } else {
         RCLCPP_ERROR(
           m_logger,

@@ -24,6 +24,7 @@
 #include <motion_common/motion_common.hpp>
 
 #include <autoware_auto_geometry_msgs/msg/complex32.hpp>
+#include <autoware_auto_planning_msgs/msg/route_point.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -55,10 +56,7 @@ autoware_auto_planning_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
   const geometry_msgs::msg::Pose & pose)
 {
   autoware_auto_planning_msgs::msg::TrajectoryPoint pt;
-  pt.x = static_cast<float>(pose.position.x);
-  pt.y = static_cast<float>(pose.position.y);
-  const auto angle = tf2::getYaw(pose.orientation);
-  pt.heading = ::motion::motion_common::from_angle(angle);
+  pt.pose = pose;
   return pt;
 }
 
@@ -170,12 +168,7 @@ void Lanelet2GlobalPlannerNode::current_pose_cb(
   const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg)
 {
   // convert msg to geometry_msgs::msg::Pose
-  start_pose.pose.position.x = msg->state.x;
-  start_pose.pose.position.y = msg->state.y;
-  start_pose.pose.position.z = 0.0;
-  start_pose.pose.orientation =
-    motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
-    msg->state.heading);
+  start_pose.pose = msg->state.pose;
   start_pose.header = msg->header;
 
   // transform to "map" frame if needed
@@ -216,14 +209,14 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   global_route.header = header;
 
   autoware_auto_planning_msgs::msg::RoutePoint start_route_point;
-  start_route_point.position.x = start_point.x;
-  start_route_point.position.y = start_point.y;
-  start_route_point.heading = start_point.heading;
+  start_route_point.position = start_point.pose.position;
+  start_route_point.heading = motion::motion_common::heading_from_angle(
+      motion::motion_common::to_angle(start_point.pose.orientation));
 
   autoware_auto_planning_msgs::msg::RoutePoint end_route_point;
-  end_route_point.position.x = end_point.x;
-  end_route_point.position.y = end_point.y;
-  end_route_point.heading = end_point.heading;
+  end_route_point.position = end_point.pose.position;
+  end_route_point.heading = motion::motion_common::heading_from_angle(
+      motion::motion_common::to_angle(end_point.pose.orientation));
 
   global_route.start_point = start_route_point;
   global_route.goal_point = end_route_point;

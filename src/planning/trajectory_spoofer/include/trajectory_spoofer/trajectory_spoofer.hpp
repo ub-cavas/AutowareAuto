@@ -69,7 +69,7 @@ public:
   TrajectorySpoofer();
   explicit TrajectorySpoofer(float32_t target_speed);
 
-  static Complex32 to_2d_quaternion(float64_t yaw_angle);
+  static geometry_msgs::msg::Quaternion to_quaternion(const float64_t yaw_angle);
   static float64_t to_yaw_angle(const Complex32 & quat_2d);
 
   float32_t get_target_speed();

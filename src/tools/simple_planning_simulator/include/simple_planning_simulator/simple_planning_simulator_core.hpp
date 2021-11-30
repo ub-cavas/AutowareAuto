@@ -139,7 +139,7 @@ private:
 
   MeasurementNoiseGenerator measurement_noise_;  //!< @brief for measurement noise
 
-  float32_t cg_to_rear_m_;  //!< @brief length from baselink to CoM
+  float64_t cg_to_rear_m_;  //!< @brief length from baselink to CoM
 
 
   /* vehicle model */

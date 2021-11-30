@@ -1,4 +1,4 @@
-// Copyright 2019 Christopher Ho
+// Copyright 2019-2021 the Autoware Foundation
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,11 +15,16 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
-#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
+#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
+
+#include <tf2/LinearMath/Quaternion.h>
+#include <tf2/utils.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <time_utils/time_utils.hpp>
 
 #include <algorithm>
@@ -30,12 +35,14 @@ namespace motion
 namespace motion_common
 {
 // Use same representation as message type
-using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::x);
+using Real = decltype(autoware_auto_planning_msgs::msg::TrajectoryPoint::longitudinal_velocity_mps);
 using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using Diagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
-using Heading = decltype(decltype(State::state)::heading);
+using Heading = autoware_auto_geometry_msgs::msg::Complex32;
+using Orientation = geometry_msgs::msg::Quaternion;
+using Double = decltype(Orientation::x);
 using Index = decltype(Trajectory::points)::size_type;
 using Point = decltype(Trajectory::points)::value_type;
 
@@ -47,11 +54,7 @@ MOTION_COMMON_PUBLIC bool is_past_point(
   const Point & state, const Point & current_pt, const Point & next_pt) noexcept;
 /// Given a normal, determine if state is past a point
 MOTION_COMMON_PUBLIC
-bool is_past_point(const Point & state, const Point & pt, Real nx, Real ny) noexcept;
-
-/// Check if cosine angle is less than some dot product threshold
-MOTION_COMMON_PUBLIC
-bool is_aligned(Heading a, Heading b, Real dot_threshold);
+bool is_past_point(const Point & state, const Point & pt, Double nx, Double ny) noexcept;
 
 /// Advance to the first trajectory point past state according to criterion is_past_point
 template<typename IsPastPointF>
@@ -99,16 +102,43 @@ MOTION_COMMON_PUBLIC void doTransform(
 
 /// Converts 2D quaternion to simple heading representation
 MOTION_COMMON_PUBLIC Real to_angle(Heading heading) noexcept;
+/// Converts 3D quaternion to simple heading representation
+MOTION_COMMON_PUBLIC Double to_angle(Orientation orientation) noexcept;
 
 /// Basic conversion
 template<typename RealT>
-Heading from_angle(RealT angle) noexcept
+Heading heading_from_angle(RealT angle) noexcept
 {
   static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
   Heading ret{};
   ret.real = static_cast<decltype(ret.real)>(std::cos(angle * RealT{0.5}));
   ret.imag = static_cast<decltype(ret.imag)>(std::sin(angle * RealT{0.5}));
   return ret;
+}
+
+/// \brief Converts angles into a corresponding Orientation
+/// \tparam RealT a floating point type
+/// \param[in] roll angle to use as roll of the Orientation [radians]
+/// \param[in] pitch angle to use as pitch of the Orientation [radians]
+/// \param[in] yaw angle to use as yaw of the Orientation [radians]
+/// \returns A converted Orientation object
+template<typename RealT>
+Orientation from_angles(RealT roll, RealT pitch, RealT yaw) noexcept
+{
+  static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
+  tf2::Quaternion quat;
+  quat.setRPY(roll, pitch, yaw);
+  return tf2::toMsg(quat);
+}
+
+/// \brief Converts a heading angle into a corresponding Orientation
+/// \tparam RealT a floating point type
+/// \param[in] angle heading angle to use as yaw of the Orientation [radians]
+/// \returns A converted Orientation object
+template<typename RealT>
+Orientation from_angle(RealT angle) noexcept
+{
+  return from_angles(RealT{}, RealT{}, angle);
 }
 
 /// \brief Converts a quaternion-like object to a simple heading representation
@@ -119,22 +149,9 @@ template<typename QuatT>
 Heading from_quat(QuatT quat) noexcept
 {
   Heading ret{};
-  ret.real = static_cast<decltype(ret.real)>(quat.w);
-  ret.imag = static_cast<decltype(ret.imag)>(quat.z);
+  ret.real = quat.w;
+  ret.imag = quat.z;
   return ret;
-}
-
-/// \brief Converts a simple heading representation into a quaternion-like object
-/// \tparam QuatT A quaternion-like object with at least z and w members
-/// \param[in] heading A heading object to be converted to a quaternion-like object
-/// \returns A converted quaternion-like object
-template<typename QuatT>
-QuatT to_quat(Heading heading) noexcept
-{
-  QuatT quat{};
-  quat.w = static_cast<decltype(quat.w)>(heading.real);
-  quat.z = static_cast<decltype(quat.z)>(heading.imag);
-  return quat;
 }
 
 /// Standard clamp implementation
@@ -157,10 +174,8 @@ T interpolate(T a, T b, RealT t)
   return static_cast<T>(t * static_cast<RealT>(del)) + a;
 }
 
-/// 2D nlerp (linear approximation of slerp):
-/// http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
-MOTION_COMMON_PUBLIC Heading nlerp(Heading a, Heading b, Real t);
-// TODO(c.ho) proper slerp implementation
+/// Spherical linear interpolation
+MOTION_COMMON_PUBLIC Orientation slerp(const Orientation & a, const Orientation & b, const Real t);
 
 /// Trajectory point interpolation
 template<typename SlerpF>
@@ -172,9 +187,9 @@ Point interpolate(Point a, Point b, Real t, SlerpF slerp_fn)
     const auto dt1 = time_utils::from_message(b.time_from_start);
     ret.time_from_start = time_utils::to_message(time_utils::interpolate(dt0, dt1, t));
   }
-  ret.x = interpolate(a.x, b.x, t);
-  ret.y = interpolate(a.y, b.y, t);
-  ret.heading = slerp_fn(a.heading, b.heading, t);
+  ret.pose.position.x = interpolate(a.pose.position.x, b.pose.position.x, t);
+  ret.pose.position.y = interpolate(a.pose.position.y, b.pose.position.y, t);
+  ret.pose.orientation = slerp_fn(a.pose.orientation, b.pose.orientation, t);
   ret.longitudinal_velocity_mps =
     interpolate(a.longitudinal_velocity_mps, b.longitudinal_velocity_mps, t);
   ret.lateral_velocity_mps = interpolate(a.lateral_velocity_mps, b.lateral_velocity_mps, t);
@@ -186,7 +201,7 @@ Point interpolate(Point a, Point b, Real t, SlerpF slerp_fn)
   return ret;
 }
 
-/// Default point interpolation, currently uses nlerp
+/// Default point interpolation
 MOTION_COMMON_PUBLIC Point interpolate(Point a, Point b, Real t);
 
 /// Sample a trajectory using interpolation; does not extrapolate
@@ -240,7 +255,7 @@ void sample(
   }
 }
 
-/// Trajectory sampling with default interpolation (of nlerp)
+/// Trajectory sampling with default interpolation
 MOTION_COMMON_PUBLIC void sample(
   const Trajectory & in,
   Trajectory & out,
@@ -256,7 +271,8 @@ namespace autoware_auto_geometry_msgs
 {
 namespace msg
 {
-// TODO(c.ho) these should go into some autoware_auto_geometry_msgs package
+// TODO(c.ho) these should go into some autoware_auto_msgs package
+// TODO(Maxime CLEMENT): remove if these are no longer used
 /// Addition operator
 MOTION_COMMON_PUBLIC Complex32 operator+(Complex32 a, Complex32 b) noexcept;
 /// Unary minus
@@ -265,4 +281,16 @@ MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a) noexcept;
 MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a, Complex32 b) noexcept;
 }  // namespace msg
 }  // namespace autoware_auto_geometry_msgs
+namespace geometry_msgs
+{
+namespace msg
+{
+/// Addition operator
+MOTION_COMMON_PUBLIC Quaternion operator+(Quaternion a, Quaternion b) noexcept;
+/// Unary minus
+MOTION_COMMON_PUBLIC Quaternion operator-(Quaternion a) noexcept;
+/// Difference operator
+MOTION_COMMON_PUBLIC Quaternion operator-(Quaternion a, Quaternion b) noexcept;
+}  // namespace msg
+}  // namespace geometry_msgs
 #endif  // MOTION_COMMON__MOTION_COMMON_HPP_

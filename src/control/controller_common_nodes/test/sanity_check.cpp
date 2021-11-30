@@ -1,4 +1,4 @@
-// Copyright 2019 Christopher Ho
+// Copyright 2019-2021 Christopher Ho
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,6 +13,7 @@
 // limitations under the License.
 #include <gtest/gtest.h>
 #include <controller_common_nodes/controller_base_node.hpp>
+#include <motion_common/motion_common.hpp>
 #include <motion_testing/motion_testing.hpp>
 #include <motion_testing_nodes/motion_testing_publisher.hpp>
 #include <motion_testing_nodes/wait_for_matched.hpp>
@@ -152,9 +153,9 @@ protected:
   Command compute_command_impl(const State & state) override
   {
     Command ret{};
-    ret.long_accel_mps2 = state.state.x;
-    ret.front_wheel_angle_rad = state.state.y;
-    ret.rear_wheel_angle_rad = state.state.heading.real;
+    ret.long_accel_mps2 = static_cast<float>(state.state.pose.position.x);
+    ret.front_wheel_angle_rad = static_cast<float>(state.state.pose.position.y);
+    ret.rear_wheel_angle_rad = static_cast<float>(state.state.pose.orientation.w);
     ret.stamp = state.header.stamp;
     return ret;
   }
@@ -235,10 +236,11 @@ TEST_F(SanityCheck, Basic)
     EXPECT_EQ(trajs.size(), 2U);  // Initial publish, nominal publish
     // TODO(c.ho) more checks
   }
-  // Cpmmand, and tf should have consistent values, state should be zero
+  // Command, and tf should have consistent values, state should be zero
   {
     // commands
     const auto & cmds = sub->commands();
+    const auto & state_orientation = state1.state.pose.orientation;
     EXPECT_GT(cmds.size() + TOLI, total_msgs) << cmds.size();
     // TODO(c.ho) match against tfs
     for (auto idx = 1U; idx < cmds.size(); ++idx) {
@@ -246,7 +248,7 @@ TEST_F(SanityCheck, Basic)
       const auto & cmd_prev = cmds[idx - 1U];
       EXPECT_GE(cmd_curr.long_accel_mps2, cmd_prev.long_accel_mps2) << idx;  // x
       EXPECT_LE(cmd_curr.front_wheel_angle_rad, cmd_prev.front_wheel_angle_rad) << idx;  // y
-      EXPECT_LT(fabsf(cmd_curr.rear_wheel_angle_rad - state1.state.heading.real), TOL);  // real
+      EXPECT_LT(fabs(cmd_curr.rear_wheel_angle_rad - state_orientation.w), TOL);  // real
       // TODO(c.ho) rotation, etc.
     }
     // Tfs
@@ -257,8 +259,8 @@ TEST_F(SanityCheck, Basic)
       EXPECT_LT(fabs(tf_curr.transform.translation.z), TOLD);
       EXPECT_LT(fabs(tf_curr.transform.rotation.y), TOLD);
       EXPECT_LT(fabs(tf_curr.transform.rotation.x), TOLD);
-      EXPECT_LT(fabs(tf_curr.transform.rotation.w - state1.state.heading.real), TOLD);
-      EXPECT_LT(fabs(tf_curr.transform.rotation.z - state1.state.heading.imag), TOLD);
+      EXPECT_LT(fabs(tf_curr.transform.rotation.w - state_orientation.w), TOLD);
+      EXPECT_LT(fabs(tf_curr.transform.rotation.z - state_orientation.z), TOLD);
       const auto & tf_prev = tfs[idx - 1U];
       EXPECT_GE(tf_curr.transform.translation.x, tf_prev.transform.translation.x) << idx;
       EXPECT_LE(tf_curr.transform.translation.y, tf_prev.transform.translation.y) << idx;
@@ -271,11 +273,11 @@ TEST_F(SanityCheck, Basic)
     const auto & states = sub->states();
     EXPECT_GT(states.size() + TOLI, total_msgs) << states.size();
     for (const auto & s : states) {
-      EXPECT_LT(fabsf(s.state.x), TOL);
-      EXPECT_LT(fabsf(s.state.y), TOL);
+      EXPECT_LT(fabs(s.state.pose.position.x), TOL);
+      EXPECT_LT(fabs(s.state.pose.position.y), TOL);
       // Heading is assumed to be 0
-      EXPECT_LT(fabsf(s.state.heading.real - 1.0F), TOL);
-      EXPECT_LT(fabsf(s.state.heading.imag), TOL);
+      EXPECT_LT(fabs(s.state.pose.orientation.w - 1.0), TOL);
+      EXPECT_DOUBLE_EQ(motion::motion_common::to_angle(s.state.pose.orientation), 0.0);
       // velocity etc
     }
     // diagnostics: just a coarse check, got _something_

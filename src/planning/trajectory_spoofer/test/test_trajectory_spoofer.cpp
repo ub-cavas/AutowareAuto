@@ -20,6 +20,7 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <common/types.hpp>
+#include <motion_common/motion_common.hpp>
 #include <time_utils/time_utils.hpp>
 
 #include <cmath>
@@ -70,21 +71,23 @@ TEST(TestTrajectorySpoofer, StraightTrajectory) {
   // Initial heading of 0 should mean travelling straight along the X axis
   ASSERT_EQ(traj.points.size(), static_cast<size_t>(num_of_points));
   ASSERT_DURATION_MILLI_EQ(last_time, end_time);
-  ASSERT_FLOAT_EQ(last_point.x, length);
-  ASSERT_FLOAT_EQ(last_point.y, first_point.y);
-  ASSERT_FLOAT_EQ(last_point.heading.real, first_point.heading.real);
-  ASSERT_FLOAT_EQ(last_point.heading.imag, first_point.heading.imag);
-  ASSERT_FLOAT_EQ(last_point.longitudinal_velocity_mps, first_point.longitudinal_velocity_mps);
-  ASSERT_FLOAT_EQ(last_point.lateral_velocity_mps, first_point.lateral_velocity_mps);
-  ASSERT_FLOAT_EQ(last_point.acceleration_mps2, first_point.acceleration_mps2);
-  ASSERT_FLOAT_EQ(last_point.heading_rate_rps, first_point.heading_rate_rps);
-  ASSERT_FLOAT_EQ(last_point.front_wheel_angle_rad, first_point.front_wheel_angle_rad);
-  ASSERT_FLOAT_EQ(last_point.rear_wheel_angle_rad, first_point.rear_wheel_angle_rad);
+  EXPECT_DOUBLE_EQ(last_point.pose.position.x, length);
+  EXPECT_DOUBLE_EQ(last_point.pose.position.y, first_point.pose.position.y);
+  EXPECT_DOUBLE_EQ(last_point.pose.orientation.w, first_point.pose.orientation.w);
+  EXPECT_DOUBLE_EQ(last_point.pose.orientation.x, first_point.pose.orientation.x);
+  EXPECT_DOUBLE_EQ(last_point.pose.orientation.y, first_point.pose.orientation.y);
+  EXPECT_DOUBLE_EQ(last_point.pose.orientation.z, first_point.pose.orientation.z);
+  EXPECT_FLOAT_EQ(last_point.longitudinal_velocity_mps, first_point.longitudinal_velocity_mps);
+  EXPECT_FLOAT_EQ(last_point.lateral_velocity_mps, first_point.lateral_velocity_mps);
+  EXPECT_FLOAT_EQ(last_point.acceleration_mps2, first_point.acceleration_mps2);
+  EXPECT_FLOAT_EQ(last_point.heading_rate_rps, first_point.heading_rate_rps);
+  EXPECT_FLOAT_EQ(last_point.front_wheel_angle_rad, first_point.front_wheel_angle_rad);
+  EXPECT_FLOAT_EQ(last_point.rear_wheel_angle_rad, first_point.rear_wheel_angle_rad);
 
   num_of_points = 100;  // max points
   length = 2500.0;
   constexpr float32_t head_rad = 45.0 * M_PI / 180.0;  // Start at heading of 45 degrees
-  starting_point.state.heading = TrajectorySpoofer::to_2d_quaternion(head_rad);
+  starting_point.state.pose.orientation = ::motion::motion_common::from_angle(head_rad);
   starting_point.state.longitudinal_velocity_mps = 12.5;
 
   traj = ts.spoof_straight_trajectory(
@@ -102,10 +105,12 @@ TEST(TestTrajectorySpoofer, StraightTrajectory) {
 
   ASSERT_EQ(traj.points.size(), static_cast<size_t>(num_of_points));
   ASSERT_DURATION_MILLI_EQ(last_time, end_time);
-  ASSERT_FLOAT_EQ(last_point.x, end_x);
-  ASSERT_FLOAT_EQ(last_point.y, end_y);
-  ASSERT_FLOAT_EQ(last_point.heading.real, first_point.heading.real);
-  ASSERT_FLOAT_EQ(last_point.heading.imag, first_point.heading.imag);
+  ASSERT_FLOAT_EQ(last_point.pose.position.x, end_x);
+  ASSERT_FLOAT_EQ(last_point.pose.position.y, end_y);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.w, first_point.pose.orientation.w);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.x, first_point.pose.orientation.x);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.y, first_point.pose.orientation.y);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.z, first_point.pose.orientation.z);
   ASSERT_FLOAT_EQ(last_point.longitudinal_velocity_mps, first_point.longitudinal_velocity_mps);
   ASSERT_FLOAT_EQ(last_point.lateral_velocity_mps, first_point.lateral_velocity_mps);
   ASSERT_FLOAT_EQ(last_point.acceleration_mps2, first_point.acceleration_mps2);
@@ -138,18 +143,20 @@ TEST(TestTrajectorySpoofer, CircularTrajectory) {
   ASSERT_EQ(traj.points.size(), static_cast<size_t>(num_of_points));
   ASSERT_DURATION_MILLI_EQ(last_time, end_time);
   // last point should have the same x/y as first point
-  ASSERT_FLOAT_EQ(last_point.x, first_point.x);
-  ASSERT_FLOAT_EQ(last_point.y, first_point.y);
+  ASSERT_FLOAT_EQ(last_point.pose.position.x, first_point.pose.position.x);
+  ASSERT_FLOAT_EQ(last_point.pose.position.y, first_point.pose.position.y);
   // Should end up with the same heading as initial heading
-  ASSERT_FLOAT_EQ(last_point.heading.real, first_point.heading.real);
-  ASSERT_FLOAT_EQ(last_point.heading.imag, first_point.heading.imag);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.w, first_point.pose.orientation.w);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.x, first_point.pose.orientation.x);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.y, first_point.pose.orientation.y);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.z, first_point.pose.orientation.z);
   ASSERT_FLOAT_EQ(last_point.longitudinal_velocity_mps, first_point.longitudinal_velocity_mps);
   ASSERT_FLOAT_EQ(last_point.acceleration_mps2, first_point.acceleration_mps2);
 
   num_of_points = 100;  // max points
   radius = 2500.0;
   constexpr float32_t head_rad = 45.0 * M_PI / 180.0;  // Start at heading of 45 degrees
-  starting_point.state.heading = TrajectorySpoofer::to_2d_quaternion(head_rad);
+  starting_point.state.pose.orientation = ::motion::motion_common::from_angle(head_rad);
   starting_point.state.longitudinal_velocity_mps = 12.5;
 
   traj = ts.spoof_circular_trajectory(starting_point, num_of_points, radius);
@@ -166,11 +173,13 @@ TEST(TestTrajectorySpoofer, CircularTrajectory) {
   ASSERT_EQ(traj.points.size(), static_cast<size_t>(num_of_points));
   ASSERT_DURATION_MILLI_EQ(last_time, end_time);
   // last point should have the same x/y as first point
-  ASSERT_FLOAT_EQ(last_point.x, first_point.x);
-  ASSERT_FLOAT_EQ(last_point.y, first_point.y);
+  ASSERT_FLOAT_EQ(last_point.pose.position.x, first_point.pose.position.x);
+  ASSERT_FLOAT_EQ(last_point.pose.position.y, first_point.pose.position.y);
   // Should end up with the same heading as initial heading
-  ASSERT_FLOAT_EQ(last_point.heading.real, first_point.heading.real);
-  ASSERT_FLOAT_EQ(last_point.heading.imag, first_point.heading.imag);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.w, first_point.pose.orientation.w);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.x, first_point.pose.orientation.x);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.y, first_point.pose.orientation.y);
+  ASSERT_FLOAT_EQ(last_point.pose.orientation.z, first_point.pose.orientation.z);
   ASSERT_FLOAT_EQ(last_point.longitudinal_velocity_mps, first_point.longitudinal_velocity_mps);
   ASSERT_FLOAT_EQ(last_point.acceleration_mps2, first_point.acceleration_mps2);
 }

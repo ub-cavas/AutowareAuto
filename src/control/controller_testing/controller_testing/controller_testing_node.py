@@ -18,7 +18,6 @@ from rclpy.node import Node
 from rclpy.duration import Duration
 from rclpy.time import Time
 
-from autoware_auto_geometry_msgs.msg import Complex32
 from autoware_auto_system_msgs.msg import ControlDiagnostic
 from autoware_auto_planning_msgs.msg import Trajectory
 from autoware_auto_planning_msgs.msg import TrajectoryPoint
@@ -26,6 +25,7 @@ from autoware_auto_vehicle_msgs.msg import VehicleKinematicState
 from autoware_auto_vehicle_msgs.msg import VehicleControlCommand
 
 from geometry_msgs.msg import TransformStamped
+from geometry_msgs.msg import Quaternion
 from tf2_msgs.msg import TFMessage
 from nav_msgs.msg import Odometry
 
@@ -41,22 +41,21 @@ import motion_model_testing_simulator.bicycle_model as bicycleModel
 
 
 # TODO(s.me) this is probably available elsewhere...
-def to_angle(heading: complex) -> float:
-    # Translated from motion_common's "to_angle"
-    magnitude = math.sqrt(heading.real ** 2 + heading.imag ** 2)
+def to_angle(quat: Quaternion) -> float:
+    magnitude = math.sqrt(quat.w ** 2 + quat.z ** 2)
     if abs(magnitude - 1.0) > sys.float_info.epsilon:
-        heading = complex(heading.real / magnitude, heading.imag / magnitude)
+        quat = Quaternion(quat.w / magnitude, 0, 0, quat.z / magnitude)
 
-    y = 2.0 * heading.real * heading.imag
-    x = 1.0 - (2.0 * heading.imag * heading.imag)
+    y = 2.0 * quat.w * quat.z
+    x = 1.0 - (2.0 * quat.w * quat.z)
     return math.atan2(y, x)
 
 
 # TODO(s.me) this is probably available elsewhere...
-def from_angle(angle: float) -> complex:
-    the_quaternion = Complex32()
-    the_quaternion.real = math.cos(0.5 * angle)
-    the_quaternion.imag = math.sin(0.5 * angle)
+def from_angle(angle: float) -> Quaternion:
+    the_quaternion = Quaternion()
+    the_quaternion.w = math.cos(0.5 * angle)
+    the_quaternion.z = math.sin(0.5 * angle)
     return the_quaternion
 
 
@@ -295,8 +294,8 @@ class ControllerTestingNode(Node):
         def get_from_history(accessor):
             return list(map(lambda x: accessor(x), self._memory_recorder.history))
 
-        x_history = get_from_history(lambda instant: instant.state.x)
-        y_history = get_from_history(lambda instant: instant.state.y)
+        x_history = get_from_history(lambda instant: instant.state.pose.position.x)
+        y_history = get_from_history(lambda instant: instant.state.pose.position.y)
         time_history = get_from_history(lambda instant: instant.time)
         velocity_history = get_from_history(lambda instant: instant.state.v)
         cmd_a_history = get_from_history(lambda instant: instant.command.acceleration)
@@ -404,10 +403,10 @@ class ControllerTestingNode(Node):
         state_msg = VehicleKinematicState()
         # Transform odom_H_cog to odom_H_base_link
         # TODO(s.merkli): Double check
-        state_msg.state.x = state.x - np.cos(state.phi) * self.param_cog_to_rear_axle
-        state_msg.state.y = state.y - np.sin(state.phi) * self.param_cog_to_rear_axle
+        state_msg.state.pose.position.x = state.x - np.cos(state.phi) * self.param_cog_to_rear_axle
+        state_msg.state.pose.position.y = state.y - np.sin(state.phi) * self.param_cog_to_rear_axle
 
-        state_msg.state.heading = from_angle(state.phi)
+        state_msg.state.pose.orientation = from_angle(state.phi)
         state_msg.state.longitudinal_velocity_mps = state.v
         state_msg.state.lateral_velocity_mps = 0.0  # not modeled in this
         state_msg.state.acceleration_mps2 = 0.0  # modeled as an input
@@ -514,9 +513,9 @@ class ControllerTestingNode(Node):
         speed = speed_start
         seconds = float(discretization_distance_m / speed)
 
-        cur_x = init_point.x
-        cur_y = init_point.y
-        heading_angle = to_angle(init_point.heading)
+        cur_x = init_point.pose.position.x
+        cur_y = init_point.pose.position.y
+        heading_angle = to_angle(init_point.pose.orientation)
         prev_heading_angle = heading_angle
         prev_speed = speed
 

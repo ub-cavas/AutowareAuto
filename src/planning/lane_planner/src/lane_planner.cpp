@@ -19,6 +19,8 @@
 #include <lanelet2_core/geometry/LineString.h>
 #include <had_map_utils/had_map_utils.hpp>
 #include <geometry/common_2d.hpp>
+#include <motion_common/motion_common.hpp>
+
 #include <limits>
 #include <algorithm>
 
@@ -45,7 +47,11 @@ float32_t calculate_curvature(
       p3) * distance2d(
       p3, p1), epsilon);
   const float32_t curvature =
-    2.0F * ((p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x)) / den;
+    2.0F *
+    static_cast<float32_t>(
+    (p2.pose.position.x - p1.pose.position.x) * (p3.pose.position.y - p1.pose.position.y) -
+    (p2.pose.position.y - p1.pose.position.y) * (p3.pose.position.x - p1.pose.position.x)) /
+    den;
   return curvature;
 }
 
@@ -55,7 +61,9 @@ size_t get_closest_lanelet(const lanelet::ConstLanelets & lanelets, const Trajec
   size_t closest_index = 0;
   for (size_t i = 0; i < lanelets.size(); i++) {
     const auto & llt = lanelets.at(i);
-    const auto & point2d = lanelet::Point2d(lanelet::InvalId, point.x, point.y).basicPoint2d();
+    const auto & point2d =
+      lanelet::Point2d(lanelet::InvalId, point.pose.position.x, point.pose.position.y)
+      .basicPoint2d();
     // TODO(mitsudome-r): change this implementation to remove dependency to boost
     const float64_t distance = lanelet::geometry::distanceToCenterline2d(llt, point2d);
     if (distance < closest_distance) {
@@ -82,8 +90,8 @@ autoware_auto_planning_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
   const float32_t velocity)
 {
   autoware_auto_planning_msgs::msg::TrajectoryPoint trajectory_point;
-  trajectory_point.x = static_cast<float32_t>(pt.x());
-  trajectory_point.y = static_cast<float32_t>(pt.y());
+  trajectory_point.pose.position.x = pt.x();
+  trajectory_point.pose.position.y = pt.y();
   trajectory_point.longitudinal_velocity_mps = velocity;
   return trajectory_point;
 }
@@ -91,7 +99,7 @@ autoware_auto_planning_msgs::msg::TrajectoryPoint convertToTrajectoryPoint(
 lanelet::Point3d convertToLaneletPoint(
   const autoware_auto_planning_msgs::msg::TrajectoryPoint & pt)
 {
-  return lanelet::Point3d(lanelet::InvalId, pt.x, pt.y, 0.0);
+  return lanelet::Point3d(lanelet::InvalId, pt.pose.position.x, pt.pose.position.y, 0.0);
 }
 
 Trajectory LanePlanner::plan_trajectory(
@@ -154,14 +162,14 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
   }
 
   TrajectoryPoint trajectory_start_point;
-  trajectory_start_point.x = static_cast<float32_t>(had_map_route.start_point.position.x);
-  trajectory_start_point.y = static_cast<float32_t>(had_map_route.start_point.position.y);
-  trajectory_start_point.heading = had_map_route.start_point.heading;
+  trajectory_start_point.pose.position = had_map_route.start_point.position;
+  trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
+    motion::motion_common::to_angle(had_map_route.start_point.heading));
 
   TrajectoryPoint trajectory_goal_point;
-  trajectory_goal_point.x = static_cast<float32_t>(had_map_route.goal_point.position.x);
-  trajectory_goal_point.y = static_cast<float32_t>(had_map_route.goal_point.position.y);
-  trajectory_goal_point.heading = had_map_route.goal_point.heading;
+  trajectory_goal_point.pose.position = had_map_route.goal_point.position;
+  trajectory_goal_point.pose.orientation = motion::motion_common::from_angle(
+    motion::motion_common::to_angle(had_map_route.goal_point.heading));
 
   const auto start_index = get_closest_lanelet(lanelets, trajectory_start_point);
 
@@ -215,22 +223,20 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
 void LanePlanner::set_angle(TrajectoryPoints * trajectory_points)
 {
   for (size_t i = 0; i < trajectory_points->size(); i++) {
-    float32_t angle = 0;
+    float64_t angle = 0;
     auto & pt = trajectory_points->at(i);
     if (i + 1 < trajectory_points->size()) {
       const auto & next_pt = trajectory_points->at(i + 1);
       angle = std::atan2(
-        next_pt.y - pt.y,
-        next_pt.x - pt.x);
+        next_pt.pose.position.y - pt.pose.position.y,
+        next_pt.pose.position.x - pt.pose.position.x);
     } else if (i != 0) {
       const auto & prev_pt = trajectory_points->at(i - 1);
       angle = std::atan2(
-        pt.y - prev_pt.y,
-        pt.x - prev_pt.x);
+        pt.pose.position.y - prev_pt.pose.position.y,
+        pt.pose.position.x - prev_pt.pose.position.x);
     }
-    // TODO(mitsudome-r): do faster computation of heading from diff_x, and diff_y
-    pt.heading.real = std::cos(angle / 2.0F);
-    pt.heading.imag = std::sin(angle / 2.0F);
+    pt.pose.orientation = motion::motion_common::from_angle(angle);
   }
 }
 
@@ -265,8 +271,8 @@ void LanePlanner::set_time_from_start(TrajectoryPoints * trajectory_points)
   for (size_t i = 1; i < trajectory_points->size(); i++) {
     auto & pt = trajectory_points->at(i);
     const auto & prev_pt = trajectory_points->at(i - 1);
-    const double distance_x = pt.x - prev_pt.x;
-    const double distance_y = pt.y - prev_pt.y;
+    const double distance_x = pt.pose.position.x - prev_pt.pose.position.x;
+    const double distance_y = pt.pose.position.y - prev_pt.pose.position.y;
     const double distance = std::sqrt(distance_x * distance_x + distance_y * distance_y);
     const double velocity = prev_pt.longitudinal_velocity_mps;
     accumulated_time += distance / std::max(velocity, 0.5);

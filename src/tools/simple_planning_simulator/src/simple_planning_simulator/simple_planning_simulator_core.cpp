@@ -14,7 +14,6 @@
 
 
 #include <tf2/LinearMath/Quaternion.h>
-#include <tf2/utils.h>
 
 #include <iostream>
 #include <memory>
@@ -38,14 +37,14 @@ namespace
 {
 autoware_auto_vehicle_msgs::msg::VehicleKinematicState convert_baselink_to_com(
   const autoware_auto_vehicle_msgs::msg::VehicleKinematicState & in,
-  const float32_t baselink_to_com)
+  const float64_t baselink_to_com)
 {
   autoware_auto_vehicle_msgs::msg::VehicleKinematicState out = in;
 
   // TODO(Horibe) convert to CoM for vehicle_kinematic_state msg.
-  const auto yaw = motion::motion_common::to_angle(out.state.heading);
-  out.state.x += std::cos(yaw) * baselink_to_com;
-  out.state.y += std::sin(yaw) * baselink_to_com;
+  const auto yaw = motion::motion_common::to_angle(out.state.pose.orientation);
+  out.state.pose.position.x += std::cos(yaw) * baselink_to_com;
+  out.state.pose.position.y += std::sin(yaw) * baselink_to_com;
 
   return out;
 }
@@ -54,9 +53,9 @@ autoware_auto_vehicle_msgs::msg::VehicleKinematicState to_kinematic_state(
   const std::shared_ptr<SimModelInterface> vehicle_model_ptr)
 {
   autoware_auto_vehicle_msgs::msg::VehicleKinematicState s;
-  s.state.x = static_cast<float32_t>(vehicle_model_ptr->getX());
-  s.state.y = static_cast<float32_t>(vehicle_model_ptr->getY());
-  s.state.heading = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
+  s.state.pose.position.x = vehicle_model_ptr->getX();
+  s.state.pose.position.y = vehicle_model_ptr->getY();
+  s.state.pose.orientation = motion::motion_common::from_angle(vehicle_model_ptr->getYaw());
   s.state.longitudinal_velocity_mps =
     static_cast<float32_t>(vehicle_model_ptr->getVx());
   s.state.lateral_velocity_mps = 0.0;
@@ -82,7 +81,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
   simulated_frame_id_ = declare_parameter("simulated_frame_id", "base_link");
   origin_frame_id_ = declare_parameter("origin_frame_id", "odom");
   add_measurement_noise_ = declare_parameter("add_measurement_noise", false);
-  cg_to_rear_m_ = static_cast<float>(declare_parameter("vehicle.cg_to_rear_m", 1.5));
+  cg_to_rear_m_ = declare_parameter("vehicle.cg_to_rear_m", 1.5);
 
   using rclcpp::QoS;
   using std::placeholders::_1;
@@ -149,7 +148,7 @@ void SimplePlanningSimulator::initialize_vehicle_model()
   RCLCPP_INFO(this->get_logger(), "vehicle_model_type = %s", vehicle_model_type_str.c_str());
 
   const float64_t cg_to_front_m = declare_parameter("vehicle.cg_to_front_m", 1.5);
-  const float64_t wheelbase = cg_to_front_m + static_cast<float64_t>(cg_to_rear_m_);
+  const float64_t wheelbase = cg_to_front_m + cg_to_rear_m_;
   const float64_t vel_lim = declare_parameter("vel_lim", 50.0);
   const float64_t vel_rate_lim = declare_parameter("vel_rate_lim", 7.0);
   const float64_t steer_lim = declare_parameter("steer_lim", 1.0);
@@ -275,14 +274,14 @@ void SimplePlanningSimulator::on_state_cmd(
 void SimplePlanningSimulator::add_measurement_noise(VehicleKinematicState & state) const
 {
   auto & n = measurement_noise_;
-  state.state.x += static_cast<float>((*n.pos_dist_)(*n.rand_engine_));
-  state.state.y += static_cast<float>((*n.pos_dist_)(*n.rand_engine_));
-  state.state.longitudinal_velocity_mps += static_cast<float>((*n.vel_dist_)(*n.rand_engine_));
-  state.state.front_wheel_angle_rad += static_cast<float>((*n.steer_dist_)(*n.rand_engine_));
+  state.state.pose.position.x += (*n.pos_dist_)(*n.rand_engine_);
+  state.state.pose.position.y += (*n.pos_dist_)(*n.rand_engine_);
+  state.state.longitudinal_velocity_mps += static_cast<float32_t>((*n.vel_dist_)(*n.rand_engine_));
+  state.state.front_wheel_angle_rad += static_cast<float32_t>((*n.steer_dist_)(*n.rand_engine_));
 
-  float32_t yaw = motion::motion_common::to_angle(state.state.heading);
-  yaw += static_cast<float>((*n.rpy_dist_)(*n.rand_engine_));
-  state.state.heading = motion::motion_common::from_angle(yaw);
+  float64_t yaw = motion::motion_common::to_angle(state.state.pose.orientation);
+  yaw += (*n.rpy_dist_)(*n.rand_engine_);
+  state.state.pose.orientation = motion::motion_common::from_angle(yaw);
 }
 
 
@@ -303,7 +302,7 @@ void SimplePlanningSimulator::set_initial_state(
 {
   const float64_t x = pose.position.x;
   const float64_t y = pose.position.y;
-  const float64_t yaw = tf2::getYaw(pose.orientation);
+  const float64_t yaw = ::motion::motion_common::to_angle(pose.orientation);
   const float64_t vx = twist.linear.x;
   const float64_t steer = 0.0;
   const float64_t accx = 0.0;
@@ -374,11 +373,10 @@ void SimplePlanningSimulator::publish_tf(const VehicleKinematicState & state)
   tf.header.stamp = get_clock()->now();
   tf.header.frame_id = origin_frame_id_;
   tf.child_frame_id = simulated_frame_id_;
-  tf.transform.translation.x = state.state.x;
-  tf.transform.translation.y = state.state.y;
+  tf.transform.translation.x = state.state.pose.position.x;
+  tf.transform.translation.y = state.state.pose.position.y;
   tf.transform.translation.z = 0.0;
-  tf.transform.rotation = motion::motion_common::to_quat<geometry_msgs::msg::Quaternion>(
-    state.state.heading);
+  tf.transform.rotation = state.state.pose.orientation;
 
   tf2_msgs::msg::TFMessage tf_msg{};
   tf_msg.transforms.emplace_back(std::move(tf));

@@ -1,4 +1,4 @@
-// Copyright 2020 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
+// Copyright 2020-2021 Embotech AG, Zurich, Switzerland, inspired by Christopher Ho's mpc code
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,18 +113,13 @@ Marker RecordReplayPlannerNode::to_marker(
 {
   Marker marker;
 
-  tf2::Quaternion quat;
-  quat.setEuler(0.0, 0.0, motion::motion_common::to_angle(traj_point.heading));
-
   marker.header.frame_id = frame_id;
   marker.header.stamp = rclcpp::Time(0);
   marker.ns = ns;
   marker.id = index;
   marker.type = Marker::ARROW;
   marker.action = Marker::ADD;
-  marker.pose.position.x = traj_point.x;
-  marker.pose.position.y = traj_point.y;
-  marker.pose.orientation = toMsg(quat);
+  marker.pose = traj_point.pose;
   marker.scale.x = 0.5;
   marker.scale.y = 0.25;
   marker.scale.z = 0.25;

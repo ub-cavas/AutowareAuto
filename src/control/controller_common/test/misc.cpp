@@ -82,9 +82,9 @@ TEST_F(MotionModel, ConstantVelocity)
   // zero
   {
     const auto p = controller_.predict(s, milliseconds(0));
-    EXPECT_LT(std::fabs(s.x - p.x), TOL);
-    EXPECT_LT(std::fabs(s.y - p.y), TOL);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_LT(std::fabs(s.pose.position.x - p.pose.position.x), TOL);
+    EXPECT_LT(std::fabs(s.pose.position.y - p.pose.position.y), TOL);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_LT(std::fabs(s.longitudinal_velocity_mps - p.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -94,9 +94,9 @@ TEST_F(MotionModel, ConstantVelocity)
   // positive time step
   {
     const auto p = controller_.predict(s, milliseconds(10));
-    EXPECT_GT(p.x, s.x);
-    EXPECT_LT(p.y, s.y);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_GT(p.pose.position.x, s.pose.position.x);
+    EXPECT_LT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_LT(std::fabs(s.longitudinal_velocity_mps - p.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -107,9 +107,9 @@ TEST_F(MotionModel, ConstantVelocity)
   // negative time step
   {
     const auto p = controller_.predict(s, milliseconds(-10));
-    EXPECT_LT(p.x, s.x);
-    EXPECT_GT(p.y, s.y);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_LT(p.pose.position.x, s.pose.position.x);
+    EXPECT_GT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_LT(std::fabs(s.longitudinal_velocity_mps - p.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -129,9 +129,9 @@ TEST_F(MotionModel, ConstantAcceleration)
   // positive
   {
     const auto p = controller_.predict(s, milliseconds(100));
-    EXPECT_GT(p.x, s.x);
-    EXPECT_GT(p.y, s.y);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_GT(p.pose.position.x, s.pose.position.x);
+    EXPECT_GT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_LT(p.longitudinal_velocity_mps, s.longitudinal_velocity_mps);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -142,9 +142,9 @@ TEST_F(MotionModel, ConstantAcceleration)
   // more positive, should be backwards
   {
     const auto p = controller_.predict(s, milliseconds(1100));
-    EXPECT_GT(p.x, s.x);
-    EXPECT_GT(p.y, s.y);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_GT(p.pose.position.x, s.pose.position.x);
+    EXPECT_GT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_LT(p.longitudinal_velocity_mps, 0.0F);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -155,9 +155,9 @@ TEST_F(MotionModel, ConstantAcceleration)
   // negative
   {
     const auto p = controller_.predict(s, milliseconds(-100));
-    EXPECT_LT(p.x, s.x);
-    EXPECT_LT(p.y, s.y);
-    EXPECT_LT(std::fabs(to_angle(s.heading) - to_angle(p.heading)), TOL);
+    EXPECT_LT(p.pose.position.x, s.pose.position.x);
+    EXPECT_LT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(std::fabs(to_angle(s.pose.orientation) - to_angle(p.pose.orientation)), TOL);
     EXPECT_GT(p.longitudinal_velocity_mps, s.longitudinal_velocity_mps);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -177,9 +177,9 @@ TEST_F(MotionModel, ConstantTurnRate)
   // positive
   {
     const auto p = controller_.predict(s, milliseconds(100));
-    EXPECT_GT(p.x, s.x);
-    EXPECT_GT(p.y, s.y);
-    EXPECT_LT(to_angle(s.heading), to_angle(p.heading));
+    EXPECT_GT(p.pose.position.x, s.pose.position.x);
+    EXPECT_GT(p.pose.position.y, s.pose.position.y);
+    EXPECT_LT(to_angle(s.pose.orientation), to_angle(p.pose.orientation));
     EXPECT_LT(std::fabs(p.longitudinal_velocity_mps - s.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);
@@ -190,9 +190,9 @@ TEST_F(MotionModel, ConstantTurnRate)
   // negative
   {
     const auto p = controller_.predict(s, milliseconds(-100));
-    EXPECT_LT(p.x, s.x);
-    EXPECT_GT(p.y, s.y);
-    EXPECT_GT(to_angle(s.heading), to_angle(p.heading));
+    EXPECT_LT(p.pose.position.x, s.pose.position.x);
+    EXPECT_GT(p.pose.position.y, s.pose.position.y);
+    EXPECT_GT(to_angle(s.pose.orientation), to_angle(p.pose.orientation));
     EXPECT_LT(std::fabs(p.longitudinal_velocity_mps - s.longitudinal_velocity_mps), TOL);
     EXPECT_LT(std::fabs(s.acceleration_mps2 - p.acceleration_mps2), TOL);
     EXPECT_LT(std::fabs(s.heading_rate_rps - p.heading_rate_rps), TOL);

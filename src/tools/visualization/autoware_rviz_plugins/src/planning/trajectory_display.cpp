@@ -125,13 +125,7 @@ visualization_msgs::msg::Marker::SharedPtr TrajectoryDisplay::create_pose_marker
   marker->type = visualization_msgs::msg::Marker::ARROW;
   marker->action = visualization_msgs::msg::Marker::ADD;
   marker->ns = "trajectory_arrow";
-  marker->pose.position.x = static_cast<float64_t>(point.x);
-  marker->pose.position.y = static_cast<float64_t>(point.y);
-  marker->pose.position.z = 0.0;
-  marker->pose.orientation.x = 0.0;
-  marker->pose.orientation.y = 0.0;
-  marker->pose.orientation.z = point.heading.imag;
-  marker->pose.orientation.w = point.heading.real;
+  marker->pose = point.pose;
   marker->scale.x = 1.0f * scale;
   marker->scale.y = 0.1f * scale;
   marker->scale.z = 0.1f * scale;
@@ -154,9 +148,7 @@ visualization_msgs::msg::Marker::SharedPtr TrajectoryDisplay::create_velocity_ma
   marker->type = visualization_msgs::msg::Marker::TEXT_VIEW_FACING;
   marker->action = visualization_msgs::msg::Marker::ADD;
   marker->ns = "trajectory_velocity";
-  marker->pose.position.x = static_cast<float64_t>(point.x);
-  marker->pose.position.y = static_cast<float64_t>(point.y);
-  marker->pose.position.z = 0.1;
+  marker->pose.position = point.pose.position;
   marker->scale.z = 0.2f * text_scale;
   marker->color.a = text_alpha;
   marker->color.r = static_cast<float>(color.redF());

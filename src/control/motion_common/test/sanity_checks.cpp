@@ -26,7 +26,6 @@ using autoware::common::types::float64_t;
 using autoware_auto_geometry_msgs::msg::Complex32;
 using geometry_msgs::msg::Quaternion;
 using motion::motion_common::from_quat;
-using motion::motion_common::to_quat;
 
 struct MyQuaternion
 {
@@ -35,23 +34,6 @@ struct MyQuaternion
   float64_t z{0.0};
   float64_t w{1.0};
 };
-
-TEST(HeadingFuncs, ToQuat) {
-  Complex32 complex_heading{};
-  complex_heading.real = 0.5f;
-  complex_heading.imag = 0.5f;
-
-  Quaternion gm_quat{};
-  MyQuaternion my_quat{};
-
-  gm_quat = to_quat<Quaternion>(complex_heading);
-  my_quat = to_quat<MyQuaternion>(complex_heading);
-
-  EXPECT_FLOAT_EQ(gm_quat.z, complex_heading.imag);
-  EXPECT_FLOAT_EQ(gm_quat.w, complex_heading.real);
-  EXPECT_FLOAT_EQ(my_quat.z, complex_heading.imag);
-  EXPECT_FLOAT_EQ(my_quat.w, complex_heading.real);
-}
 
 TEST(HeadingFuncs, FromQuat) {
   Quaternion gm_quat{};

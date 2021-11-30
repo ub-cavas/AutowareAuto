@@ -12,17 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <geometry/intersection.hpp>
-#include <motion_common/config.hpp>
-#include <geometry_msgs/msg/point32.hpp>
-#include <geometry/bounding_box/bounding_box_common.hpp>
-#include <geometry/bounding_box/rotating_calipers.hpp>
-#include <common/types.hpp>
+#include "object_collision_estimator/object_collision_estimator.hpp"
+
 #include <algorithm>
 #include <list>
 #include <vector>
 
-#include "object_collision_estimator/object_collision_estimator.hpp"
+#include "common/types.hpp"
+#include "geometry/bounding_box/bounding_box_common.hpp"
+#include "geometry/bounding_box/rotating_calipers.hpp"
+#include "geometry/intersection.hpp"
+#include "geometry_msgs/msg/point32.hpp"
+#include "motion_common/config.hpp"
+#include "motion_common/motion_common.hpp"
 
 namespace motion
 {
@@ -38,7 +40,6 @@ using autoware::common::geometry::plus_2d;
 using autoware::common::geometry::rotate_2d;
 using autoware::common::geometry::times_2d;
 using autoware::common::types::float32_t;
-using motion::motion_common::to_angle;
 using motion::planning::trajectory_smoother::TrajectorySmoother;
 using geometry_msgs::msg::Point32;
 
@@ -58,9 +59,12 @@ BoundingBox waypointToBox(
   float32_t lf = vehicle_param.length_cg_front_axel() + vehicle_param.front_overhang();
   float32_t lr = vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
   float32_t wh = vehicle_param.width() * 0.5f;
-  float32_t heading = to_angle(pt.heading);
-  float32_t ch = std::cos(heading);
-  float32_t sh = std::sin(heading);
+  const float32_t heading =
+    static_cast<float32_t>(::motion::motion_common::to_angle(pt.pose.orientation));
+  const float32_t ch = std::cos(heading);
+  const float32_t sh = std::sin(heading);
+  const float32_t pt_x = static_cast<float32_t>(pt.pose.position.x);
+  const float32_t pt_y = static_cast<float32_t>(pt.pose.position.y);
 
   // inflate size of vehicle by safety factor
   lf *= safety_factor;
@@ -72,26 +76,26 @@ BoundingBox waypointToBox(
 
   {     // Front left
     auto p = Point32{};
-    p.x = pt.x + (lf * ch) - (wh * sh);
-    p.y = pt.y + (lf * sh) + (wh * ch);
+    p.x = pt_x + (lf * ch) - (wh * sh);
+    p.y = pt_y + (lf * sh) + (wh * ch);
     vehicle_corners.push_back(p);
   }
   {     // Front right
     auto p = Point32{};
-    p.x = pt.x + (lf * ch) + (wh * sh);
-    p.y = pt.y + (lf * sh) - (wh * ch);
+    p.x = pt_x + (lf * ch) + (wh * sh);
+    p.y = pt_y + (lf * sh) - (wh * ch);
     vehicle_corners.push_back(p);
   }
   {     // Rear right
     auto p = Point32{};
-    p.x = pt.x - (lr * ch) + (wh * sh);
-    p.y = pt.y - (lr * sh) - (wh * ch);
+    p.x = pt_x - (lr * ch) + (wh * sh);
+    p.y = pt_y - (lr * sh) - (wh * ch);
     vehicle_corners.push_back(p);
   }
   {     // Rear left
     auto p = Point32{};
-    p.x = pt.x - (lr * ch) - (wh * sh);
-    p.y = pt.y - (lr * sh) + (wh * ch);
+    p.x = pt_x - (lr * ch) - (wh * sh);
+    p.y = pt_y - (lr * sh) + (wh * ch);
     vehicle_corners.push_back(p);
   }
 
@@ -112,8 +116,8 @@ bool8_t isTooFarAway(
   auto distance_threshold_squared = distance_threshold * distance_threshold;
 
   for (const auto & corner : obstacle_bbox.corners) {
-    auto dx = corner.x - way_point.x;
-    auto dy = corner.y - way_point.y;
+    auto dx = corner.x - static_cast<float32_t>(way_point.pose.position.x);
+    auto dy = corner.y - static_cast<float32_t>(way_point.pose.position.y);
     auto distance_squared = (dx * dx) + (dy * dy);
 
     if (distance_threshold_squared > distance_squared) {
@@ -203,9 +207,9 @@ int32_t getStopIndex(
     const auto & prev_pt = trajectory.points.at(static_cast<std::size_t>(i - 1));
     const auto & pt = trajectory.points.at(static_cast<std::size_t>(i));
 
-    const auto dx = prev_pt.x - pt.x;
-    const auto dy = prev_pt.y - pt.y;
-    accumulated_distance += std::hypot(dx, dy);
+    const auto dx = prev_pt.pose.position.x - pt.pose.position.x;
+    const auto dy = prev_pt.pose.position.y - pt.pose.position.y;
+    accumulated_distance += static_cast<float32_t>(std::hypot(dx, dy));
     if (accumulated_distance >= stop_margin) {
       stop_index = i;
       break;
