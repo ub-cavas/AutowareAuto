@@ -21,6 +21,7 @@
 
 #include "lanelet2_io/io_handlers/OsmHandler.h"
 
+#include <memory>
 #include <string>
 
 namespace lanelet
@@ -37,7 +38,7 @@ public:
    * OsmParser, but it will overwrite x and y value with local_x and local_y
    * tags if present]
    * @param  filename [path to osm file]
-   * @param  errors   [any errors catched during parsing]
+   * @param  errors   [any errors caught during parsing]
    * @return          [returns LaneletMap]
    */
   std::unique_ptr<LaneletMap> parse(

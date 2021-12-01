@@ -22,6 +22,8 @@
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <utility>
 #include <vector>
 
 namespace lanelet

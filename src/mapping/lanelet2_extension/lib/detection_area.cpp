@@ -22,6 +22,8 @@
 #include "lanelet2_extension/regulatory_elements/detection_area.hpp"
 
 #include <algorithm>
+#include <utility>
+#include <memory>
 #include <vector>
 
 namespace lanelet

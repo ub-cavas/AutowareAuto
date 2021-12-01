@@ -15,7 +15,7 @@
 
 #include "gtest/gtest.h"
 
-#include "autoware_auto_msgs/msg/had_map_bin.hpp"
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
@@ -56,7 +56,7 @@ private:
 
 TEST_F(TestSuite, BinMsgConversion)
 {
-  autoware_auto_msgs::msg::HADMapBin bin_msg;
+  autoware_auto_mapping_msgs::msg::HADMapBin bin_msg;
   lanelet::LaneletMapPtr regenerated_map(new lanelet::LaneletMap);
 
   lanelet::utils::conversion::toBinMsg(single_lanelet_map_ptr, &bin_msg);

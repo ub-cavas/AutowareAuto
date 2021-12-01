@@ -44,11 +44,13 @@ ament_auto_add_library(lanelet2_extension_lib SHARED
   lib/autoware_osm_parser.cpp
   lib/autoware_traffic_light.cpp
   lib/detection_area.cpp
+  lib/no_stopping_area.cpp
   lib/message_conversion.cpp
   lib/mgrs_projector.cpp
   lib/query.cpp
   lib/road_marking.cpp
   lib/utilities.cpp
+  lib/virtual_traffic_light.cpp
   lib/visualization.cpp
 )
 target_link_libraries(lanelet2_extension_lib

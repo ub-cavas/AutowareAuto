@@ -34,8 +34,15 @@ namespace utils
 {
 lanelet::LineString3d generateFineCenterline(
   const lanelet::ConstLanelet & lanelet_obj, const double resolution = 5.0);
+
 lanelet::ConstLineString3d getCenterlineWithOffset(
   const lanelet::ConstLanelet & lanelet_obj, const double offset, const double resolution = 5.0);
+
+lanelet::ConstLanelet getExpandedLanelet(
+  const lanelet::ConstLanelet & lanelet_obj, const double left_offset, const double right_offset);
+
+lanelet::ConstLanelets getExpandedLanelets(
+  const lanelet::ConstLanelets & lanelet_obj, const double left_offset, const double right_offset);
 
 /**
  * @brief  Apply a patch for centerline because the original implementation

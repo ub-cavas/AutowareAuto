@@ -2,8 +2,12 @@ repositories:
   src/external/autoware_auto_msgs:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/autoware_auto_msgs.git
-    version: 75b1958d6391fdb92a1b61ddb7f74974b4540da0
+    version: ea918bb077cc806619d5ffa9397c180b9cb907ca
   src/external/rosbridge_suite:
     type: git
     url: https://github.com/RobotWebTools/rosbridge_suite.git
     version: 1a2c386455067b00a9e67fb70cc711add38c3582
+  src/external/behaviortree_cpp_v3:
+    type: git
+    url: https://github.com/BehaviorTree/BehaviorTree.CPP.git
+    version: f24e5357b1beead34d5c25f057954982b50871cc

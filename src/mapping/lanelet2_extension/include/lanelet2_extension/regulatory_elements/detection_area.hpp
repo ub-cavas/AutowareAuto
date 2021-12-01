@@ -22,6 +22,7 @@
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_core/primitives/Lanelet.h"
 #include <vector>
+#include <memory>
 
 namespace lanelet
 {

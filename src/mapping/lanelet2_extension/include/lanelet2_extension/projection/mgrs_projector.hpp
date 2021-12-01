@@ -25,6 +25,7 @@
 #include "GeographicLib/UTMUPS.hpp"
 
 #include <string>
+#include <utility>
 
 namespace lanelet
 {

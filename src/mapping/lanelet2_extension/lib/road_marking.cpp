@@ -18,6 +18,8 @@
 #include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 
 #include <algorithm>
+#include <memory>
+#include <utility>
 #include <vector>
 
 namespace lanelet

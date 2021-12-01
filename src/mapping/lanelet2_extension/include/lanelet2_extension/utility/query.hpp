@@ -27,9 +27,11 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
 #include "lanelet2_extension/regulatory_elements/detection_area.hpp"
+#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
 
 #include <string>
 #include <vector>
+#include <memory>
 
 namespace lanelet
 {
@@ -37,6 +39,7 @@ using TrafficSignConstPtr = std::shared_ptr<const lanelet::TrafficSign>;
 using TrafficLightConstPtr = std::shared_ptr<const lanelet::TrafficLight>;
 using AutowareTrafficLightConstPtr = std::shared_ptr<const lanelet::autoware::AutowareTrafficLight>;
 using DetectionAreaConstPtr = std::shared_ptr<const lanelet::autoware::DetectionArea>;
+using NoStoppingAreaConstPtr = std::shared_ptr<const lanelet::autoware::NoStoppingArea>;
 }  // namespace lanelet
 
 namespace lanelet
@@ -77,9 +80,16 @@ lanelet::ConstLanelets walkwayLanelets(const lanelet::ConstLanelets lls);
 lanelet::ConstLanelets roadLanelets(const lanelet::ConstLanelets lls);
 
 /**
+ * [shoulderLanelets extracts shoulder lanelets]
+ * @param  lls [input lanelets with subtype shoulder]
+ * @return     [shoulder lanelets]
+ */
+lanelet::ConstLanelets shoulderLanelets(const lanelet::ConstLanelets lls);
+
+/**
  * [trafficLights extracts Traffic Light regulatory element from lanelets]
  * @param lanelets [input lanelets]
- * @return         [traffic light that are associated with input lanenets]
+ * @return         [traffic light that are associated with input lanelets]
  */
 std::vector<lanelet::TrafficLightConstPtr> trafficLights(const lanelet::ConstLanelets lanelets);
 
@@ -88,7 +98,7 @@ std::vector<lanelet::TrafficLightConstPtr> trafficLights(const lanelet::ConstLan
  * from lanelets]
  * @param lanelets [input lanelets]
  * @return         [autoware traffic light that are associated with input
- * lanenets]
+ * lanelets]
  */
 std::vector<lanelet::AutowareTrafficLightConstPtr> autowareTrafficLights(
   const lanelet::ConstLanelets lanelets);
@@ -99,6 +109,14 @@ std::vector<lanelet::AutowareTrafficLightConstPtr> autowareTrafficLights(
  * @return         [detection areas that are associated with input lanelets]
  */
 std::vector<lanelet::DetectionAreaConstPtr> detectionAreas(const lanelet::ConstLanelets & lanelets);
+
+/**
+  * [noStoppingArea extracts NoStopping Area regulatory elements from lanelets]
+  * @param lanelets [input lanelets]
+  * @return         [no stopping areas that are associated with input lanelets]
+  */
+std::vector<lanelet::NoStoppingAreaConstPtr> noStoppingAreas(
+    const lanelet::ConstLanelets & lanelets);
 
 // query all obstacle polygons in lanelet2 map
 lanelet::ConstPolygons3d getAllObstaclePolygons(
@@ -169,7 +187,7 @@ std::vector<lanelet::ConstLineString3d> stopLinesLanelets(const lanelet::ConstLa
 std::vector<lanelet::ConstLineString3d> stopLinesLanelet(const lanelet::ConstLanelet ll);
 
 /**
- * [stopSignes extracts stoplines that are associated with stopsignes]
+ * [stopSignStopLines extracts stoplines that are associated with stop signs]
  * @param lanelets     [input lanelets]
  * @param stop_sign_id [sign id of stop sign]
  * @return             [array of stoplines]
@@ -227,7 +245,7 @@ std::vector<lanelet::ConstLanelets> getSucceedingLaneletSequences(
  */
 std::vector<lanelet::ConstLanelets> getPrecedingLaneletSequences(
   const routing::RoutingGraphPtr & graph, const lanelet::ConstLanelet & lanelet,
-  const double length);
+  const double length, const lanelet::ConstLanelets & exclude_lanelets = {});
 
 }  // namespace query
 }  // namespace utils
