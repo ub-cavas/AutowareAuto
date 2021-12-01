@@ -33,7 +33,6 @@ using motion_common::Command;
 using motion_common::State;
 using motion_common::Trajectory;
 using motion_common::Point;
-using motion_common::Heading;
 using motion_common::Index;
 
 /// Extreme values for state/control variables

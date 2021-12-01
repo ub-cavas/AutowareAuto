@@ -23,7 +23,6 @@ if(BUILD_TESTING)
 
   # Unit test
   apex_test_tools_add_gtest(motion_common_unit_tests
-    test/sanity_checks.cpp
     test/interpolation.cpp
     test/trajectory.cpp)
   autoware_set_compile_options(motion_common_unit_tests)

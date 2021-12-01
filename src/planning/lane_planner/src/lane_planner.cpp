@@ -162,14 +162,10 @@ TrajectoryPoints LanePlanner::generate_base_trajectory(
   }
 
   TrajectoryPoint trajectory_start_point;
-  trajectory_start_point.pose.position = had_map_route.start_point.position;
-  trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
-    motion::motion_common::to_angle(had_map_route.start_point.heading));
+  trajectory_start_point.pose = had_map_route.start_pose;
 
   TrajectoryPoint trajectory_goal_point;
-  trajectory_goal_point.pose.position = had_map_route.goal_point.position;
-  trajectory_goal_point.pose.orientation = motion::motion_common::from_angle(
-    motion::motion_common::to_angle(had_map_route.goal_point.heading));
+  trajectory_goal_point.pose = had_map_route.goal_pose;
 
   const auto start_index = get_closest_lanelet(lanelets, trajectory_start_point);
 

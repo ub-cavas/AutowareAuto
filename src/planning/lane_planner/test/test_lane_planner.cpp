@@ -58,10 +58,10 @@ lanelet::LaneletMapPtr getALaneletMapWithLaneId(
 HADMapRoute getARoute(const int64_t lane_id, const float32_t length)
 {
   HADMapRoute had_map_route;
-  had_map_route.start_point.position.x = 0;
-  had_map_route.start_point.position.y = 0;
-  had_map_route.goal_point.position.x = 0;
-  had_map_route.goal_point.position.y = length;
+  had_map_route.start_pose.position.x = 0;
+  had_map_route.start_pose.position.y = 0;
+  had_map_route.goal_pose.position.x = 0;
+  had_map_route.goal_pose.position.y = length;
 
   MapPrimitive primitive;
   primitive.id = lane_id;
@@ -161,9 +161,7 @@ TEST_F(LanePlannerTest, PlanSimpleTrajectory)
   ASSERT_FALSE(trajectory.points.empty());
 
   TrajectoryPoint trajectory_start_point;
-  trajectory_start_point.pose.position = had_map_route.start_point.position;
-  trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
-    motion::motion_common::to_angle(had_map_route.start_point.heading));
+  trajectory_start_point.pose = had_map_route.start_pose;
 
   // start point of trajectory should be same as start point
   const auto distance = autoware::lane_planner::distance2d(

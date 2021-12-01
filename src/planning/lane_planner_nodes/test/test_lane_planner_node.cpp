@@ -59,10 +59,10 @@ lanelet::LaneletMapPtr get_lanelet_map(
 HADMapRoute get_route(const int64_t lane_id, const float32_t length)
 {
   HADMapRoute had_map_route;
-  had_map_route.start_point.position.x = 0;
-  had_map_route.start_point.position.y = 0;
-  had_map_route.goal_point.position.x = 0;
-  had_map_route.goal_point.position.y = length;
+  had_map_route.start_pose.position.x = 0;
+  had_map_route.start_pose.position.y = 0;
+  had_map_route.goal_pose.position.x = 0;
+  had_map_route.goal_pose.position.y = length;
 
   MapPrimitive primitive;
   primitive.id = lane_id;

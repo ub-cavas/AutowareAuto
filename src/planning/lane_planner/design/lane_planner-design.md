@@ -13,7 +13,7 @@ It will use centerline of lanes obtained from HADMap and convert it into traject
 
 Assumptions:
 * Route message does not include primitive that is irrelevant.<br>
-  e.g. if lane are connected as 1->2->3, and if start_point is within lane 2 and goal_point is lane 3, given route should not include lane 1.
+  e.g. if lane are connected as 1->2->3, and if start_pose is within lane 2 and goal_pose is lane 3, given route should not include lane 1.
 
 Limitations:
 * Since the lane planner is using centerline of lane, it may not be kinematically feasible path, for example, when the lanes have sharp turns.

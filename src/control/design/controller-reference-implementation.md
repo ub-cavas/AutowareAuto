@@ -71,27 +71,13 @@ Where a trajectory point has the following form:
 
 ```
 std_msgs/Duration time_from_start
-float32 x
-float32 y
-Complex32 heading
+geometry_msgs/Pose pose
 float32 velocity_mps
 float32 acceleration_mps2
 float32 heading_rate_rps
 ```
 
-And the heading field has the following form:
-
-```
-float32 real
-float32 imag
-```
-
-A zero heading corresponds to the positive x direction in the given coordinate frame.
-
 **Default Values**: All trajectory point and trajectory fields should default to 0
-
-**Default Values**: All complex numbers should default to the pair (1, 0), which corresponds to a
-zero heading.
 
 **Extensions**: In the future, this message may include higher derivative information.
 
@@ -106,10 +92,6 @@ This is because the standard message allows room for ambiguities whereas this me
 provide a more expressive language for controllers and trajectory planners. If the information
 is not needed, a value of zero is provided, which is semantically consistent for controllers and
 motion planners
-
-**Rationale**: Complex numbers are used to represent heading rather than an angle because it reduces
-ambiguities between angles, and angle distances. In addition, it conveniently represents a
-precomputed sine and cosine values, obviating the need for additional computations.
 
 For more details on the message, see the formal message definition in the package
 `autoware_auto_planning_msgs`. While this message and its rationales are duplicated here for

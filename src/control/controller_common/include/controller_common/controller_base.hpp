@@ -39,7 +39,6 @@ using motion_common::Index;
 using motion_common::Real;
 using motion_common::Command;
 using motion_common::Diagnostic;
-using motion_common::Heading;
 using motion_common::Point;
 using motion_common::State;
 using motion_common::Trajectory;

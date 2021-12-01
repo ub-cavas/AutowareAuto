@@ -39,7 +39,6 @@
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
-#include "autoware_auto_geometry_msgs/msg/complex32.hpp"
 #include "common/types.hpp"
 
 #include "simple_planning_simulator/vehicle_model/sim_model_interface.hpp"
@@ -63,7 +62,6 @@ using geometry_msgs::msg::PoseWithCovarianceStamped;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::Twist;
-using autoware_auto_geometry_msgs::msg::Complex32;
 
 class DeltaTime
 {

@@ -21,24 +21,24 @@
 #include <memory>
 #include <string>
 
+#include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "rclcpp/time.hpp"
 #include "rclcpp/rclcpp.hpp"
 
 
-#include "autoware_auto_geometry_msgs/msg/complex32.hpp"
 #include "autoware_auto_vehicle_msgs/msg/engage.hpp"
 #include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp"
 
-using autoware_auto_geometry_msgs::msg::Complex32;
 using autoware_auto_vehicle_msgs::msg::Engage;
-using autoware_auto_planning_msgs::msg::RoutePoint;
+using geometry_msgs::msg::Pose;
 using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 
 using geometry_msgs::msg::Point;
+using geometry_msgs::msg::Pose;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::Quaternion;
 
@@ -94,8 +94,8 @@ protected:
 };
 
 inline double distance(
-  const geometry_msgs::msg::Point & p1,
-  const geometry_msgs::msg::Point & p2)
+  const Point & p1,
+  const Point & p2)
 {
   const auto dx = p1.x - p2.x;
   const auto dy = p1.y - p2.y;
@@ -150,12 +150,12 @@ inline PoseStamped::SharedPtr preparePoseStampedMsg(
   return msg;
 }
 
-inline RoutePoint::SharedPtr prepareRoutePointMsg(
-  const Point & position, const Complex32 & heading = Complex32())
+inline Pose::SharedPtr preparePoseMsg(
+  const Point & position, const Quaternion & orientation = Quaternion())
 {
-  auto msg = std::make_shared<RoutePoint>();
+  auto msg = std::make_shared<Pose>();
   msg->position = position;
-  msg->heading = heading;
+  msg->orientation = orientation;
   return msg;
 }
 

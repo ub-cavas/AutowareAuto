@@ -233,7 +233,7 @@ Index progresses_towards_target(
       return idx;
     }
     last_err = err;
-    // Heading: dot product should tend towards 1
+    // Orientation: dot product should tend towards 1
     tf2::Quaternion pt_orientation;
     tf2::Quaternion target_orientation;
     tf2::fromMsg(pt.pose.orientation, pt_orientation);

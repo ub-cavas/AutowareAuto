@@ -166,8 +166,8 @@ TEST_F(AutowareStateMonitorNodeTest, basic_states_sequence)
   expectState(AutowareState::WAITING_FOR_ROUTE);
 
   HADMapRoute route;
-  route.goal_point.position.x = 1.0;
-  route.goal_point.position.y = 1.0;
+  route.goal_pose.position.x = 1.0;
+  route.goal_pose.position.y = 1.0;
   pub_route->publish(route);
   expectState(AutowareState::PLANNING);
   expectState(AutowareState::PLANNING);

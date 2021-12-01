@@ -30,6 +30,8 @@
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <geometry/bounding_box/rotating_calipers.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 #include <motion_common/motion_common.hpp>
 #include <chrono>
 #include <algorithm>
@@ -63,9 +65,9 @@ using ParkerModelParameters =
 using ParkingPolytope = autoware::motion::planning::parking_planner::Polytope2D<float64_t>;
 using ParkingStatus = autoware::motion::planning::parking_planner::PlanningStatus;
 
-using autoware_auto_planning_msgs::msg::RoutePoint;
 using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware_auto_perception_msgs::msg::BoundingBox;
+using geometry_msgs::msg::Pose;
 
 using Point = geometry_msgs::msg::Point32;
 using autoware::common::types::float32_t;
@@ -176,10 +178,10 @@ void ParkingPlannerNode::init(
     rclcpp::QoS(rclcpp::KeepLast(5U)).transient_local());
 }
 
-static ParkerVehicleState convert_routepoint_to_vehiclestate(const RoutePoint & point)
+static ParkerVehicleState convert_pose_to_vehiclestate(const Pose & pose)
 {
-  return ParkerVehicleState{point.position.x, point.position.y, 0,
-    to_angle(point.heading), 0};
+  return ParkerVehicleState{pose.position.x, pose.position.y, 0,
+    to_angle(pose.orientation), 0};
   // NOTE(esteve): what to do with longitudinal_velocity_mps and front_wheel_angle_rad?
   // return ParkerVehicleState{point.x, point.y, point.longitudinal_velocity_mps,
   //   to_angle(point.heading), point.front_wheel_angle_rad};
@@ -194,21 +196,21 @@ HADMapService::Request ParkingPlannerNode::create_map_request(const HADMapRoute 
   const auto BOX_PADDING = 10.0f;
   request.geom_upper_bound.push_back(
     std::fmax(
-      static_cast<float32_t>(had_map_route.start_point.position.x),
-      static_cast<float32_t>(had_map_route.goal_point.position.x)) + BOX_PADDING);
+      static_cast<float32_t>(had_map_route.start_pose.position.x),
+      static_cast<float32_t>(had_map_route.goal_pose.position.x)) + BOX_PADDING);
   request.geom_upper_bound.push_back(
     std::fmax(
-      static_cast<float32_t>(had_map_route.start_point.position.y),
-      static_cast<float32_t>(had_map_route.goal_point.position.y)) + BOX_PADDING);
+      static_cast<float32_t>(had_map_route.start_pose.position.y),
+      static_cast<float32_t>(had_map_route.goal_pose.position.y)) + BOX_PADDING);
   request.geom_upper_bound.push_back(0.0);
   request.geom_lower_bound.push_back(
     std::fmin(
-      static_cast<float32_t>(had_map_route.start_point.position.x),
-      static_cast<float32_t>(had_map_route.goal_point.position.x)) - BOX_PADDING);
+      static_cast<float32_t>(had_map_route.start_pose.position.x),
+      static_cast<float32_t>(had_map_route.goal_pose.position.x)) - BOX_PADDING);
   request.geom_lower_bound.push_back(
     std::fmin(
-      static_cast<float32_t>(had_map_route.start_point.position.y),
-      static_cast<float32_t>(had_map_route.goal_point.position.y)) - BOX_PADDING);
+      static_cast<float32_t>(had_map_route.start_pose.position.y),
+      static_cast<float32_t>(had_map_route.goal_pose.position.y)) - BOX_PADDING);
   request.geom_lower_bound.push_back(0.0);
   return request;
 }
@@ -319,10 +321,10 @@ AutowareTrajectory ParkingPlannerNode::plan_trajectory(
   this->debug_publish_obstacles(obstacles);
 
   // ---- Call the actual planner with the inputs we've assembled -----------------------
-  const auto start_trajectory_point = had_map_route.start_point;
-  const auto goal_trajectory_point = had_map_route.goal_point;
-  const auto starting_state = convert_routepoint_to_vehiclestate(start_trajectory_point);
-  const auto goal_state = convert_routepoint_to_vehiclestate(goal_trajectory_point);
+  const auto & start_trajectory_pose = had_map_route.start_pose;
+  const auto & goal_trajectory_pose = had_map_route.goal_pose;
+  const auto starting_state = convert_pose_to_vehiclestate(start_trajectory_pose);
+  const auto goal_state = convert_pose_to_vehiclestate(goal_trajectory_pose);
 
   this->debug_publish_start_and_end(starting_state, goal_state);
 

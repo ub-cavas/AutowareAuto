@@ -42,7 +42,7 @@ struct StateInput
   /// Current pose of the vehicle.
   geometry_msgs::msg::PoseStamped::ConstSharedPtr current_pose;
   /// Goal pose of the vehicle.
-  autoware_auto_planning_msgs::msg::RoutePoint::ConstSharedPtr goal_pose;
+  geometry_msgs::msg::Pose::ConstSharedPtr goal_pose;
   /// Determines if the vehicle should be engaged or disengaged.
   autoware_auto_vehicle_msgs::msg::Engage::ConstSharedPtr engage;
   /// Report about the current state of the vehicle.
@@ -114,7 +114,7 @@ private:
 
   bool isNearGoal(
     const geometry_msgs::msg::Pose & current_pose,
-    const autoware_auto_planning_msgs::msg::RoutePoint & goal_pose,
+    const geometry_msgs::msg::Pose & goal_pose,
     const double th_dist) const;
 
   bool isStopped(

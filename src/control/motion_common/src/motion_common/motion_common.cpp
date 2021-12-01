@@ -65,19 +65,6 @@ bool is_past_point(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-bool is_aligned(const Heading a, const Heading b, const Real dot_threshold)
-{
-  if (dot_threshold < Real{}) {
-    throw std::domain_error{"Dot product threshold cannot be negative"};
-  }
-  const auto dot = (a.real * b.real) + (a.imag * b.imag);
-  const auto amag = std::sqrt((a.real * a.real) + (a.imag * a.imag));
-  const auto bmag = std::sqrt((b.real * b.real) + (b.imag * b.imag));
-  const auto thresh = std::min(dot_threshold, Real{1.0});
-  return (dot / (amag * bmag)) > thresh;
-}
-
-////////////////////////////////////////////////////////////////////////////////
 bool heading_ok(const Trajectory & traj)
 {
   const auto bad_heading = [](const auto & pt) -> bool {
@@ -116,50 +103,9 @@ void doTransform(
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-Real to_angle(Heading heading) noexcept
-{
-  const auto mag2 = (heading.real * heading.real) + (heading.imag * heading.imag);
-  if (std::abs(mag2 - 1.0F) > std::numeric_limits<Real>::epsilon()) {
-    const auto imag = Real{1} / std::sqrt(mag2);
-    heading.real *= imag;
-    heading.imag *= imag;
-    // Don't need to touch imaginary/z part
-  }
-  // See:
-  // https://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
-  const auto y = Real{2.0} *heading.real * heading.imag;
-  const auto x = Real{1} - (Real{2.0} *heading.imag * heading.imag);
-  // TODO(c.ho) fast atan2
-  return std::atan2(y, x);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 Double to_angle(Orientation orientation) noexcept
 {
   return tf2::getYaw(orientation);
-}
-
-////////////////////////////////////////////////////////////////////////////////
-Heading nlerp(Heading a, Heading b, Real t)
-{
-  // Could technically use none, but I get basically nothing from that
-  Heading ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-  // check dot product: if negative, reflect one quaternion (360 deg rotation)
-  {
-    const auto dot = (a.real * b.real) + (a.imag * b.imag);
-    if (dot < Real{}) {  // zero initialization
-      b.real = -b.real;
-      b.imag = -b.imag;
-    }
-  }
-  // Linearly interpolate
-  ret.real = interpolate(a.real, b.real, t);
-  ret.imag = interpolate(a.imag, b.imag, t);
-  // Normalize
-  const auto s = 1.0F / std::sqrt((ret.real * ret.real) + (ret.imag * ret.imag));
-  ret.real *= s;
-  ret.imag *= s;
-  return ret;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -210,37 +156,6 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept
 }
 }  // namespace motion_common
 }  // namespace motion
-namespace autoware_auto_geometry_msgs
-{
-namespace msg
-{
-Complex32 operator+(Complex32 a, Complex32 b) noexcept
-{
-  // Could technically use none, but I get basically nothing from that
-  Complex32 ret{rosidl_runtime_cpp::MessageInitialization::ALL};
-  // check dot product: if negative, reflect one quaternion (360 deg rotation)
-  {
-    const auto dot = (a.real * b.real) + (a.imag * b.imag);
-    if (dot < decltype(b.real) {}) {  // zero initialization
-      b.real = -b.real;
-      b.imag = -b.imag;
-    }
-  }
-  ret.real = (a.real * b.real) - (a.imag * b.imag);
-  ret.imag = (a.real * b.imag) + (a.imag * b.real);
-  return ret;
-}
-Complex32 operator-(Complex32 a) noexcept
-{
-  a.real = -a.real;
-  return a;
-}
-Complex32 operator-(Complex32 a, Complex32 b) noexcept
-{
-  return a + (-b);
-}
-}  // namespace msg
-}  // namespace autoware_auto_geometry_msgs
 
 namespace geometry_msgs
 {

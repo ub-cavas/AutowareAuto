@@ -23,8 +23,8 @@
 #include <time_utils/time_utils.hpp>
 #include <motion_common/motion_common.hpp>
 
-#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
-#include <autoware_auto_planning_msgs/msg/route_point.hpp>
+#include <geometry_msgs/msg/pose.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/quaternion.hpp>
 #include <lanelet2_global_planner_nodes/lanelet2_global_planner_node.hpp>
 #include <std_msgs/msg/string.hpp>
@@ -42,7 +42,6 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using autoware::common::types::TAU;
 using autoware::planning::lanelet2_global_planner::Lanelet2GlobalPlanner;
-using autoware_auto_geometry_msgs::msg::Complex32;
 using std::placeholders::_1;
 
 namespace autoware
@@ -207,19 +206,8 @@ void Lanelet2GlobalPlannerNode::send_global_path(
   // main route = other
   autoware_auto_planning_msgs::msg::HADMapRoute global_route;
   global_route.header = header;
-
-  autoware_auto_planning_msgs::msg::RoutePoint start_route_point;
-  start_route_point.position = start_point.pose.position;
-  start_route_point.heading = motion::motion_common::heading_from_angle(
-      motion::motion_common::to_angle(start_point.pose.orientation));
-
-  autoware_auto_planning_msgs::msg::RoutePoint end_route_point;
-  end_route_point.position = end_point.pose.position;
-  end_route_point.heading = motion::motion_common::heading_from_angle(
-      motion::motion_common::to_angle(end_point.pose.orientation));
-
-  global_route.start_point = start_route_point;
-  global_route.goal_point = end_route_point;
+  global_route.start_pose = start_point.pose;
+  global_route.goal_pose = end_point.pose;
 
   for (const auto & route_id : route) {
     // add data to the global path

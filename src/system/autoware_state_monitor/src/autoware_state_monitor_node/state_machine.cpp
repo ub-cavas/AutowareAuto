@@ -37,7 +37,7 @@ StateMachine::StateMachine(const StateMachineParams & state_param)
 
 bool StateMachine::isNearGoal(
   const geometry_msgs::msg::Pose & current_pose,
-  const autoware_auto_planning_msgs::msg::RoutePoint & goal_pose,
+  const geometry_msgs::msg::Pose & goal_pose,
   const double th_dist) const
 {
   return distance2d(current_pose.position, goal_pose.position) < th_dist;

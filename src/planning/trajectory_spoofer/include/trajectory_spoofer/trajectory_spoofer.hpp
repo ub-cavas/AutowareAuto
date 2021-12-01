@@ -21,7 +21,6 @@
 
 #include <trajectory_spoofer/visibility_control.hpp>
 
-#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
@@ -37,7 +36,6 @@ namespace autoware
 {
 namespace trajectory_spoofer
 {
-using Complex32 = autoware_auto_geometry_msgs::msg::Complex32;
 using DurationMsg = builtin_interfaces::msg::Duration;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
 using TrajectoryPoint = autoware_auto_planning_msgs::msg::TrajectoryPoint;
@@ -70,7 +68,6 @@ public:
   explicit TrajectorySpoofer(float32_t target_speed);
 
   static geometry_msgs::msg::Quaternion to_quaternion(const float64_t yaw_angle);
-  static float64_t to_yaw_angle(const Complex32 & quat_2d);
 
   float32_t get_target_speed();
   void set_target_speed(float32_t target_speed);

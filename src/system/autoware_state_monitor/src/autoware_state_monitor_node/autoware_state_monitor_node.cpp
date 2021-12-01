@@ -122,14 +122,14 @@ void AutowareStateMonitorNode::onVehicleStateReport(
 
 void AutowareStateMonitorNode::onRoute(const HADMapRoute::ConstSharedPtr msg)
 {
-  using RoutePoint = autoware_auto_planning_msgs::msg::RoutePoint;
+  using geometry_msgs::msg::Pose;
 
   state_input_.route = msg;
 
   // Get goal pose
-  auto point = std::make_shared<RoutePoint>();
-  *point = msg->goal_point;
-  state_input_.goal_pose = RoutePoint::ConstSharedPtr(point);
+  auto pose = std::make_shared<Pose>();
+  *pose = msg->goal_pose;
+  state_input_.goal_pose = Pose::ConstSharedPtr(pose);
 }
 
 void AutowareStateMonitorNode::onVehicleOdometry(

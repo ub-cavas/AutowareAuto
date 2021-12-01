@@ -50,20 +50,6 @@ void TrajectorySpoofer::set_target_speed(float32_t target_speed)
   target_speed_ = target_speed;
 }
 
-float64_t TrajectorySpoofer::to_yaw_angle(const Complex32 & quat_2d)
-{
-  // theta = atan2(2qxqw, 1-2(qw)^2)
-  const float32_t sin_y = 2.0F * quat_2d.real * quat_2d.imag;
-  const float32_t cos_y = 1.0F - 2.0F * quat_2d.imag * quat_2d.imag;
-  const float32_t rad_quad = std::atan2(sin_y, cos_y);
-
-  if (rad_quad < 0) {
-    return rad_quad + TAU;
-  } else {
-    return rad_quad;
-  }
-}
-
 Trajectory TrajectorySpoofer::init_trajectory(
   const VehicleKinematicState & starting_state,
   TrajectoryPoint & first_point)

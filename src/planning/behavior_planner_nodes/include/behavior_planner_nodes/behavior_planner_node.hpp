@@ -56,7 +56,7 @@ using PlanTrajectoryAction = autoware_auto_planning_msgs::action::PlanTrajectory
 using PlanTrajectoryGoalHandle = rclcpp_action::ClientGoalHandle<PlanTrajectoryAction>;
 using HADMapService = autoware_auto_mapping_msgs::srv::HADMapService;
 using autoware_auto_planning_msgs::srv::ModifyTrajectory;
-using autoware_auto_planning_msgs::msg::RoutePoint;
+using geometry_msgs::msg::Pose;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_planning_msgs::msg::HADMapRoute;

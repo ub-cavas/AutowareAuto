@@ -15,7 +15,6 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
-#include <autoware_auto_geometry_msgs/msg/complex32.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
@@ -40,7 +39,6 @@ using Command = autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using Diagnostic = autoware_auto_system_msgs::msg::ControlDiagnostic;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using Trajectory = autoware_auto_planning_msgs::msg::Trajectory;
-using Heading = autoware_auto_geometry_msgs::msg::Complex32;
 using Orientation = geometry_msgs::msg::Quaternion;
 using Double = decltype(Orientation::x);
 using Index = decltype(Trajectory::points)::size_type;
@@ -100,21 +98,8 @@ MOTION_COMMON_PUBLIC void doTransform(
   State & t_out,
   const geometry_msgs::msg::TransformStamped & transform) noexcept;
 
-/// Converts 2D quaternion to simple heading representation
-MOTION_COMMON_PUBLIC Real to_angle(Heading heading) noexcept;
 /// Converts 3D quaternion to simple heading representation
 MOTION_COMMON_PUBLIC Double to_angle(Orientation orientation) noexcept;
-
-/// Basic conversion
-template<typename RealT>
-Heading heading_from_angle(RealT angle) noexcept
-{
-  static_assert(std::is_floating_point<RealT>::value, "angle must be floating point");
-  Heading ret{};
-  ret.real = static_cast<decltype(ret.real)>(std::cos(angle * RealT{0.5}));
-  ret.imag = static_cast<decltype(ret.imag)>(std::sin(angle * RealT{0.5}));
-  return ret;
-}
 
 /// \brief Converts angles into a corresponding Orientation
 /// \tparam RealT a floating point type
@@ -139,19 +124,6 @@ template<typename RealT>
 Orientation from_angle(RealT angle) noexcept
 {
   return from_angles(RealT{}, RealT{}, angle);
-}
-
-/// \brief Converts a quaternion-like object to a simple heading representation
-/// \tparam QuatT A quaternion-like object with at least z and w members
-/// \param[in] quat A quaternion-like object to be converted to a heading object
-/// \returns A converted heading object
-template<typename QuatT>
-Heading from_quat(QuatT quat) noexcept
-{
-  Heading ret{};
-  ret.real = quat.w;
-  ret.imag = quat.z;
-  return ret;
 }
 
 /// Standard clamp implementation
@@ -267,20 +239,6 @@ void error(const Point & state, const Point & ref, Diagnostic & out) noexcept;
 }  // namespace motion_common
 }  // namespace motion
 
-namespace autoware_auto_geometry_msgs
-{
-namespace msg
-{
-// TODO(c.ho) these should go into some autoware_auto_msgs package
-// TODO(Maxime CLEMENT): remove if these are no longer used
-/// Addition operator
-MOTION_COMMON_PUBLIC Complex32 operator+(Complex32 a, Complex32 b) noexcept;
-/// Unary minus
-MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a) noexcept;
-/// Difference operator
-MOTION_COMMON_PUBLIC Complex32 operator-(Complex32 a, Complex32 b) noexcept;
-}  // namespace msg
-}  // namespace autoware_auto_geometry_msgs
 namespace geometry_msgs
 {
 namespace msg
