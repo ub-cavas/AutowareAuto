@@ -46,16 +46,16 @@ m_marker_pub_ptr{create_publisher<visualization_msgs::msg::MarkerArray>(
     "lidar_bounding_boxes_viz",
     rclcpp::QoS{10})},
 m_detector_ptr{std::make_shared<apollo_lidar_segmentation::ApolloLidarSegmentation>(
-    declare_parameter("range", rclcpp::ParameterValue{70}).get<int32_t>(),
-    declare_parameter("score_threshold", rclcpp::ParameterValue{0.8}).get<float32_t>(),
-    declare_parameter("use_intensity_feature", rclcpp::ParameterValue{true}).get<bool8_t>(),
-    declare_parameter("use_constant_feature", rclcpp::ParameterValue{false}).get<bool8_t>(),
-    declare_parameter("z_offset", rclcpp::ParameterValue{0.0}).get<float32_t>(),
-    declare_parameter("min_height", rclcpp::ParameterValue{-5.0}).get<float32_t>(),
-    declare_parameter("max_height", rclcpp::ParameterValue{5.0}).get<float32_t>(),
-    declare_parameter("objectness_thresh", rclcpp::ParameterValue{0.5}).get<float32_t>(),
-    declare_parameter("min_pts_num", rclcpp::ParameterValue{3}).get<int32_t>(),
-    declare_parameter("height_thresh", rclcpp::ParameterValue{0.5}).get<float32_t>())}
+    declare_parameter("range", 70),
+    declare_parameter("score_threshold", 0.8),
+    declare_parameter("use_intensity_feature", true),
+    declare_parameter("use_constant_feature", false),
+    declare_parameter("z_offset", 0.0),
+    declare_parameter("min_height", -5.0),
+    declare_parameter("max_height", 5.0),
+    declare_parameter("objectness_thresh", 0.5),
+    declare_parameter("min_pts_num", 3),
+    declare_parameter("height_thresh", 0.5))}
 {
 }
 
