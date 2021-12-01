@@ -60,8 +60,8 @@ EKF init_ekf(
   float64_t noise_variance)
 {
   auto state = MotionModel::State {};
-  state.at<X>() = detection.kinematics.centroid_position.x;
-  state.at<Y>() = detection.kinematics.centroid_position.y;
+  state.at<X>() = detection.kinematics.pose_with_covariance.pose.position.x;
+  state.at<Y>() = detection.kinematics.pose_with_covariance.pose.position.y;
   // When there is no twist available, velocity will be initialized to 0
   if (detection.kinematics.has_twist) {
     state.at<X_VELOCITY>() = detection.kinematics.twist.twist.linear.x;
@@ -72,16 +72,16 @@ EKF init_ekf(
   if (detection.kinematics.has_position_covariance) {
     cov(
       state.index_of<X>(),
-      state.index_of<X>()) = detection.kinematics.position_covariance[0];
+      state.index_of<X>()) = detection.kinematics.pose_with_covariance.covariance[0];
     cov(
       state.index_of<X>(),
-      state.index_of<Y>()) = detection.kinematics.position_covariance[1];
+      state.index_of<Y>()) = detection.kinematics.pose_with_covariance.covariance[1];
     cov(
       state.index_of<Y>(),
-      state.index_of<X>()) = detection.kinematics.position_covariance[3];
+      state.index_of<X>()) = detection.kinematics.pose_with_covariance.covariance[6];
     cov(
       state.index_of<Y>(),
-      state.index_of<Y>()) = detection.kinematics.position_covariance[4];
+      state.index_of<Y>()) = detection.kinematics.pose_with_covariance.covariance[7];
   }
   if (detection.kinematics.has_twist_covariance) {
     cov(
@@ -123,10 +123,10 @@ TrackedObject::TrackedObject(
   m_msg.classification = override_classification;
   m_msg.shape.push_back(detection.shape);
   // z is not filtered through ekf. Just pass it through
-  m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
+  m_msg.kinematics.centroid_position.z = detection.kinematics.pose_with_covariance.pose.position.z;
   // Orientation is not filtered though ekf. Just pass it through from the input
   m_msg.kinematics.orientation_availability = detection.kinematics.orientation_availability;
-  m_msg.kinematics.orientation = detection.kinematics.orientation;
+  m_msg.kinematics.orientation = detection.kinematics.pose_with_covariance.pose.orientation;
   // Kinematics are owned by the EKF and only filled in in the msg() getter
   m_classifier.update(override_classification);
 }
@@ -151,16 +151,17 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ticks_since_last_seen = 0;
   // Update the shape
   m_msg.shape = {detection.shape};
-  m_msg.kinematics.centroid_position.z = detection.kinematics.centroid_position.z;
-  m_msg.kinematics.orientation = detection.kinematics.orientation;
+  m_msg.kinematics.centroid_position.z = detection.kinematics.pose_with_covariance.pose.position.z;
+  m_msg.kinematics.orientation = detection.kinematics.pose_with_covariance.pose.orientation;
 
   // It needs to be determined which parts of the DetectedObject message are set, and can be used
   // to update the state. Also, even if a variable is set, its covariance might not be set.
   autoware_auto_geometry_msgs::msg::RelativePositionWithCovarianceStamped position;
-  position.position.x = detection.kinematics.centroid_position.x;
-  position.position.y = detection.kinematics.centroid_position.y;
-  position.position.z = detection.kinematics.centroid_position.z;
-  position.covariance = detection.kinematics.position_covariance;
+  position.position.x = detection.kinematics.pose_with_covariance.pose.position.x;
+  position.position.y = detection.kinematics.pose_with_covariance.pose.position.y;
+  position.position.z = detection.kinematics.pose_with_covariance.pose.position.z;
+  const auto & cov = detection.kinematics.pose_with_covariance.covariance;
+  position.covariance = {cov[0], cov[1], cov[2], cov[6], cov[7], cov[8], cov[12], cov[13], cov[14]};
   auto pose_measurement =
     convert_to<Stamped<PoseMeasurementXYZ64>>::from(position).measurement;
   if (!detection.kinematics.has_position_covariance) {

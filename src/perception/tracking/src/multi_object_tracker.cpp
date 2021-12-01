@@ -114,26 +114,29 @@ DetectedObjects transform(
     result.objects.emplace_back(original_detection);
     auto & detection = result.objects.back();
     // Transform the pose.
-    tf2::fromMsg(detection.kinematics.centroid_position, centroid_detection);
+    tf2::fromMsg(detection.kinematics.pose_with_covariance.pose.position, centroid_detection);
     const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
-    detection.kinematics.centroid_position = tf2::toMsg(centroid_tracking);
+    detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
     if (detection.kinematics.orientation_availability != DetectedObjectKinematics::UNAVAILABLE) {
       geometry_msgs::msg::QuaternionStamped q_out;
       // Use quaternion stamped because there is no doTransform for quaternion even though
       // stamp of QuaternionStamped is not being used for anything
       tf2::doTransform(
-        geometry_msgs::msg::QuaternionStamped{}.set__quaternion(detection.kinematics.orientation),
+        geometry_msgs::msg::QuaternionStamped{}.set__quaternion(
+          detection.kinematics.pose_with_covariance.pose.orientation),
         q_out,
         tf_msg__tracking__detection);
-      detection.kinematics.orientation = q_out.quaternion;
+      detection.kinematics.pose_with_covariance.pose.orientation = q_out.quaternion;
     }
     if (detection.kinematics.has_position_covariance) {
       // Doing this properly is difficult. We'll ignore the rotational part. This is a practical
       // solution since only the yaw covariance is relevant, and the yaw covariance is
       // unaffected by the transformation, which preserves the z axis.
       // An even more accurate implementation could additionally include the odometry covariance.
-      Eigen::Map<Eigen::Matrix<double, 3, 3, Eigen::RowMajor>> cov(
-        detection.kinematics.position_covariance.data());
+      const Eigen::Map<Eigen::Matrix<double, 6, 6, Eigen::RowMajor>> cov_full(
+        detection.kinematics.pose_with_covariance.covariance.data());
+      // TODO(Maxime CLEMENT): can it be removed ? this is never used.
+      Eigen::Matrix<double, 3, 3> cov(cov_full.block(0, 0, 3, 3));
       cov = rot_d * cov * rot_d.transpose();
     }
     // Transform the twist.

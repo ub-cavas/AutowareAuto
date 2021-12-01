@@ -128,8 +128,11 @@ AssociatorResult GreedyRoiAssociator::assign(
     auto & object = objects.objects[object_idx];
     auto matched_roi_index = project_and_match_detection(
       transformer(
-        object.shape, object.kinematics.centroid_position, object.kinematics.orientation),
-      result.unassigned_detection_indices, rois);
+        object.shape,
+        object.kinematics.pose_with_covariance.pose.position,
+        object.kinematics.pose_with_covariance.pose.orientation),
+      result.unassigned_detection_indices,
+      rois);
 
     handle_matching_output(matched_roi_index, object_idx, result);
   }

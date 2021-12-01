@@ -101,13 +101,13 @@ autoware_auto_perception_msgs::msg::DetectedObject make_detected_object(const Bo
 {
   autoware_auto_perception_msgs::msg::DetectedObject ret;
 
-  ret.kinematics.centroid_position.x = static_cast<double>(box.centroid.x);
-  ret.kinematics.centroid_position.y = static_cast<double>(box.centroid.y);
-  ret.kinematics.centroid_position.z = static_cast<double>(box.centroid.z);
-  ret.kinematics.orientation.x = static_cast<double>(box.orientation.x);
-  ret.kinematics.orientation.y = static_cast<double>(box.orientation.y);
-  ret.kinematics.orientation.z = static_cast<double>(box.orientation.z);
-  ret.kinematics.orientation.w = static_cast<double>(box.orientation.w);
+  ret.kinematics.pose_with_covariance.pose.position.x = static_cast<double>(box.centroid.x);
+  ret.kinematics.pose_with_covariance.pose.position.y = static_cast<double>(box.centroid.y);
+  ret.kinematics.pose_with_covariance.pose.position.z = static_cast<double>(box.centroid.z);
+  ret.kinematics.pose_with_covariance.pose.orientation.x = static_cast<double>(box.orientation.x);
+  ret.kinematics.pose_with_covariance.pose.orientation.y = static_cast<double>(box.orientation.y);
+  ret.kinematics.pose_with_covariance.pose.orientation.z = static_cast<double>(box.orientation.z);
+  ret.kinematics.pose_with_covariance.pose.orientation.w = static_cast<double>(box.orientation.w);
   ret.kinematics.orientation_availability =
     autoware_auto_perception_msgs::msg::DetectedObjectKinematics::SIGN_UNKNOWN;
 

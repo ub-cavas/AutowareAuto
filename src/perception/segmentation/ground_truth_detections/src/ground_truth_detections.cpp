@@ -132,13 +132,14 @@ autoware_auto_perception_msgs::msg::DetectedObjectKinematics make_kinematics(
   const lgsvl_msgs::msg::Detection3D & detection)
 {
   geometry_msgs::msg::TwistWithCovariance twist;
+  geometry_msgs::msg::PoseWithCovariance pose;
+  pose.pose.position = detection.bbox.position.position;
+  pose.pose.orientation = detection.bbox.position.orientation;
 
   return autoware_auto_perception_msgs::build<
     autoware_auto_perception_msgs::msg::DetectedObjectKinematics>()
-         .centroid_position(detection.bbox.position.position)
-         .position_covariance({})
+         .pose_with_covariance(pose)
          .has_position_covariance(false)
-         .orientation(detection.bbox.position.orientation)
          .orientation_availability(
     autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE)
          .twist(twist)

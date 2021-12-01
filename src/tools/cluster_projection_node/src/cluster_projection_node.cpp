@@ -71,7 +71,8 @@ void ClusterProjectionNode::cluster_callback(
       const auto projected_pts = m_camera_model.project(
         transformer(
           object.shape, object
-          .kinematics.centroid_position, object.kinematics.orientation));
+          .kinematics.pose_with_covariance.pose.position,
+          object.kinematics.pose_with_covariance.pose.orientation));
 
       if (!projected_pts) {
         RCLCPP_DEBUG(get_logger(), "could not project an object's shape.");

@@ -101,8 +101,10 @@ void DetectedObjectAssociator::compute_weights(
       try {
         if (consider_associating(detection, track)) {
           Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM, 1> sample;
-          sample(0, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.x);
-          sample(1, 0) = static_cast<float32_t>(detection.kinematics.centroid_position.y);
+          sample(0, 0) =
+            static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.x);
+          sample(1, 0) =
+            static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.y);
 
           Eigen::Matrix<float32_t, NUM_OBJ_POSE_DIM, 1> mean{track.centroid().cast<float32_t>()};
 
@@ -170,7 +172,7 @@ bool DetectedObjectAssociator::consider_associating(
     };
 
   if (common::geometry::squared_distance_2d(
-      detection.kinematics.centroid_position,
+      detection.kinematics.pose_with_covariance.pose.position,
       track_centroid) > compute_distance_threshold())
   {
     return false;

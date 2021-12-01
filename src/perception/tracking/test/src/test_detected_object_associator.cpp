@@ -43,8 +43,8 @@ protected:
     // just set x and y fields of the covariance since only that is used in the associator
     m_some_covariance[0] = 0.5;
     m_some_covariance[1] = -0.09;
-    m_some_covariance[3] = 1.0;
-    m_some_covariance[4] = 0.09;
+    m_some_covariance[6] = 1.0;
+    m_some_covariance[7] = 0.09;
   }
 
   // Square will be centered on origin since vertices are not used for any check except area
@@ -68,7 +68,7 @@ protected:
     return shape;
   }
 
-  std::array<double, 9> m_some_covariance;
+  std::array<double, 36> m_some_covariance;
   tracking::DataAssociationConfig m_association_cfg;
   tracking::DetectedObjectAssociator m_associator;
 };
@@ -83,12 +83,12 @@ TEST_F(AssociationTester, Basic)
   std::vector<tracking::TrackedObject> tracked_object_vec{};
   DetectedObject track1_obj;
   track1_obj.shape = create_square(4.0F);
-  track1_obj.kinematics.centroid_position.x = 2.0;
-  track1_obj.kinematics.centroid_position.y = 2.0;
-  track1_obj.kinematics.position_covariance[0] = 0.5;
-  track1_obj.kinematics.position_covariance[1] = -0.09;
-  track1_obj.kinematics.position_covariance[3] = -0.09;
-  track1_obj.kinematics.position_covariance[4] = 10.43;
+  track1_obj.kinematics.pose_with_covariance.pose.position.x = 2.0;
+  track1_obj.kinematics.pose_with_covariance.pose.position.y = 2.0;
+  track1_obj.kinematics.pose_with_covariance.covariance[0] = 0.5;
+  track1_obj.kinematics.pose_with_covariance.covariance[1] = -0.09;
+  track1_obj.kinematics.pose_with_covariance.covariance[6] = -0.09;
+  track1_obj.kinematics.pose_with_covariance.covariance[7] = 10.43;
   track1_obj.kinematics.has_position_covariance = true;
 
   tracked_object_vec.emplace_back(track1_obj, 0.0, 0.0);
@@ -96,18 +96,18 @@ TEST_F(AssociationTester, Basic)
   DetectedObjects objects_msg;
   DetectedObject obj1;
   obj1.shape = create_square(4.0F);
-  obj1.kinematics.centroid_position.x = 2.5;
-  obj1.kinematics.centroid_position.y = 2.0;
-  obj1.kinematics.position_covariance[0] = 0.5;
-  obj1.kinematics.position_covariance[1] = -0.09;
-  obj1.kinematics.position_covariance[3] = -0.09;
-  obj1.kinematics.position_covariance[4] = 10.43;
+  obj1.kinematics.pose_with_covariance.pose.position.x = 2.5;
+  obj1.kinematics.pose_with_covariance.pose.position.y = 2.0;
+  obj1.kinematics.pose_with_covariance.covariance[0] = 0.5;
+  obj1.kinematics.pose_with_covariance.covariance[1] = -0.09;
+  obj1.kinematics.pose_with_covariance.covariance[6] = -0.09;
+  obj1.kinematics.pose_with_covariance.covariance[7] = 10.43;
   objects_msg.objects.push_back(obj1);
 
   DetectedObject obj2;
   obj2 = obj1;
-  obj2.kinematics.centroid_position.x = 2.0;
-  obj2.kinematics.centroid_position.y = 3.0;
+  obj2.kinematics.pose_with_covariance.pose.position.x = 2.0;
+  obj2.kinematics.pose_with_covariance.pose.position.y = 3.0;
   objects_msg.objects.push_back(obj2);
   objects_msg.header.frame_id = kTrackerFrame;  // Set to the same frame as the tracker.
 
@@ -133,9 +133,11 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
     DetectedObject current_track;
     const auto current_shape = create_square(4.0F);
     current_track.shape = current_shape;
-    current_track.kinematics.centroid_position.x = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.centroid_position.y = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.position_covariance = m_some_covariance;
+    current_track.kinematics.pose_with_covariance.pose.position.x = 2.0 *
+      static_cast<double>(i + 1U);
+    current_track.kinematics.pose_with_covariance.pose.position.y = 2.0 *
+      static_cast<double>(i + 1U);
+    current_track.kinematics.pose_with_covariance.covariance = m_some_covariance;
     current_track.kinematics.has_position_covariance = true;
     tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
 
@@ -145,11 +147,11 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
       DetectedObject current_detection;
       current_detection.shape = current_shape;
       // Move detections a bit to test out distance calculation logic as well
-      current_detection.kinematics.centroid_position.x =
-        current_track.kinematics.centroid_position.x + 0.6;
-      current_detection.kinematics.centroid_position.y =
-        current_track.kinematics.centroid_position.y + 0.8;
-      current_detection.kinematics.position_covariance = m_some_covariance;
+      current_detection.kinematics.pose_with_covariance.pose.position.x =
+        current_track.kinematics.pose_with_covariance.pose.position.x + 0.6;
+      current_detection.kinematics.pose_with_covariance.pose.position.y =
+        current_track.kinematics.pose_with_covariance.pose.position.y + 0.8;
+      current_detection.kinematics.pose_with_covariance.covariance = m_some_covariance;
 
       detections_msg.objects.push_back(current_detection);
     }
@@ -197,9 +199,11 @@ TEST_F(AssociationTester, AreaGatingFails)
     DetectedObject current_track;
     const auto current_shape = create_square(4.0F);
     current_track.shape = current_shape;
-    current_track.kinematics.centroid_position.x = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.centroid_position.y = 2.0 * static_cast<double>(i + 1U);
-    current_track.kinematics.position_covariance = m_some_covariance;
+    current_track.kinematics.pose_with_covariance.pose.position.x = 2.0 *
+      static_cast<double>(i + 1U);
+    current_track.kinematics.pose_with_covariance.pose.position.y = 2.0 *
+      static_cast<double>(i + 1U);
+    current_track.kinematics.pose_with_covariance.covariance = m_some_covariance;
     current_track.kinematics.has_position_covariance = true;
     tracked_object_vec.emplace_back(current_track, 0.0, 0.0);
 
@@ -218,8 +222,9 @@ TEST_F(AssociationTester, AreaGatingFails)
       }
     }
     // Exact same position as track
-    current_detection.kinematics.centroid_position = current_track.kinematics.centroid_position;
-    current_detection.kinematics.position_covariance = m_some_covariance;
+    current_detection.kinematics.pose_with_covariance.pose.position =
+      current_track.kinematics.pose_with_covariance.pose.position;
+    current_detection.kinematics.pose_with_covariance.covariance = m_some_covariance;
 
     detections_msg.objects.push_back(current_detection);
   }

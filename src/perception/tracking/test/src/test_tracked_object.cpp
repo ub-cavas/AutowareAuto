@@ -43,11 +43,11 @@ TEST(TestTrackedObject, TestOptionalTwist) {
 TEST(TestTrackedObject, TestOptionalCovariance) {
   const auto kDefaultVariance = 1.0;
   DetectedObjectMsg msg;
-  msg.kinematics.position_covariance[0] = 3.0;  // linear x
-  msg.kinematics.position_covariance[1] = 2.0;  // linear xy
-  msg.kinematics.position_covariance[3] = 2.0;  // linear xy
-  msg.kinematics.position_covariance[4] = 3.0;  // linear y
-  msg.kinematics.position_covariance[8] = 3.0;  // linear z
+  msg.kinematics.pose_with_covariance.covariance[0] = 3.0;  // linear x
+  msg.kinematics.pose_with_covariance.covariance[1] = 2.0;  // linear xy
+  msg.kinematics.pose_with_covariance.covariance[6] = 2.0;  // linear xy
+  msg.kinematics.pose_with_covariance.covariance[7] = 3.0;  // linear y
+  msg.kinematics.pose_with_covariance.covariance[12] = 3.0;  // linear z
   ObjectClassification classification;
   classification.classification = autoware_auto_perception_msgs::msg::ObjectClassification::CAR;
   classification.probability = 1.0;
@@ -121,7 +121,7 @@ TEST(TestTrackedObject, TestUpdate) {
     DetectedObjectMsg obs;
     obs.kinematics.has_twist = has_twist;
     obs.kinematics.twist.twist.linear.x = 3.0;
-    obs.kinematics.centroid_position.y = 2.0;
+    obs.kinematics.pose_with_covariance.pose.position.y = 2.0;
     EXPECT_NO_THROW(track.update(obs));
     distinct_results.push_back(track.msg());
   }

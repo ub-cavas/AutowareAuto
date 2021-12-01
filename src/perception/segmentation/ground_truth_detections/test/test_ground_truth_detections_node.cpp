@@ -315,19 +315,19 @@ TEST_F(GroundTruth3dDetectionsTest, ReceiveDetections)
   // kinematics
   {
     const auto & k = car_detection.kinematics;
-    EXPECT_EQ(k.centroid_position.x, CAR_CENTER_3D_X);
-    EXPECT_EQ(k.centroid_position.y, CAR_CENTER_3D_Y);
-    EXPECT_EQ(k.centroid_position.z, CAR_CENTER_3D_Z);
+    EXPECT_EQ(k.pose_with_covariance.pose.position.x, CAR_CENTER_3D_X);
+    EXPECT_EQ(k.pose_with_covariance.pose.position.y, CAR_CENTER_3D_Y);
+    EXPECT_EQ(k.pose_with_covariance.pose.position.z, CAR_CENTER_3D_Z);
 
     EXPECT_FALSE(k.has_position_covariance);
 
     ASSERT_EQ(
       k.orientation_availability,
       autoware_auto_perception_msgs::msg::DetectedObjectKinematics::AVAILABLE);
-    EXPECT_EQ(k.orientation.x, CAR_ORIENTATION_X);
-    EXPECT_EQ(k.orientation.y, CAR_ORIENTATION_Y);
-    EXPECT_EQ(k.orientation.z, CAR_ORIENTATION_Z);
-    EXPECT_EQ(k.orientation.w, CAR_ORIENTATION_W);
+    EXPECT_EQ(k.pose_with_covariance.pose.orientation.x, CAR_ORIENTATION_X);
+    EXPECT_EQ(k.pose_with_covariance.pose.orientation.y, CAR_ORIENTATION_Y);
+    EXPECT_EQ(k.pose_with_covariance.pose.orientation.z, CAR_ORIENTATION_Z);
+    EXPECT_EQ(k.pose_with_covariance.pose.orientation.w, CAR_ORIENTATION_W);
   }
 
   // shape

@@ -141,9 +141,10 @@ DetectedObjects convert_unassigned_clusters_to_detected_objects(
     }
     const auto centroid = common::geometry::times_2d(
       sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
-    detected_object.kinematics.centroid_position.x = static_cast<double>(centroid.x);
-    detected_object.kinematics.centroid_position.y = static_cast<double>(centroid.y);
-    detected_object.kinematics.centroid_position.z = static_cast<double>(centroid.z);
+    auto & detected_object_position = detected_object.kinematics.pose_with_covariance.pose.position;
+    detected_object_position.x = static_cast<decltype(detected_object_position.x)>(centroid.x);
+    detected_object_position.y = static_cast<decltype(detected_object_position.y)>(centroid.y);
+    detected_object_position.z = static_cast<decltype(detected_object_position.z)>(centroid.z);
     for (auto & point : detected_object.shape.polygon.points) {
       // We assume here a zero orientation as we don't care about the orientation of the convex
       // hull. This then becomes a poor man's transformation into the object-local coordinates.
