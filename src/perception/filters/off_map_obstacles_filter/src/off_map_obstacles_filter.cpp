@@ -186,10 +186,10 @@ static bool bbox_is_on_map(
 
   // For each of them, check if an intersection exists
   float64_t overlap_area = 0.0;
-  for (const auto candidate : ll_candidates) {
+  for (const auto & candidate : ll_candidates) {
     // Annoying – this seems to be the only way to do the intersection
     lanelet::Polygon2d ll_poly;
-    for (const auto p : candidate.polygon2d()) {
+    for (const auto & p : candidate.polygon2d()) {
       ll_poly.push_back(lanelet::Point2d{utils::getId(), p.x(), p.y()});
     }
     lanelet::ConstHybridPolygon2d ll_poly_hybrid = utils::toHybrid(ll_poly);
@@ -199,13 +199,13 @@ static bool bbox_is_on_map(
       return true;
     }
   }
-  for (const auto candidate : area_candidates) {
+  for (const auto & candidate : area_candidates) {
     if (!candidate.hasAttribute("subtype") || !candidate.hasAttribute("cad_id")) {continue;}
     if (candidate.attribute("subtype") != "parking_access" &&
       candidate.attribute("subtype") != "parking_spot") {continue;}
     // Annoying – this seems to be the only way to do the intersection
     lanelet::Polygon2d area_poly;
-    for (const auto p : candidate.outerBoundPolygon()) {
+    for (const auto & p : candidate.outerBoundPolygon()) {
       area_poly.push_back(lanelet::Point2d{utils::getId(), p.x(), p.y()});
     }
     lanelet::ConstHybridPolygon2d area_poly_hybrid = utils::toHybrid(area_poly);

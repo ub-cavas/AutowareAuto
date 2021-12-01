@@ -397,7 +397,7 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
   const auto subroutes = m_planner->get_subroutes();
   Trajectory checkpoints;
   checkpoints.header.frame_id = "map";
-  for (const auto subroute : subroutes) {
+  for (const auto & subroute : subroutes) {
     TrajectoryPoint trajectory_start_point;
     trajectory_start_point.pose.position = subroute.route.start_point.position;
     trajectory_start_point.pose.orientation = motion::motion_common::from_angle(
