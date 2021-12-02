@@ -16,6 +16,7 @@
 
     <depend>autoware_auto_common</depend>
     <depend>rclcpp</depend>
+    <depend>rclcpp_components</depend>
     <depend>udp_driver</depend>
 
     <exec_depend>ament_index_python</exec_depend>

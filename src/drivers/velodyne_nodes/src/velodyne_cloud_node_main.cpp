@@ -52,19 +52,16 @@ int32_t main(const int32_t argc, char ** const argv)
         run(
           std::make_shared<
             autoware::drivers::velodyne_nodes::VLP16DriverNode>(
-            "vlp16_driver_node",
             rclcpp::NodeOptions{}));
       } else if (model == "vlp32c") {
         run(
           std::make_shared<
             autoware::drivers::velodyne_nodes::VLP32CDriverNode>(
-            "vlp32c_driver_node",
             rclcpp::NodeOptions{}));
       } else if (model == "vls128") {
         run(
           std::make_shared<
             autoware::drivers::velodyne_nodes::VLS128DriverNode>(
-            "vls128_driver_node",
             rclcpp::NodeOptions{}));
       } else {
         throw std::runtime_error("Model " + model + " is not supperted.");

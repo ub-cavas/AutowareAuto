@@ -32,7 +32,7 @@ TEST(VelodyneNode, Constructor)
 {
   rclcpp::init(0, nullptr);
 
-  const auto name = "test_node";
+  const std::string name = "test_node";
 
   std::vector<rclcpp::Parameter> velodyne_params;
   velodyne_params.emplace_back("ip", "127.0.0.1");
@@ -41,21 +41,22 @@ TEST(VelodyneNode, Constructor)
   velodyne_params.emplace_back("cloud_size", 10000);
   velodyne_params.emplace_back("rpm", 600);
   velodyne_params.emplace_back("topic", "blah");
-  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions();
+  // TODO(esteve): replace this with std::format once we migrate to Galactic
+  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"__node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
 
   using VelodyneCloudNode = autoware::drivers::velodyne_nodes::VLP16DriverNode;
   try {
-    VelodyneCloudNode v(name, velodyne_options);
+    VelodyneCloudNode v{velodyne_options};
   } catch (const std::exception & e) {
     std::cerr << e.what() << std::endl;
   }
-  EXPECT_NO_THROW(VelodyneCloudNode(name, velodyne_options));
+  EXPECT_NO_THROW(VelodyneCloudNode{velodyne_options});
 
   velodyne_params.pop_back();
   velodyne_options.parameter_overrides(velodyne_params);
   EXPECT_THROW(
-    VelodyneCloudNode(name, velodyne_options),
+    VelodyneCloudNode{velodyne_options},
     std::runtime_error
   );
 
@@ -80,7 +81,7 @@ TEST_P(VelodyneNodeIntegration, Test)
 
   const auto param = GetParam();
   // Configuration
-  const auto name = "test_node";
+  const std::string name = "test_node";
   const auto ip = "127.0.0.1";
   const auto port = 3555U;
   const auto frame_id = "base_link";
@@ -95,13 +96,14 @@ TEST_P(VelodyneNodeIntegration, Test)
   velodyne_params.emplace_back("cloud_size", static_cast<int64_t>(param.reserved_size));
   velodyne_params.emplace_back("rpm", static_cast<int>(config.get_rpm()));
   velodyne_params.emplace_back("topic", topic);
-  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions();
+  // TODO(esteve): replace this with std::format once we migrate to Galactic
+  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"__node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
 
   // Node
   using VelodyneCloudNode = autoware::drivers::velodyne_nodes::VLP16DriverNode;
   std::shared_ptr<VelodyneCloudNode> nd_ptr = std::make_shared<VelodyneCloudNode>(
-    name, velodyne_options);
+    velodyne_options);
   std::thread velodyne_node_thread;
 
   // Listener
