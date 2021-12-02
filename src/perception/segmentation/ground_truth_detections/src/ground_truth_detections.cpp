@@ -16,8 +16,10 @@
 
 #include "ground_truth_detections/ground_truth_detections.hpp"
 #include <autoware_auto_perception_msgs/msg/detected_object.hpp>
-#include <geometry_msgs/msg/point.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 #include <geometry_msgs/msg/vector3.hpp>
+#include <geometry_msgs/msg/pose_with_covariance.hpp>
+#include <geometry_msgs/msg/twist_with_covariance.hpp>
 #include <algorithm>
 #include <cmath>
 #include <string>
