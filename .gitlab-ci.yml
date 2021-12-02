@@ -8,6 +8,7 @@ stages:
 .ade_base:
   variables:
     DOCKER_DRIVER: overlay2
+    ROS_DISTRO: foxy
     UBUNTU_DISTRO: focal
   stage: ade
   image: docker
@@ -17,7 +18,7 @@ stages:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - apk add --update-cache git
     - mv ros-deps tools/ade_image
-    - cp autoware.auto.$ROS_DISTRO.repos tools/ade_image
+    - cp autoware.auto.foxy.repos tools/ade_image
     - cd tools/ade_image
     - export ADE_SHA=$(find . -type f | sort | xargs sha256sum | sha256sum | rev | cut -c 4- | rev)
     - '
@@ -53,6 +54,8 @@ stages:
   after_script:
     - docker container rm -f $(docker container ls --filter "status=exited" -q)
     - docker image rm $(docker image ls -q)
+  needs:
+    - gen_ros_deps_foxy
 
 .build_base:
   variables:
@@ -192,43 +195,15 @@ gen_ros_deps_foxy:
   image: ros:foxy
   extends: .gen_deps_base
 
-gen_ros_deps_galactic:
-  image: ros:galactic
-  extends: .gen_deps_base
-
 ade_amd64_foxy:
   variables:
     ARCH: amd64
-    ROS_DISTRO: foxy
   extends: .ade_base
-  needs: 
-    - gen_ros_deps_foxy
 
 ade_arm64_foxy:
-  variables:
-    ROS_DISTRO: foxy
   extends:
     - .arm64
     - .ade_base
-  needs: 
-    - gen_ros_deps_foxy
-
-ade_amd64_galactic:
-  variables:
-    ARCH: amd64
-    ROS_DISTRO: galactic
-  extends: .ade_base
-  needs: 
-    - gen_ros_deps_galactic
-
-ade_arm64_galactic:
-  variables:
-    ROS_DISTRO: galactic
-  extends:
-    - .arm64
-    - .ade_base
-  needs: 
-    - gen_ros_deps_galactic
 
 build_amd64_foxy:
   variables:
@@ -240,7 +215,7 @@ build_amd64_foxy:
     - job: ade_amd64_foxy
 
 build_arm64_foxy:
-  extends: 
+  extends:
     - .arm64
     - .build_base
   needs:
@@ -256,7 +231,7 @@ test_amd64_foxy:
     - build_amd64_foxy
 
 test_arm64_foxy:
-  extends: 
+  extends:
     - .arm64
     - .test_base
   needs:
@@ -324,7 +299,7 @@ volume_amd64_foxy:
     - test_amd64_foxy
 
 volume_arm64_foxy:
-  extends: 
+  extends:
     - .arm64
     - .volume_base
   needs:
