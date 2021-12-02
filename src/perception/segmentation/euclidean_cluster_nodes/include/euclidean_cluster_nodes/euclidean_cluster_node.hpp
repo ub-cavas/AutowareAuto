@@ -21,6 +21,7 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
+#include <geometry_msgs/msg/transform_stamped.hpp>
 #include <euclidean_cluster_nodes/visibility_control.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
@@ -30,6 +31,8 @@
 #include <common/types.hpp>
 #include <memory>
 #include <string>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 
 namespace autoware
 {
@@ -84,6 +87,9 @@ private:
   const rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_box_pub_ptr;
   const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_pub_ptr;
   const rclcpp::Publisher<MarkerArray>::SharedPtr m_marker_pub_ptr;
+  std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
+  std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
+
   // algorithms
   euclidean_cluster::EuclideanCluster m_cluster_alg;
   Clusters m_clusters;

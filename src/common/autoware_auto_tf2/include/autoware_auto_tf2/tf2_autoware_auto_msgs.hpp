@@ -23,6 +23,7 @@
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <autoware_auto_geometry_msgs/msg/quaternion32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
@@ -36,6 +37,7 @@ using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
 using BoundingBoxArray = autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using BoundingBox = autoware_auto_perception_msgs::msg::BoundingBox;
+using Clusters = autoware_auto_perception_msgs::msg::PointClusters;
 
 namespace tf2
 {
@@ -63,6 +65,33 @@ void doTransform(
   t_out.z = static_cast<float>(v_out[2]);
 }
 
+/**************/
+/** Clusters **/
+/**************/
+
+/** \brief Apply a geometry_msgs TransformStamped to a Clusters type.
+ * This function is a specialization of the doTransform template defined in tf2/convert.h.
+ * \param t_in The Clusters to transform.
+ * \param t_out The transformed Clusters.
+ * \param transform The timestamped transform to apply, as a TransformStamped message.
+ */
+// template<>
+inline
+void doTransform(
+  Clusters & t_in, Clusters & t_out,
+  const geometry_msgs::msg::TransformStamped & transform)
+{
+  geometry_msgs::msg::Point32 tmp_in, tmp_out;
+  for (size_t i = 0; i < t_in.points.size(); ++i) {
+    tmp_in.x = t_in.points[i].x;
+    tmp_in.y = t_in.points[i].y;
+    tmp_in.z = t_in.points[i].z;
+    doTransform(tmp_in, tmp_out, transform);
+    t_out.points[i].x = tmp_out.x;
+    t_out.points[i].y = tmp_out.y;
+    t_out.points[i].z = tmp_out.z;
+  }
+}
 
 /*************/
 /** Polygon **/

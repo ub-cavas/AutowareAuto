@@ -19,12 +19,14 @@
 
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
+#include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <common/types.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <rclcpp_action/rclcpp_action.hpp>
 
 #include <memory>
 #include <string>
@@ -96,6 +98,13 @@ m_use_z{declare_parameter("use_z").get<bool8_t>()}
   if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
     throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
   }
+  // Setup Tf Buffer with listener
+  rclcpp::Clock::SharedPtr clock = std::make_shared<rclcpp::Clock>(RCL_ROS_TIME);
+  tf_buffer_ = std::make_shared<tf2_ros::Buffer>(clock);
+  tf_listener_ = std::make_shared<tf2_ros::TransformListener>(
+    *tf_buffer_,
+    std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+
   // Initialize voxel grid
   if (declare_parameter("downsample").get<bool8_t>()) {
     filters::voxel_grid::PointXYZ min_point;
@@ -175,8 +184,23 @@ void EuclideanClusterNode::handle_clusters(
   Clusters & clusters,
   const std_msgs::msg::Header & header)
 {
+  geometry_msgs::msg::TransformStamped tf;
+  try
+  {
+    tf = tf_buffer_->lookupTransform(m_cluster_alg.get_config().frame_id(), header.frame_id, tf2::TimePointZero);
+  }
+  catch (tf2::TransformException& ex)
+  {
+    RCLCPP_WARN(get_logger(), "%s", ex.what());
+  }
+
+  Clusters clusters_out = clusters;
+  tf2::doTransform(clusters, clusters_out, tf);
+
   if (m_cluster_pub_ptr) {
-    publish_clusters(clusters, header);
+    std_msgs::msg::Header header_cluster = header;
+    header_cluster.frame_id = m_cluster_alg.get_config().frame_id();
+    publish_clusters(clusters_out, header_cluster);
   }
 
   if (!m_box_pub_ptr && !m_detected_objects_pub_ptr) {
@@ -185,14 +209,14 @@ void EuclideanClusterNode::handle_clusters(
 
   BoundingBoxArray boxes;
   if (m_use_lfit) {
-    boxes = euclidean_cluster::details::compute_bounding_boxes(clusters, BboxMethod::LFit, m_use_z);
+    boxes = euclidean_cluster::details::compute_bounding_boxes(clusters_out, BboxMethod::LFit, m_use_z);
   } else {
     boxes = euclidean_cluster::details::compute_bounding_boxes(
-      clusters, BboxMethod::Eigenbox,
+      clusters_out, BboxMethod::Eigenbox,
       m_use_z);
   }
   boxes.header.stamp = header.stamp;
-  boxes.header.frame_id = header.frame_id;
+  boxes.header.frame_id = m_cluster_alg.get_config().frame_id();
   m_box_pub_ptr->publish(boxes);
 
   if (m_detected_objects_pub_ptr) {
@@ -207,7 +231,7 @@ void EuclideanClusterNode::handle_clusters(
   for (const auto & box : boxes.boxes) {
     Marker m{};
     m.header.stamp = rclcpp::Time(0);
-    m.header.frame_id = header.frame_id;
+    m.header.frame_id = m_cluster_alg.get_config().frame_id();
     m.ns = "bbox";
     m.id = static_cast<int>(id_counter);
     m.type = Marker::CUBE;
@@ -246,6 +270,7 @@ void EuclideanClusterNode::handle(const PointCloud2::SharedPtr msg_ptr)
     }
     m_cluster_alg.cluster(m_clusters);
     //lint -e{523} NOLINT empty functions to make this modular
+    // handle_clusters(m_clusters, msg_ptr->header);
     handle_clusters(m_clusters, msg_ptr->header);
     m_cluster_alg.throw_stored_error();
   } catch (const std::exception & e) {

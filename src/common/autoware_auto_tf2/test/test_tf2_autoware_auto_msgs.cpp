@@ -20,6 +20,7 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
+#include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <rclcpp/clock.hpp>
 #include <memory>
 
@@ -59,6 +60,24 @@ TEST(Tf2AutowareAuto, DoTransformPoint32)
   EXPECT_NEAR(p_out.x, 11, EPS);
   EXPECT_NEAR(p_out.y, 18, EPS);
   EXPECT_NEAR(p_out.z, 27, EPS);
+}
+
+TEST(Tf2AutowareAuto, DoTransformClusters)
+{
+  const auto trans = filled_transfom();
+  autoware_auto_perception_msgs::msg::PointClusters p1;
+  p1.points.resize(1);
+  p1.points[0].x = 1;
+  p1.points[0].y = 2;
+  p1.points[0].z = 3;
+
+  // doTransform
+  autoware_auto_perception_msgs::msg::PointClusters p_out;
+  tf2::doTransform(p1, p_out, trans);
+
+  EXPECT_NEAR(p_out.points[0].x, 11, EPS);
+  EXPECT_NEAR(p_out.points[0].y, 18, EPS);
+  EXPECT_NEAR(p_out.points[0].z, 27, EPS);
 }
 
 
