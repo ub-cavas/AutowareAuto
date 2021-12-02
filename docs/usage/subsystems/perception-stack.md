@@ -59,13 +59,13 @@ To run the perception stack, sensor data will need to be generated and publish a
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
+  ade$ ros2 run velodyne_nodes vlp16_driver_node --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
   ```
 6. Launch the [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_nodes) for the rear lidar:
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
+  ade$ ros2 run velodyne_nodes vlp16_driver_node --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
   ``` 
 7. Publish the robot state description: 
   ```{bash}
@@ -84,7 +84,7 @@ To run the perception stack, sensor data will need to be generated and publish a
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
+  ade$ ros2 run velodyne_nodes vlp16_driver_node --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
   ```
 ## Launch Visualization
 
@@ -141,13 +141,13 @@ To simplify the process of launching these nodes there exists a convenience laun
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
+  ade$ ros2 run velodyne_nodes vlp16_driver_node --ros-args --remap __ns:=/lidar_front --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test.param.yaml
   ```
 3. Launch the [velodyne_node](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/tree/master/src/drivers/velodyne_nodes) for the rear lidar in another terminal:
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
+  ade$ ros2 run velodyne_nodes vlp16_driver_node --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
   ```
 4. Enter ADE and run the launch file
   ```{bash}
