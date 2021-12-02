@@ -31,15 +31,6 @@ ament_auto_add_library(${CLOUD_LIB} SHARED
 autoware_set_compile_options(${CLOUD_LIB})
 
 # generate library
-ament_auto_add_library(velodyne_cloud_wrapper_node SHARED
-  src/velodyne_cloud_node_main.cpp
-)
-autoware_set_compile_options(velodyne_cloud_wrapper_node)
-rclcpp_components_register_node(velodyne_cloud_node
-  PLUGIN "autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode"
-  EXECUTABLE velodyne_cloud_node_exe
-)
-
 rclcpp_components_register_node(velodyne_cloud_node
   PLUGIN "autoware::drivers::velodyne_nodes::VLP16DriverNode"
   EXECUTABLE vlp16_driver_node_exe
