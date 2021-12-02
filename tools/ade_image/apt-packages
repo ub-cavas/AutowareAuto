@@ -45,6 +45,3 @@ ros-$ROS_DISTRO-rosbag2-transport
 
 # clang-format
 ros-$ROS_DISTRO-ament-clang-format
-
-# lgsvl-bridge
-ros-$ROS_DISTRO-lgsvl-bridge
