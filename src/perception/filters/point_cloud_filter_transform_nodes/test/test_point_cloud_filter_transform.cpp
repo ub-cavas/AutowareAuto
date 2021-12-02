@@ -200,10 +200,10 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
   velodyne_params.emplace_back("cloud_size", static_cast<int64_t>(m_cloud_size));
   velodyne_params.emplace_back("rpm", static_cast<int>(m_vlp_config.get_rpm()));
   velodyne_params.emplace_back("topic", topic_name);
-  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions();
+  rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"__node:=velodyne_cloud_node"});
   velodyne_options.parameter_overrides(velodyne_params);
   std::shared_ptr<VelodyneCloudNode> velodyne_ptr = std::make_shared<VelodyneCloudNode>(
-    "velodyne_cloud_node", velodyne_options);
+    velodyne_options);
   std::thread velodyne_node_thread;
 
   // Node under test
