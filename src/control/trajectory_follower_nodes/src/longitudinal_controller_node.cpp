@@ -364,7 +364,7 @@ void LongitudinalController::callbackTimerControl()
     !m_current_state_ptr || !m_prev_state_ptr || !m_trajectory_ptr ||
     !m_tf_buffer.canTransform(
       m_trajectory_ptr->header.frame_id,
-      m_current_state_ptr->header.frame_id,
+      "base_link",
       tf2::TimePointZero))
   {
     return;
@@ -373,7 +373,7 @@ void LongitudinalController::callbackTimerControl()
   // transform state to the same frame as the trajectory
   geometry_msgs::msg::TransformStamped tf = m_tf_buffer.lookupTransform(
     m_trajectory_ptr->header.frame_id,
-    m_current_state_ptr->header.frame_id,
+    "base_link",
     tf2::TimePointZero);
   autoware_auto_planning_msgs::msg::TrajectoryPoint current_state_tf;
   ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);

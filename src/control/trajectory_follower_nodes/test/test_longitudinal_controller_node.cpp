@@ -83,12 +83,10 @@ TEST_F(FakeNodeFixture, longitudinal_keep_velocity) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -155,12 +153,10 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Already running at target vel + Non stopping trajectory -> no change in velocity
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 1.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -227,12 +223,10 @@ TEST_F(FakeNodeFixture, longitudinal_accelerate) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.5;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -299,12 +293,10 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -363,12 +355,10 @@ TEST_F(FakeNodeFixture, longitudinal_reverse) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
@@ -427,12 +417,10 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   geometry_msgs::msg::TransformStamped transform = test_utils::getDummyTransform();
   transform.header.stamp = node->now();
   br->sendTransform(transform);
-  rclcpp::spin_some(node);
   /// Below target vel + Non stopping trajectory -> accelerate
   // Publish velocity
   VehicleState state;
   state.header.stamp = node->now();
-  state.header.frame_id = "base_link";
   state.state.longitudinal_velocity_mps = 0.0;
   state_pub->publish(state);
   // the node needs to receive two velocity msg
