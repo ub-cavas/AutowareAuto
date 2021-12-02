@@ -25,6 +25,7 @@
 #include <chrono>
 #include <string>
 
+#include "autoware_auto_vehicle_msgs/msg/hand_brake_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/headlights_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/horn_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/wipers_report.hpp"

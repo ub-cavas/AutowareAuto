@@ -30,6 +30,8 @@
 #include "lgsvl_interface/lgsvl_interface.hpp"
 
 #include "autoware_auto_vehicle_msgs/msg/gear_report.hpp"
+#include "autoware_auto_vehicle_msgs/msg/hand_brake_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/hand_brake_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
@@ -46,6 +48,8 @@ using namespace std::chrono_literals;
 
 namespace lgsvl_interface
 {
+using autoware_auto_vehicle_msgs::msg::HandBrakeCommand;
+using autoware_auto_vehicle_msgs::msg::HandBrakeReport;
 using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
 using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;

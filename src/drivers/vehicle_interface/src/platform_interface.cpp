@@ -118,6 +118,13 @@ void PlatformInterface::send_hazard_lights_command(
   throw std::runtime_error("HazardLightsCommand not supported by this vehicle interface");
 }
 
+void PlatformInterface::send_hand_brake_command(
+  const autoware_auto_vehicle_msgs::msg::HandBrakeCommand & msg)
+{
+  (void)msg;
+  throw std::runtime_error("HandBrakeCommand not supported by this vehicle interface");
+}
+
 }  // namespace vehicle_interface
 }  // namespace drivers
 }  // namespace autoware

@@ -23,6 +23,8 @@
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 
 #include <autoware_auto_vehicle_msgs/msg/gear_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hand_brake_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/hand_brake_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_report.hpp>
 #include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
@@ -44,6 +46,8 @@
 using autoware::common::types::bool8_t;
 
 using autoware_auto_vehicle_msgs::msg::GearReport;
+using autoware_auto_vehicle_msgs::msg::HandBrakeCommand;
+using autoware_auto_vehicle_msgs::msg::HandBrakeReport;
 using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 using autoware_auto_vehicle_msgs::msg::HazardLightsReport;
 using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
@@ -139,6 +143,12 @@ public:
   /// \brief Get the most recent state of the gear feature.
   /// \return A GearReport message intended to be published.
   const GearReport & get_gear_report() const noexcept;
+
+  /// \brief Send the hand_brake control command to the vehicle platform.
+  /// If this is not implemented for a specific vehicle but is called,
+  /// a runtime error will be thrown.
+  /// \param[in] msg The control command to send to the vehicle.
+  virtual void send_hand_brake_command(const HandBrakeCommand & msg);
 
   /// \brief Send the headlight control command to the vehicle platform.
   /// If this is not implemented for a specific vehicle but is called,
