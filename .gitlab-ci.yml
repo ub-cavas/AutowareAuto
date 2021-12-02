@@ -18,7 +18,7 @@ stages:
     - docker login -u gitlab-ci-token -p $CI_JOB_TOKEN $CI_REGISTRY
     - apk add --update-cache git
     - mv ros-deps tools/ade_image
-    - cp autoware.auto.foxy.repos tools/ade_image
+    - cp autoware.auto.${ROS_DISTRO}.repos tools/ade_image
     - cd tools/ade_image
     - export ADE_SHA=$(find . -type f | sort | xargs sha256sum | sha256sum | rev | cut -c 4- | rev)
     - '
