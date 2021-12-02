@@ -24,7 +24,7 @@ import launch_ros.actions
 
 def generate_launch_description():
     driver = launch_ros.actions.Node(
-        package='velodyne_nodes', executable='velodyne_cloud_node_exe',
+        package='velodyne_nodes', executable='vlp16_driver_node_exe',
         namespace='lidar_front',
         parameters=[get_package_share_directory('velodyne_nodes') +
                     '/param/vlp16_test.param.yaml'])

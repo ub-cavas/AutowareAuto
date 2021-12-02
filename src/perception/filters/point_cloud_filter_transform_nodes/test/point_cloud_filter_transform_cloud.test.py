@@ -28,7 +28,7 @@ def generate_test_description():
     # The nodes under test:
     velodyne_block_node = launch_ros.actions.Node(
         package="velodyne_nodes",
-        executable="velodyne_cloud_node_exe",
+        executable="vlp16_driver_node_exe",
         name="vlp16_driver_node",
         namespace="lidar_front",
         parameters=[
@@ -42,8 +42,7 @@ def generate_test_description():
                 "cloud_size": 10700,
                 "expected_num_subscribers": 1,
             }
-        ],
-        arguments=["--model", "vlp16"]
+        ]
     )
 
     point_cloud_filter_transform_node = launch_ros.actions.Node(

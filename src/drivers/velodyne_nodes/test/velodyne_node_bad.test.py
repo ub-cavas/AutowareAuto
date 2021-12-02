@@ -27,7 +27,7 @@ def generate_test_description():
     test_topic = "veloyne_cloud_node_test_topic"
     velodyne_cloud_node = launch_ros.actions.Node(
         package="velodyne_nodes",
-        executable="velodyne_cloud_node_exe",
+        executable="vlp16_driver_node_exe",
         name="vlp16_driver_node",
         namespace="lidar_front",
         parameters=[
@@ -38,8 +38,7 @@ def generate_test_description():
                 "cloud_size": 500,
                 "topic": test_topic
             }
-        ],
-        arguments=["--model", "vlp16"]
+        ]
     )
 
     context = {'vel_node': velodyne_cloud_node}

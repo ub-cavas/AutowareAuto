@@ -26,58 +26,52 @@
 #include <algorithm>
 #include "rclcpp/rclcpp.hpp"
 
-// this file is simply a main file to create a ros1 style standalone node
-int32_t main(const int32_t argc, char ** const argv)
+#include <rclcpp_components/register_node_macro.hpp>
+
+namespace autoware
 {
-  int32_t ret = 0;
+namespace drivers
+{
+namespace velodyne_nodes
+{
 
-  try {
-    rclcpp::init(argc, argv);
+class VelodyneCloudWrapperNode : public rclcpp::Node
+{
+private:
+  autoware::drivers::velodyne_nodes::VLP16DriverNode::SharedPtr vlp16_driver_node_ = nullptr;
+  autoware::drivers::velodyne_nodes::VLP32CDriverNode::SharedPtr vlp32_c_driver_node_ = nullptr;
+  autoware::drivers::velodyne_nodes::VLS128DriverNode::SharedPtr vls128_driver_node_ = nullptr;
 
-    const auto run = [](const auto & nd_ptr) {
-        while (rclcpp::ok()) {
-          rclcpp::spin(nd_ptr);
-        }
-        rclcpp::shutdown();
-      };
+public:
+  explicit VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options)
+  : Node("velodyne_cloud_wrapper_node", node_options)
+  {
+    // std::string model = this->declare_parameter("model").template get<std::string>();
+    std::string model = "vlp16";
 
-    const auto * arg = rcutils_cli_get_option(argv, &argv[argc], "--model");
-    if (arg != nullptr) {
-      auto model = std::string(arg);
-      std::transform(
-        model.begin(), model.end(), model.begin(), [](const auto & c) {
-          return std::tolower(c);
-        });
-      if (model == "vlp16") {
-        run(
-          std::make_shared<
-            autoware::drivers::velodyne_nodes::VLP16DriverNode>(
-            rclcpp::NodeOptions{}));
-      } else if (model == "vlp32c") {
-        run(
-          std::make_shared<
-            autoware::drivers::velodyne_nodes::VLP32CDriverNode>(
-            rclcpp::NodeOptions{}));
-      } else if (model == "vls128") {
-        run(
-          std::make_shared<
-            autoware::drivers::velodyne_nodes::VLS128DriverNode>(
-            rclcpp::NodeOptions{}));
-      } else {
-        throw std::runtime_error("Model " + model + " is not supperted.");
-      }
+    if (model == "vlp16") {
+      vlp16_driver_node_ =
+        std::make_shared<
+        autoware::drivers::velodyne_nodes::VLP16DriverNode>(
+        node_options);
+    } else if (model == "vlp32c") {
+      vlp32_c_driver_node_ =
+        std::make_shared<
+        autoware::drivers::velodyne_nodes::VLP32CDriverNode>(
+        node_options);
+    } else if (model == "vls128") {
+      vls128_driver_node_ =
+        std::make_shared<
+        autoware::drivers::velodyne_nodes::VLS128DriverNode>(
+        node_options);
     } else {
-      throw std::runtime_error("Please specify a velodyne model using --model argument");
+      throw std::runtime_error("Model " + model + " is not supperted.");
     }
-  } catch (const std::exception & err) {
-    // RCLCPP logging macros are not used in error handling because they would depend on vptr's
-    // logger. This dependency would result in a crash when vptr is a nullptr
-    std::cerr << err.what() << std::endl;
-    ret = 2;
-  } catch (...) {
-    std::cerr << "Unknown error encountered, exiting..." << std::endl;
-    ret = -1;
   }
-  rclcpp::shutdown();
-  return ret;
-}
+};
+
+}  // namespace velodyne_nodes
+}  // namespace drivers
+}  // namespace autoware
+
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode)
