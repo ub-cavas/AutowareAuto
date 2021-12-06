@@ -84,40 +84,42 @@ void BehaviorPlannerNode::init()
   // wait until action clients are ready
   while (!m_lane_planner_client->wait_for_action_server(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for action server.");
+      RCLCPP_ERROR(
+        get_logger(), "Interrupted while waiting for action server 'plan_lane_trajectory'.");
       rclcpp::shutdown();
       return;
     }
-    RCLCPP_INFO(get_logger(), "Waiting for action server...");
+    RCLCPP_INFO(get_logger(), "Waiting for action server 'plan_lane_trajectory'...");
   }
   while (!m_parking_planner_client->wait_for_action_server(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for action server.");
+      RCLCPP_ERROR(
+        get_logger(), "Interrupted while waiting for action server 'plan_parking_trajectory'.");
       rclcpp::shutdown();
       return;
     }
-    RCLCPP_INFO(get_logger(), "Waiting for action server...");
+    RCLCPP_INFO(get_logger(), "Waiting for action server 'plan_parking_trajectory'...");
   }
 
   m_map_client = this->create_client<HADMapService>("HAD_Map_Service");
   while (!m_map_client->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
+      RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service 'HAD_Map_Service'.");
       rclcpp::shutdown();
       return;
     }
-    RCLCPP_INFO(get_logger(), "Waiting for service...");
+    RCLCPP_INFO(get_logger(), "Waiting for service 'HAD_Map_Service'...");
   }
 
   if (declare_parameter("enable_object_collision_estimator").get<bool>()) {
     m_modify_trajectory_client = this->create_client<ModifyTrajectory>("estimate_collision");
     while (!m_modify_trajectory_client->wait_for_service(1s)) {
       if (!rclcpp::ok()) {
-        RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service.");
+        RCLCPP_ERROR(get_logger(), "Interrupted while waiting for service 'estimate_collision'.");
         rclcpp::shutdown();
         return;
       }
-      RCLCPP_INFO(get_logger(), "Waiting for service...");
+      RCLCPP_INFO(get_logger(), "Waiting for service 'estimate_collision'...");
     }
   }
 
@@ -141,6 +143,8 @@ void BehaviorPlannerNode::init()
     this->create_publisher<Trajectory>("debug/checkpoints", QoS{10});
   m_debug_subroute_pub =
     this->create_publisher<HADMapRoute>("debug/current_subroute", QoS{10});
+  m_debug_global_path_pub =
+    this->create_publisher<geometry_msgs::msg::PoseArray>("debug/global_path", QoS{10});
   m_vehicle_state_command_pub =
     this->create_publisher<VehicleStateCommand>("vehicle_state_command", QoS{10});
 }
@@ -215,6 +219,8 @@ void BehaviorPlannerNode::request_trajectory(const RouteWithType & route_with_ty
   const auto & route = route_with_type.route;
   const auto & planner_type = route_with_type.planner_type;
 
+  visualize_global_path(route);
+
   auto action_goal = PlanTrajectoryAction::Goal();
   action_goal.sub_route = route;
 
@@ -259,26 +265,23 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
 
   // check if we need new trajectory
   // make sure we are not requesting trajectory if we already have
-  static auto previous_output_arrived_goal = std::chrono::system_clock::now();
   if (!m_requesting_trajectory) {
     if (m_planner->has_arrived_goal(m_ego_state)) {
-      // TODO(mitsudome-r): replace this with throttled output in foxy
-      const auto now = std::chrono::system_clock::now();
-      const auto throttle_time = std::chrono::duration<float64_t>(3);
-      if (now - previous_output_arrived_goal > throttle_time) {
-        RCLCPP_INFO(get_logger(), "Trying to change gear");
-        previous_output_arrived_goal = now;
+      if (m_log_goal_reached) {
+        RCLCPP_INFO(get_logger(), "Reached goal. Wait for another route");
+        m_log_goal_reached = false;
       }
-      RCLCPP_INFO_ONCE(get_logger(), "Reached goal. Wait for another route");
     } else if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
       // send next subroute
       m_planner->set_next_subroute();
       request_trajectory(m_planner->get_current_subroute(m_ego_state));
       m_requesting_trajectory = true;
+      m_log_goal_reached = true;
     } else if (m_planner->needs_new_trajectory(m_ego_state)) {
       // update trajectory for current subroute
       request_trajectory(m_planner->get_current_subroute(m_ego_state));
       m_requesting_trajectory = true;
+      m_log_goal_reached = true;
     }
   }
 
@@ -286,18 +289,13 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
     return;
   }
 
-  static auto previous_output = std::chrono::system_clock::now();
   const auto desired_gear = m_planner->get_desired_gear(m_ego_state);
   if (desired_gear != m_current_gear) {
-    const auto throttle_time = std::chrono::duration<float64_t>(3);
-
-    // TODO(mitsudome-r): replace this with throttled output in foxy
-    const auto now = std::chrono::system_clock::now();
-    if (now - previous_output > throttle_time) {
-      RCLCPP_INFO(get_logger(), "Trying to change gear");
-      previous_output = now;
-    }
-
+    auto & clock = *this->get_clock();
+    RCLCPP_INFO_THROTTLE(
+      get_logger(), clock, 3000,
+      "Trying to change gear, current gear is %d, desired gear is %d.",
+      static_cast<int>(m_current_gear), static_cast<int>(desired_gear));
 
     VehicleStateCommand gear_command;
     gear_command.gear = desired_gear;
@@ -408,6 +406,19 @@ void BehaviorPlannerNode::map_response(rclcpp::Client<HADMapService>::SharedFutu
     checkpoints.points.push_back(trajectory_goal_point);
   }
   m_debug_checkpoints_pub->publish(checkpoints);
+}
+
+void BehaviorPlannerNode::visualize_global_path(const HADMapRoute & route)
+{
+  auto debug_global_path = geometry_msgs::msg::PoseArray();
+
+  debug_global_path.header.stamp = rclcpp::Time();
+  debug_global_path.header.frame_id = "map";
+
+  debug_global_path.poses.push_back(route.start_pose);
+  debug_global_path.poses.push_back(route.goal_pose);
+
+  m_debug_global_path_pub->publish(debug_global_path);
 }
 }  // namespace behavior_planner_nodes
 }  // namespace autoware

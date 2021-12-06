@@ -39,6 +39,7 @@ TEST(TestVehicleConstantsManager, TestInitializationConstructor) {
   const float64_t tire_cornering_stiffness_rear_n_per_deg = 0.1;
   const float64_t mass_vehicle = 2120.0;
   const float64_t inertia_yaw_kg_m_2 = 12.0;
+  const float64_t maximum_turning_angle_rad = 0.53;
 
   // Well set parameters
   EXPECT_NO_THROW(
@@ -47,7 +48,7 @@ TEST(TestVehicleConstantsManager, TestInitializationConstructor) {
       overhang_rear, overhang_left, overhang_right, vehicle_height, cg_to_rear,
       tire_cornering_stiffness_front_n_per_deg,
       tire_cornering_stiffness_rear_n_per_deg, mass_vehicle,
-      inertia_yaw_kg_m_2));
+      inertia_yaw_kg_m_2, maximum_turning_angle_rad));
 
   // Center of gravity is not within wheel_base
   const float64_t bad_cg_to_rear = wheel_base + 1.0;
@@ -59,7 +60,8 @@ TEST(TestVehicleConstantsManager, TestInitializationConstructor) {
       vehicle_height, bad_cg_to_rear,
       tire_cornering_stiffness_front_n_per_deg,
       tire_cornering_stiffness_rear_n_per_deg,
-      mass_vehicle, inertia_yaw_kg_m_2),
+      mass_vehicle, inertia_yaw_kg_m_2,
+      maximum_turning_angle_rad),
     std::runtime_error);
 
   // Some supposedly absolute parameters are negative
@@ -71,7 +73,8 @@ TEST(TestVehicleConstantsManager, TestInitializationConstructor) {
       vehicle_height, cg_to_rear,
       tire_cornering_stiffness_front_n_per_deg,
       tire_cornering_stiffness_rear_n_per_deg,
-      mass_vehicle, inertia_yaw_kg_m_2),
+      mass_vehicle, inertia_yaw_kg_m_2,
+      maximum_turning_angle_rad),
     std::runtime_error);
 }
 
@@ -105,6 +108,7 @@ TEST(TestVehicleConstantsManager, TestGetVehicleConstants) {
   params.emplace_back(ns_vehicle + "tire_cornering_stiffness_rear", 0.1);
   params.emplace_back(ns_vehicle + "mass_vehicle", 2120.0);
   params.emplace_back(ns_vehicle + "inertia_yaw_kg_m2", 12.0);
+  params.emplace_back(ns_vehicle + "maximum_turning_angle_rad", 0.53);
 
   rclcpp::NodeOptions node_options;
   node_options.parameter_overrides(params);

@@ -44,6 +44,8 @@
 #include <tf2_ros/transform_listener.h>
 #include <tf2_ros/buffer.h>
 
+#include <geometry_msgs/msg/pose_array.hpp>
+
 // others
 #include <string>
 #include <memory>
@@ -96,6 +98,7 @@ private:
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
+  rclcpp::Publisher<geometry_msgs::msg::PoseArray>::SharedPtr m_debug_global_path_pub{};
   rclcpp::Publisher<HADMapRoute>::SharedPtr m_debug_subroute_pub{};
   rclcpp::Publisher<VehicleStateCommand>::SharedPtr m_vehicle_state_command_pub{};
 
@@ -110,6 +113,7 @@ private:
 
   // bools to manage states
   bool8_t m_requesting_trajectory;
+  bool8_t m_log_goal_reached{true};
 
   // transforms
   std::shared_ptr<tf2_ros::Buffer> m_tf_buffer;
@@ -136,6 +140,7 @@ private:
   Trajectory refine_trajectory(const State & ego_state, const Trajectory & input);
   State transform_to_map(const State & state);
   void request_trajectory(const RouteWithType & route_with_type);
+  void visualize_global_path(const HADMapRoute & route);
 };
 }  // namespace behavior_planner_nodes
 }  // namespace autoware
