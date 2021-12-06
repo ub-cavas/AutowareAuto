@@ -8,7 +8,7 @@ stages:
 .ade_base:
   variables:
     DOCKER_DRIVER: overlay2
-    ROS_DISTRO: foxy
+    ROS_DISTRO: galactic
     UBUNTU_DISTRO: focal
   stage: ade
   image: docker
@@ -55,13 +55,13 @@ stages:
     - docker container rm -f $(docker container ls --filter "status=exited" -q)
     - docker image rm $(docker image ls -q)
   needs:
-    - gen_ros_deps_foxy
+    - gen_ros_deps_galactic
 
 .build_barebones_base:
   image: ubuntu:focal
   variables:
     RMW_IMPLEMENTATION: rmw_fastrtps_cpp
-    ROS_DISTRO: foxy
+    ROS_DISTRO: galactic
     ROS_VERSION: 2
   stage: build
   script:
@@ -100,12 +100,12 @@ stages:
            --install-base /opt/AutowareAuto
       '
   needs:
-    - gen_ros_deps_foxy
+    - gen_ros_deps_galactic
 
 .build_base:
   variables:
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
-    ROS_DISTRO: foxy
+    ROS_DISTRO: galactic
   stage: build
   image: $CI_REGISTRY_IMAGE/$ARCH/ade-$ROS_DISTRO:commit-$CI_COMMIT_SHA
   script:
@@ -148,7 +148,7 @@ stages:
 .test_base:
   variables:
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
-    ROS_DISTRO: foxy
+    ROS_DISTRO: galactic
   stage: test
   image: $CI_REGISTRY_IMAGE/$ARCH/ade-$ROS_DISTRO:commit-$CI_COMMIT_SHA
   script:
@@ -196,7 +196,7 @@ stages:
   variables:
     DOCKER_DRIVER: overlay2
     RMW_IMPLEMENTATION: rmw_cyclonedds_cpp
-    ROS_DISTRO: foxy
+    ROS_DISTRO: galactic
     UBUNTU_DISTRO: focal
   stage: deploy
   image: docker
@@ -236,67 +236,67 @@ stages:
     - branches@autowarefoundation/autoware.auto/AutowareAuto
     - tags@autowarefoundation/autoware.auto/AutowareAuto
 
-gen_ros_deps_foxy:
-  image: ros:foxy
+gen_ros_deps_galactic:
+  image: ros:galactic
   extends: .gen_deps_base
 
-ade_amd64_foxy:
+ade_amd64_galactic:
   variables:
     ARCH: amd64
   extends: .ade_base
 
-ade_arm64_foxy:
+ade_arm64_galactic:
   extends:
     - .arm64
     - .ade_base
 
-build_barebones_amd64_foxy:
+build_barebones_amd64_galactic:
   variables:
     ARCH: amd64
   tags:
     - shared
   extends: .build_barebones_base
 
-build_barebones_arm64_foxy:
+build_barebones_arm64_galactic:
   extends:
     - .arm64
     - .build_barebones_base
 
-build_amd64_foxy:
+build_amd64_galactic:
   variables:
     ARCH: amd64
   tags:
     - shared
   extends: .build_base
   needs:
-    - job: ade_amd64_foxy
+    - job: ade_amd64_galactic
 
-build_arm64_foxy:
+build_arm64_galactic:
   extends:
     - .arm64
     - .build_base
   needs:
-    - job: ade_arm64_foxy
+    - job: ade_arm64_galactic
 
-test_amd64_foxy:
+test_amd64_galactic:
   variables:
     ARCH: amd64
   tags:
     - shared
   extends: .test_base
   needs:
-    - build_amd64_foxy
+    - build_amd64_galactic
 
-test_arm64_foxy:
+test_arm64_galactic:
   extends:
     - .arm64
     - .test_base
   needs:
-    - build_arm64_foxy
+    - build_arm64_galactic
 
 coverage:
   stage: test
-  image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
+  image: $CI_REGISTRY_IMAGE/amd64/ade-galactic:commit-$CI_COMMIT_SHA
   tags:
     - shared
   script:
@@ -318,11 +318,11 @@ coverage:
       - log
   coverage: /\s*lines.*:\s(\d+\.\d+\%\s\(\d+\sof\s\d+.*\))/
   needs:
-    - ade_amd64_foxy
+    - ade_amd64_galactic
 
 docs:
   stage: build
-  image: $CI_REGISTRY_IMAGE/amd64/ade-foxy:commit-$CI_COMMIT_SHA
+  image: $CI_REGISTRY_IMAGE/amd64/ade-galactic:commit-$CI_COMMIT_SHA
   script:
     - docs/.doxygen/build.py
   artifacts:
@@ -330,7 +330,7 @@ docs:
     paths:
       - docs/_build/html
   needs:
-    - ade_amd64_foxy
+    - ade_amd64_galactic
 
 pages:
   stage: deploy
@@ -348,16 +348,16 @@ pages:
     - coverage
     - docs
 
-volume_amd64_foxy:
+volume_amd64_galactic:
   variables:
     ARCH: amd64
   extends: .volume_base
   needs:
-    - test_amd64_foxy
+    - test_amd64_galactic
 
-volume_arm64_foxy:
+volume_arm64_galactic:
   extends:
     - .arm64
     - .volume_base
   needs:
-    - test_arm64_foxy
+    - test_arm64_galactic
