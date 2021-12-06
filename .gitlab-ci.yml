@@ -9,11 +9,8 @@ test_some_name1:
     - uname -a
     - echo $CI_JOB_NAME
     - ls -alF
-    - tree -L 1
-    - tree ../ -L 1
-    - tree ../../ -L 1
-    - tree ../../../ -L 1
-    - tree ../ -L 3
-    - cat .bashrc
+    - tree / -L 2
+    - printenv
+    - tree /opt/ros/galactic -L 2
   artifacts:
     name: "$CI_JOB_NAME"
