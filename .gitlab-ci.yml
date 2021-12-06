@@ -4,7 +4,7 @@ stages:
 test_some_name1:
   stage: test_entry
   script:
-    - apt-get update && apt-get install tree
+    - apt update && apt install tree
     - uname -a
     - echo $CI_JOB_NAME
     - ls -alF
