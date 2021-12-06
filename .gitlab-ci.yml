@@ -1,7 +1,7 @@
 stages:
   - test_entry
 
-.test_some_name1:
+test_some_name1:
   stage: test_entry
   script:
     - apt-get update && apt-get install tree
