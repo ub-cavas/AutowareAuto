@@ -2,6 +2,7 @@ stages:
   - test_entry
 
 test_some_name1:
+  image: ros:galactic
   stage: test_entry
   script:
     - apt update && apt install tree
