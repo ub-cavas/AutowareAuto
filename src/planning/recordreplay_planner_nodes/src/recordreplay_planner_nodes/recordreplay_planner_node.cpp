@@ -172,16 +172,27 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     m_odom_frame_id = msg->header.frame_id;
   }
 
+  Transform tf_map2odom;
+  State msg_world = *msg;
+  if (m_planner->is_recording() || m_planner->is_replaying()) {
+    tf_map2odom = tf_buffer_->lookupTransform(
+      recording_frame, "odom",
+      tf2::TimePointZero);
+    motion::motion_common::doTransform(*msg, msg_world, tf_map2odom);
+    msg_world.header.frame_id = recording_frame;
+  }
+
   if (m_planner->is_recording()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Recording ego position");
-    const auto added = m_planner->record_state(*msg);
+
+    const auto added = m_planner->record_state(msg_world);
 
     if (added) {
       // Publish visualization markers
       m_recorded_markers.markers.push_back(
         to_marker(
-          msg->state,
-          msg->header.frame_id,
+          msg_world.state,
+          msg_world.header.frame_id,
           static_cast<int>(m_planner->get_record_length()),
           "record"));
       m_trajectory_viz_pub->publish(m_recorded_markers);
@@ -195,8 +206,8 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 
   if (m_planner->is_replaying()) {
     RCLCPP_INFO_ONCE(this->get_logger(), "Replaying recorded ego postion as trajectory");
-    const auto & traj_raw = m_planner->plan(*msg);
-
+    const auto & traj_raw = m_planner->plan(msg_world);
+    RCLCPP_INFO(this->get_logger(), "replaying");
     // Request service to consider object collision if enabled
     if (m_modify_trajectory_client) {
       auto request = std::make_shared<ModifyTrajectory::Request>();
@@ -218,7 +229,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
       m_replaygoalhandle->publish_feedback(feedback_msg);
     }
 
-    if (m_planner->reached_goal(*msg, m_goal_distance_threshold_m, m_goal_angle_threshold_rad)) {
+    if (m_planner->reached_goal(msg_world, m_goal_distance_threshold_m, m_goal_angle_threshold_rad)) {
       m_replaygoalhandle->succeed(std::make_shared<ReplayTrajectory::Result>());
       m_planner->stop_replaying();
     }

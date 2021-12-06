@@ -132,6 +132,7 @@ private:
   bool m_enable_object_collision_estimator = false;
   float64_t m_goal_distance_threshold_m = {};
   float64_t m_goal_angle_threshold_rad;
+  std::string recording_frame = "map";
 };  // class RecordReplayPlannerNode
 }  // namespace recordreplay_planner_nodes
 }  // namespace planning
