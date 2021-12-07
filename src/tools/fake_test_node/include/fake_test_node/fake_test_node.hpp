@@ -173,6 +173,11 @@ public:
   inline rclcpp::Node::SharedPtr get_fake_node() {return m_fake_node;}
 
   ///
+  /// @brief      Sets the namespace to be used by the node.
+  ///
+  inline void set_namespace(const std::string & ns) {m_namespace = ns;}
+
+  ///
   /// @brief      Gets the tf buffer.
   ///
   /// @return     The tf buffer.
@@ -183,6 +188,7 @@ private:
   std::shared_ptr<rclcpp::Node> m_fake_node{nullptr};
   std::shared_ptr<tf2_ros::TransformListener> m_tf_listener{nullptr};
   tf2::BufferCore m_tf_buffer;
+  std::string m_namespace = "/";
 };
 
 ///

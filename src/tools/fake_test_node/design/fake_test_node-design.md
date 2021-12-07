@@ -64,3 +64,34 @@ TEST_F(FakeNodeFixture, Test) {
 
 Here only the `TEST_F` example is shown but a `TEST_P` usage is very similar with a little bit more
 boilerplate to set up all the parameter values, see `test_fake_test_node.cpp` for an example usage.
+
+## Using namespaces
+
+When a test relies on ROS communication,
+it becomes susceptibles to interferences comming from nodes outside of the tests
+(e.g., from other tests running in parallel).
+ROS namespaces can be used to isolate a test and ensure it will not be bothered by outside messages.
+In order to set the namespace for the `FakeTestNode`,
+it should be extended into a new class which sets the namespace in its constructor
+via the `set_namespace()` function. This new class can then be used as test fixture instead of the `FakeTestNode`.
+```C++
+class FakeNodeFixtureWithNamespace : public FakeTestNode
+{
+public:
+  FakeNodeFixtureWithNamespace() {set_namespace("/namespace");}
+};
+```
+
+The namespace also applies to the `tf` and `tf_static` topics.
+If you are testing a node that uses these topics (e.g., when the node uses a `TransformListener`),
+then it is important to use the following `NodeOptions` for the node.
+```C++
+  rclcpp::NodeOptions node_options;
+  node_options.arguments(
+    {"--ros-args",
+      // Set node namespace
+      "-r", "__ns:=/namespace"
+      // Remap tf and tf_static so that they use the node namespace
+      "-r", "/tf:=tf",
+      "-r", "/tf_static:=tf_static"});
+```

@@ -16,6 +16,7 @@
 #include <trajectory_follower_nodes/longitudinal_controller_node.hpp>
 
 #include <memory>
+#include <string>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
 #include "autoware_auto_planning_msgs/msg/trajectory.hpp"
@@ -30,6 +31,7 @@
 #include "rclcpp/time.hpp"
 #include "trajectory_follower_test_utils.hpp"
 
+
 using LongitudinalController =
   autoware::motion::control::trajectory_follower_nodes::LongitudinalController;
 using LongitudinalCommand = autoware_auto_control_msgs::msg::LongitudinalCommand;
@@ -39,15 +41,28 @@ using VehicleState = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
+constexpr char const * longitudinal_ns = "/test_longitudinal_controller_node";
+class LongitudinalFakeNodeFixture : public FakeNodeFixture
+{
+public:
+  LongitudinalFakeNodeFixture() {set_namespace(std::string(longitudinal_ns));}
+};
+
 std::shared_ptr<LongitudinalController> makeLongitudinalNode()
 {
   // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
-    {"--ros-args", "--params-file", share_dir + "/param/longitudinal_controller_defaults.yaml"});
-  std::shared_ptr<LongitudinalController> node = std::make_shared<LongitudinalController>(
-    node_options);
+    {"--ros-args",
+      // Pass default parameter file to the node
+      "--params-file", share_dir + "/param/longitudinal_controller_defaults.yaml",
+      // Set node namespace
+      "-r", "__ns:=" + std::string(longitudinal_ns),
+      // Remap tf and tf_static so that they use the node namespace
+      "-r", "/tf:=tf", "-r", "/tf_static:=tf_static"});
+  std::shared_ptr<LongitudinalController> node =
+    std::make_shared<LongitudinalController>(node_options);
 
   // Enable all logging in the node
   auto ret = rcutils_logging_set_logger_level(
@@ -57,8 +72,7 @@ std::shared_ptr<LongitudinalController> makeLongitudinalNode()
 }
 
 
-// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_keep_velocity) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -97,6 +111,8 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 0.0;
   point.pose.position.y = 0.0;
@@ -126,7 +142,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_keep_velocity) {
   EXPECT_DOUBLE_EQ(cmd_msg->acceleration, 0.0);
 }
 
-TEST_F(FakeNodeFixture, longitudinal_slow_down) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_slow_down) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -165,6 +181,8 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 0.0;
   point.pose.position.y = 0.0;
@@ -194,8 +212,7 @@ TEST_F(FakeNodeFixture, longitudinal_slow_down) {
   EXPECT_LT(cmd_msg->acceleration, 0.0f);
 }
 
-// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_accelerate) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -234,6 +251,8 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
   state_pub->publish(state);
   // Publish non stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 0.0;
   point.pose.position.y = 0.0;
@@ -263,7 +282,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_accelerate) {
   EXPECT_GT(cmd_msg->acceleration, 0.0f);
 }
 
-TEST_F(FakeNodeFixture, longitudinal_stopped) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_stopped) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -302,6 +321,8 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   state_pub->publish(state);
   // Publish stopping trajectory
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 0.0;
   point.pose.position.y = 0.0;
@@ -323,8 +344,7 @@ TEST_F(FakeNodeFixture, longitudinal_stopped) {
   EXPECT_LT(cmd_msg->acceleration, 0.0f);  // when stopped negative acceleration to brake
 }
 
-// TODO(Maxime CLEMENT): disabled as this test is flaky in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_reverse) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -363,6 +383,8 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
   state_pub->publish(state);
   // Publish reverse
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 0.0;
   point.pose.position.y = 0.0;
@@ -384,7 +406,7 @@ TEST_F(FakeNodeFixture, DISABLED_longitudinal_reverse) {
   EXPECT_GT(cmd_msg->acceleration, 0.0f);
 }
 
-TEST_F(FakeNodeFixture, longitudinal_emergency) {
+TEST_F(LongitudinalFakeNodeFixture, longitudinal_emergency) {
   // Data to test
   LongitudinalCommand::SharedPtr cmd_msg;
   bool received_longitudinal_command = false;
@@ -423,6 +445,8 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
   state_pub->publish(state);
   // Publish trajectory starting away from the current ego pose
   Trajectory traj;
+  traj.header.stamp = node->now();
+  traj.header.frame_id = "map";
   TrajectoryPoint point;
   point.pose.position.x = 10.0;
   point.pose.position.y = 0.0;
@@ -446,7 +470,7 @@ TEST_F(FakeNodeFixture, longitudinal_emergency) {
 }
 
 // TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
+TEST_F(LongitudinalFakeNodeFixture, DISABLED_longitudinal_set_param_smoke_test)
 {
   // Node
   std::shared_ptr<LongitudinalController> node = makeLongitudinalNode();

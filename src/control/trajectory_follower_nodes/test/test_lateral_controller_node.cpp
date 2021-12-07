@@ -16,6 +16,8 @@
 #include <trajectory_follower_nodes/lateral_controller_node.hpp>
 
 #include <memory>
+#include <stdexcept>
+#include <string>
 #include <vector>
 
 #include "ament_index_cpp/get_package_share_directory.hpp"
@@ -41,14 +43,27 @@ using VehicleKinematicState = autoware_auto_vehicle_msgs::msg::VehicleKinematicS
 using FakeNodeFixture = autoware::tools::testing::FakeTestNode;
 
 const rclcpp::Duration one_second(1, 0);
+constexpr char const * lateral_ns = "/test_lateral_controller_node";
+class FakeNodeFixtureWithNamespace : public FakeNodeFixture
+{
+public:
+  FakeNodeFixtureWithNamespace() {set_namespace(std::string(lateral_ns));}
+};
 
 std::shared_ptr<LateralController> makeLateralNode()
 {
-  // Pass default parameter file to the node
   const auto share_dir = ament_index_cpp::get_package_share_directory("trajectory_follower_nodes");
   rclcpp::NodeOptions node_options;
   node_options.arguments(
-    {"--ros-args", "--params-file", share_dir + "/param/lateral_controller_defaults.yaml"});
+    {"--ros-args",
+      // Pass default parameter file to the node
+      "--params-file",
+      share_dir + "/param/lateral_controller_defaults.yaml",
+      // Set node namespace
+      "-r", "__ns:=" + std::string(lateral_ns),
+      // Remap tf and tf_static so that they use the node namespace
+      "-r", "/tf:=tf",
+      "-r", "/tf_static:=tf_static"});
   std::shared_ptr<LateralController> node = std::make_shared<LateralController>(node_options);
 
   // Enable all logging in the node
@@ -58,7 +73,7 @@ std::shared_ptr<LateralController> makeLateralNode()
   return node;
 }
 
-TEST_F(FakeNodeFixture, no_input)
+TEST_F(FakeNodeFixtureWithNamespace, no_input)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -81,14 +96,14 @@ TEST_F(FakeNodeFixture, no_input)
   std::shared_ptr<tf2_ros::StaticTransformBroadcaster> br =
     std::make_shared<tf2_ros::StaticTransformBroadcaster>(this->get_fake_node());
 
-  // No published data: expect a stopped command
-  test_utils::waitForMessage(node, this, received_lateral_command);
-  ASSERT_TRUE(received_lateral_command);
-  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
-  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
+  // No published data: no command published
+  ASSERT_THROW(
+    test_utils::waitForMessage(node, this, received_lateral_command, std::chrono::seconds{2}),
+    std::runtime_error);
+  ASSERT_FALSE(received_lateral_command);
 }
 
-TEST_F(FakeNodeFixture, empty_trajectory)
+TEST_F(FakeNodeFixtureWithNamespace, empty_trajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -119,20 +134,21 @@ TEST_F(FakeNodeFixture, empty_trajectory)
   Trajectory traj_msg;
   VehicleKinematicState state_msg;
   traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   state_msg.header.stamp = node->now();
   state_msg.state.longitudinal_velocity_mps = 0.0;
   state_msg.state.front_wheel_angle_rad = 0.0;
   traj_pub->publish(traj_msg);
   state_pub->publish(state_msg);
 
-  test_utils::waitForMessage(node, this, received_lateral_command);
-  ASSERT_TRUE(received_lateral_command);
-  EXPECT_EQ(cmd_msg->steering_tire_angle, 0.0f);
-  EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
+  // No published data: no command published
+  ASSERT_THROW(
+    test_utils::waitForMessage(node, this, received_lateral_command, std::chrono::seconds{2}),
+    std::runtime_error);
+  ASSERT_FALSE(received_lateral_command);
 }
 
-TEST_F(FakeNodeFixture, straight_trajectory)
+TEST_F(FakeNodeFixtureWithNamespace, straight_trajectory)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -161,12 +177,17 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   br->sendTransform(transform);
   // Straight trajectory: expect no steering
   received_lateral_command = false;
-  Trajectory traj_msg;
   VehicleKinematicState state_msg;
+  state_msg.header.stamp = node->now();
+  state_msg.state.longitudinal_velocity_mps = 1.0;
+  state_msg.state.front_wheel_angle_rad = 0.0;
+  state_pub->publish(state_msg);
+  Trajectory traj_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
-  p.pose.position.x = -1.0;
-  p.pose.position.y = 0.0;
+  traj_msg.header.frame_id = "map";
+  p.pose.position.x = -1.0f;
+  p.pose.position.y = 0.0f;
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   p.pose.position.x = 0.0;
@@ -182,10 +203,6 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   p.longitudinal_velocity_mps = 1.0f;
   traj_msg.points.push_back(p);
   traj_pub->publish(traj_msg);
-  state_msg.header.stamp = node->now();
-  state_msg.state.longitudinal_velocity_mps = 1.0;
-  state_msg.state.front_wheel_angle_rad = 0.0;
-  state_pub->publish(state_msg);
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
@@ -194,7 +211,7 @@ TEST_F(FakeNodeFixture, straight_trajectory)
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, right_turn)
+TEST_F(FakeNodeFixtureWithNamespace, right_turn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -224,6 +241,8 @@ TEST_F(FakeNodeFixture, right_turn)
   // Right turning trajectory: expect right steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -251,14 +270,12 @@ TEST_F(FakeNodeFixture, right_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_LT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_LT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, left_turn)
+TEST_F(FakeNodeFixtureWithNamespace, left_turn)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -288,6 +305,8 @@ TEST_F(FakeNodeFixture, left_turn)
   // Left turning trajectory: expect left steering
   received_lateral_command = false;
   Trajectory traj_msg;
+  traj_msg.header.stamp = node->now();
+  traj_msg.header.frame_id = "map";
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
@@ -315,14 +334,12 @@ TEST_F(FakeNodeFixture, left_turn)
 
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_GT(cmd_msg->steering_tire_angle, 0.0f);
   EXPECT_GT(cmd_msg->steering_tire_rotation_rate, 0.0f);
-  */
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
-TEST_F(FakeNodeFixture, stopped)
+TEST_F(FakeNodeFixtureWithNamespace, stopped)
 {
   // Data to test
   LateralCommand::SharedPtr cmd_msg;
@@ -355,8 +372,9 @@ TEST_F(FakeNodeFixture, stopped)
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.header.stamp = node->now();
-  p.pose.position.x = -1.0;
-  p.pose.position.y = 0.0;
+  traj_msg.header.frame_id = "map";
+  p.pose.position.x = -1.0f;
+  p.pose.position.y = 0.0f;
   // Set a 0 current velocity and 0 target velocity -> stopped state
   p.longitudinal_velocity_mps = 0.0f;
   traj_msg.points.push_back(p);
@@ -381,15 +399,13 @@ TEST_F(FakeNodeFixture, stopped)
   test_utils::waitForMessage(node, this, received_lateral_command);
   ASSERT_TRUE(received_lateral_command);
   // when stopped we expect a command that do not change the current state
-  /* TODO (Maxime CLEMENT): these tests fail only in the Autoware.auto CI (not on forks or locally)
   EXPECT_EQ(cmd_msg->steering_tire_angle, state_msg.state.front_wheel_angle_rad);
-  */
   EXPECT_EQ(cmd_msg->steering_tire_rotation_rate, 0.0f);
   EXPECT_GT(rclcpp::Time(cmd_msg->stamp), rclcpp::Time(traj_msg.header.stamp));
 }
 
 // TODO(Maxime CLEMENT): disabled as this test crashes in the CI but works locally
-TEST_F(FakeNodeFixture, DISABLED_set_lateral_param_smoke_test)
+TEST_F(FakeNodeFixtureWithNamespace, DISABLED_set_lateral_param_smoke_test)
 {
   // Node
   std::shared_ptr<LateralController> node = makeLateralNode();
