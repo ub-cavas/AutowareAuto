@@ -60,7 +60,7 @@ The following adaptations have been made:
 - Heading angle with respect to a (fixed) intertial frame is included in the state vector
 - Acceleration is included as a state variable, and assumed to act directly on longitudinal
 acceleration
-- Jerk and wheel angle turn rate were used as the control control inputs
+- Acceleration and wheel angle were used as the control inputs
 
 These adaptations were made for the following reasons:
 - To support acceleration and deceleration trajectories

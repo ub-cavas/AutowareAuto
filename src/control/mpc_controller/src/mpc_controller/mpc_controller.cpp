@@ -54,8 +54,8 @@ constexpr auto IDX_VEL_LONG = 3U;
 // Control variable indices
 static_assert(ACADO_NU == 2, "Unexpected num of control variables");
 constexpr auto NU = static_cast<std::size_t>(ACADO_NU);
-constexpr auto IDX_JERK = 0U;
-constexpr auto IDX_WHEEL_ANGLE_RATE = 1U;
+constexpr auto IDX_ACCEL = 0U;
+constexpr auto IDX_WHEEL_ANGLE = 1U;
 
 constexpr std::chrono::nanoseconds MpcController::solver_time_step;
 
@@ -209,11 +209,11 @@ Command MpcController::interpolated_command(const std::chrono::nanoseconds x0_ti
     ret.rear_wheel_angle_rad = {};
     // interpolation
     const auto idx = count * ACADO_NU;
-    const auto longitudinal0 = static_cast<Real>(acadoVariables.u[idx + IDX_JERK]);
-    const auto lateral0 = static_cast<Real>(acadoVariables.u[idx + IDX_WHEEL_ANGLE_RATE]);
+    const auto longitudinal0 = static_cast<Real>(acadoVariables.u[idx + IDX_ACCEL]);
+    const auto lateral0 = static_cast<Real>(acadoVariables.u[idx + IDX_WHEEL_ANGLE]);
     const auto jdx = (count + 1U) * ACADO_NU;
-    const auto longitudinal1 = static_cast<Real>(acadoVariables.u[jdx + IDX_JERK]);
-    const auto lateral1 = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE_RATE]);
+    const auto longitudinal1 = static_cast<Real>(acadoVariables.u[jdx + IDX_ACCEL]);
+    const auto lateral1 = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE]);
     ret.front_wheel_angle_rad = motion_common::interpolate(lateral0, lateral1, t);
     ret.long_accel_mps2 = motion_common::interpolate(longitudinal0, longitudinal1, t);
     ret.velocity_mps = acadoVariables.x[(idx * NX) + IDX_VEL_LONG];
@@ -241,8 +241,8 @@ const MpcController::Trajectory & MpcController::get_computed_trajectory() const
     const auto heading = static_cast<Real>(acadoVariables.x[idx + IDX_HEADING]);
     pt.pose.orientation = motion_common::from_angle(heading);
     const auto jdx = NU * i;
-    pt.acceleration_mps2 = static_cast<Real>(acadoVariables.u[jdx + IDX_JERK]);
-    pt.heading_rate_rps = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE_RATE]);
+    pt.acceleration_mps2 = static_cast<Real>(acadoVariables.u[jdx + IDX_ACCEL]);
+    pt.heading_rate_rps = static_cast<Real>(acadoVariables.u[jdx + IDX_WHEEL_ANGLE]);
   }
   return m_computed_trajectory;
 }
@@ -251,8 +251,8 @@ const MpcController::Trajectory & MpcController::get_computed_trajectory() const
 ControlDerivatives MpcController::get_computed_control_derivatives() const noexcept
 {
   // return ControlDerivatives{
-  //   static_cast<Real>(acadoVariables.u[IDX_JERK]),
-  //   static_cast<Real>(acadoVariables.u[IDX_WHEEL_ANGLE_RATE])};
+  //   static_cast<Real>(acadoVariables.u[IDX_ACCEL]),
+  //   static_cast<Real>(acadoVariables.u[IDX_WHEEL_ANGLE])};
   return ControlDerivatives{{}, {}};
 }
 
