@@ -42,6 +42,9 @@
   <exec_depend>tracking_nodes</exec_depend>
   <exec_depend>velodyne_nodes</exec_depend>
   <exec_depend>voxel_grid_nodes</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>navigation2</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>

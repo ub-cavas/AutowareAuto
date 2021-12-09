@@ -25,6 +25,7 @@ ament_auto_find_build_dependencies()
 ament_auto_package(
     INSTALL_TO_SHARE
     config/rviz2
+    config/urdf
     data
     launch
     param
