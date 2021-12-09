@@ -219,7 +219,7 @@ LgsvlInterface::LgsvlInterface(
       // state_report.set__mode();  // no mode status from LGSVL
       state_report.set__hand_brake(msg->parking_brake_active);
       // state_report.set__horn()  // no horn status from LGSVL
-      on_state_report(state_report);
+      this->state_report() = state_report;
     });
 
   m_veh_odom_sub = node.create_subscription<lgsvl_msgs::msg::VehicleOdometry>(
@@ -560,20 +560,6 @@ void LgsvlInterface::on_gear_report(
   }
 
   gear_report() = corrected_report;
-}
-
-void LgsvlInterface::on_state_report(
-  const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg)
-{
-  auto corrected_report = msg;
-
-  // Correcting blinker value, they are shifted up by one,
-  // as the first value BLINKER_NO_COMMAND does not exisit in LGSVL
-  // not setting  VSC::BLINKER_NO_COMMAND, when get.state_report.blinker == msg.blinker
-  // instead reporting true blinker status
-  corrected_report.blinker++;
-
-  state_report() = corrected_report;
 }
 
 }  // namespace lgsvl_interface

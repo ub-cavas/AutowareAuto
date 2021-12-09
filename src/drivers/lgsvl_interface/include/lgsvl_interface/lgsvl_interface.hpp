@@ -154,9 +154,6 @@ private:
   // store gear_report with gear value correction
   void on_gear_report(const autoware_auto_vehicle_msgs::msg::GearReport & msg);
 
-  // store state_report with blinker value correction
-  void on_state_report(const autoware_auto_vehicle_msgs::msg::VehicleStateReport & msg);
-
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleControlData>::SharedPtr m_cmd_pub{};
   rclcpp::Publisher<lgsvl_msgs::msg::VehicleStateData>::SharedPtr m_state_pub{};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
