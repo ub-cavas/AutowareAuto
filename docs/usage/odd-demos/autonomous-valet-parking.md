@@ -62,7 +62,7 @@ ade$ /opt/lgsvl/simulator &
 ```{bash}
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 launch autoware_auto_launch autoware_auto_visualization.launch.py
-```    
+```
 @warning If starting the simulation immediately by pressing the play button in the LGSVL web GUI,
 the Autoware.Auto stack will emit warnings and error messages upon launch until localization is
 initialized (see section below). To avoid that, do not start the simulation yet; i.e., do not press
