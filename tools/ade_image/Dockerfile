@@ -78,8 +78,10 @@ COPY gdbinit /etc/gdb/
 # Install a browser. Needed to configure SVL simulator
 RUN if [ "$(uname -m)" = "x86_64" ]; then \
         curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
+        apt-get update && \
         apt-get install -y ./google-chrome-stable_current_amd64.deb && \
-        rm google-chrome-stable_current_amd64.deb; \
+        rm google-chrome-stable_current_amd64.deb && \
+        rm -rf /var/lib/apt/lists/*; \
     fi 
 
 
