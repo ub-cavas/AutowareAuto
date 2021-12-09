@@ -12,4 +12,5 @@
       is_delay_compensation:           false
       emergency_stop_distance:         0.1
       speed_thres_traveling_direction: 0.3
+      max_acceleration:                10.0
       dist_front_rear_wheels:          2.7

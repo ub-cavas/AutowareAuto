@@ -342,8 +342,11 @@ float32_t PurePursuit::compute_command_accel_mps(
     (target_velocity * target_velocity) -
     (current_point.longitudinal_velocity_mps * current_point.longitudinal_velocity_mps)) /
     (2.0F * distance);
+  const float32_t abs_accel_limited =
+    (abs_accel < m_config.get_max_acceleration()) ? abs_accel : m_config.get_max_acceleration();
   const float32_t accel_meter =
-    ((target_velocity - current_point.longitudinal_velocity_mps) > 0.0F) ? abs_accel : -abs_accel;
+    ((target_velocity - current_point.longitudinal_velocity_mps) > 0.0F) ?
+    abs_accel_limited : -abs_accel_limited;
   return accel_meter;
 }
 }  // namespace pure_pursuit

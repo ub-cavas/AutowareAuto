@@ -5,11 +5,12 @@
   ros__parameters:
     timeout_ms:                  20
     controller:
-      minimum_lookahead_distance:      1.0
-      maximum_lookahead_distance:      4.0
+      minimum_lookahead_distance:      3.0
+      maximum_lookahead_distance:      5.0
       speed_to_lookahead_ratio:        0.5
       is_interpolate_lookahead_point:  true
       is_delay_compensation:           false
       emergency_stop_distance:         0.1
       speed_thres_traveling_direction: 0.3
+      maximum_acceleration:            3.0
       dist_front_rear_wheels:          0.3

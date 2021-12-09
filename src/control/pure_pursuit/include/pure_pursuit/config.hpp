@@ -48,6 +48,8 @@ public:
   /// \param[in] emergency_stop_distance The emergency stop distance for the emergency stop
   /// \param[in] speed_thres_traveling_direction The speed threshold for
   ///            determining the traveling direction
+  /// \param[in] max_acceleration The speed threshold for
+  ///            determining the traveling direction
   /// \param[in] distance_front_rear_wheel The distance between front and rear wheels
   Config(
     const float32_t minimum_lookahead_distance,
@@ -57,6 +59,7 @@ public:
     const bool8_t is_delay_compensation,
     const float32_t emergency_stop_distance,
     const float32_t speed_thres_traveling_direction,
+    const float32_t max_acceleration,
     const float32_t distance_front_rear_wheel);
   /// \brief Gets the minimum lookahead distance for the pure pursuit
   /// \return Fixed value
@@ -82,6 +85,9 @@ public:
   /// \brief Gets the distance between front and rear wheels
   /// \return Fixed value
   float32_t get_distance_front_rear_wheel() const noexcept;
+  /// \brief Gets the distance between front and rear wheels
+  /// \return Fixed value
+  float32_t get_max_acceleration() const noexcept;
 
 private:
   float32_t m_minimum_lookahead_distance;
@@ -91,6 +97,7 @@ private:
   bool8_t m_is_delay_compensation;
   float32_t m_emergency_stop_distance;
   float32_t m_speed_thres_traveling_direction;
+  float32_t m_max_acceleration;
   float32_t m_distance_front_rear_wheel;
 };  // class Config
 }  // namespace pure_pursuit

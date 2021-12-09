@@ -34,6 +34,7 @@ Config::Config(
   const bool8_t is_delay_compensation,
   const float32_t emergency_stop_distance,
   const float32_t speed_thres_traveling_direction,
+  const float32_t max_acceleration,
   const float32_t distance_front_rear_wheel)
 : m_minimum_lookahead_distance(minimum_lookahead_distance),
   m_maximum_lookahead_distance(maximum_lookahead_distance),
@@ -42,6 +43,7 @@ Config::Config(
   m_is_delay_compensation(is_delay_compensation),
   m_emergency_stop_distance(emergency_stop_distance),
   m_speed_thres_traveling_direction(speed_thres_traveling_direction),
+  m_max_acceleration(max_acceleration),
   m_distance_front_rear_wheel(distance_front_rear_wheel)
 {
   if (m_minimum_lookahead_distance <= 0.0F) {
@@ -63,6 +65,11 @@ Config::Config(
   if (m_distance_front_rear_wheel < 0.0F) {
     throw std::domain_error(
             "pure_pursuit::Config: distance_front_rear_wheel is lower than 0");
+  }
+  if (m_max_acceleration < 0.0F)
+  {
+    throw std::domain_error(
+            "pure_pursuit::Config: max_acceleration is lower than 0");
   }
 }
 ////////////////////////////////////////////////////////////////////////////////
@@ -104,6 +111,11 @@ float32_t Config::get_speed_thres_traveling_direction() const noexcept
 float32_t Config::get_distance_front_rear_wheel() const noexcept
 {
   return m_distance_front_rear_wheel;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t Config::get_max_acceleration() const noexcept
+{
+  return m_max_acceleration;
 }
 }  // namespace pure_pursuit
 }  // namespace control

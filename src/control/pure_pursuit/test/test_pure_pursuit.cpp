@@ -116,18 +116,19 @@ void create_current_pose(
 
 TEST_F(PurePursuitTest, Config)
 {
-  EXPECT_THROW(Config(0.0F, 1.0F, 0.2F, true, true, 2.0F, 0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(-1.0F, 1.0F, 0.2F, true, true, 2.0F, 0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(10.0F, -1.0F, 0.2F, true, true, 2.0F, 0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(10.0F, 1.0F, -1.0F, true, true, 2.0F, 0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, -1.0F, 0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, 1.0F, -0.1F, 2.0F), std::domain_error);
-  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, 1.0F, 0.1F, -2.0F), std::domain_error);
+  EXPECT_THROW(Config(0.0F, 1.0F, 0.2F, true, true, 2.0F, 0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(-1.0F, 1.0F, 0.2F, true, true, 2.0F, 0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, -1.0F, 0.2F, true, true, 2.0F, 0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, 1.0F, -1.0F, true, true, 2.0F, 0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, -1.0F, 0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, 1.0F, -0.1F, 30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, 1.0F, 0.1F, -30.0F, 2.0F), std::domain_error);
+  EXPECT_THROW(Config(10.0F, 1.0F, 0.2F, true, true, 1.0F, 0.1F, 30.0F, -2.0F), std::domain_error);
 }
 
 TEST_F(PurePursuitTest, Simple)
 {
-  const Config cfg(0.5F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 2.0F);
+  const Config cfg(0.5F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 30.0F, 2.0F);
   PurePursuit controller(cfg);
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
@@ -165,7 +166,7 @@ TEST_F(PurePursuitTest, Simple)
 
 TEST_F(PurePursuitTest, Reverse)
 {
-  const Config cfg(0.5F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 2.0F);
+  const Config cfg(0.5F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 30.0F, 2.0F);
   PurePursuit controller(cfg);
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
@@ -205,7 +206,7 @@ TEST_F(PurePursuitTest, Reverse)
 
 TEST_F(PurePursuitTest, Interpolation)
 {
-  const Config cfg(0.4F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 2.0F);
+  const Config cfg(0.4F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 30.0F,  2.0F);
   PurePursuit controller(cfg);
   const float32_t dist_front_rear_wheels = cfg.get_distance_front_rear_wheel();
 
@@ -242,7 +243,7 @@ TEST_F(PurePursuitTest, Interpolation)
 
 TEST_F(PurePursuitTest, ReplaceShortTrajectory)
 {
-  const Config cfg(100.0F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 2.0F);
+  const Config cfg(100.0F, 100.0F, 0.2F, false, false, 2.0F, 0.1F, 30.0F, 2.0F);
   PurePursuit controller(cfg);
 
   create_traj(traj, 50);

@@ -50,7 +50,7 @@ protected:
     }
   }
   // 200 ms lookahead horizon, 2m wheelbase length
-  Config cfg_{0.5F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 2.0F};
+  Config cfg_{0.5F, 100.0F, 0.2F, true, false, 2.0F, 0.1F, 30.0F, 2.0F};
   PurePursuit controller_{cfg_};
 };  // sanity checks
 

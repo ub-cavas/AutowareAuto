@@ -55,6 +55,8 @@ PurePursuitNode::PurePursuitNode(
     static_cast<float32_t>(declare_parameter(
       "controller.speed_thres_traveling_direction").get<float64_t>()),
     static_cast<float32_t>(declare_parameter(
+      "controller.maximum_acceleration").get<float64_t>()),
+    static_cast<float32_t>(declare_parameter(
       "controller.dist_front_rear_wheels").get<float64_t>())};
   set_controller(std::make_unique<pure_pursuit::PurePursuit>(cfg));
 }
