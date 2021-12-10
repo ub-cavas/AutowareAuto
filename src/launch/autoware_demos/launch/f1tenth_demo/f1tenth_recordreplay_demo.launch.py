@@ -22,6 +22,13 @@ def generate_launch_description():
         description='Launch RVIZ2 with the specified config file'
     )
 
+    map_file_path = os.path.join(autoware_demos_pkg_prefix, 'data/red_bull_ring_racetrack.yaml')
+    map_file = DeclareLaunchArgument(
+        'map',
+        default_value=map_file_path,
+        description='Path to 2D map config file'
+    )
+
     # Nodes
     vehicle_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -34,7 +41,10 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(autoware_demos_pkg_prefix,
                          'launch/f1tenth_demo/f1tenth_localization.launch.py'),
-        )
+        ),
+        launch_arguments={
+            'map': LaunchConfiguration('map')
+        }.items()
     )
 
     planning_launch = IncludeLaunchDescription(
@@ -52,6 +62,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        map_file,
         vehicle_launch,
         localization_launch,
         planning_launch,
