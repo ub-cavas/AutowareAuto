@@ -7,10 +7,11 @@ F1Tenth Demonstration {#f1tenth-demo}
 
 ## Launching the simulator
 Launch the simulator by
-```
+
+```{bash}
 $ cd ~/adehome/AutowareAuto
 
-# If you are using a joystick, add `-- --device /dev/input/js0`
+# If you are using a joystick, add '-- --device /dev/input/js0'
 $ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 
 ade$ /opt/lgsvl/simulator
@@ -28,7 +29,7 @@ Adding a map to your library:
 
 @image html images/f1tenth-svl-map.png "Choosing a map" width=50%
 
-### Configuring a vehicle {#lgsvl-configuring-vehicle}
+### Configuring a vehicle {#f1tenth-lgsvl-configuring-vehicle}
 
 The goal is to add `F1TenthCar` vehicle to your library. If this vehicle is already in your library then nothing needs to be done.
 
@@ -77,10 +78,10 @@ You can visit [SVL documentation](https://www.svlsimulator.com/docs/user-interfa
 F1Tenth is currently developed under the `f1tenth-devel` branch of Autoware.Auto. This step won’t be necessary once the [issue](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1317) is resolved.
 
 ```{bash}
+$ cd adehome/AutowareAuto
 
 # start ade
-# If you are using a joystick, add `-- --device /dev/input/js0`
-$ cd adehome/AutowareAuto
+# If you are using a joystick, add '-- --device /dev/input/js0'
 $ ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 
 # build autoware
@@ -107,8 +108,7 @@ Skip this step if you want to use redbull_ring_racetrack. The map is already pro
 $ ade enter
 ade$ source AutowareAuto/install/setup.bash
 
-# Optional arguments:
-#   `with_joy:=True` to drive vehicle using joystick
+# add 'with_joy:=True' to drive vehicle using joystick
 ade$ ros2 launch autoware_demos f1tenth_mapping_demo.launch.py
 ```
 
@@ -133,16 +133,14 @@ After saving maps, stop mapping nodes by pressing `Ctrl+C`
 $ ade enter
 ade$ source AutowareAuto/install/setup.bash
 
-# Optional arguments:
-#   `with_joy:=True` to drive vehicle using joystick
-#   `map:=/path/to/map.yaml` to select your original map
-
+# add 'with_joy:=True' to drive vehicle using joystick
+# add 'map:=/path/to/map.yaml' to select your original map
 ade$ ros2 launch autoware_demos f1tenth_recordreplay_demo.launch.py
 ```
 
 Set a intial pose with correct orientation in Rviz using `2D pose estimate`
 
-```
+```{bash}
 # (Terminal 2)
 ade$ source /opt/AutowareAuto/setup.bash
 ade$ ros2 action send_goal /planning/recordtrajectory autoware_auto_planning_msgs/action/RecordTrajectory "{record_path: "/tmp/path"}" --feedback
@@ -155,8 +153,7 @@ In LGSVL, drive around the vehicle and stop recording with Ctrl + C in terminal 
 (Terminal 1)
 ade$ source /opt/AutowareAuto/setup.bash
 
-# Optional arguments:
-#   `map:=/path/to/map.yaml` to select your original map
+# add 'map:=/path/to/map.yaml' to select your original map
 ade$ ros2 launch autoware_demos f1tenth_recordreplay_demo.launch.py
 ```
 
