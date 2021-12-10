@@ -14,6 +14,7 @@ vehicle sensors and systems crucial to autonomous driving or to external simulat
 - @subpage ssc_interface-package-design
 - @subpage velodyne-driver-design
 - @subpage velodyne-nodes-design
+- @subpage vesc_interface-package-design
 
 Vehicle Interface Design
 - @subpage vehicle-interface-high-level-design

@@ -19,3 +19,7 @@ repositories:
     type: git
     url: https://github.com/lgsvl/svl_robot_bringup
     version: master
+  src/external/vesc:
+    type: git
+    url: https://github.com/f1tenth/vesc
+    version: ros2
