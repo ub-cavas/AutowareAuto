@@ -333,7 +333,7 @@ TEST_F(EmergencyHandlerNodeTest, clear_emergency_service)
   auto result_future = client->async_send_request(request);
 
   // Wait for the result to be returned
-  while (result_future.wait_for(100ms) == std::future_status::timeout) {
+  while (result_future.wait_for(0ms) == std::future_status::timeout) {
     executor->spin_some(10ms);
   }
 
@@ -360,7 +360,12 @@ TEST_F(EmergencyHandlerNodeTest, clear_emergency_service_no_input_data)
   auto request = std::make_shared<std_srvs::srv::Trigger::Request>();
   auto result_future = client->async_send_request(request);
 
-  EXPECT_ANY_THROW(executor->spin_some(100ms));
+  EXPECT_ANY_THROW(
+  {
+    while (result_future.wait_for(0ms) == std::future_status::timeout) {
+      executor->spin_some(10ms);
+    }
+  });
 }
 
 TEST_F(EmergencyHandlerNodeTest, input_data_timeout_no_input_data)
