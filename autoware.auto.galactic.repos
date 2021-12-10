@@ -7,6 +7,10 @@ repositories:
     type: git
     url: https://gitlab.com/autowarefoundation/autoware.auto/casadi_vendor.git
     version: e244158a3dd6d181c01bd756b3603a39a09107e9
+  src/external/grid_map:
+    type: git
+    url: https://github.com/ANYbotics/grid_map.git
+    version: 7afca6c8314bd3016dc974541aecca3ed39ccab0
   src/external/raptor_dbw_ros2:
     type: git
     url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
