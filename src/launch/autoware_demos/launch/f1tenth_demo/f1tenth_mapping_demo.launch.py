@@ -24,6 +24,12 @@ def generate_launch_description():
         description="Path to config file for mapping nodes",
     )
 
+    with_joy_param = DeclareLaunchArgument(
+        'with_joy',
+        default_value='False',
+        description='Launch joystick_interface in addition to other nodes'
+    )
+
     rviz_cfg_path = os.path.join(autoware_demos_pkg_prefix,
                                  'rviz2', 'f1tenth.rviz')
     rviz_cfg_path_param = DeclareLaunchArgument(
@@ -37,7 +43,10 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             os.path.join(autoware_demos_pkg_prefix,
                          'launch/f1tenth_demo/f1tenth_vehicle.launch.py'),
-        )
+        ),
+        launch_arguments={
+            'with_joy': LaunchConfiguration('with_joy'),
+        }.items()
     )
 
     slam_launch = IncludeLaunchDescription(
@@ -58,6 +67,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        with_joy_param,
         mapping_param,
         rviz_cfg_path_param,
         vehicle_launch,

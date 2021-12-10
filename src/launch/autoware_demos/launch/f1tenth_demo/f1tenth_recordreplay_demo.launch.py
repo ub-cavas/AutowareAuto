@@ -29,12 +29,21 @@ def generate_launch_description():
         description='Path to 2D map config file'
     )
 
+    with_joy_param = DeclareLaunchArgument(
+        'with_joy',
+        default_value='False',
+        description='Launch joystick_interface in addition to other nodes'
+    )
+
     # Nodes
     vehicle_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(autoware_demos_pkg_prefix,
                          'launch/f1tenth_demo/f1tenth_vehicle.launch.py'),
-        )
+        ),
+        launch_arguments={
+            'with_joy': LaunchConfiguration('with_joy'),
+        }.items()
     )
 
     localization_launch = IncludeLaunchDescription(
@@ -62,6 +71,7 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        with_joy_param,
         map_file,
         vehicle_launch,
         localization_launch,
