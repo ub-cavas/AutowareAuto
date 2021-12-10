@@ -2,6 +2,6 @@ export ADE_DOCKER_RUN_ARGS="--cap-add=SYS_PTRACE --net=host -v ${HOME}/.Xauthori
 export ADE_GITLAB=gitlab.com
 export ADE_REGISTRY=registry.gitlab.com
 export ADE_IMAGES="
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/arm64/ade-foxy:master
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/arm64/binary-foxy:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/arm64/ade-galactic:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/arm64/binary-galactic:master
 "
