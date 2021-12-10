@@ -2,7 +2,7 @@ export ADE_DOCKER_RUN_ARGS="--cap-add=SYS_PTRACE --net=host --privileged --add-h
 export ADE_GITLAB=gitlab.com
 export ADE_REGISTRY=registry.gitlab.com
 export ADE_IMAGES="
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/ade-foxy:master
-  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/binary-foxy:master
-  registry.gitlab.com/autowarefoundation/autoware.auto/ade-lgsvl/foxy:2021.3
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/ade-galactic:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/autowareauto/amd64/binary-galactic:master
+  registry.gitlab.com/autowarefoundation/autoware.auto/ade-lgsvl/galactic:2021.3
 "
