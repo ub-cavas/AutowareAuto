@@ -22,7 +22,7 @@ namespace autoware
 {
 namespace vesc_interface
 {
-using VSC = autoware_auto_msgs::msg::VehicleStateCommand;
+using VSC = autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 VESCInterface::VESCInterface(
   rclcpp::Node & node,
   double speed_to_erpm_gain,
@@ -89,9 +89,18 @@ bool8_t VESCInterface::send_control_command(const VehicleControlCommand & msg)
   return false;
 }
 
+bool8_t VESCInterface::send_control_command(const AckermannControlCommand & msg)
+{
+  VehicleControlCommand vehicle_control_command_msg;
+  vehicle_control_command_msg.velocity_mps = msg.longitudinal.speed;
+  vehicle_control_command_msg.front_wheel_angle_rad = msg.lateral.steering_tire_angle;
+
+  return send_control_command(vehicle_control_command_msg);
+}
+
 /// TODO(jacobjj): Add comments
 bool8_t VESCInterface::handle_mode_change_request(
-  autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
+  autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request::SharedPtr request)
 {
   (void)request;
   return true;

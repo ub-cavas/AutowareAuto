@@ -26,16 +26,15 @@
 #include <common/types.hpp>
 #include <vehicle_interface/platform_interface.hpp>
 
-#include <autoware_auto_msgs/msg/high_level_control_command.hpp>
-#include <autoware_auto_msgs/msg/raw_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_command.hpp>
-#include <autoware_auto_msgs/msg/vehicle_odometry.hpp>
-#include <autoware_auto_msgs/msg/vehicle_state_report.hpp>
+#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_state_report.hpp>
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 
-#include <autoware_auto_msgs/msg/vehicle_kinematic_state.hpp>
-
-#include <autoware_auto_msgs/srv/autonomy_mode_change.hpp>
+#include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
 
 #include <vesc_msgs/msg/vesc_state_stamped.hpp>
 #include <rclcpp/rclcpp.hpp>
@@ -44,11 +43,12 @@
 #include <chrono>
 #include <cstdint>
 
-using autoware_auto_msgs::msg::RawControlCommand;
-using autoware_auto_msgs::msg::VehicleControlCommand;
-using autoware_auto_msgs::msg::VehicleStateCommand;
-using autoware_auto_msgs::msg::VehicleStateReport;
-using autoware_auto_msgs::msg::VehicleOdometry;
+using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::RawControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
+using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
 
 using vesc_msgs::msg::VescStateStamped;
 
@@ -90,12 +90,15 @@ public:
   // IF manual mode - send zeros.
   bool8_t send_control_command(const VehicleControlCommand & msg);
 
+  bool8_t send_control_command(const AckermannControlCommand & msg);
+
+
   // handle_mode_change_request()
   // Switch between autonomous, and manual mode
   // maintain internal state, and only send commands when autonomous mode is active
   // IF manual mode - send zeros.
   bool8_t handle_mode_change_request(
-    autoware_auto_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
+    autoware_auto_vehicle_msgs::srv::AutonomyModeChange_Request::SharedPtr request);
 
   /// \brief Send raw control commands, currently not implemented, hence logs error.
   bool8_t send_control_command(const RawControlCommand & msg);
