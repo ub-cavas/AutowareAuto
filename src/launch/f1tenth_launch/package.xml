@@ -10,6 +10,7 @@
   <buildtool_depend>ament_cmake_auto</buildtool_depend>
   <buildtool_depend>autoware_auto_cmake</buildtool_depend>
 
+  <exec_depend>autoware_rviz_plugins</exec_depend>
   <exec_depend>joy_linux</exec_depend>
   <exec_depend>joystick_vehicle_interface_nodes</exec_depend>
   <exec_depend>lgsvl_interface</exec_depend>

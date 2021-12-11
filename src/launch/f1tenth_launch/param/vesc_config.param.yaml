@@ -1,0 +1,30 @@
+# This is parameter file for the vesc_interface
+/**:
+  ros__parameters:
+    # ------x ------- x------
+    cycle_time_ms: 30
+    # Only one of the three control command topics need be specified
+    # "raw", "basic" or "high_level"
+    control_command: "basic"
+    state_machine:
+      gear_shift_velocity_threshold_mps: 0.5
+      acceleration_limits:
+        min: -3.0
+        max: 3.0
+        threshold: 1.0
+      front_steer_limits:
+        min: -0.331
+        max: 0.331
+        threshold: 0.3
+      time_step_ms: 100
+      timeout_acceleration_mps2: 3.0
+      state_transition_timeout_ms: 3000
+      gear_shift_accel_deadzone_mps2: 0.5
+    # -------x without this, VESCInterfaceNode cannot be launched --
+    vesc:
+      speed_to_erpm_gain: 4615.0
+      speed_to_erpm_offset: 0.0
+      max_erpm_positive_delta: 200.0 # limits the sudden acceleration in rpm
+      max_erpm_negative_delta: 500.0 # limits the sudden deceleration in rpm
+      steering_angle_to_servo_gain: 1.2135
+      steering_angle_to_servo_offset: 0.5304

@@ -34,7 +34,7 @@ def generate_launch_description():
     )
 
     # Nodes
-    urdf_path = os.path.join(f1tenth_launch_pkg_prefix, 'urdf/f1tenth.urdf')
+    urdf_path = os.path.join(f1tenth_launch_pkg_prefix, 'urdf/f1tenth_svl.urdf')
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
     urdf_publisher = Node(

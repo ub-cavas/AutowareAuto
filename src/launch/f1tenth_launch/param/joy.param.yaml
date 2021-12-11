@@ -1,0 +1,4 @@
+/**:
+  ros__parameters:
+    coalesce_interval: 0.05
+    autorepeat_rate: 20.0

@@ -1,0 +1,11 @@
+/**:
+  ros__parameters:
+    odom_frame: "odom"
+    base_frame: "base_link"
+    speed_to_erpm_gain: 4615.0
+    speed_to_erpm_offset: -200.0
+    use_servo_cmd_to_calc_angular_velocity: true
+    steering_angle_to_servo_gain: -1.2135
+    steering_angle_to_servo_offset: 0.5304
+    wheelbase: 0.3175
+    publish_tf: true

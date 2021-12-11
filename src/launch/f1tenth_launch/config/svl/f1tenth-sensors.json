@@ -165,7 +165,7 @@
         "MeasurementsPerRotation": 1440,
         "ForwardAngle": 0,
         "CenterAngle": 0,
-        "Topic": "/scan",
+        "Topic": "/lidar/scan",
         "Frame": "lidar_front"
       },
       "transform": {
