@@ -11,12 +11,12 @@ import os
 def generate_launch_description():
 
     # package paths
-    autoware_demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
     slam_toolbox_pkg_prefix = get_package_share_directory('slam_toolbox')
 
     # parameters
     mapping_param_file = os.path.join(
-        autoware_demos_pkg_prefix, "param/f1tenth/mapper_params_online_async.param.yaml"
+        f1tenth_launch_pkg_prefix, "param/mapper_params_online_async.param.yaml"
     )
     mapping_param = DeclareLaunchArgument(
         "mapping_param_file",
@@ -30,7 +30,7 @@ def generate_launch_description():
         description='Launch joystick_interface in addition to other nodes'
     )
 
-    rviz_cfg_path = os.path.join(autoware_demos_pkg_prefix,
+    rviz_cfg_path = os.path.join(f1tenth_launch_pkg_prefix,
                                  'rviz2', 'f1tenth.rviz')
     rviz_cfg_path_param = DeclareLaunchArgument(
         'rviz_cfg_path_param',
@@ -41,8 +41,8 @@ def generate_launch_description():
     # nodes
     vehicle_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(autoware_demos_pkg_prefix,
-                         'launch/f1tenth_demo/f1tenth_vehicle.launch.py'),
+            os.path.join(f1tenth_launch_pkg_prefix,
+                         'launch/f1tenth_vehicle.launch.py'),
         ),
         launch_arguments={
             'with_joy': LaunchConfiguration('with_joy'),

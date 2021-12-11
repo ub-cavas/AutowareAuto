@@ -10,16 +10,16 @@ import os
 
 def generate_launch_description():
     nav2_pkg_prefix = get_package_share_directory('nav2_bringup')
-    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
-    localization_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/amcl.param.yaml')
+    localization_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/amcl.param.yaml')
     localization_param = DeclareLaunchArgument(
         'localization_param_file',
         default_value=localization_param_file,
         description='Path to config file for localization nodes'
     )
 
-    map_file_path = os.path.join(demos_pkg_prefix, 'data/red_bull_ring_racetrack.yaml')
+    map_file_path = os.path.join(f1tenth_launch_pkg_prefix, 'data/red_bull_ring_racetrack.yaml')
     map_file = DeclareLaunchArgument(
         'map',
         default_value=map_file_path,

@@ -9,18 +9,18 @@ from launch.conditions import IfCondition
 import os
 
 def generate_launch_description():
-    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
     joystick_vehicle_interface_prefix = get_package_share_directory('joystick_vehicle_interface_nodes')
 
     # params
-    lgsvl_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/lgsvl_interface.param.yaml')
+    lgsvl_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/lgsvl_interface.param.yaml')
     lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param_file',
         default_value=lgsvl_param_file,
         description='Path to config file for LGSVL Interface'
     )
 
-    joy_translator_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/logitech_f310_basic.param.yaml')
+    joy_translator_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/logitech_f310_basic.param.yaml')
     joy_translator_param = DeclareLaunchArgument(
         'joy_translator_param',
         default_value=joy_translator_param_file,
@@ -34,7 +34,7 @@ def generate_launch_description():
     )
 
     # Nodes
-    urdf_path = os.path.join(demos_pkg_prefix, 'urdf/f1tenth.urdf')
+    urdf_path = os.path.join(f1tenth_launch_pkg_prefix, 'urdf/f1tenth.urdf')
     with open(urdf_path, 'r') as infp:
         urdf_file = infp.read()
     urdf_publisher = Node(
@@ -70,8 +70,8 @@ def generate_launch_description():
 
     joystick_vehicle_interface = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(demos_pkg_prefix,
-                         'launch/f1tenth_demo/f1tenth_joystick_controller.launch.py')
+            os.path.join(f1tenth_launch_pkg_prefix,
+                         'launch/f1tenth_joystick_controller.launch.py')
         ),
         launch_arguments={
             'control_command':'basic',

@@ -8,14 +8,14 @@ from launch.conditions import IfCondition
 import os
 
 def generate_launch_description():
-    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
     control_command_param = DeclareLaunchArgument(
         'control_command',
         default_value="basic",  # use "raw", "basic" or "high_level"
         description='command control mode topic name')
 
-    joy_translator_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/logitech_f310_basic.param.yaml')
+    joy_translator_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/logitech_f310_basic.param.yaml')
     joy_translator_param = DeclareLaunchArgument(
         'joy_translator_param',
         default_value=joy_translator_param_file,

@@ -52,7 +52,7 @@ Create a new one and use the most recent version of sensor configuration file:
 
 In the configuration edit view:
 - Click `{...}` symbol near Visual Editor (preview) window.
-- Paste contents of [avp-sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/f1tenth-devel/src/launch/autoware_demos/config/svl/fitenth.json) file inside edit window. `Configurator` window should populate with bunch of sensors now.
+- Paste contents of [f1tenth_sensors.json](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/blob/f1tenth-devel/src/launch/f1tenth_launch/config/svl/f1tenth_sensors.json) file inside edit window. `Configurator` window should populate with bunch of sensors now.
 - Click `Save` to save configuration.
 
 @image html images/f1tenth-svl-sensors-json.png "Json configuration file" width=40%
@@ -109,7 +109,7 @@ $ ade enter
 ade$ source AutowareAuto/install/setup.bash
 
 # add 'with_joy:=True' to drive vehicle using joystick
-ade$ ros2 launch autoware_demos f1tenth_mapping_demo.launch.py
+ade$ ros2 launch f1tenth_launch f1tenth_mapping_demo.launch.py
 ```
 
 @image html images/f1tenth-mapping.png "F1Tenth mapping file" width=40%
@@ -135,7 +135,7 @@ ade$ source AutowareAuto/install/setup.bash
 
 # add 'with_joy:=True' to drive vehicle using joystick
 # add 'map:=/path/to/map.yaml' to select your original map
-ade$ ros2 launch autoware_demos f1tenth_recordreplay_demo.launch.py
+ade$ ros2 launch f1tenth_launch f1tenth_recordreplay_demo.launch.py
 ```
 
 Set a intial pose with correct orientation in Rviz using `2D pose estimate`
@@ -154,7 +154,7 @@ In LGSVL, drive around the vehicle and stop recording with Ctrl + C in terminal 
 ade$ source /opt/AutowareAuto/setup.bash
 
 # add 'map:=/path/to/map.yaml' to select your original map
-ade$ ros2 launch autoware_demos f1tenth_recordreplay_demo.launch.py
+ade$ ros2 launch f1tenth_launch f1tenth_recordreplay_demo.launch.py
 ```
 
 Set a intial pose with correct orientation in Rviz using `2D pose estimate`

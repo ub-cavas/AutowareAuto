@@ -8,11 +8,11 @@ from launch.conditions import IfCondition
 import os
 
 def generate_launch_description():
-    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
     # parameters
-    pure_pursuit_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/pure_pursuit.param.yaml')
-    recordreplay_planner_param_file = os.path.join(demos_pkg_prefix, 'param/f1tenth/recordreplay_planner.param.yaml')
+    pure_pursuit_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/pure_pursuit.param.yaml')
+    recordreplay_planner_param_file = os.path.join(f1tenth_launch_pkg_prefix, 'param/recordreplay_planner.param.yaml')
 
     pure_pursuit_param = DeclareLaunchArgument(
         'pure_pursuit_param_file',

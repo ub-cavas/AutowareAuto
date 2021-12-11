@@ -11,10 +11,10 @@ import os
 def generate_launch_description():
 
     # package paths
-    autoware_demos_pkg_prefix = get_package_share_directory('autoware_demos')
+    f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
     # params
-    rviz_cfg_path = os.path.join(autoware_demos_pkg_prefix,
+    rviz_cfg_path = os.path.join(f1tenth_launch_pkg_prefix,
                                  'rviz2', 'f1tenth.rviz')
     rviz_cfg_path_param = DeclareLaunchArgument(
         'rviz_cfg_path_param',
@@ -22,7 +22,7 @@ def generate_launch_description():
         description='Launch RVIZ2 with the specified config file'
     )
 
-    map_file_path = os.path.join(autoware_demos_pkg_prefix, 'data/red_bull_ring_racetrack.yaml')
+    map_file_path = os.path.join(f1tenth_launch_pkg_prefix, 'data/red_bull_ring_racetrack.yaml')
     map_file = DeclareLaunchArgument(
         'map',
         default_value=map_file_path,
@@ -38,8 +38,8 @@ def generate_launch_description():
     # Nodes
     vehicle_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(autoware_demos_pkg_prefix,
-                         'launch/f1tenth_demo/f1tenth_vehicle.launch.py'),
+            os.path.join(f1tenth_launch_pkg_prefix,
+                         'launch/f1tenth_vehicle.launch.py'),
         ),
         launch_arguments={
             'with_joy': LaunchConfiguration('with_joy'),
@@ -48,8 +48,8 @@ def generate_launch_description():
 
     localization_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(autoware_demos_pkg_prefix,
-                         'launch/f1tenth_demo/f1tenth_localization.launch.py'),
+            os.path.join(f1tenth_launch_pkg_prefix,
+                         'launch/f1tenth_localization.launch.py'),
         ),
         launch_arguments={
             'map': LaunchConfiguration('map')
@@ -58,8 +58,8 @@ def generate_launch_description():
 
     planning_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
-            os.path.join(autoware_demos_pkg_prefix,
-                         'launch/f1tenth_demo/f1tenth_planning.launch.py'),
+            os.path.join(f1tenth_launch_pkg_prefix,
+                         'launch/f1tenth_planning.launch.py'),
         )
     )
 

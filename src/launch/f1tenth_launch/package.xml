@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>f1tenth_launch</name>
+  <version>1.0.0</version>
+  <description>launch files for f1tenth</description>
+  <maintainer email="ryohsuke.mitsudome@tier4.jp">Ryohsuke Mitsudome</maintainer>
+  <license>Apache 2.0</license>
+
+  <buildtool_depend>ament_cmake_auto</buildtool_depend>
+  <buildtool_depend>autoware_auto_cmake</buildtool_depend>
+
+  <exec_depend>joy_linux</exec_depend>
+  <exec_depend>joystick_vehicle_interface_nodes</exec_depend>
+  <exec_depend>lgsvl_interface</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>pointcloud_to_laserscan</exec_depend>
+  <exec_depend>pure_pursuit_nodes</exec_depend>
+  <exec_depend>recordreplay_planner_nodes</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+  <exec_depend>slam_toolbox</exec_depend>
+  <exec_depend>svl_robot_bringup</exec_depend>
+  <exec_depend>urg_node</exec_depend>
+  <exec_depend>vesc_ackermann</exec_depend>
+  <exec_depend>vesc_driver</exec_depend>
+  <exec_depend>vesc_interface</exec_depend>
+
+  <test_depend>ament_cmake_gtest</test_depend>
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
