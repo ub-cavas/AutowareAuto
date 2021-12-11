@@ -73,6 +73,8 @@ public:
     rclcpp::Node & node,
     double speed_to_erpm_gain,
     double speed_to_erpm_offset,
+    double max_erpm_positive_delta,
+    double max_erpm_negative_delta,
     double steering_to_servo_gain,
     double steering_to_servo_offset
   );
@@ -114,6 +116,7 @@ private:
   rclcpp::Logger m_logger;
   // conversion and gain offsets
   double speed_to_erpm_gain_, speed_to_erpm_offset_;
+  double max_erpm_positive_delta_, max_erpm_negative_delta_;
   double steering_to_servo_gain_, steering_to_servo_offset_;
 
   // Direction:
