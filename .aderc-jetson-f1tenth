@@ -1,0 +1,6 @@
+export ADE_DOCKER_RUN_ARGS="--cap-add=SYS_PTRACE --net=host -e RMW_IMPLEMENTATION=rmw_cyclonedds_cpp --device /dev/sensors/vesc --device /dev/sensors/hokuyo --device /dev/input/js0"
+export ADE_GITLAB=gitlab.com
+export ADE_REGISTRY=registry.gitlab.com
+export ADE_IMAGES="
+  registry.gitlab.com/f1tenth-official/autowareauto/jetson/ade-foxy:master
+"
