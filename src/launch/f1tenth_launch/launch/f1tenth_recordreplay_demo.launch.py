@@ -62,11 +62,15 @@ def generate_launch_description():
         }.items(),
         condition=IfEqualsCondition("vehicle_interface", "svl")
     )
+
     vehicle_launch_vesc = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(f1tenth_launch_pkg_prefix,
                          'launch/f1tenth_vehicle_vesc.launch.py'),
         ),
+        launch_arguments={
+            'with_joy': LaunchConfiguration('with_joy'),
+        }.items(),
         condition=IfEqualsCondition("vehicle_interface", "vesc")
     )
 

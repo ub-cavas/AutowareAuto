@@ -17,7 +17,7 @@
     axis_scale:
       # brake: -50.0
       # throttle: -50.0
-      front_steer: -0.4
+      front_steer: 0.3
       # rear_steer: 100.0
       # curvature:
       acceleration: 2.0
@@ -33,12 +33,13 @@
     # Buttons are not yet implemented
     # Index for which button is which
     buttons:
-      # autonomous:
-      headlights: 2  # X
+      autonomous_on: 2
+      autonomous_off: 1
+      # headlights: 2  # X
       # wiper:
       gear_drive: 0  # A
       gear_reverse: 3  # Y
-      gear_park: 1  # B
+      # gear_park: 1  # B
       # gear_neutral:
       # gear_low:
       # blinker_left:

@@ -14,6 +14,9 @@
 
 import launch
 from launch_ros.actions import Node
+from launch.actions import GroupAction, ExecuteProcess, DeclareLaunchArgument, IncludeLaunchDescription
+from launch.conditions import IfCondition
+from launch.substitutions import LaunchConfiguration
 from ament_index_python import get_package_share_directory
 
 import os
@@ -40,6 +43,12 @@ def generate_launch_description():
 
     vesc_interface_param_file = os.path.join(
         f1tenth_launch_pkg_prefix, 'param/vesc_config.param.yaml'
+    )
+
+    with_joy_param = DeclareLaunchArgument(
+        'with_joy',
+        default_value='True',
+        description='Launch joystick_interface in addition to other nodes'
     )
 
     # Nodes
@@ -79,7 +88,8 @@ def generate_launch_description():
         remappings=[
             ("basic_command", "/vehicle/vehicle_command"),
             ("state_command", "/vehicle/state_command")
-        ]
+        ],
+        condition=IfCondition(LaunchConfiguration('with_joy'))
     )
 
     vesc_interface_node = Node(
@@ -119,6 +129,7 @@ def generate_launch_description():
     )
 
     return launch.LaunchDescription([
+        with_joy_param,
         vesc_driver_launcher,
         vesc_to_odom_launcher,
         joy,

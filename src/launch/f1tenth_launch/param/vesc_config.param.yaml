@@ -26,5 +26,5 @@
       speed_to_erpm_offset: 0.0
       max_erpm_positive_delta: 200.0 # limits the sudden acceleration in rpm
       max_erpm_negative_delta: 500.0 # limits the sudden deceleration in rpm
-      steering_angle_to_servo_gain: 1.2135
+      steering_angle_to_servo_gain: -1.2135
       steering_angle_to_servo_offset: 0.5304

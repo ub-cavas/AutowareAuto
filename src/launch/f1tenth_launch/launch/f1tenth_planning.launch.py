@@ -52,6 +52,7 @@ def generate_launch_description():
         ],
         remappings=[
             ('vehicle_state', '/vehicle/vehicle_kinematic_state'),
+            ('odometry', '/vehicle/odom'),
             ('planned_trajectory', '/planning/trajectory')
         ]
     )
