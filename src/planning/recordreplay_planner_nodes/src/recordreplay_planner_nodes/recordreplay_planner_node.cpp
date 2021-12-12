@@ -35,10 +35,12 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
 : Node{"recordreplay_planner", node_options}
 {
   const auto ego_topic = "vehicle_state";
+  const auto odom_topic = "odometry";
   const auto trajectory_topic = "planned_trajectory";
   const auto trajectory_viz_topic = "planned_trajectory_viz";
   const auto heading_weight = declare_parameter("heading_weight").get<float64_t>();
   const auto min_record_distance = declare_parameter("min_record_distance").get<float64_t>();
+  const auto use_odom = declare_parameter("use_odom").get<bool8_t>();
   m_goal_distance_threshold_m = declare_parameter("goal_distance_threshold_m").get<float32_t>();
   m_goal_angle_threshold_rad = declare_parameter("goal_angle_threshold_rad").get<float32_t>();
 
@@ -75,9 +77,16 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
 
   // Set up subscribers for the actual recording
   using SubAllocT = rclcpp::SubscriptionOptionsWithAllocator<std::allocator<void>>;
-  m_ego_sub = create_subscription<State>(
-    ego_topic, QoS{10},
-    [this](const State::SharedPtr msg) {on_ego(msg);}, SubAllocT{});
+  if (use_odom)
+  {
+    m_odom_sub = create_subscription<Odometry>(
+      odom_topic, QoS{10},
+      std::bind(&RecordReplayPlannerNode::on_odom, this, std::placeholders::_1));
+  } else {
+    m_ego_sub = create_subscription<State>(
+      ego_topic, QoS{10},
+      [this](const State::SharedPtr msg) {on_ego(msg);}, SubAllocT{});
+  }
 
   // Set up publishers
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;
@@ -166,11 +175,23 @@ void RecordReplayPlannerNode::clear_recorded_markers()
   m_recorded_markers.markers.clear();
 }
 
+void RecordReplayPlannerNode::on_odom(const Odometry::SharedPtr msg)
+{
+  State::SharedPtr state_msg = std::make_shared<State>();
+  state_msg->header = msg->header;
+  state_msg->state.pose = msg->pose.pose;
+  state_msg->state.longitudinal_velocity_mps = static_cast<float32_t>(msg->twist.twist.linear.x);
+  state_msg->state.heading_rate_rps = static_cast<float32_t>(msg->twist.twist.angular.z);
+  on_ego(state_msg);
+}
+
+
 void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
 {
   if (m_odom_frame_id.empty()) {
     m_odom_frame_id = msg->header.frame_id;
   }
+  static rclcpp::Time previous_call = now();
 
   Transform tf_map2odom;
   State msg_world = *msg;
@@ -201,6 +222,7 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
     // Publish recording feedback information
     auto feedback_msg = std::make_shared<RecordTrajectory::Feedback>();
     feedback_msg->current_length = static_cast<int32_t>(m_planner->get_record_length());
+
     m_recordgoalhandle->publish_feedback(feedback_msg);
   }
 
@@ -217,16 +239,21 @@ void RecordReplayPlannerNode::on_ego(const State::SharedPtr & msg)
           &RecordReplayPlannerNode::modify_trajectory_response,
           this, std::placeholders::_1));
     } else {
-      m_trajectory_pub->publish(traj_raw);
+      if(now() - previous_call > rclcpp::Duration::from_seconds(0.1))
+      {
+        m_trajectory_pub->publish(traj_raw);
 
-      // Publish visualization markers
-      auto markers = to_markers(traj_raw, "replay");
-      m_trajectory_viz_pub->publish(markers);
+        // Publish visualization markers
+        auto markers = to_markers(traj_raw, "replay");
+        m_trajectory_viz_pub->publish(markers);
 
-      // Publish replaying feedback information
-      auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
-      feedback_msg->remaining_length = static_cast<int32_t>(traj_raw.points.size());
-      m_replaygoalhandle->publish_feedback(feedback_msg);
+        // Publish replaying feedback information
+        auto feedback_msg = std::make_shared<ReplayTrajectory::Feedback>();
+        feedback_msg->remaining_length = static_cast<int32_t>(traj_raw.points.size());
+        m_replaygoalhandle->publish_feedback(feedback_msg);
+        previous_call = now();
+      }
+
     }
 
     if (m_planner->reached_goal(msg_world, m_goal_distance_threshold_m, m_goal_angle_threshold_rad)) {

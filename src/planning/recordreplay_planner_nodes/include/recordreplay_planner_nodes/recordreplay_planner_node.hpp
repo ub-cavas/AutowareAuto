@@ -28,6 +28,7 @@
 #include <geometry_msgs/msg/transform_stamped.hpp>
 #include <motion_common/motion_common.hpp>
 #include <motion_common/config.hpp>
+#include <nav_msgs/msg/odometry.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <common/types.hpp>
@@ -53,6 +54,7 @@ using autoware_auto_planning_msgs::srv::ModifyTrajectory;
 using autoware_auto_planning_msgs::action::RecordTrajectory;
 using autoware_auto_planning_msgs::action::ReplayTrajectory;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
+using Odometry = nav_msgs::msg::Odometry;
 using Transform = geometry_msgs::msg::TransformStamped;
 using motion::motion_common::Real;
 using visualization_msgs::msg::Marker;
@@ -77,6 +79,7 @@ protected:
   std::shared_ptr<GoalHandleReplayTrajectory> m_replaygoalhandle;
 
   rclcpp::Subscription<State>::SharedPtr m_ego_sub{};
+  rclcpp::Subscription<Odometry>::SharedPtr m_odom_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_viz_pub{};
   PlannerPtr m_planner{nullptr};
@@ -103,6 +106,8 @@ private:
 
   /// \brief Clears the list of recorded markers
   RECORDREPLAY_PLANNER_NODES_LOCAL void clear_recorded_markers();
+
+  RECORDREPLAY_PLANNER_NODES_LOCAL void on_odom(const Odometry::SharedPtr msg);
 
   RECORDREPLAY_PLANNER_NODES_LOCAL void on_ego(const State::SharedPtr & msg);
   RECORDREPLAY_PLANNER_NODES_LOCAL void modify_trajectory_response(
