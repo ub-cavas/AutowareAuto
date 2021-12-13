@@ -192,6 +192,7 @@ void EuclideanClusterNode::handle_clusters(
   catch (tf2::TransformException& ex)
   {
     RCLCPP_WARN(get_logger(), "%s", ex.what());
+    return;
   }
 
   Clusters clusters_out = clusters;
