@@ -29,7 +29,7 @@ Lidar::Lidar(
   const Eigen::Vector2f & position, const uint32_t num_azimuth_ticks,
   const autoware::common::types::float32_t max_range)
 : m_position(position),
-  m_num_azimuth_ticks(num_azimuth_ticks), m_max_range(max_range)
+  m_max_range(max_range)
 {
   std::vector<autoware::common::types::float32_t> angles =
     utils::linspace<autoware::common::types::float32_t>(

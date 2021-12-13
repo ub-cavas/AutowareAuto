@@ -39,7 +39,6 @@ static constexpr auto kOutputTopicSuffix = "_with_overriden_covariance";
 
 
 static constexpr auto kHistorySizeTag = "history_size";
-static constexpr auto kInputTopicTag = "input_topic";
 static constexpr auto kInputMsgTypeTag = "input_msg_type";
 static constexpr auto kOverrideCovariancesPrefix = "override_covariance";
 

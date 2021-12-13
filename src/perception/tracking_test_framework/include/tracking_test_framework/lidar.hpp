@@ -56,7 +56,6 @@ private:
   /// current position of the LiDAR
   Eigen::Vector2f m_position;
   /// number of ticks in LiDAR scan space between 0 to 2*PI
-  uint32_t m_num_azimuth_ticks;
   /// max range of the LiDAR
   autoware::common::types::float32_t m_max_range;
   /// vector of the LiDAR beams

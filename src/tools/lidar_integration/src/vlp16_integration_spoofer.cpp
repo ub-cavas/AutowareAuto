@@ -51,11 +51,6 @@ void Vlp16IntegrationSpoofer::stop()
   m_spoofer.stop();
 }
 
-/// rpm min speed
-static constexpr float32_t MIN_RPM = 300.0F;
-/// rpm max speed
-static constexpr float32_t MAX_RPM = 1200.0F;
-
 Vlp16IntegrationSpoofer::SpoofTask::SpoofTask(
   const char8_t * const ip,
   const uint16_t port,
@@ -110,27 +105,6 @@ void Vlp16IntegrationSpoofer::SpoofTask::task_function()
     std::this_thread::sleep_for(100us);
   }
 }
-
-static constexpr uint32_t RAY_SIZE = 16U;
-// SENSOR SPECIFIC CONSTANTS
-/// resolution of azimuth angle: number of points in a full rotation
-static constexpr uint16_t AZIMUTH_ROTATION_RESOLUTION = 36000U;
-/// conversion from a degree (vlp) to idx
-static constexpr float32_t DEG2IDX =
-  static_cast<float32_t>(AZIMUTH_ROTATION_RESOLUTION) / 360.0F;
-/// how intensity is quantized: 1 byte = 256 possible values
-static constexpr uint32_t NUM_INTENSITY_VALUES = 256U;
-
-/// All of these hardcoded values should remain fixed unless the VLP16 packet spec changes ///
-/// number of data blocks per data packet
-static constexpr uint16_t NUM_BLOCKS_PER_PACKET = 12U;
-/// number of points stored in a data block
-static constexpr uint16_t NUM_POINTS_PER_BLOCK = 32U;
-
-/// full (16 point) fire sequence takes this long to cycle
-static constexpr float32_t FIRE_SEQ_OFFSET_US = 55.296F;
-/// one laser fires for this long
-static constexpr float32_t FIRE_DURATION_US = 2.304F;
 
 void Vlp16IntegrationSpoofer::SpoofTask::uint16_to_bytes(const uint16_t val, uint8_t arr[])
 {

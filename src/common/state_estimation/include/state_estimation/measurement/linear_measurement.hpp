@@ -168,6 +168,7 @@ protected:
   {
     MappingMatrixFrom<OtherStateT> m{MappingMatrixFrom<OtherStateT>::Zero()};
     auto fill_mapping_matrix = [&m, this](auto variable) {
+        (void)this;  // avoid warning -Wunused-lambda-capture
         using VariableT = std::decay_t<decltype(variable)>;
         constexpr auto index_in_this_state = StateT::template index_of<VariableT>();
         constexpr auto index_in_other_state = OtherStateT::template index_of<VariableT>();

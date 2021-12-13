@@ -40,9 +40,9 @@ SscInterface::SscInterface(
   m_rear_axle_to_cog{rear_axle_to_cog},
   m_accel_limit{max_accel_mps2},
   m_decel_limit{max_decel_mps2},
-  m_max_yaw_rate{max_yaw_rate_rad},
   m_dbw_state_machine(new DbwStateMachine{3})
 {
+  (void)max_yaw_rate_rad;  // avoid warning -Wunused-parameter
   // Publishers (to SSC)
   m_gear_cmd_pub = node.create_publisher<GearCommand>("gear_select", 10);
   m_speed_cmd_pub = node.create_publisher<SpeedMode>("arbitrated_speed_commands", 10);

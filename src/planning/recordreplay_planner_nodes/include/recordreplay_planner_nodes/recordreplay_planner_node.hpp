@@ -129,7 +129,6 @@ private:
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
 
-  bool m_enable_object_collision_estimator = false;
   float64_t m_goal_distance_threshold_m = {};
   float64_t m_goal_angle_threshold_rad;
 };  // class RecordReplayPlannerNode
