@@ -55,11 +55,12 @@ RUN if [ "$ROS_DISTRO" = "foxy" ]; then \
         rm -rf /var/lib/apt/lists/*; \
     fi
 
-RUN if [ "$ROS_DISTRO" = "galactic" ]; then \
-        apt-get update && \
-        apt-get install -y ros-$ROS_DISTRO-lgsvl-bridge && \
-        rm -rf /var/lib/apt/lists/*; \
-    fi
+# Reenable when the LGSVL bridge is available for Galactic
+# RUN if [ "$ROS_DISTRO" = "galactic" ]; then \
+#         apt-get update && \
+#         apt-get install -y ros-$ROS_DISTRO-lgsvl-bridge && \
+#         rm -rf /var/lib/apt/lists/*; \
+#     fi
 
 RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo 'Defaults env_keep += "DEBUG ROS_DISTRO"' >> /etc/sudoers
