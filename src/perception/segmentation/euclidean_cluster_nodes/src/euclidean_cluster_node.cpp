@@ -185,12 +185,11 @@ void EuclideanClusterNode::handle_clusters(
   const std_msgs::msg::Header & header)
 {
   geometry_msgs::msg::TransformStamped tf;
-  try
-  {
-    tf = tf_buffer_->lookupTransform(m_cluster_alg.get_config().frame_id(), header.frame_id, tf2::TimePointZero);
-  }
-  catch (tf2::TransformException& ex)
-  {
+  try {
+    tf = tf_buffer_->lookupTransform(
+      m_cluster_alg.get_config().frame_id(),
+      header.frame_id, tf2::TimePointZero);
+  } catch (tf2::TransformException & ex) {
     RCLCPP_WARN(get_logger(), "%s", ex.what());
     return;
   }
@@ -210,7 +209,8 @@ void EuclideanClusterNode::handle_clusters(
 
   BoundingBoxArray boxes;
   if (m_use_lfit) {
-    boxes = euclidean_cluster::details::compute_bounding_boxes(clusters_out, BboxMethod::LFit, m_use_z);
+    boxes = euclidean_cluster::details::compute_bounding_boxes(
+      clusters_out, BboxMethod::LFit, m_use_z);
   } else {
     boxes = euclidean_cluster::details::compute_bounding_boxes(
       clusters_out, BboxMethod::Eigenbox,

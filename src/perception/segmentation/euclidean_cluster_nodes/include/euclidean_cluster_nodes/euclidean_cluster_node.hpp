@@ -19,6 +19,8 @@
 #ifndef EUCLIDEAN_CLUSTER_NODES__EUCLIDEAN_CLUSTER_NODE_HPP_
 #define EUCLIDEAN_CLUSTER_NODES__EUCLIDEAN_CLUSTER_NODE_HPP_
 
+#include <tf2_ros/transform_listener.h>
+#include <tf2_ros/buffer.h>
 #include <rclcpp/rclcpp.hpp>
 #include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry_msgs/msg/transform_stamped.hpp>
@@ -31,8 +33,6 @@
 #include <common/types.hpp>
 #include <memory>
 #include <string>
-#include <tf2_ros/transform_listener.h>
-#include <tf2_ros/buffer.h>
 
 namespace autoware
 {
