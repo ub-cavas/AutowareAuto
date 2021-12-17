@@ -3,6 +3,20 @@ apollo_lidar_segmentation {#apollo-lidar-segmentation-design}
 
 # Design
 
+## Usage {#apollo-lidar-segmentation-design-usage}
+
+### Neural network
+
+This package will not build without a neural network for its inference.
+The network is provided by the [neural_networks package](@ref neural-networks-design).
+See its design page for more information on how to enable downloading pre-compiled networks (by setting the `DOWNLOAD_ARTIFACTS` cmake variable), or how to handle user-compiled networks.
+
+### Backend
+
+The backend used for the inference can be selected by setting the `apollo_lidar_segmentation_BACKEND` cmake variable.
+The current available options are `llvm` for a CPU backend, and `vulkan` for a GPU backend.
+It defaults to `llvm`.
+
 ## Convolutional Neural Networks (CNN) Segmentation
 
 See the [original design](https://github.com/ApolloAuto/apollo/blob/3422a62ce932cb1c0c269922a0f1aa59a290b733/docs/specs/3d_obstacle_perception.md#convolutional-neural-networks-cnn-segmentation) by Apollo.
@@ -14,7 +28,7 @@ Note: the parameters described in the original design have been modified and are
 ## Bounding Box
 
 The lidar segmentation node establishes a bounding box for the detected obstacles.
-Its corners form a rectangle aligned on the axes of the origin.
+The `L-fit` method of fitting a bounding box to a cluster is used for that.
 
 ## API
 

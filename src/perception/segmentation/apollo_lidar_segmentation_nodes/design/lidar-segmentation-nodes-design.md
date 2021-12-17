@@ -11,6 +11,11 @@ cloud, using a neural network.
 
 See the design of the algorithm in the core package's [design](@ref apollo-lidar-segmentation-design).
 
+## Usage
+
+`apollo_lidar_segmentation` and `apollo_lidar_segmentation_nodes` will not build without a neural network.
+See the [apollo_lidar_segmentation usage](@ref apollo-lidar-segmentation-design-usage) for more information.
+
 ## Assumptions / Known limits
 
 The original node from Apollo has a Region Of Interest (ROI) filter.
