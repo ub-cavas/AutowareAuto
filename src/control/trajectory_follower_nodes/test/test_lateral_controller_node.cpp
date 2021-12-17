@@ -246,6 +246,10 @@ TEST_F(FakeNodeFixtureWithNamespace, right_turn)
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
+  p.pose.position.x = -2.0;
+  p.pose.position.y = -2.0;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
   p.pose.position.x = -1.0;
   p.pose.position.y = -1.0;
   p.longitudinal_velocity_mps = 1.0f;
@@ -310,6 +314,10 @@ TEST_F(FakeNodeFixtureWithNamespace, left_turn)
   VehicleKinematicState state_msg;
   TrajectoryPoint p;
   traj_msg.points.clear();
+  p.pose.position.x = -2.0;
+  p.pose.position.y = 2.0;
+  p.longitudinal_velocity_mps = 1.0f;
+  traj_msg.points.push_back(p);
   p.pose.position.x = -1.0;
   p.pose.position.y = 1.0;
   p.longitudinal_velocity_mps = 1.0f;

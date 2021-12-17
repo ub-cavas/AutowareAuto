@@ -274,9 +274,18 @@ void LateralController::onTrajectory(
     return;
   }
 
+  // removing first point of the trajectory since this controller
+  // does not expect current vehicle pose as the first point of the trajectory
+  // TODO(Maxime CLEMENT): remove this when #1298 is merged
+  m_current_trajectory_ptr->points.erase(m_current_trajectory_ptr->points.begin());
   m_mpc.setReferenceTrajectory(
-    *msg, m_traj_resample_dist, m_enable_path_smoothing, m_path_filter_moving_ave_num,
-    m_enable_yaw_recalculation, m_curvature_smoothing_num, m_current_pose_ptr);
+    *m_current_trajectory_ptr,
+    m_traj_resample_dist,
+    m_enable_path_smoothing,
+    m_path_filter_moving_ave_num,
+    m_enable_yaw_recalculation,
+    m_curvature_smoothing_num,
+    m_current_pose_ptr);
 }
 
 bool8_t LateralController::updateCurrentPose()
