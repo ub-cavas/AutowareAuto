@@ -68,11 +68,7 @@ def generate_launch_description():
         default_value=str(param_path / 'lane_planner.param.yaml'),
         description='Path to parameter file for lane planner'
     )
-    vehicle_characteristics_param = DeclareLaunchArgument(
-        'vehicle_characteristics_param_file',
-        default_value=str(param_path / 'vehicle_characteristics.param.yaml'),
-        description='Path to parameter file for vehicle characteristics'
-    )
+
     lane_planner = Node(
         package='lane_planner_nodes',
         name='lane_planner_node',

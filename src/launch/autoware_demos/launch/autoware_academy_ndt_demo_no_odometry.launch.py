@@ -21,7 +21,6 @@ from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
-from pathlib import Path
 
 import os
 
@@ -40,11 +39,11 @@ def generate_launch_description():
         'param/vlp16_sim_lexus_filter_transform.param.yaml')
 
     map_publisher_param_file = os.path.join(
-        get_package_share_directory('autoware_demos'), 'param/autoware_academy_demo/map_publisher.param.yaml')
+        get_package_share_directory('autoware_demos'),
+        'param/autoware_academy_demo/map_publisher.param.yaml')
 
     rviz_cfg_path = os.path.join(get_package_share_directory('autoware_demos'),
-        'rviz2/autoware_academy_demo.rviz')
-
+                                 'rviz2/autoware_academy_demo.rviz')
 
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',

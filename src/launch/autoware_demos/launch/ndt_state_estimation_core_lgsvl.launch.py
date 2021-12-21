@@ -23,10 +23,12 @@ from launch.actions import Shutdown
 
 
 """
-This launch file launches all the nodes necessary to produce Odometry out of filtered lidar 
-points from the SVL simulator. This does not launch rviz. It is meant to be included in other 
-launch files that require lidar object detection. This launch file assumes 
-point_cloud_filter_transform_nodes is running. 
+This launch file launches all the nodes necessary to produce Odometry out of filtered lidar points.
+
+Expect inputs from the SVL simulator.
+This does not launch rviz.
+It is meant to be included in other launch files that require lidar object detection.
+This launch file assumes point_cloud_filter_transform_nodes is running.
 """
 
 

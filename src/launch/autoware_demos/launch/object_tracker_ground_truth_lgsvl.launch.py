@@ -16,9 +16,10 @@
 
 
 """
-This launch file launch all the nodes necessary to produce object tracks based on ground truth
-3d Detections and ground truth 2d detections from two cameras in the SVL simulator. 
-It uses localization information also from the simulator. It also launches rviz. 
+This launch file launch all the nodes necessary to produce object tracks based on ground truth.
+
+3d Detections and ground truth 2d detections from two cameras in the SVL simulator.
+It uses localization information also from the simulator. It also launches rviz.
 Use the lgsvl-sensors-dual-camera.json sensor configuration file for the simulator.
 """
 
@@ -26,15 +27,9 @@ Use the lgsvl-sensors-dual-camera.json sensor configuration file for the simulat
 import os
 
 from ament_index_python import get_package_share_directory
-from launch.launch_description_sources import PythonLaunchDescriptionSource
 import launch.substitutions
 from launch_ros.actions import Node
-from launch.actions import DeclareLaunchArgument
-from launch.actions import IncludeLaunchDescription
 from launch.actions import Shutdown
-from launch.conditions import IfCondition
-from launch.conditions import LaunchConfigurationEquals
-from launch.substitutions import LaunchConfiguration
 
 
 def get_param_file(package_name, file_name):

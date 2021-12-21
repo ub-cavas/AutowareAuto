@@ -16,9 +16,11 @@
 
 
 """
-This launch file launches all the nodes necessary to produce DetectedObjects out of raw lidar
-points from the SVL simulator. This does not launch rviz. It is meant to be included in other
-launch files that require lidar object detection
+This launch file launches all the nodes necessary to produce DetectedObjects.
+
+Uses raw lidar points from the SVL simulator as input.
+This does not launch rviz.
+It is meant to be included in other launch files that require lidar object detection.
 """
 
 
