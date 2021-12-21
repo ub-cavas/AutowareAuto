@@ -4,6 +4,7 @@
 cmake_minimum_required(VERSION 3.5)
 project(ndt_nodes)
 
+find_package(yaml_cpp_vendor REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 

@@ -8,6 +8,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 #dependencies
 find_package(Eigen3 REQUIRED)
 find_package(GEOGRAPHICLIB REQUIRED)
+find_package(yaml_cpp_vendor REQUIRED)
 find_package(yaml-cpp REQUIRED)
 find_package(ament_cmake_auto REQUIRED)
 find_package(PCL 1.8 REQUIRED COMPONENTS io)
