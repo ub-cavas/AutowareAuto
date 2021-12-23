@@ -301,6 +301,8 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
     polygon_prism.kinematics.pose_with_covariance.pose.position.z =
       static_cast<float64_t>(centroid.z);
 
+    polygon_prism.existence_probability = 1.0F;
+
     detections_polygon_prism.objects.push_back(polygon_prism);
   }
   auto tracking_result = update(detections_polygon_prism, detection_frame_odometry);
@@ -323,11 +325,47 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       common::geometry::bounding_box::details::make_detected_object(box_in_detection_frame);
 
     auto detection_transformed = transform_detected_object(detection, detection_frame_odometry);
-
     m_tracks.objects.at(track_idx).update_shape(detection_transformed);
 
   }
+
   tracking_result.tracks = convert_to_msg(m_tracks, incoming_clusters.header.stamp);
+
+  for (const auto idx : tracking_result.unassigned_clusters_indices) {
+    if (idx >= detections_polygon_prism.objects.size()) {
+      throw std::runtime_error("Wrong detection idx");
+    }
+
+    tracking_result.unassigned_detected_objects.header = clusters.header;
+    common::lidar_utils::PointClustersView clusters_msg_view{clusters};
+    tracking_result.unassigned_detected_objects.objects.reserve(clusters_msg_view.size());
+
+    auto unassigned_detected_object = detections_polygon_prism.objects.at(idx);
+
+    autoware_auto_perception_msgs::msg::ObjectClassification label;
+    label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+    label.probability = 1.0F;
+    unassigned_detected_object.classification.emplace_back(label);
+
+    Point32 centroid;
+    centroid.x = static_cast<float32_t>(
+      unassigned_detected_object.kinematics.pose_with_covariance.pose.position.x);
+    centroid.y = static_cast<float32_t>(
+      unassigned_detected_object.kinematics.pose_with_covariance.pose.position.y);
+    centroid.z = static_cast<float32_t>(
+      unassigned_detected_object.kinematics.pose_with_covariance.pose.position.z);
+
+
+    for (auto & point : unassigned_detected_object.shape.polygon.points) {
+      // We assume here a zero orientation as we don't care about the orientation of the convex
+      // hull. This then becomes a poor man's transformation into the object-local coordinates.
+
+      point = common::geometry::minus_2d(point,centroid);
+    }
+
+    tracking_result.unassigned_detected_objects.objects.push_back(unassigned_detected_object);
+  }
+
 
   return tracking_result;
 }

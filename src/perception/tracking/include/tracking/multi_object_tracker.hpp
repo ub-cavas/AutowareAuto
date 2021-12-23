@@ -89,6 +89,9 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
   builtin_interfaces::msg::Time related_rois_stamp;
   /// indicies of tracks and associated detections
   std::vector<std::pair<std::size_t, std::size_t>> tracks_and_detection_indices;
+  /// Unassigned detected objects
+  autoware_auto_perception_msgs::msg::DetectedObjects unassigned_detected_objects;
+
 };
 
 /// \brief Options for object tracking, with sensible defaults.

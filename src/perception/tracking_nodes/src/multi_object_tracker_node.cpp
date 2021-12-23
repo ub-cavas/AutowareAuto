@@ -330,8 +330,8 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
     m_track_publisher->publish(result.tracks);
     const auto detections_from_clusters =
       convert_unassigned_clusters_to_detected_objects(*objs, result);
-    m_leftover_publisher->publish(detections_from_clusters);
-    maybe_visualize(result.related_rois_stamp, detections_from_clusters);
+    m_leftover_publisher->publish(result.unassigned_detected_objects);
+    maybe_visualize(result.related_rois_stamp, result.unassigned_detected_objects);
   } else {
     RCLCPP_WARN(
       get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
