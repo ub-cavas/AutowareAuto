@@ -97,6 +97,9 @@ public:
   void update(
     const ObjectClassifications & obj_type, const common::types::float32_t covariance);
 
+  /// Update object shape
+  void update_shape(const DetectedObjectMsg & detection_bbox);
+
   /// Call when no correspondence for this track was found.
   void no_update();
 
@@ -135,6 +138,11 @@ public:
     return m_msg.kinematics.orientation;
   }
 
+  inline uint8_t label() const
+  {
+    return m_classifier.most_likely_class();
+  }
+
 private:
   /// The final to-be-published object.
   TrackedObjectMsg m_msg;
@@ -151,6 +159,7 @@ private:
   common::types::float64_t m_default_variance = -1.0;
   /// Track class classifier.
   ClassificationTracker m_classifier;
+
 };
 
 

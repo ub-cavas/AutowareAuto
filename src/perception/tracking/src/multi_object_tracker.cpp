@@ -119,7 +119,7 @@ DetectedObjects transform(
     tf2::fromMsg(detection.kinematics.pose_with_covariance.pose.position, centroid_detection);
     const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
     detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
-    
+
     Eigen::Isometry3f tf__tracking__detection_f = tf__tracking__detection.cast <float> ();
     for (auto & point : detection.shape.polygon.points) {
       const Eigen::Vector3f point_eigen{point.x,point.y,point.z};
@@ -169,6 +169,68 @@ DetectedObjects transform(
     }
   }
   return result;
+}
+
+
+DetectedObject transform_detected_object (
+  const DetectedObject & detection_input,
+  const Odometry & detection_frame_odometry)
+{
+  // Convert the odometry to Eigen objects.
+  Eigen::Isometry3d tf__tracking__detection = Eigen::Isometry3d::Identity();
+  tf2::fromMsg(detection_frame_odometry.pose.pose, tf__tracking__detection);
+  const Eigen::Matrix3d rot_d = tf__tracking__detection.linear();
+  // Convert the odometry to TransformStamped for use with tf2::doTransform.
+  const geometry_msgs::msg::TransformStamped tf_msg__tracking__detection =
+    to_transform(detection_frame_odometry);
+  // Hoisted outside the loop
+  Eigen::Vector3d centroid_detection = Eigen::Vector3d::Zero();
+
+  auto detection = detection_input;
+  // Transform the pose.
+  tf2::fromMsg(detection.kinematics.pose_with_covariance.pose.position, centroid_detection);
+  const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
+  detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
+
+  if (detection.kinematics.orientation_availability != DetectedObjectKinematics::UNAVAILABLE) {
+    geometry_msgs::msg::QuaternionStamped q_out;
+    // Use quaternion stamped because there is no doTransform for quaternion even though
+    // stamp of QuaternionStamped is not being used for anything
+    tf2::doTransform(
+      geometry_msgs::msg::QuaternionStamped{}.set__quaternion(
+        detection.kinematics.pose_with_covariance.pose.orientation),
+      q_out,
+      tf_msg__tracking__detection);
+    detection.kinematics.pose_with_covariance.pose.orientation.x = q_out.quaternion.x;
+    detection.kinematics.pose_with_covariance.pose.orientation.y = q_out.quaternion.y;
+    detection.kinematics.pose_with_covariance.pose.orientation.z = q_out.quaternion.z;
+    detection.kinematics.pose_with_covariance.pose.orientation.w = q_out.quaternion.w;
+  }
+  if (detection.kinematics.has_position_covariance) {
+    // Doing this properly is difficult. We'll ignore the rotational part. This is a practical
+    // solution since only the yaw covariance is relevant, and the yaw covariance is
+    // unaffected by the transformation, which preserves the z axis.
+    // An even more accurate implementation could additionally include the odometry covariance.
+    const Eigen::Map<Eigen::Matrix<double, 6, 6, Eigen::RowMajor>> cov_full(
+      detection.kinematics.pose_with_covariance.covariance.data());
+    // TODO(Maxime CLEMENT): can it be removed ? this is never used.
+    Eigen::Matrix<double, 3, 3> cov(cov_full.block(0, 0, 3, 3));
+    cov = rot_d * cov * rot_d.transpose();
+  }
+  // Transform the twist.
+  if (detection.kinematics.has_twist) {
+    auto & linear = detection.kinematics.twist.twist.linear;
+    const auto & frame_linear = detection_frame_odometry.twist.twist.linear;
+    const Eigen::Vector3d eigen_linear{linear.x, linear.y, linear.z};
+    const Eigen::Vector3d eigen_linear_transformed = rot_d * eigen_linear;
+    // This assumes the detection frame has no angular velocity wrt the tracking frame.
+    // TODO(nikolai.morin): Implement the full formula, to be found in
+    // Craig's "Introduction to robotics" book, third edition, formula 5.13
+    linear.x = frame_linear.x + eigen_linear_transformed.x();
+    linear.y = frame_linear.y + eigen_linear_transformed.y();
+    linear.z = frame_linear.z + eigen_linear_transformed.z();
+  }
+  return detection;
 }
 
 TrackedObjectsMsg convert_to_msg(
@@ -241,8 +303,33 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 
     detections_polygon_prism.objects.push_back(polygon_prism);
   }
+  auto tracking_result = update(detections_polygon_prism, detection_frame_odometry);
 
-  return update(detections_polygon_prism, detection_frame_odometry);
+
+  for (const auto tracking_with_detection : tracking_result.tracks_and_detection_indices){
+    const auto & track_idx = tracking_with_detection.first;
+    const auto & detection_idx = tracking_with_detection.second;
+
+    BoundingBox  box_in_detection_frame;
+    const auto iter_pair = common::lidar_utils::get_cluster(clusters, detection_idx);
+    if (iter_pair.first == iter_pair.second) {
+      continue;
+    }
+    box_in_detection_frame = common::geometry::bounding_box::lfit_bounding_box_2d(
+      iter_pair.first, iter_pair.second);
+    common::geometry::bounding_box::compute_height(
+      iter_pair.first, iter_pair.second, box_in_detection_frame);
+    DetectedObject detection =
+      common::geometry::bounding_box::details::make_detected_object(box_in_detection_frame);
+
+    auto detection_transformed = transform_detected_object(detection, detection_frame_odometry);
+
+    m_tracks.objects.at(track_idx).update_shape(detection_transformed);
+
+  }
+  tracking_result.tracks = convert_to_msg(m_tracks, incoming_clusters.header.stamp);
+
+  return tracking_result;
 }
 
 /// \relates autoware::perception::tracking::MultiObjectTracker
@@ -290,8 +377,16 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       const auto & detection = detections_with_associations.objects().objects[detection_idx];
       const auto matched_track_index = association.match_index;
       m_tracks.objects[matched_track_index].update(detection);
+
+      // Keep detection indicies of tracks.
+      if(m_tracks.objects[matched_track_index].label() !=
+          autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN)
+      {
+        result.tracks_and_detection_indices.emplace_back(matched_track_index, detection_idx);
+      }
     }
   }
+
   const auto & track_associations = m_object_associator.track_associations();
   for (auto idx = 0U; idx < m_object_associator.track_associations().size(); ++idx) {
     const auto & association = track_associations[idx];
@@ -316,6 +411,21 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
     }
   }
 
+  // Fix track indicies for prune tracks.
+  const auto copy_tracks_and_detection_indices = result.tracks_and_detection_indices;
+  for (std::size_t i=0 ; i < m_tracks.objects.size() ; i++){
+    if(m_tracks.objects.at(i).should_be_removed(
+      this->m_options.pruning_time_threshold,
+          this->m_options.pruning_ticks_threshold)){
+      for (std::size_t j = 0 ; j < copy_tracks_and_detection_indices.size() ; j++){
+        const auto track_and_detection = copy_tracks_and_detection_indices.at(j);
+        if(track_and_detection.first > i){
+          result.tracks_and_detection_indices.at(j).first--;
+        }
+      }
+    }
+  }
+
   // ==================================
   // Prune tracks
   // ==================================
@@ -323,11 +433,14 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   // array that is part of the track creation result, we would need to make sure we adapt the
   // indices in that array once some tracks are removed.
   const auto last =
-    std::remove_if(m_tracks.objects.begin(), m_tracks.objects.end(), [this](const auto & object) {
+    std::remove_if(m_tracks.objects.begin(),
+                   m_tracks.objects.end(),
+                   [this](const auto & object) {
       return object.should_be_removed(
         this->m_options.pruning_time_threshold, this->m_options.pruning_ticks_threshold);
     });
   m_tracks.objects.erase(last, m_tracks.objects.end());
+
   // ==================================
   // Build result
   // ==================================

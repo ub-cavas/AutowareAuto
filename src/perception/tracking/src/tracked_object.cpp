@@ -171,6 +171,15 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ekf.correct(pose_measurement);
 }
 
+void TrackedObject::update_shape(const DetectedObjectMsg & detection_bbox){
+  // Update the shape
+  m_msg.shape = {detection_bbox.shape};
+  m_msg.kinematics.centroid_position.z =
+    detection_bbox.kinematics.pose_with_covariance.pose.position.z;
+  m_msg.kinematics.orientation =
+    detection_bbox.kinematics.pose_with_covariance.pose.orientation;
+}
+
 void TrackedObject::update(
   const ObjectClassifications & classification,
   const common::types::float32_t covariance)

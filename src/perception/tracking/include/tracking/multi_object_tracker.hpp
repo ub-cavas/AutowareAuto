@@ -87,6 +87,8 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
   TrackerUpdateStatus status;
   /// Timestamps of ROI msgs used for track creation. Useful for debugging purposes.
   builtin_interfaces::msg::Time related_rois_stamp;
+  /// indicies of tracks and associated detections
+  std::vector<std::pair<std::size_t, std::size_t>> tracks_and_detection_indices;
 };
 
 /// \brief Options for object tracking, with sensible defaults.
