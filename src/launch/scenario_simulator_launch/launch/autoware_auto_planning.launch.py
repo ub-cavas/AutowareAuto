@@ -31,7 +31,6 @@ def generate_launch_description():
      * lane_planner
      * mpc_controller
      * object_collision_estimator
-     * parking_planner
     """
     autoware_auto_launch_pkg_prefix = get_package_share_directory(
         'autoware_auto_launch')
@@ -43,8 +42,6 @@ def generate_launch_description():
         autoware_auto_launch_pkg_prefix, 'param/mpc_controller.param.yaml')
     object_collision_estimator_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/object_collision_estimator.param.yaml')
-    parking_planner_param_file = os.path.join(
-        autoware_auto_launch_pkg_prefix, 'param/parking_planner.param.yaml')
     vehicle_characteristics_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
 
@@ -73,11 +70,6 @@ def generate_launch_description():
         'object_collision_estimator_param_file',
         default_value=object_collision_estimator_param_file,
         description='Path to parameter file for object collision estimator'
-    )
-    parking_planner_param = DeclareLaunchArgument(
-        'parking_planner_param_file',
-        default_value=parking_planner_param_file,
-        description='Path to parameter file for parking planner'
     )
     vehicle_characteristics_param = DeclareLaunchArgument(
         'vehicle_characteristics_param_file',
@@ -148,17 +140,6 @@ def generate_launch_description():
             ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
         ]
     )
-    parking_planner = Node(
-        package='parking_planner_nodes',
-        name='parking_planner_node',
-        namespace='planning',
-        executable='parking_planner_node_exe',
-        parameters=[
-            LaunchConfiguration('parking_planner_param_file'),
-            LaunchConfiguration('vehicle_characteristics_param_file'),
-        ],
-        remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
-    )
 
     return LaunchDescription([
         with_obstacles_param,
@@ -166,12 +147,10 @@ def generate_launch_description():
         lane_planner_param,
         mpc_param,
         object_collision_estimator_param,
-        parking_planner_param,
         vehicle_characteristics_param,
         behavior_planner,
         lanelet2_global_planner,
         lane_planner,
         mpc_controller,
         object_collision_estimator,
-        parking_planner,
     ])

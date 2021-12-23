@@ -14,6 +14,8 @@
 
 """Launch modules for behavior planner."""
 
+import os
+
 from ament_index_python import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
@@ -157,21 +159,40 @@ def generate_launch_description():
         ]
     )
 
-    parking_planner_param = DeclareLaunchArgument(
-        'parking_planner_param_file',
-        default_value=str(param_path / 'parking_planner.param.yaml'),
-        description='Path to paramter file for parking planner'
+    costmap_generator_param = DeclareLaunchArgument(
+        'costmap_generator_param_file',
+        default_value=os.path.join(param_path, 'costmap_generator.param.yaml'),
+        description='Path to parameter file for costmap generator'
     )
-    parking_planner = Node(
-        package='parking_planner_nodes',
-        name='parking_planner_node',
+    costmap_generator = Node(
+        package='costmap_generator_nodes',
+        executable='costmap_generator_node_exe',
+        name='costmap_generator_node',
         namespace='planning',
-        executable='parking_planner_node_exe',
+        output='screen',
         parameters=[
-            LaunchConfiguration('parking_planner_param_file'),
-            LaunchConfiguration('vehicle_characteristics_param_file'),
+            LaunchConfiguration('costmap_generator_param_file'),
         ],
-        remappings=[('HAD_Map_Service', '/had_maps/HAD_Map_Service')]
+        remappings=[
+            ('~/client/HAD_Map_Service', '/had_maps/HAD_Map_Service')
+        ]
+    )
+
+    freespace_planner_param = DeclareLaunchArgument(
+        'freespace_planner_param_file',
+        default_value=os.path.join(param_path, 'freespace_planner.param.yaml'),
+        description='Path to parameter file for freespace_planner'
+    )
+    freespace_planner = Node(
+        package='freespace_planner',
+        executable='freespace_planner_node_exe',
+        name='freespace_planner',
+        namespace='planning',
+        output='screen',
+        parameters=[
+            LaunchConfiguration('freespace_planner_param_file'),
+            LaunchConfiguration('vehicle_constants_manager_param_file')
+        ]
     )
 
     rviz2 = Node(
@@ -206,8 +227,10 @@ def generate_launch_description():
         map_publisher,
         mpc_controller_param,
         mpc_controller,
-        parking_planner_param,
-        parking_planner,
+        costmap_generator_param,
+        costmap_generator,
+        freespace_planner_param,
+        freespace_planner,
         rviz2,
         urdf_publisher,
     ])
