@@ -47,6 +47,7 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <utility>
 
 
 namespace autoware
@@ -91,7 +92,6 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
   std::vector<std::pair<std::size_t, std::size_t>> tracks_and_detection_indices;
   /// Unassigned detected objects
   autoware_auto_perception_msgs::msg::DetectedObjects unassigned_detected_objects;
-
 };
 
 /// \brief Options for object tracking, with sensible defaults.

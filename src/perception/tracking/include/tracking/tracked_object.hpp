@@ -159,7 +159,6 @@ private:
   common::types::float64_t m_default_variance = -1.0;
   /// Track class classifier.
   ClassificationTracker m_classifier;
-
 };
 
 

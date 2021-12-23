@@ -171,7 +171,8 @@ void TrackedObject::update(const DetectedObjectMsg & detection)
   m_ekf.correct(pose_measurement);
 }
 
-void TrackedObject::update_shape(const DetectedObjectMsg & detection_bbox){
+void TrackedObject::update_shape(const DetectedObjectMsg & detection_bbox)
+{
   // Update the shape
   m_msg.shape = {detection_bbox.shape};
   m_msg.kinematics.centroid_position.z =

@@ -120,16 +120,16 @@ DetectedObjects transform(
     const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
     detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
 
-    Eigen::Isometry3f tf__tracking__detection_f = tf__tracking__detection.cast <float> ();
+    Eigen::Isometry3f tf__tracking__detection_f = tf__tracking__detection.cast<float>();
     for (auto & point : detection.shape.polygon.points) {
-      const Eigen::Vector3f point_eigen{point.x,point.y,point.z};
+      const Eigen::Vector3f point_eigen{point.x, point.y, point.z};
       const Eigen::Vector3f point_transformed = tf__tracking__detection_f * point_eigen;
       point.x = point_transformed.x() -
-                static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.x);
-      point.y = point_transformed.y()-
-                static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.y);
-      point.z = point_transformed.z()-
-                static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.z);
+        static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.x);
+      point.y = point_transformed.y() -
+        static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.y);
+      point.z = point_transformed.z() -
+        static_cast<float32_t>(detection.kinematics.pose_with_covariance.pose.position.z);
     }
 
     if (detection.kinematics.orientation_availability != DetectedObjectKinematics::UNAVAILABLE) {
@@ -172,7 +172,7 @@ DetectedObjects transform(
 }
 
 
-DetectedObject transform_detected_object (
+DetectedObject transform_detected_object(
   const DetectedObject & detection_input,
   const Odometry & detection_frame_odometry)
 {
@@ -244,14 +244,14 @@ TrackedObjectsMsg convert_to_msg(
     tracks.objects.begin(),
     tracks.objects.end(),
     std::back_inserter(array.objects),
-    [](TrackedObject o) { return o.msg(); });
+    [](TrackedObject o) {return o.msg();});
   return array;
 }
 
 
 }  // anonymous namespace
 
-template <class TrackCreatorT>
+template<class TrackCreatorT>
 MultiObjectTracker<TrackCreatorT>::MultiObjectTracker(
   MultiObjectTrackerOptions options, TrackCreatorT track_creator, const tf2::BufferCore & buffer)
 : m_options{options},
@@ -262,7 +262,7 @@ MultiObjectTracker<TrackCreatorT>::MultiObjectTracker(
   m_tracks.frame_id = m_options.frame;
 }
 
-template <class TrackCreatorT>
+template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   const ClustersMsg & incoming_clusters, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
@@ -308,11 +308,11 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   auto tracking_result = update(detections_polygon_prism, detection_frame_odometry);
 
 
-  for (const auto tracking_with_detection : tracking_result.tracks_and_detection_indices){
+  for (const auto tracking_with_detection : tracking_result.tracks_and_detection_indices) {
     const auto & track_idx = tracking_with_detection.first;
     const auto & detection_idx = tracking_with_detection.second;
 
-    BoundingBox  box_in_detection_frame;
+    BoundingBox box_in_detection_frame;
     const auto iter_pair = common::lidar_utils::get_cluster(clusters, detection_idx);
     if (iter_pair.first == iter_pair.second) {
       continue;
@@ -326,7 +326,6 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 
     auto detection_transformed = transform_detected_object(detection, detection_frame_odometry);
     m_tracks.objects.at(track_idx).update_shape(detection_transformed);
-
   }
 
   tracking_result.tracks = convert_to_msg(m_tracks, incoming_clusters.header.stamp);
@@ -360,7 +359,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       // We assume here a zero orientation as we don't care about the orientation of the convex
       // hull. This then becomes a poor man's transformation into the object-local coordinates.
 
-      point = common::geometry::minus_2d(point,centroid);
+      point = common::geometry::minus_2d(point, centroid);
     }
 
     tracking_result.unassigned_detected_objects.objects.push_back(unassigned_detected_object);
@@ -371,7 +370,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 }
 
 /// \relates autoware::perception::tracking::MultiObjectTracker
-template <class TrackCreatorT>
+template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   const DetectedObjects & detections, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
@@ -409,7 +408,8 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   // Update tracks with observations
   // ==================================
   for (size_t detection_idx = 0; detection_idx < detections_with_associations.associations().size();
-       ++detection_idx) {
+    ++detection_idx)
+  {
     const auto & association = detections_with_associations.associations()[detection_idx];
     if (association.matched == Matched::kExistingTrack) {
       const auto & detection = detections_with_associations.objects().objects[detection_idx];
@@ -417,8 +417,8 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
       m_tracks.objects[matched_track_index].update(detection);
 
       // Keep detection indicies of tracks.
-      if(m_tracks.objects[matched_track_index].label() !=
-          autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN)
+      if (m_tracks.objects[matched_track_index].label() !=
+        autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN)
       {
         result.tracks_and_detection_indices.emplace_back(matched_track_index, detection_idx);
       }
@@ -451,13 +451,14 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 
   // Fix track indicies for prune tracks.
   const auto copy_tracks_and_detection_indices = result.tracks_and_detection_indices;
-  for (std::size_t i=0 ; i < m_tracks.objects.size() ; i++){
-    if(m_tracks.objects.at(i).should_be_removed(
-      this->m_options.pruning_time_threshold,
-          this->m_options.pruning_ticks_threshold)){
-      for (std::size_t j = 0 ; j < copy_tracks_and_detection_indices.size() ; j++){
+  for (std::size_t i = 0; i < m_tracks.objects.size(); i++) {
+    if (m_tracks.objects.at(i).should_be_removed(
+        this->m_options.pruning_time_threshold,
+        this->m_options.pruning_ticks_threshold))
+    {
+      for (std::size_t j = 0; j < copy_tracks_and_detection_indices.size(); j++) {
         const auto track_and_detection = copy_tracks_and_detection_indices.at(j);
-        if(track_and_detection.first > i){
+        if (track_and_detection.first > i) {
           result.tracks_and_detection_indices.at(j).first--;
         }
       }
@@ -471,9 +472,10 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   // array that is part of the track creation result, we would need to make sure we adapt the
   // indices in that array once some tracks are removed.
   const auto last =
-    std::remove_if(m_tracks.objects.begin(),
-                   m_tracks.objects.end(),
-                   [this](const auto & object) {
+    std::remove_if(
+    m_tracks.objects.begin(),
+    m_tracks.objects.end(),
+    [this](const auto & object) {
       return object.should_be_removed(
         this->m_options.pruning_time_threshold, this->m_options.pruning_ticks_threshold);
     });
@@ -489,7 +491,7 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   return result;
 }
 
-template <class TrackCreatorT>
+template<class TrackCreatorT>
 void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & rois)
 {
   const auto target_time = time_utils::from_message(rois.header.stamp);
@@ -516,7 +518,7 @@ void MultiObjectTracker<TrackCreatorT>::update(const ClassifiedRoiArrayMsg & roi
   m_track_creator.add_objects(rois, association);
 }
 
-template <class TrackCreatorT>
+template<class TrackCreatorT>
 TrackerUpdateStatus MultiObjectTracker<TrackCreatorT>::validate(
   const DetectedObjects & detections, const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
