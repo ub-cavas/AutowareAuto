@@ -99,68 +99,6 @@ T get_closest_match(const std::vector<T> & matched_msgs, const rclcpp::Time & st
     });
 }
 
-DetectedObjects convert_unassigned_clusters_to_detected_objects(
-  const autoware_auto_perception_msgs::msg::PointClusters & clusters,
-  const DetectedObjectsUpdateResult & update_result)
-{
-  using geometry_msgs::msg::Point32;
-  using geometry_msgs::build;
-
-  common::lidar_utils::PointClustersView clusters_msg_view{clusters};
-  DetectedObjects detections_from_clusters;
-  detections_from_clusters.header = clusters.header;
-  detections_from_clusters.objects.reserve(clusters_msg_view.size());
-  for (const auto idx : update_result.unassigned_clusters_indices) {
-    if (idx >= clusters_msg_view.size()) {
-      throw std::runtime_error("Wrong cluster idx");
-    }
-    autoware_auto_perception_msgs::msg::DetectedObject detected_object;
-    detected_object.existence_probability = 1.0F;
-    // Set shape as a convex hull of the cluster.
-    auto cluster_view = clusters_msg_view[static_cast<std::uint32_t>(idx)];
-    std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type>
-    point_list{
-      cluster_view.begin(), cluster_view.end()};
-    const auto hull_end_iter = common::geometry::convex_hull(point_list);
-
-    for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
-      const auto & hull_point = *iter;
-      detected_object.shape.polygon.points.push_back(
-        build<Point32>().x(hull_point.x).y(hull_point.y).z(0.0F));
-    }
-    common::geometry::bounding_box::compute_height(
-      cluster_view.begin(),
-      cluster_view.end(),
-      detected_object.shape);
-
-    // Compute the centroid
-    geometry_msgs::msg::Point32 sum;
-    for (const auto & point : detected_object.shape.polygon.points) {
-      sum = common::geometry::plus_2d(sum, point);
-    }
-    const auto centroid = common::geometry::times_2d(
-      sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
-    auto & detected_object_position = detected_object.kinematics.pose_with_covariance.pose.position;
-    detected_object_position.x = static_cast<decltype(detected_object_position.x)>(centroid.x);
-    detected_object_position.y = static_cast<decltype(detected_object_position.y)>(centroid.y);
-    detected_object_position.z = static_cast<decltype(detected_object_position.z)>(centroid.z);
-    for (auto & point : detected_object.shape.polygon.points) {
-      // We assume here a zero orientation as we don't care about the orientation of the convex
-      // hull. This then becomes a poor man's transformation into the object-local coordinates.
-      point = common::geometry::minus_2d(point, centroid);
-    }
-
-    // Compute the classification
-    autoware_auto_perception_msgs::msg::ObjectClassification label;
-    label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
-    label.probability = 1.0F;
-    detected_object.classification.emplace_back(label);
-
-    detections_from_clusters.objects.push_back(detected_object);
-  }
-  return detections_from_clusters;
-}
-
 }  // namespace
 
 MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & options)
@@ -328,8 +266,6 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
 
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
-    const auto detections_from_clusters =
-      convert_unassigned_clusters_to_detected_objects(*objs, result);
     m_leftover_publisher->publish(result.unassigned_detected_objects);
     maybe_visualize(result.related_rois_stamp, result.unassigned_detected_objects);
   } else {
