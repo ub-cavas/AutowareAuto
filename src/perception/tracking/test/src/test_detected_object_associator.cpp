@@ -175,4 +175,3 @@ TEST_F(AssociationTester, MoreTracksLessObjects)
     EXPECT_EQ(association.match_index % 2, 0UL);
   }
 }
-

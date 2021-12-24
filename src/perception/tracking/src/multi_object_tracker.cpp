@@ -305,8 +305,9 @@ DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
 
     detections_polygon_prism.objects.push_back(polygon_prism);
   }
-  auto tracking_result = update(detections_polygon_prism, detection_frame_odometry);
 
+  /// Get tracking result
+  auto tracking_result = update(detections_polygon_prism, detection_frame_odometry);
 
   for (const auto tracking_with_detection : tracking_result.tracks_and_detection_indices) {
     const auto & track_idx = tracking_with_detection.first;
