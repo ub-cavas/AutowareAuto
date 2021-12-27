@@ -120,7 +120,8 @@ DetectedObjects transform(
     const Eigen::Vector3d centroid_tracking = tf__tracking__detection * centroid_detection;
     detection.kinematics.pose_with_covariance.pose.position = tf2::toMsg(centroid_tracking);
 
-    Eigen::Isometry3f tf__tracking__detection_f = tf__tracking__detection.cast<float>();
+    Eigen::Isometry3f tf__tracking__detection_f = tf__tracking__detection.cast<float32_t>();
+
     for (auto & point : detection.shape.polygon.points) {
       const Eigen::Vector3f point_eigen{point.x, point.y, point.z};
       const Eigen::Vector3f point_transformed = tf__tracking__detection_f * point_eigen;

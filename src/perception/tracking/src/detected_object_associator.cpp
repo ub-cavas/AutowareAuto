@@ -129,7 +129,7 @@ bool DetectedObjectAssociator::consider_associating(
   const autoware_auto_perception_msgs::msg::DetectedObject & detection,
   const TrackedObject & track) const
 {
-  // TODO(kcolak): geometry::convex_hull doesn't guareanteed convex hull is counter-clockwise.
+  // TODO(kcolak): geometry::convex_hull function not working properly.
   /// After fix that, implement area ratio comparison for consider_associating
 
   geometry_msgs::msg::Point track_centroid{};
