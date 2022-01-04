@@ -207,7 +207,7 @@ def generate_launch_description():
     )
 
     core_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core.launch.py']),
+        PythonLaunchDescriptionSource([avp_demo_pkg_prefix, '/launch/avp_core_w_bpp_bvp.launch.py']),
         launch_arguments={}.items()
     )
 
