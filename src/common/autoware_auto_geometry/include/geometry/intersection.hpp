@@ -32,6 +32,13 @@
 #include <type_traits>
 #include <algorithm>
 
+#include <boost/geometry.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
+
+namespace bg = boost::geometry;
+typedef bg::model::d2::point_xy<double> point_type;
+typedef bg::model::polygon<point_type> polygon_type;
+
 namespace autoware
 {
 namespace common
@@ -266,12 +273,25 @@ std::list<PointT> convex_polygon_intersection2d(
   const Iterable1T<PointT> & polygon1,
   const Iterable2T<PointT> & polygon2)
 {
+  polygon_type p1;
+  polygon_type p2;
+  std::list<polygon_type> output;
+
+  bg::assign_points(p1, polygon1);
+  bg::correct(p1);
+
+  bg::assign_points(p2, polygon2);
+  bg::correct(p2);
+
+  bg::intersection(p1, p2, output);
+
   std::list<PointT> result;
-  details::append_contained_points(polygon1, polygon2, result);
-  details::append_contained_points(polygon2, polygon1, result);
-  details::append_intersection_points(polygon1, polygon2, result);
-  const auto end_it = common::geometry::convex_hull(result);
-  result.resize(static_cast<uint32_t>(std::distance(result.cbegin(), end_it)));
+
+  for (point_type point : boost::geometry::exterior_ring(p1)) {
+      boost::geometry::model::d2::point_xy<double> xCoord = (boost::geometry::model::d2::point_xy<double> &&) point.x();
+      result.push_back(xCoord);
+  }
+  
   return result;
 }
 
