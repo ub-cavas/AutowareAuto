@@ -34,6 +34,8 @@ autoware_set_compile_options(${PROJECT_NAME})
 if(BUILD_TESTING)
   # run linters
   find_package(ament_lint_auto REQUIRED)
+  find_package(Boost 1.68 REQUIRED)
+  find_package(benchmark REQUIRED)
   ament_lint_auto_find_test_dependencies()
   # gtest
   set(GEOMETRY_GTEST geometry_gtest)
@@ -58,6 +60,8 @@ if(BUILD_TESTING)
     "geometry_msgs"
     "osrf_testing_tools_cpp")
   target_link_libraries(${GEOMETRY_GTEST} ${PROJECT_NAME})
+  ament_add_google_benchmark(bench_intersection test/bench/bench_intersection.cpp)
+  target_link_libraries(bench_intersection ${PROJECT_NAME})
 endif()
 
 # Ament Exporting
