@@ -167,6 +167,7 @@ inline auto ccw(const T1 & pt, const T2 & q, const T3 & r)
 {
   using point_adapter::x_;
   using point_adapter::y_;
+
   return (((x_(q) - x_(pt)) * (y_(r) - y_(pt))) - ((y_(q) - y_(pt)) * (x_(r) - x_(pt)))) <= 0.0F;
 }
 
@@ -472,25 +473,22 @@ bool all_ordered(const IT begin, const IT end) noexcept
   if (std::distance(begin, end) <= 2U) {
     return true;
   }
-  bool is_first_point_cw = false;
+  bool is_first_point_ccw = false;
   // Can't use std::all_of because that works directly on the values
   for (auto line_start = begin; line_start != end; ++line_start) {
     const auto line_end = details::circular_next(begin, end, line_start);
     const auto query_point = details::circular_next(begin, end, line_end);
-    // Check if 3 points starting from current point are in clockwise direction
-    const bool is_cw = comparison::abs_lte(
-      check_point_position_to_line_2d(*line_start, *line_end, *query_point),
-      0.0F, 1e-3F
-    );
-    if (is_cw) {
+    // Check if 3 points starting from current point are in counter clockwise direction
+    const bool is_ccw = ccw(*line_start, *line_end, *query_point);
+    if (is_ccw) {
       if (line_start == begin) {
-        is_first_point_cw = true;
+        is_first_point_ccw = true;
       } else {
-        if (!is_first_point_cw) {
+        if (!is_first_point_ccw) {
           return false;
         }
       }
-    } else if (is_first_point_cw) {
+    } else if (is_first_point_ccw) {
       return false;
     }
   }

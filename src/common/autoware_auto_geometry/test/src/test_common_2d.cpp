@@ -195,4 +195,18 @@ TEST(ordered_check, basic) {
     make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(6.0, 6.0)
   };
   EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
+
+
+  // Point list created from random point cloud
+  points_list = {
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-39.1, -83.3),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-38.7, -83.7),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-36.5, -85.3),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-34.7, -86.5),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-35.1, -86.1),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-35.9, -85.5),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-37.3, -84.5),
+    make_points<autoware_auto_perception_msgs::msg::PointXYZIF>(-38.7, -83.5),
+  };
+  EXPECT_TRUE(autoware::common::geometry::all_ordered(points_list.begin(), points_list.end()));
 }
