@@ -51,9 +51,9 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, object_collision_estimator_node):
-        # Check that process exits with code -15 code: termination request, sent to the program
+        # Check that process exits with code -2 code: termination request, sent to the program
         launch_testing.asserts.assertExitCodes(
             proc_info,
-            [-15],
+            [-2],
             process=object_collision_estimator_node
         )
