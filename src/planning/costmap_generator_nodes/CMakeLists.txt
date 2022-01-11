@@ -27,7 +27,12 @@ ament_auto_add_library(${COSTMAP_GENERATOR_NODE_NAME} SHARED
 )
 autoware_set_compile_options(${COSTMAP_GENERATOR_NODE_NAME})
 # skipping Werrors from external `grid_map_cv` package
-target_compile_options(${COSTMAP_GENERATOR_NODE_NAME} PRIVATE -Wno-old-style-cast -Wno-sign-conversion -Wno-conversion -Wno-double-conversion -Wno-double-promotion)
+target_compile_options(${COSTMAP_GENERATOR_NODE_NAME} PRIVATE
+  -Wno-old-style-cast
+  -Wno-sign-conversion
+  -Wno-conversion
+  -Wno-double-conversion
+  -Wno-double-promotion)
 
 rclcpp_components_register_node(${COSTMAP_GENERATOR_NODE_NAME}
   PLUGIN "autoware::planning::costmap_generator::CostmapGeneratorNode"
