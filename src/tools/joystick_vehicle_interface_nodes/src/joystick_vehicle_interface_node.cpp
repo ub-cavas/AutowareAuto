@@ -45,12 +45,15 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
       using ValT = typename MapT::mapped_type;
       using ValRawT = typename std::conditional_t<std::is_floating_point<ValT>::value, float64_t,
           int64_t>;
-      declare_parameter<ValRawT>(param_name);
-      try {
-        const auto val_raw = get_parameter(param_name).get_value<ValRawT>();
-        map[key] = static_cast<ValT>(val_raw);
-      } catch (const std::runtime_error & ex) {
-        (void)ex;
+      if(!has_parameter(param_name))
+      {
+        declare_parameter<ValRawT>(param_name, ValRawT{});
+        rclcpp::Parameter param;
+        get_parameter(param_name, param);
+        if(rclcpp::ParameterType::PARAMETER_NOT_SET != param.get_type()) {
+          const auto val_raw = param.get_value<ValRawT>();
+          map[key] = static_cast<ValT>(val_raw);
+        }
       }
     };
   // axis map
