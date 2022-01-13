@@ -43,17 +43,15 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   const auto check_set = [this](auto & map, auto key, const std::string & param_name) {
       using MapT = std::remove_reference_t<decltype(map)>;
       using ValT = typename MapT::mapped_type;
-      using ValRawT = typename std::conditional_t<std::is_floating_point<ValT>::value, float64_t,
-          int64_t>;
-      if(!has_parameter(param_name))
-      {
-        declare_parameter<ValRawT>(param_name, ValRawT{});
-        rclcpp::Parameter param;
-        get_parameter(param_name, param);
-        if(rclcpp::ParameterType::PARAMETER_NOT_SET != param.get_type()) {
-          const auto val_raw = param.get_value<ValRawT>();
-          map[key] = static_cast<ValT>(val_raw);
-        }
+      using ValRawT = std::conditional_t<std::is_floating_point<ValT>::value, float64_t, int64_t>;
+      const auto param_type =
+        std::is_same_v<ValRawT, float64_t> ? rclcpp::PARAMETER_DOUBLE : rclcpp::PARAMETER_INTEGER;
+      const auto param = declare_parameter(param_name, param_type);
+      if (param.get_type() != rclcpp::ParameterType::PARAMETER_NOT_SET) {
+        rclcpp::Parameter parameter;
+        get_parameter(param_name, parameter);
+        const auto val_raw = parameter.get_value<ValRawT>();
+        map[key] = static_cast<ValT>(val_raw);
       }
     };
   // axis map
