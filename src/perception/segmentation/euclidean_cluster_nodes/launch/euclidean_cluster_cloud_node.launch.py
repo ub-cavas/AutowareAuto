@@ -46,14 +46,14 @@ def generate_launch_description():
         package='euclidean_cluster_nodes',
         executable='euclidean_cluster_node_exe',
         parameters=[euclidean_cluster_param_file],
-        remappings=[("points_in", "points_nonground")])
+        remappings=[('points_in', 'points_nonground')])
 
     # ros1 bridge runner definition.
     ray_ground_runner = launch_ros.actions.Node(
         package='ray_ground_classifier_nodes',
         executable='ray_ground_classifier_cloud_node_exe',
         parameters=[ray_ground_param_file],
-        remappings=[("points_in", "lidar_front/points_filtered")])
+        remappings=[('points_in', 'lidar_front/points_filtered')])
 
     return launch.LaunchDescription([
         euclidean_cluster_node_runner,

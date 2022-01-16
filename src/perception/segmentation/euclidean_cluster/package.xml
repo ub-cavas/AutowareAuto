@@ -13,6 +13,7 @@
 
     <depend>autoware_auto_geometry</depend>
     <depend>autoware_auto_perception_msgs</depend>
+    <depend>geometry_msgs</depend>
     <build_depend>lidar_utils</build_depend>
     <build_depend>autoware_auto_common</build_depend>
 

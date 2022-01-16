@@ -14,12 +14,14 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include <lidar_utils/point_cloud_utils.hpp>
+#include <geometry_msgs/msg/point32.hpp>
 #include <cstring>
 //lint -e537 NOLINT Repeated include file: pclint vs cpplint
 #include <algorithm>
 #include <string>
 //lint -e537 NOLINT Repeated include file: pclint vs cpplint
 #include <utility>
+#include <list>
 #include "euclidean_cluster/euclidean_cluster.hpp"
 #include "geometry/bounding_box_2d.hpp"
 
@@ -350,7 +352,67 @@ DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes)
     common::geometry::bounding_box::details::make_detected_object);
   return detected_objects;
 }
+////////////////////////////////////////////////////////////////////////////////
+DetectedObjects convert_to_polygon_prisms(const Clusters & clusters)
+{
+  DetectedObjects detected_objects;
+  (void) clusters;
+  for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
+    try {
+      autoware_auto_perception_msgs::msg::DetectedObject detected_object;
+      detected_object.existence_probability = 1.0F;
+      const auto iter_pair = common::lidar_utils::get_cluster(clusters, cls_id);
+      if (iter_pair.first == iter_pair.second) {
+        continue;
+      }
+      std::list<autoware_auto_perception_msgs::msg::PointClusters::_points_type::value_type>
+      point_list{
+        iter_pair.first, iter_pair.second};
+      const auto hull_end_iter = common::geometry::convex_hull(point_list);
+      (void) hull_end_iter;
+      for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
+        const auto & hull_point = *iter;
+        geometry_msgs::msg::Point32 polygon_point;
+        polygon_point.x = hull_point.x;
+        polygon_point.y = hull_point.y;
+        polygon_point.z = 0.0F;
+        detected_object.shape.polygon.points.push_back(polygon_point);
+      }
+      common::geometry::bounding_box::compute_height(
+        iter_pair.first,
+        iter_pair.second,
+        detected_object.shape);
 
+      // Compute the centroid
+      geometry_msgs::msg::Point32 sum;
+      for (const auto & point : detected_object.shape.polygon.points) {
+        sum = common::geometry::plus_2d(sum, point);
+      }
+      const auto centroid = common::geometry::times_2d(
+        sum, 1.0F / static_cast<float>(detected_object.shape.polygon.points.size()));
+      auto & detected_object_position =
+        detected_object.kinematics.pose_with_covariance.pose.position;
+      detected_object_position.x = static_cast<decltype(detected_object_position.x)>(centroid.x);
+      detected_object_position.y = static_cast<decltype(detected_object_position.y)>(centroid.y);
+      detected_object_position.z = static_cast<decltype(detected_object_position.z)>(centroid.z);
+      for (auto & point : detected_object.shape.polygon.points) {
+        // We assume here a zero orientation as we don't care about the orientation of the convex
+        // hull. This then becomes a poor man's transformation into the object-local coordinates.
+        point = common::geometry::minus_2d(point, centroid);
+      }
+
+      autoware_auto_perception_msgs::msg::ObjectClassification label;
+      label.classification = autoware_auto_perception_msgs::msg::ObjectClassification::UNKNOWN;
+      label.probability = 1.0F;
+      detected_object.classification.emplace_back(label);
+
+      detected_objects.objects.push_back(detected_object);
+    } catch (const std::exception & e) {
+      std::cerr << e.what() << std::endl;
+    }
+  }
+  return detected_objects;
+}
 ////////////////////////////////////////////////////////////////////////////////
 }  // namespace details
 }  // namespace euclidean_cluster

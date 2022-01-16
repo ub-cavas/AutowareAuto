@@ -83,6 +83,7 @@ private:
   const rclcpp::Publisher<Clusters>::SharedPtr m_cluster_pub_ptr;
   const rclcpp::Publisher<BoundingBoxArray>::SharedPtr m_box_pub_ptr;
   const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_pub_ptr;
+  const rclcpp::Publisher<DetectedObjects>::SharedPtr m_detected_objects_polygon_pub_ptr;
   const rclcpp::Publisher<MarkerArray>::SharedPtr m_marker_pub_ptr;
   // algorithms
   euclidean_cluster::EuclideanCluster m_cluster_alg;

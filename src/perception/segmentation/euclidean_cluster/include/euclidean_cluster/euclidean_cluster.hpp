@@ -254,6 +254,11 @@ BoundingBoxArray compute_bounding_boxes(
 /// \returns A DetectedObjects message with the bounding boxes inside
 EUCLIDEAN_CLUSTER_PUBLIC
 DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes);
+/// \brief Convert this clusters to polygon prisms as a DetectedObjects message
+/// \param[in] clusters A set of clusters for which to compute the polygon prisms
+/// \returns A DetectedObjects message with the polygon prism inside
+EUCLIDEAN_CLUSTER_PUBLIC
+DetectedObjects convert_to_polygon_prisms(const Clusters & clusters);
 }  // namespace details
 }  // namespace euclidean_cluster
 }  // namespace segmentation

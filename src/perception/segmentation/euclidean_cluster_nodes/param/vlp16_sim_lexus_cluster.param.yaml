@@ -6,6 +6,7 @@
     use_detected_objects: True
     use_cluster: True
     use_box: True
+    use_polygon_prism: True
     max_cloud_size: 55000
     downsample: True
     use_lfit: True

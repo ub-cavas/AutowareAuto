@@ -64,6 +64,10 @@ m_detected_objects_pub_ptr{declare_parameter("use_detected_objects").get<bool8_t
   create_publisher<DetectedObjects>(
     "lidar_detected_objects", rclcpp::QoS{10}) :
   nullptr},
+m_detected_objects_polygon_pub_ptr{declare_parameter("use_polygon_prism").get<bool8_t>() ?
+  create_publisher<DetectedObjects>(
+    "lidar_polygon_prisms", rclcpp::QoS{10}) :
+  nullptr},
 m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
   create_publisher<MarkerArray>(
     "lidar_bounding_boxes_viz", rclcpp::QoS{10}) :
@@ -199,6 +203,14 @@ void EuclideanClusterNode::handle_clusters(
     const auto detected_objects_msg =
       euclidean_cluster::details::convert_to_detected_objects(boxes);
     m_detected_objects_pub_ptr->publish(detected_objects_msg);
+  }
+
+  if (m_detected_objects_polygon_pub_ptr) {
+    auto detected_objects_polygon_msg =
+      euclidean_cluster::details::convert_to_polygon_prisms(clusters);
+    detected_objects_polygon_msg.header.stamp = header.stamp;
+    detected_objects_polygon_msg.header.frame_id = header.frame_id;
+    m_detected_objects_polygon_pub_ptr->publish(detected_objects_polygon_msg);
   }
 
   // Also publish boxes for visualization

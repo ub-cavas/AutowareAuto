@@ -61,6 +61,10 @@ TEST_F(EuclideanClusterNodesTest, Instantiate)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
+  params.emplace_back("use_polygon_prism", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("max_cloud_size", 55000);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
@@ -142,6 +146,10 @@ TEST_F(EuclideanClusterNodesTest, InstantiateDownsample)
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
   params.emplace_back("use_box", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("use_polygon_prism", true);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
