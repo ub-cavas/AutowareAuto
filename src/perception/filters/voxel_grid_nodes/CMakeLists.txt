@@ -51,7 +51,11 @@ if(BUILD_TESTING)
 
   # gtest
   set(VOXEL_GRID_NODE_GTEST voxel_algorithm_gtest)
-  ament_add_gtest(${VOXEL_GRID_NODE_GTEST} test/test_voxel_grid_nodes.cpp)
+  ament_add_gtest(${VOXEL_GRID_NODE_GTEST}
+    test/test_voxel_grid_nodes.cpp
+    ENV
+    ROS_DOMAIN_ID=100
+  )
   autoware_set_compile_options(${VOXEL_GRID_NODE_GTEST})
   target_link_libraries(${VOXEL_GRID_NODE_GTEST} ${VOXEL_GRID_NODE_LIB})
   target_include_directories(${VOXEL_GRID_NODE_GTEST} PRIVATE "test/include" "include")
