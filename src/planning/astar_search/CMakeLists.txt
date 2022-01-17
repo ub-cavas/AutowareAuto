@@ -17,7 +17,12 @@ if(BUILD_TESTING)
 
   # Unit tests
   find_package(ament_cmake_gtest REQUIRED)
-  ament_add_gtest(${ASTAR_SEARCH_LIB}_test test/test_astar_search.cpp TIMEOUT 600)
+  ament_add_gtest(${ASTAR_SEARCH_LIB}_test
+    test/test_astar_search.cpp
+    TIMEOUT 600
+    ENV
+    ROS_DOMAIN_ID=104
+  )
   autoware_set_compile_options(${ASTAR_SEARCH_LIB}_test)
   target_link_libraries(${ASTAR_SEARCH_LIB}_test ${ASTAR_SEARCH_LIB})
 endif()

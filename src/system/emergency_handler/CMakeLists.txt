@@ -26,10 +26,14 @@ if(BUILD_TESTING)
   add_ros_test(
     test/emergency_handler_launch.test.py
     TIMEOUT "30"
+    ENV
+    ROS_DOMAIN_ID=105  
   )
 
   ament_add_gtest(${PROJECT_NAME}_test
     test/emergency_handler_node_test.cpp
+    ENV
+    ROS_DOMAIN_ID=106
   )
   target_link_libraries(${PROJECT_NAME}_test ${PROJECT_NAME})
 endif()
