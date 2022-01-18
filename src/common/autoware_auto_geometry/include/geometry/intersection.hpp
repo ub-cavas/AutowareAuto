@@ -36,11 +36,14 @@
 #include <boost/geometry/algorithms/assign.hpp>
 
 namespace bg = boost::geometry;
-typedef bg::model::d2::point_xy<double> point_type;
-typedef bg::model::polygon<point_type> polygon_type;
+
+typedef bg::model::point<autoware::common::types::float32_t, 2, bg::cs::cartesian> point_type;
+typedef bg::model::ring<point_type> polygon_type;
+
 
 namespace autoware
 {
+
 namespace common
 {
 namespace geometry
@@ -267,33 +270,49 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// \param polygon1 A convex polygon
 /// \param polygon2 A convex polygon
 /// \return The resulting conv
-template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-  typename PointT>
-std::list<PointT> convex_polygon_intersection2d(
-  const Iterable1T<PointT> & polygon1,
-  const Iterable2T<PointT> & polygon2)
-{
-  polygon_type p1;
-  polygon_type p2;
-  std::list<polygon_type> output;
+    template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
+            typename PointT>
+    std::list<PointT> convex_polygon_intersection2d(const Iterable1T<PointT> & list1,
+                                                    const Iterable2T<PointT> & list2){
 
-  bg::assign_points(p1, polygon1);
-  bg::correct(p1);
+        auto convert_to_boost = [](const auto & list) {
 
-  bg::assign_points(p2, polygon2);
-  bg::correct(p2);
+            point_type boost_point;
+            std::list<point_type> boost_list;
+            for (auto &item : list){
+                boost_point.set<0>(item.x);
+                boost_point.set<1>(item.y);
+                boost_list.push_back(boost_point);
+            }
+            return boost_list;
+        };
 
-  bg::intersection(p1, p2, output);
+        std::list<polygon_type> result;
+        std::list<PointT> output;
+        polygon_type polygon1;
+        polygon_type polygon2;
 
-  std::list<PointT> result;
+        bg::assign_points(polygon1, convert_to_boost(list1));
+        bg::correct(polygon1);
 
-  for (point_type point : boost::geometry::exterior_ring(p1)) {
-      boost::geometry::model::d2::point_xy<double> xCoord = (boost::geometry::model::d2::point_xy<double> &&) point.x();
-      result.push_back(xCoord);
-  }
-  
-  return result;
-}
+        bg::assign_points(polygon2, convert_to_boost(list2));
+        bg::correct(polygon2);
+
+        bg::intersection(polygon1, polygon2, result);
+
+        PointT intersection;
+
+        for (const auto &p : result) {
+            for (auto &item : p) {
+
+                intersection.x = item.template get<0>();
+                intersection.y = item.template get<1>();
+                output.push_back(intersection);
+            }
+        }
+
+        return output;
+    }
 
 
 /// \brief Compute the intersection over union of two 2d convex polygons. If any of the polygons
