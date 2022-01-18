@@ -411,6 +411,10 @@ DetectedObjects convert_to_polygon_prisms(const Clusters & clusters)
       std::cerr << e.what() << std::endl;
     }
   }
+
+  detected_objects.header.stamp = clusters.header.stamp;
+  detected_objects.header.frame_id = clusters.header.frame_id;
+
   return detected_objects;
 }
 ////////////////////////////////////////////////////////////////////////////////

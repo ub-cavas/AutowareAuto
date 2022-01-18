@@ -27,7 +27,8 @@ permit the following behaviors:
 4. Optionally publish the resulting clusters
 5. Optionally compute and publish bounding boxes around the clusters as either `DetectedObjects` 
    type or `BoundingBoxArray` type
-6. Optionally apply aggressive downsampling (or not) and ignore the z direction entirely
+6. Optionally publish `DetectedObjects` type around the clusters as either bounding boxes or convex polygon prisms   
+7. Optionally apply aggressive downsampling (or not) and ignore the z direction entirely
 
 ## Assumptions / Known limits
 
@@ -71,6 +72,7 @@ more compact and simpler to interpret and handle. They are provided mainly for t
 
 ### Parameters
 - `use_detected_objects` - When true, the node publishes bounding boxes as a `DetectedObjects` msg.
+- `detected_objects_shape_type` - This parameter determines the object shape of the `DetectedObjects` msg. It must be either "polygon" or "bounding_box". 
 - `use_cluster` - When true, the node publishes clusters as `PointClusters` msg; otherwise, clusters are not published.
 - `use_box` - When true, clusters are formed into a box shape and published as a `BoundingBoxArray` msg.
 - `max_cloud_size` - Maximum number of points expected in the input point cloud. Used to preallocate internal types.

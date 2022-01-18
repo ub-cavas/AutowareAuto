@@ -60,14 +60,6 @@ m_box_pub_ptr{declare_parameter("use_box").get<bool8_t>() ?
   create_publisher<BoundingBoxArray>(
     "lidar_bounding_boxes", rclcpp::QoS{10}) :
   nullptr},
-m_detected_objects_pub_ptr{declare_parameter("use_detected_objects").get<bool8_t>() ?
-  create_publisher<DetectedObjects>(
-    "lidar_detected_objects", rclcpp::QoS{10}) :
-  nullptr},
-m_detected_objects_polygon_pub_ptr{declare_parameter("use_polygon_prism").get<bool8_t>() ?
-  create_publisher<DetectedObjects>(
-    "lidar_polygon_prisms", rclcpp::QoS{10}) :
-  nullptr},
 m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
   create_publisher<MarkerArray>(
     "lidar_bounding_boxes_viz", rclcpp::QoS{10}) :
@@ -96,6 +88,19 @@ m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positi
 m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
 m_use_z{declare_parameter("use_z").get<bool8_t>()}
 {
+  if (declare_parameter("use_detected_objects").get<bool8_t>()) {
+    detected_objects_shape_type = get_detected_object_type_from_string(
+      declare_parameter(
+        "detected_objects_shape_type").get<std::string>());
+    if (detected_objects_shape_type == DetectedObjectsShape::POLYGON_PRISM) {
+      m_detected_objects_pub_ptr = create_publisher<DetectedObjects>(
+        "lidar_polygon_prisms", rclcpp::QoS{10});
+    } else if (detected_objects_shape_type == DetectedObjectsShape::BOUNDING_BOX) {
+      m_detected_objects_pub_ptr = create_publisher<DetectedObjects>(
+        "lidar_detected_objects", rclcpp::QoS{10});
+    }
+  }
+
   // Sanity check
   if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
     throw std::domain_error{"EuclideanClusterNode: No publisher topics provided"};
@@ -200,18 +205,19 @@ void EuclideanClusterNode::handle_clusters(
   m_box_pub_ptr->publish(boxes);
 
   if (m_detected_objects_pub_ptr) {
-    const auto detected_objects_msg =
-      euclidean_cluster::details::convert_to_detected_objects(boxes);
-    m_detected_objects_pub_ptr->publish(detected_objects_msg);
+    if (detected_objects_shape_type == DetectedObjectsShape::POLYGON_PRISM) {
+      // Publish detected objects as a polygon prisms shape
+      const auto detected_objects_polygon_msg =
+        euclidean_cluster::details::convert_to_polygon_prisms(clusters);
+      m_detected_objects_pub_ptr->publish(detected_objects_polygon_msg);
+    } else if (detected_objects_shape_type == DetectedObjectsShape::BOUNDING_BOX) {
+      // Publish detected objects as a bounding box shape
+      const auto detected_objects_msg =
+        euclidean_cluster::details::convert_to_detected_objects(boxes);
+      m_detected_objects_pub_ptr->publish(detected_objects_msg);
+    }
   }
 
-  if (m_detected_objects_polygon_pub_ptr) {
-    auto detected_objects_polygon_msg =
-      euclidean_cluster::details::convert_to_polygon_prisms(clusters);
-    detected_objects_polygon_msg.header.stamp = header.stamp;
-    detected_objects_polygon_msg.header.frame_id = header.frame_id;
-    m_detected_objects_polygon_pub_ptr->publish(detected_objects_polygon_msg);
-  }
 
   // Also publish boxes for visualization
   uint32_t id_counter = 0;
@@ -267,6 +273,7 @@ void EuclideanClusterNode::handle(const PointCloud2::SharedPtr msg_ptr)
     throw;
   }
 }
+
 }  // namespace euclidean_cluster_nodes
 }  // namespace segmentation
 }  // namespace perception
