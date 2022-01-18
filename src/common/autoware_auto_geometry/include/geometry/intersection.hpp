@@ -267,8 +267,8 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// \tparam Iterable2T A container class that has stl style iterators defined.
 /// \tparam PointT Point type that have the adapters for the x and y fields.
 /// set to `Point1T`
-/// \param polygon1 A convex polygon
-/// \param polygon2 A convex polygon
+/// \param list1 A convex polygon
+/// \param list2 A convex polygon
 /// \return The resulting conv
     template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
             typename PointT>
