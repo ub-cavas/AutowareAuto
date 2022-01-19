@@ -27,7 +27,7 @@ if(BUILD_TESTING)
     test/emergency_handler_launch.test.py
     TIMEOUT "30"
     ENV
-    ROS_DOMAIN_ID=105  
+    ROS_DOMAIN_ID=105
   )
 
   ament_add_gtest(${PROJECT_NAME}_test
