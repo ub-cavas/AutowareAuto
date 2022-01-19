@@ -47,8 +47,8 @@ TEST_P(IntersectionTest, Basic) {
   ASSERT_EQ(result.size(), expected_intersection.size());
   auto expected_shape_it = expected_intersection.begin();
   for (auto result_it = result.begin(); result_it != result.end(); ++result_it) {
-    EXPECT_FLOAT_EQ(result_it->x, expected_shape_it->x);
-    EXPECT_FLOAT_EQ(result_it->y, expected_shape_it->y);
+    EXPECT_FLOAT_EQ(static_cast<int>(result_it->x), expected_shape_it->x);
+    EXPECT_FLOAT_EQ(static_cast<int>(result_it->y), expected_shape_it->y);
     ++expected_shape_it;
   }
 }
