@@ -305,8 +305,8 @@ std::list<PointT> convex_polygon_intersection2d(
 
   for (const auto & p : temp) {
     for (auto & item : p) {
-      intersection.x = static_cast<int>(item.template get<0>());
-      intersection.y = static_cast<int>(item.template get<1>());
+      intersection.x = item.template get<0>();
+      intersection.y = item.template get<1>();
       result.push_back(intersection);
     }
   }
