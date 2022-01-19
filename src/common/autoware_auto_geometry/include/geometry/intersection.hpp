@@ -270,6 +270,7 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// \param list1 A convex polygon
 /// \param list2 A convex polygon
 /// \return The resulting conv
+
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
   typename PointT>
 std::list<PointT> convex_polygon_intersection2d(
@@ -287,8 +288,8 @@ std::list<PointT> convex_polygon_intersection2d(
       return boost_list;
     };
 
-  std::list<polygon_type> result;
-  std::list<PointT> output;
+  std::list<polygon_type> temp;
+  std::list<PointT> result;
   polygon_type polygon1;
   polygon_type polygon2;
 
@@ -298,19 +299,18 @@ std::list<PointT> convex_polygon_intersection2d(
   bg::assign_points(polygon2, convert_to_boost(list2));
   bg::correct(polygon2);
 
-  bg::intersection(polygon1, polygon2, result);
+  bg::intersection(polygon1, polygon2, temp);
 
   PointT intersection;
 
-  for (const auto & p : result) {
+  for (const auto & p : temp) {
     for (auto & item : p) {
-      intersection.x = item.template get<0>();
-      intersection.y = item.template get<1>();
-      output.push_back(intersection);
+      intersection.x = static_cast<int>(item.template get<0>());
+      intersection.y = static_cast<int>(item.template get<1>());
+      result.push_back(intersection);
     }
   }
-
-  return output;
+  return result;
 }
 
 
