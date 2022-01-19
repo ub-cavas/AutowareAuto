@@ -80,6 +80,8 @@ private:
   void TRACKING_NODES_LOCAL pose_callback(const PoseMsg::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL detected_objects_callback(const DetectedObjects::ConstSharedPtr msg);
   void TRACKING_NODES_LOCAL classified_roi_callback(const ClassifiedRoiArray::ConstSharedPtr msg);
+  void TRACKING_NODES_LOCAL prism_and_cluster_sync_callback(
+    const DetectedObjects::ConstSharedPtr prism_msg, const ClustersMsg::ConstSharedPtr cluster_msg);
 
 
   common::types::bool8_t m_use_ndt{true};
@@ -97,6 +99,11 @@ private:
   rclcpp::Subscription<ClustersMsg>::SharedPtr m_clusters_subscription{};
   rclcpp::Subscription<DetectedObjects>::SharedPtr m_detected_objects_subscription{};
   std::vector<rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr> m_vision_subscriptions;
+
+  using Policy = message_filters::sync_policies::ExactTime< DetectedObjects, ClustersMsg >;
+  std::unique_ptr<message_filters::Synchronizer<Policy>> m_sync_ptr;
+  std::unique_ptr<message_filters::Subscriber<DetectedObjects>> m_mf_detected_objects_sub;
+  std::unique_ptr<message_filters::Subscriber<ClustersMsg>> m_mf_clusters_sub;
 
   /// A cache that stores the odometry messages.
   std::unique_ptr<OdomCache> m_odom_cache{};

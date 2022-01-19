@@ -82,6 +82,8 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
 {
   /// The existing tracks output.
   autoware_auto_perception_msgs::msg::TrackedObjects tracks;
+  /// Leftover detected objects
+  autoware_auto_perception_msgs::msg::DetectedObjects leftover_detected_objects;
   /// Indices of unassigned clusters.
   std::vector<std::size_t> unassigned_clusters_indices;
   /// Indicates the success or failure, and kind of failure, of the tracking operation.
@@ -90,8 +92,6 @@ struct TRACKING_PUBLIC DetectedObjectsUpdateResult
   builtin_interfaces::msg::Time related_rois_stamp;
   /// indicies of tracks and associated detections
   std::vector<std::pair<std::size_t, std::size_t>> tracks_and_detection_indices;
-  /// Unassigned detected objects
-  autoware_auto_perception_msgs::msg::DetectedObjects unassigned_detected_objects;
 };
 
 /// \brief Options for object tracking, with sensible defaults.
@@ -157,6 +157,23 @@ public:
   /// @return     A result object containing tracks, unless an error occurred.
   ///
   DetectedObjectsUpdateResult update(
+    const ClustersMsg & incoming_clusters,
+    const nav_msgs::msg::Odometry & detection_frame_odometry);
+
+  ///
+  /// @brief      Update the tracks from incoming polygon prism and estimate object shape using
+  ///             cloud clusters
+  ///
+  /// @param[in]  detected_polygon_prisms         The incoming polygon prism
+  /// @param[in]  incoming_clusters         The incoming clusters
+  /// @param[in]  detection_frame_odometry  An odometry message for the clusters frame in the
+  ///                                       tracking frame, which is defined in
+  ///                                       MultiObjectTrackerOptions.
+  ///
+  /// @return     A result object containing tracks, unless an error occurred.
+  ///
+  DetectedObjectsUpdateResult update(
+    const DetectedObjectsMsg & detected_polygon_prisms,
     const ClustersMsg & incoming_clusters,
     const nav_msgs::msg::Odometry & detection_frame_odometry);
 

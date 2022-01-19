@@ -129,11 +129,15 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
 
   const auto use_detected_objects = this->declare_parameter("use_detected_objects", true);
   const auto use_raw_clusters = this->declare_parameter("use_raw_clusters", true);
+  const auto use_polygon_prisms = this->declare_parameter("use_polygon_prisms", true);
 
-  if (use_raw_clusters && use_detected_objects) {
+  // Only one inference mode should be selected
+  if ((use_raw_clusters && use_detected_objects) || (use_polygon_prisms && use_raw_clusters)
+      || (use_polygon_prisms && use_detected_objects)) {
     std::runtime_error(
-      "Cannot use raw clusters and detected objects interfaces at the same time for now.\n"
-      "It will be possible later, but for now both inputs are generated from the clustering node.\n"
+      "Cannot use raw clusters, detected objects bounding boxes and detected objects polygon\n"
+      "prism interfaces at the same time for now. It will be possible later, but for now both \n"
+      "inputs are generated from the clustering node. \n"
       "As of now, only one of those should be used.");
   }
 
@@ -147,6 +151,18 @@ MultiObjectTrackerNode::MultiObjectTrackerNode(const rclcpp::NodeOptions & optio
     m_clusters_subscription = create_subscription<ClustersMsg>(
       "clusters", rclcpp::QoS{m_history_depth},
       std::bind(&MultiObjectTrackerNode::clusters_callback, this, std::placeholders::_1));
+  }
+
+  if(use_polygon_prisms){
+    m_mf_detected_objects_sub = std::make_unique<message_filters::Subscriber<DetectedObjects>>(
+      this, "polygon_prisms");
+    m_mf_clusters_sub = std::make_unique<message_filters::Subscriber<ClustersMsg>>(
+      this, "cloud_clusters");
+    m_sync_ptr = std::make_unique<message_filters::Synchronizer<Policy>>(
+      Policy(10), *m_mf_detected_objects_sub, *m_mf_clusters_sub);
+    m_sync_ptr->registerCallback(
+      std::bind( &MultiObjectTrackerNode::prism_and_cluster_sync_callback,
+        this, std::placeholders::_1,  std::placeholders::_2));
   }
 
   // Initialize vision callbacks if vision is configured to be used:
@@ -266,8 +282,8 @@ void MultiObjectTrackerNode::clusters_callback(const ClustersMsg::ConstSharedPtr
 
   if (result.status == TrackerUpdateStatus::Ok) {
     m_track_publisher->publish(result.tracks);
-    m_leftover_publisher->publish(result.unassigned_detected_objects);
-    maybe_visualize(result.related_rois_stamp, result.unassigned_detected_objects);
+    m_leftover_publisher->publish(result.leftover_detected_objects);
+    maybe_visualize(result.related_rois_stamp, result.leftover_detected_objects);
   } else {
     RCLCPP_WARN(
       get_logger(), "Tracker update for 3D detection at time %d.%d failed. Reason: %s",
@@ -332,6 +348,30 @@ void MultiObjectTrackerNode::maybe_visualize(
   all_objects.header.stamp = rois_stamp;
   m_track_creating_clusters_pub->publish(all_objects);
 }
+
+void  MultiObjectTrackerNode::prism_and_cluster_sync_callback(
+  const DetectedObjects::ConstSharedPtr prism_msg, const ClustersMsg::ConstSharedPtr cluster_msg)
+{
+  const rclcpp::Time msg_stamp{prism_msg->header.stamp.sec, prism_msg->header.stamp.nanosec};
+  const auto earliest_time = msg_stamp - kMaxLidarEgoStateStampDiff;
+  const auto latest_time = msg_stamp + kMaxLidarEgoStateStampDiff;
+  const auto matched_msgs = m_odom_cache->getInterval(earliest_time, latest_time);
+  if (matched_msgs.empty()) {
+    RCLCPP_WARN(get_logger(), "No matching odom msg received for obj msg");
+    return;
+  }
+
+  (void)cluster_msg;
+  RCLCPP_INFO(this->get_logger(), "Coming to sync callback.");
+  std::cout<< "Coming to sync callback." << std::endl;
+
+
+
+
+
+
+}
+
 }  // namespace tracking_nodes
 }  // namespace autoware
 
