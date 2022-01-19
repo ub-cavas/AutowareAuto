@@ -356,7 +356,6 @@ DetectedObjects convert_to_detected_objects(const BoundingBoxArray & boxes)
 DetectedObjects convert_to_polygon_prisms(const Clusters & clusters)
 {
   DetectedObjects detected_objects;
-  (void) clusters;
   for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
     try {
       autoware_auto_perception_msgs::msg::DetectedObject detected_object;
@@ -369,7 +368,6 @@ DetectedObjects convert_to_polygon_prisms(const Clusters & clusters)
       point_list{
         iter_pair.first, iter_pair.second};
       const auto hull_end_iter = common::geometry::convex_hull(point_list);
-      (void) hull_end_iter;
       for (auto iter = point_list.begin(); iter != hull_end_iter; ++iter) {
         const auto & hull_point = *iter;
         geometry_msgs::msg::Point32 polygon_point;

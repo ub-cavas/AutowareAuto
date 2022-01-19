@@ -116,13 +116,22 @@ The rviz config has displays for all topics in this tutorial. As nodes are launc
   ```
   ![Autoware.Auto ray ground filter snapshot](autoware-auto-ray-ground-filter-smaller.png)
 
-3. Launch the `euclidean_cluster_node` node. This node clusters non-ground points into objects and publishes bounding boxes. In a new terminal, do:
+3. Launch the `euclidean_cluster_node` node. This node clusters non-ground points into objects and publishes bounding boxes or convex polygon prisms optionally. For publish bounding boxes, in a new terminal, do:
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
   ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster.param.yaml --remap points_in:=/points_nonground
   ```
   ![Autoware.Auto bounding boxes segmentation snapshot](autoware-auto-bounding-boxes-smaller.png)
+
+Alternatively, publish the convex polygon prism from the euclidean clustering algorithm. In a new terminal, do:
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster.param.yaml --remap points_in:=/points_nonground
+  ```
+![Autoware.Auto polygon prisms segmentation snapshot](autoware-auto-bounding-boxes-smaller.png)
+    
 
 ## Convenience Launch Files
 

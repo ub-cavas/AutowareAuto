@@ -4,11 +4,11 @@
 /**:
   ros__parameters:
     use_detected_objects: True
-    detected_objects_shape_type: "bounding_box" # use "polygon" or "bounding_box"
+    detected_objects_shape_type: "polygon" # use "polygon" or "bounding_box"
     use_cluster: True
-    use_box: True
+    use_box: False
     max_cloud_size: 55000
-    downsample: True
+    downsample: False
     use_lfit: True
     use_z: True
     cluster:
@@ -28,11 +28,11 @@
       min_point:
         x: -130.0
         y: -130.0
-        z: -1.5
+        z: -130.0
       max_point:
         x: 130.0
         y: 130.0
-        z: 4.0
+        z: 130.0
       voxel_size:
         x: 0.2
         y: 0.2
