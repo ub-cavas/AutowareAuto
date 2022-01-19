@@ -128,10 +128,9 @@ Alternatively, publish the convex polygon prism from the euclidean clustering al
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
-  ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster.param.yaml --remap points_in:=/points_nonground
+  ade$ ros2 run euclidean_cluster_nodes euclidean_cluster_node_exe --ros-args --params-file /opt/AutowareAuto/share/euclidean_cluster_nodes/param/vlp16_lexus_cluster_as_polygon.param.yaml.param.yaml --remap points_in:=/points_nonground
   ```
-![Autoware.Auto polygon prisms segmentation snapshot](autoware-auto-bounding-boxes-smaller.png)
-    
+  ![Autoware.Auto convex polygon prisms segmentation snapshot](autoware-auto-polygon-prisms.png)  
 
 ## Convenience Launch Files
 
