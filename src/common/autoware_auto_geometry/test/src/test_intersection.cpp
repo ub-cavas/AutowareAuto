@@ -32,37 +32,25 @@ struct IntersectionTestParams
   std::list<TestPoint> expected_intersection_pts;
 };
 
-void order_ccw(std::list<TestPoint> & points)
-{
-  const auto end_it = autoware::common::geometry::convex_hull(points);
-  ASSERT_EQ(end_it, points.end());  // Points should have represent a shape
-}
-
 class IntersectionTest : public ::testing::TestWithParam<IntersectionTestParams>
 {
 };
 
-
 TEST_P(IntersectionTest, Basic) {
-  const auto get_ordered_polygon = [](auto polygon) {
-      order_ccw(polygon);
-      return polygon;
-    };
-
-  const auto polygon1 = get_ordered_polygon(GetParam().polygon1_pts);
-  const auto polygon2 = get_ordered_polygon(GetParam().polygon2_pts);
-  const auto expected_intersection = get_ordered_polygon(GetParam().expected_intersection_pts);
+  const auto polygon1 = (GetParam().polygon1_pts);
+  const auto polygon2 = (GetParam().polygon2_pts);
+  const auto expected_intersection = (GetParam().expected_intersection_pts);
 
   const auto result =
     autoware::common::geometry::convex_polygon_intersection2d(polygon1, polygon2);
 
-//  ASSERT_EQ(result.size(), expected_intersection.size());
-//  auto expected_shape_it = expected_intersection.begin();
-//  for (auto result_it = result.begin(); result_it != result.end(); ++result_it) {
-//    EXPECT_FLOAT_EQ(result_it->x, expected_shape_it->x);
-//    EXPECT_FLOAT_EQ(result_it->y, expected_shape_it->y);
-//    ++expected_shape_it;
-//  }
+  ASSERT_EQ(result.size(), expected_intersection.size());
+  auto expected_shape_it = expected_intersection.begin();
+  for (auto result_it = result.begin(); result_it != result.end(); ++result_it) {
+    EXPECT_FLOAT_EQ(result_it->x, expected_shape_it->x);
+    EXPECT_FLOAT_EQ(result_it->y, expected_shape_it->y);
+    ++expected_shape_it;
+  }
 }
 
 INSTANTIATE_TEST_CASE_P(
@@ -74,9 +62,9 @@ INSTANTIATE_TEST_CASE_P(
   {}
 },
     IntersectionTestParams{      // Partial intersection
-  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}},
-  {{5.0F, 5.0F}, {15.0F, 5.0F}, {5.0F, 15.0F}, {15.0F, 15.0F}},
-  {{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}}
+  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}, {0.0F, 0.0F}},
+  {{5.0F, 5.0F}, {15.0F, 5.0F}, {5.0F, 15.0F}, {15.0F, 15.0F}, {5.0F, 5.0F}},
+  {{10.0F, 10.0F}, {5.0F, 5.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}}
 },
     // Full intersection with overlapping edges
     // TODO(yunus.caliskan): enable after #1231
@@ -86,23 +74,23 @@ INSTANTIATE_TEST_CASE_P(
 //            {{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}},
 //        },
     IntersectionTestParams{      // Fully contained
-  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}},
-  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}, {8.0F, 8.0F}},
-  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}, {8.0F, 8.0F}},
+  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}, {0.0F, 0.0F}},
+  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}, {8.0F, 8.0F}, {5.0F, 5.0F}},
+  {{5.0F, 5.0F}, {5.0F, 7.0F}, {8.0F, 8.0F}, {5.0F, 5.0F}},
 },
     IntersectionTestParams{      // Fully contained triangle
-  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}},
-  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}},
-  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}},
+  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}, {0.0F, 0.0F}},
+  {{5.0F, 5.0F}, {6.0F, 5.0F}, {5.0F, 7.0F}, {5.0F, 5.0F}},
+  {{5.0F, 5.0F}, {5.0F, 5.0F}, {5.0F, 7.0F}, {5.0F, 5.0F}},
 },
     IntersectionTestParams{      // Triangle rectangle intersection.
-  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}},
-  {{5.0F, 1.0F}, {5.0F, 9.0F}, {15.0F, 5.0F}},
-  {{5.0F, 1.0F}, {5.0F, 9.0F}, {10.0F, 3.0F}, {10.0F, 7.0F}}
+  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}, {0.0F, 0.0F}},
+  {{5.0F, 1.0F}, {5.0F, 9.0F}, {15.0F, 5.0F}, {5.0F, 1.0F}},
+  {{7.0, 7.0}, {5.0F, 5.0F}, {5.0F, 9.0F}, {7.0, 7.0}}
 },
     IntersectionTestParams{      // No intersection
-  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}},
-  {{15.0F, 15.0F}, {20.0F, 15.0F}, {15.0F, 20.0F}, {20.0F, 20.0F}},
+  {{0.0F, 0.0F}, {10.0F, 0.0F}, {0.0F, 10.0F}, {10.0F, 10.0F}, {0.0F, 0.0F}},
+  {{15.0F, 15.0F}, {20.0F, 15.0F}, {15.0F, 20.0F}, {20.0F, 20.0F}, {15.0F, 15.0F}},
   {}
 }
     // cppcheck-suppress syntaxError
@@ -111,7 +99,7 @@ INSTANTIATE_TEST_CASE_P(
 TEST(PolygonPointTest, Basic) {
   GTEST_SKIP();  // TODO(yunus.caliskan): enable after #1231
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};
-  order_ccw(polygon);
+
   EXPECT_FALSE(
     autoware::common::geometry::is_point_inside_polygon_2d(
       polygon.begin(), polygon.end(), TestPoint{0.0F, 10.0F}));
@@ -125,17 +113,17 @@ TEST(IoUTest, PentagonRectangleIntersection) {
     {3.0F, 4.0F},
     {6.0F, 3.0F},
     {4.0F, 1.0F},
-    {2.0F, 1.0F}
+    {2.0F, 1.0F},
+    {0.0F, 3.0F}
   };
   std::list<TestPoint> polygon2{
     {3.0F, 0.0F},
     {3.0F, 2.0F},
     {5.0F, 2.0F},
-    {5.0F, 0.0F}
+    {5.0F, 0.0F},
+    {3.0F, 0.0F}
   };
 
-  order_ccw(polygon1);
-  order_ccw(polygon2);
 
   const auto intersection =
     autoware::common::geometry::convex_polygon_intersection2d(polygon1, polygon2);
@@ -161,17 +149,17 @@ TEST(IoUTest, NoIntersection) {
     {0.0F, 0.0F},
     {0.0F, 1.0F},
     {1.0F, 1.0F},
-    {1.0F, 0.0F}
+    {1.0F, 0.0F},
+    {0.0F, 0.0F}
   };
   std::list<TestPoint> polygon2{
     {3.0F, 0.0F},
     {3.0F, 2.0F},
     {5.0F, 2.0F},
-    {5.0F, 0.0F}
+    {5.0F, 0.0F},
+    {3.0F, 0.0F}
   };
 
-  order_ccw(polygon1);
-  order_ccw(polygon2);
 
   EXPECT_FLOAT_EQ(
     autoware::common::geometry::convex_intersection_over_union_2d(polygon1, polygon2), 0.0F);
