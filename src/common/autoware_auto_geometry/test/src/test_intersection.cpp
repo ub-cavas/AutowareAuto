@@ -109,13 +109,219 @@ INSTANTIATE_TEST_CASE_P(
   ), );
 
 TEST(PolygonPointTest, Basic) {
-  GTEST_SKIP();  // TODO(yunus.caliskan): enable after #1231
   std::list<TestPoint> polygon{{5.0F, 5.0F}, {10.0F, 5.0F}, {5.0F, 10.0F}, {10.0F, 10.0F}};
   order_ccw(polygon);
   EXPECT_FALSE(
     autoware::common::geometry::is_point_inside_polygon_2d(
       polygon.begin(), polygon.end(), TestPoint{0.0F, 10.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{7.5F, 7.5F}));
+
+  // Point collinear with vertex
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{7.5F, 5.0F}));
 }
+
+
+TEST(PolygonPointTest, Triangle) {
+  std::list<TestPoint> polygon{{0.0F, 10.0F}, {-2.5F, -5.0F}, {2.5F, -5.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
+
+  // Point collinear with vertex
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.4F, -5.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{5.0F, 5.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.0F, -5.0F}));
+}
+
+TEST(PolygonPointTest, SmallPentagon) {
+  std::list<TestPoint> polygon{{1.5F, 1.5F}, {1.4F, 1.6F}, {1.6F, 1.7}, {1.8F, 1.6F}, {1.7F, 1.5F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.6F, 1.6F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.4F, 1.4F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 2.0F}));
+}
+
+TEST(PolygonPointTest, LidarPoints) {
+  std::list<TestPoint> polygon{{1.0F, 7.24161e-08F}, {-0.866025F, 1.5F}, {-2.33097F, -0.322411F},
+    {-0.46494F, -1.82241F}};
+  order_ccw(polygon);
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-0.866F, 1.5F}));
+}
+
+TEST(PolygonPointTest, PointOverVertex) {
+  std::list<TestPoint> polygon{{1.0F, 1.0F}, {2.0F, 2.0F}, {3.0F, 1.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.0F, 1.0F}));
+}
+
+TEST(PolygonPointTest, SmallPentagonOverMinusX) {
+  std::list<TestPoint> polygon{{-5.5F, 0.0F}, {-5.6F, 0.1F}, {-5.4F, 0.2F}, {-5.2F, 0.1F},
+    {-5.3F, 0.0F}};
+  order_ccw(polygon);
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.6F, 0.1F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-5.4F, -0.1F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
+}
+
+// Concave test, lives here : https://chart-studio.plotly.com/~xmfcx/1/#/
+TEST(PolygonPointTest, ConcaveTestGeneratedPlotly) {
+  std::list<TestPoint> polygon{{0.0F, 1.0F}, {1.0F, -1.0F}, {1.0F, 3.0F}, {-2.0F, 2.0F},
+    {-1.0F, -1.0F}};
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 0.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 0.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 0.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 1.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 1.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-3.0F, 2.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 2.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 3.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 3.0F}));
+}
+
+// Convex Hull Test, lives here : https://plotly.com/~kaancolak/1/
+TEST(PolygonPointTest, ConvexHullTestGeneratedPlotly) {
+  std::list<TestPoint> polygon{{0.0F, -3.0F}, {1.0F, -1.0F}, {1.5F, 2.0F}, {1.0F, 3.0F},
+    {-2.0F, 2.0F}, {-2.0F, -1.0F}};
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 0.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 0.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 0.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 0.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 1.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 1.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-3.0F, 2.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, 2.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{2.0F, 2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-2.0F, 3.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, 3.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.0F, 2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{1.0F, -2.0F}));
+
+  EXPECT_TRUE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{0.0F, -2.0F}));
+
+  EXPECT_FALSE(
+    autoware::common::geometry::is_point_inside_polygon_2d(
+      polygon.begin(), polygon.end(), TestPoint{-1.0F, -3.0F}));
+}
+
 
 // IoU of two intersecting shapes: a pentagon and a square. The test includes pen and paper
 // computations for the intermediate steps as assertions.

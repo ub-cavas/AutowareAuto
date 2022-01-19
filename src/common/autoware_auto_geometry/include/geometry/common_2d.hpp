@@ -552,10 +552,20 @@ bool is_point_inside_polygon_2d(
     if (next_it == end_it) {
       next_it = start_it;
     }
+
+    if (comparison::abs_eq(point_adapter::y_(*it), point_adapter::y_(p), 1e-3F) &&
+      comparison::abs_eq(point_adapter::x_(*it), point_adapter::x_(p), 1e-3F))
+    {
+      return true;
+    }
+
     if (point_adapter::y_(*it) <= point_adapter::y_(p)) {
       // Upward crossing edge
-      if (point_adapter::y_(*next_it) >= point_adapter::y_(p)) {
-        if (comparison::abs_gt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+      if (point_adapter::y_(*next_it) > point_adapter::y_(p)) {
+        if (comparison::abs_gt(
+            check_point_position_to_line_2d(*it, *next_it, p), 0.0F,
+            1e-3F))
+        {
           ++winding_num;
         } else {
           if (comparison::abs_eq_zero(
@@ -569,7 +579,10 @@ bool is_point_inside_polygon_2d(
     } else {
       // Downward crossing edge
       if (point_adapter::y_(*next_it) <= point_adapter::y_(p)) {
-        if (comparison::abs_lt(check_point_position_to_line_2d(*it, *next_it, p), 0.0F, 1e-3F)) {
+        if (comparison::abs_lt(
+            check_point_position_to_line_2d(*it, *next_it, p), 0.0F,
+            1e-3F))
+        {
           --winding_num;
         } else {
           if (comparison::abs_eq_zero(
@@ -582,6 +595,7 @@ bool is_point_inside_polygon_2d(
       }
     }
   }
+
   return winding_num != 0;
 }
 
