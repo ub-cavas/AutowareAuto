@@ -23,6 +23,8 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <geometry/convex_hull.hpp>
 #include <geometry/common_2d.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/algorithms/assign.hpp>
 
 #include <limits>
 #include <vector>
@@ -31,9 +33,6 @@
 #include <utility>
 #include <type_traits>
 #include <algorithm>
-
-#include <boost/geometry.hpp>
-#include <boost/geometry/algorithms/assign.hpp>
 #include <set>
 
 namespace bg = boost::geometry;
@@ -272,19 +271,21 @@ bool intersect(const Iter begin1, const Iter end1, const Iter begin2, const Iter
 /// \param list2 A convex polygon
 /// \return The resulting conv
 template<template<typename ...> class Iterable1T, template<typename ...> class Iterable2T,
-        typename PointT>
-std::list<PointT> convex_polygon_intersection2d(const Iterable1T<PointT> & list1,
-                                                const Iterable2T<PointT> & list2){
+  typename PointT>
+std::list<PointT> convex_polygon_intersection2d(
+  const Iterable1T<PointT> & list1,
+  const Iterable2T<PointT> & list2)
+{
   auto convert_to_boost = [](const auto & list) {
-    point_type boost_point;
-    std::list<point_type> boost_list;
-    for (auto &item : list){
-      boost_point.set<0>(item.x);
-      boost_point.set<1>(item.y);
-      boost_list.push_back(boost_point);
-    }
-    return boost_list;
-  };
+      point_type boost_point;
+      std::list<point_type> boost_list;
+      for (auto & item : list) {
+        boost_point.set<0>(item.x);
+        boost_point.set<1>(item.y);
+        boost_list.push_back(boost_point);
+      }
+      return boost_list;
+    };
 
   std::list<polygon_type> result;
   std::list<PointT> output;
@@ -301,11 +302,11 @@ std::list<PointT> convex_polygon_intersection2d(const Iterable1T<PointT> & list1
 
   PointT intersection;
 
-  for (const auto &p : result) {
-    for (auto &item : p) {
-     intersection.x = item.template get<0>();
-     intersection.y = item.template get<1>();
-     output.push_back(intersection);
+  for (const auto & p : result) {
+    for (auto & item : p) {
+      intersection.x = item.template get<0>();
+      intersection.y = item.template get<1>();
+      output.push_back(intersection);
     }
   }
 
