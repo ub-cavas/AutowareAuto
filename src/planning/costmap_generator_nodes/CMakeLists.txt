@@ -49,6 +49,8 @@ if(BUILD_TESTING)
   add_ros_test(
     test/costmap_generator_node.test.py
     TIMEOUT "15"
+    ENV
+    ROS_DOMAIN_ID=110
   )
 endif()
 
