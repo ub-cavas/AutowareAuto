@@ -38,10 +38,10 @@ using VoxelGridOutlierFilter =
 
 VoxelGridOutlierFilterNode::VoxelGridOutlierFilterNode(const rclcpp::NodeOptions & options)
 : FilterNodeBase("voxel_grid_outlier_filter_node", options),
-  voxel_size_x_(declare_parameter<float64_t>("voxel_size_x")),
-  voxel_size_y_(declare_parameter<float64_t>("voxel_size_y")),
-  voxel_size_z_(declare_parameter<float64_t>("voxel_size_z")),
-  voxel_points_threshold_(declare_parameter<int64_t>("voxel_points_threshold"))
+  voxel_size_x_(declare_parameter("voxel_size_x", rclcpp::PARAMETER_DOUBLE).get<float64_t>()),
+  voxel_size_y_(declare_parameter("voxel_size_y", rclcpp::PARAMETER_DOUBLE).get<float64_t>()),
+  voxel_size_z_(declare_parameter("voxel_size_z", rclcpp::PARAMETER_DOUBLE).get<float64_t>()),
+  voxel_points_threshold_(declare_parameter("voxel_points_threshold", rclcpp::PARAMETER_INTEGER).get<int64_t>())
 {
   voxel_grid_outlier_filter_ = std::make_shared<VoxelGridOutlierFilter>(
     voxel_size_x_,
