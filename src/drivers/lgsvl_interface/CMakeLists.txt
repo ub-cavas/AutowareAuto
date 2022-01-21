@@ -23,14 +23,20 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 
   find_package(autoware_testing REQUIRED)
-  add_smoke_test(${PROJECT_NAME} ${NODE_NAME})
+  add_smoke_test(${PROJECT_NAME} ${NODE_NAME}
+    ENV
+    ROS_DOMAIN_ID=113
+  )
 
   # gtest
   set(LGSVL_INTERFACE_GTEST test_${PROJECT_NAME}_gtest)
 
   ament_add_gtest(${LGSVL_INTERFACE_GTEST}
     test/src/gtest_main.cpp
-    test/src/test_lgsvl_interface.cpp)
+    test/src/test_lgsvl_interface.cpp
+    ENV
+    ROS_DOMAIN_ID=114
+  )
   autoware_set_compile_options(${LGSVL_INTERFACE_GTEST})
   target_include_directories(${LGSVL_INTERFACE_GTEST} PRIVATE "include" "test/include")
   target_link_libraries(${LGSVL_INTERFACE_GTEST} ${PROJECT_NAME})
