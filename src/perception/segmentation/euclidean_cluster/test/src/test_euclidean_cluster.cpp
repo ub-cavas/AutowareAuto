@@ -16,6 +16,7 @@
 #include "gtest/gtest.h"
 #include "test_euclidean_cluster.hpp"
 #include "test_bounding_box_computation.hpp"
+#include "test_convex_hull_computation.hpp"
 // #include "test_euclidean_segmenter.hpp"
 
 int32_t main(int32_t argc, char ** argv)

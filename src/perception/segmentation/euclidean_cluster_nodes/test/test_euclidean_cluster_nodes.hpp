@@ -53,15 +53,16 @@ TEST_F(EuclideanClusterNodesTest, Instantiate)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
+  params.emplace_back("use_polygon_prism", "polygon");
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+
   params.emplace_back("use_cluster", true);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
   params.emplace_back("use_box", true);
-  node_options.parameter_overrides(params);
-  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
-
-  params.emplace_back("use_polygon_prism", true);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
