@@ -87,7 +87,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_keep_velocity) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -157,7 +157,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_slow_down) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -227,7 +227,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_accelerate) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -297,7 +297,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_stopped) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -359,7 +359,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_reverse) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });
@@ -421,7 +421,7 @@ TEST_F(LongitudinalFakeNodeFixture, longitudinal_emergency) {
     "input/current_trajectory");
   rclcpp::Subscription<LongitudinalCommand>::SharedPtr cmd_sub =
     this->create_subscription<LongitudinalCommand>(
-    "output/longitudinal_control_cmd", *this->get_fake_node(),
+    "output/longitudinal/control_cmd", *this->get_fake_node(),
     [&cmd_msg, &received_longitudinal_command](const LongitudinalCommand::SharedPtr msg) {
       cmd_msg = msg;received_longitudinal_command = true;
     });

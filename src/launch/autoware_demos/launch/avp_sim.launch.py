@@ -33,21 +33,23 @@ def generate_launch_description():
     be found at https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/milestones/25.
     """
     avp_demo_pkg_prefix = get_package_share_directory('autoware_demos')
-    autoware_launch_pkg_prefix = get_package_share_directory('autoware_auto_launch')
 
     lgsvl_param_file = os.path.join(
-        autoware_launch_pkg_prefix, 'param/lgsvl_interface.param.yaml')
-
+        avp_demo_pkg_prefix, 'param/avp/lgsvl_interface.param.yaml')
     map_publisher_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/map_publisher_sim.param.yaml')
     ndt_localizer_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/ndt_localizer_sim.param.yaml')
-    mpc_param_file = os.path.join(
-        avp_demo_pkg_prefix, 'param/avp/mpc_sim.param.yaml')
     pc_filter_transform_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/avp/pc_filter_transform.param.yaml')
     vehicle_characteristics_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
+    lat_control_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/avp/lateral_controller.param.yaml')
+    lon_control_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/avp/longitudinal_controller.param.yaml')
+    latlon_muxer_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/avp/latlon_muxer.param.yaml')
 
     urdf_pkg_prefix = get_package_share_directory('lexus_rx_450h_description')
     urdf_path = os.path.join(urdf_pkg_prefix, 'urdf/lexus_rx_450h.urdf')
@@ -71,11 +73,6 @@ def generate_launch_description():
         default_value=ndt_localizer_param_file,
         description='Path to config file for ndt localizer'
     )
-    mpc_param = DeclareLaunchArgument(
-        'mpc_param_file',
-        default_value=mpc_param_file,
-        description='Path to config file for MPC'
-    )
     pc_filter_transform_param = DeclareLaunchArgument(
         'pc_filter_transform_param_file',
         default_value=pc_filter_transform_param_file,
@@ -85,6 +82,21 @@ def generate_launch_description():
         'vehicle_characteristics_param_file',
         default_value=vehicle_characteristics_param_file,
         description='Path to config file for vehicle characteristics'
+    )
+    lat_control_param = DeclareLaunchArgument(
+        'lat_control_param_file',
+        default_value=lat_control_param_file,
+        description='Path to config file for lateral controller'
+    )
+    lon_control_param = DeclareLaunchArgument(
+        'lon_control_param_file',
+        default_value=lon_control_param_file,
+        description='Path to config file for longitudinal controller'
+    )
+    latlon_muxer_param = DeclareLaunchArgument(
+        'latlon_muxer_param_file',
+        default_value=latlon_muxer_param_file,
+        description='Path to config file for lateral and longitudinal control commands muxer'
     )
 
     # Nodes
@@ -147,14 +159,50 @@ def generate_launch_description():
             ("observation_republish", "/lidars/points_fused_viz"),
         ]
     )
-    mpc = Node(
-        package='mpc_controller_nodes',
-        executable='mpc_controller_node_exe',
-        name='mpc_controller_node',
+    lat_control = Node(
+        package='trajectory_follower_nodes',
+        executable='lateral_controller_node_exe',
+        name='lateral_controller_node',
         namespace='control',
         parameters=[
-            LaunchConfiguration('mpc_param_file'),
+            LaunchConfiguration('lat_control_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+           ("input/reference_trajectory", "/planning/trajectory"),
+           ("input/current_kinematic_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
+        ],
+    )
+    lon_control = Node(
+        package='trajectory_follower_nodes',
+        executable='longitudinal_controller_node_exe',
+        name='longitudinal_controller_node',
+        namespace='control',
+        parameters=[
+            LaunchConfiguration('lon_control_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+           ("input/current_trajectory", "/planning/trajectory"),
+           ("input/current_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
+        ],
+    )
+    latlon_muxer = Node(
+        package='trajectory_follower_nodes',
+        executable='latlon_muxer_node_exe',
+        name='latlon_muxer_node',
+        namespace='control',
+        parameters=[
+            LaunchConfiguration('latlon_muxer_param_file'),
+        ],
+        remappings=[
+           ("input/lateral/control_cmd", "output/lateral/control_cmd"),
+           ("input/longitudinal/control_cmd", "output/longitudinal/control_cmd"),
+           ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
         ],
     )
 
@@ -176,14 +224,18 @@ def generate_launch_description():
         lgsvl_interface_param,
         map_publisher_param,
         ndt_localizer_param,
-        mpc_param,
         pc_filter_transform_param,
         vehicle_characteristics_param,
+        lat_control_param,
+        lon_control_param,
+        latlon_muxer_param,
         urdf_publisher,
         lgsvl_interface,
+        lat_control,
+        lon_control,
+        latlon_muxer,
         map_publisher,
         ndt_localizer,
-        mpc,
         filter_transform_vlp16_front,
         filter_transform_vlp16_rear,
         core_launch,

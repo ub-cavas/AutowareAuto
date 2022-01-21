@@ -176,9 +176,9 @@ LongitudinalController::LongitudinalController(const rclcpp::NodeOptions & node_
     "input/current_trajectory", rclcpp::QoS{1},
     std::bind(&LongitudinalController::callbackTrajectory, this, _1));
   m_pub_control_cmd = create_publisher<autoware_auto_control_msgs::msg::LongitudinalCommand>(
-    "output/longitudinal_control_cmd", rclcpp::QoS{1});
+    "output/longitudinal/control_cmd", rclcpp::QoS{1});
   m_pub_slope = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
-    "output/slope_angle", rclcpp::QoS{1});
+    "output/longitudinal/slope_angle", rclcpp::QoS{1});
   m_pub_debug = create_publisher<autoware_auto_system_msgs::msg::Float32MultiArrayDiagnostic>(
     "output/longitudinal/diagnostic", rclcpp::QoS{1});
 
@@ -378,7 +378,11 @@ void LongitudinalController::callbackTimerControl()
   autoware_auto_planning_msgs::msg::TrajectoryPoint current_state_tf;
   ::motion::motion_common::doTransform(m_current_state_ptr->state, current_state_tf, tf);
   // calculate current pose and control data
-  const geometry_msgs::msg::Pose & current_pose = current_state_tf.pose;
+  geometry_msgs::msg::Pose current_pose;
+  current_pose.position.x = tf.transform.translation.x;
+  current_pose.position.y = tf.transform.translation.y;
+  current_pose.position.z = tf.transform.translation.z;
+  current_pose.orientation = tf.transform.rotation;
 
 
   const auto control_data = getControlData(current_pose);

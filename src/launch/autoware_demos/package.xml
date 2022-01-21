@@ -40,6 +40,7 @@
   <exec_depend>state_estimation_nodes</exec_depend>
   <exec_depend>tf2_ros</exec_depend>
   <exec_depend>tracking_nodes</exec_depend>
+  <exec_depend>trajectory_follower_nodes</exec_depend>
   <exec_depend>velodyne_nodes</exec_depend>
   <exec_depend>voxel_grid_nodes</exec_depend>
 
