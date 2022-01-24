@@ -70,10 +70,13 @@ TEST_F(LgsvlInterfaceTest, GearMappingStateCommand)
     };
 
   // Tests
-  using GearReport = autoware_auto_vehicle_msgs::msg::GearReport;
-  wait_for_subscription_callback(GearReport::DRIVE_1, lgsvl_interface::VSD::GEAR_DRIVE);
+  wait_for_subscription_callback(
+    lgsvl_interface::VSC::GEAR_DRIVE,
+    lgsvl_interface::VSD::GEAR_DRIVE);
 
-  wait_for_subscription_callback(GearReport::REVERSE, lgsvl_interface::VSD::GEAR_REVERSE);
+  wait_for_subscription_callback(
+    lgsvl_interface::VSC::GEAR_REVERSE,
+    lgsvl_interface::VSD::GEAR_REVERSE);
 
   wait_for_subscription_callback(
     static_cast<lgsvl_interface::GEAR_TYPE>(99u),

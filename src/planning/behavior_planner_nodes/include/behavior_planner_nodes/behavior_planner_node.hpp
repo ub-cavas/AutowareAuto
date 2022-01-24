@@ -47,6 +47,7 @@
 #include <geometry_msgs/msg/pose_array.hpp>
 
 // others
+#include <unordered_map>
 #include <string>
 #include <memory>
 
@@ -65,6 +66,8 @@ using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
 using autoware_auto_vehicle_msgs::msg::GearReport;
+using GEAR_TYPE =
+  std::remove_const<decltype(autoware_auto_vehicle_msgs::msg::GearReport::DRIVE_1)>::type;
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::behavior_planner::PlannerType;
 using autoware::behavior_planner::RouteWithType;
@@ -84,6 +87,8 @@ public:
   explicit BehaviorPlannerNode(const rclcpp::NodeOptions & options);
 
 private:
+  //  Mapping from GearReport to VehicleStateControl
+  static const std::unordered_map<GEAR_TYPE, GEAR_TYPE> gear_report_to_vsc_gear;
   //  ROS Interface
   rclcpp_action::Client<PlanTrajectoryAction>::SharedPtr m_lane_planner_client;
   rclcpp_action::Client<PlanTrajectoryAction>::SharedPtr m_parking_planner_client;
