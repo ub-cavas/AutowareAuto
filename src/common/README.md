@@ -15,6 +15,7 @@ across the Autoware.Auto system.
 - @subpage geometry-spatial-hash
 - @subpage helper-comparisons
 - @subpage measurement-conversion-design
+- @subpage monitored-node-design
 - @subpage more-thuente-line-search-design
 - @subpage motion-model-design
 - @subpage mpark_variant_vendor-package-design
@@ -29,4 +30,3 @@ across the Autoware.Auto system.
 - @subpage tvm-utility-design
 - @subpage vehicle-constants-manager-package-design
 - @subpage convex-polygon-intersection-2d
-
