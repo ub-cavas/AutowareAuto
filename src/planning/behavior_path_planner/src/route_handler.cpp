@@ -152,6 +152,16 @@ void RouteHandler::setRouteLanelets()
   if (!is_route_msg_ready_ || !is_map_msg_ready_) {
     return;
   }
+
+  // Path planner doesn't support parking primitives
+  for (const auto & route_segment : route_msg_.segments) {
+    for (const auto & primitive : route_segment.primitives) {
+      if(primitive.primitive_type == "parking"){
+        return;
+      }
+    }
+  }
+
   route_lanelets_.clear();
   preferred_lanelets_.clear();
   for (const auto & route_segment : route_msg_.segments) {
@@ -286,7 +296,7 @@ lanelet::ConstLanelet RouteHandler::getLaneletsFromId(const lanelet::Id id) cons
 }
 
 bool RouteHandler::isDeadEndLanelet(const lanelet::ConstLanelet & lanelet) const
-{ // todo MD: continued_lane_ids field?
+{ // todo MD: Activate the function when continued_lane_ids field available?
 //  for (const auto & route_section : route_msg_.segments) {
 //    if (exists(route_section.continued_lane_ids, lanelet.id())) {
       return false;
