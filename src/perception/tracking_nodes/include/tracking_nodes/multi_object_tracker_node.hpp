@@ -100,7 +100,7 @@ private:
   rclcpp::Subscription<DetectedObjects>::SharedPtr m_detected_objects_subscription{};
   std::vector<rclcpp::Subscription<ClassifiedRoiArray>::SharedPtr> m_vision_subscriptions;
 
-  using Policy = message_filters::sync_policies::ExactTime< DetectedObjects, ClustersMsg >;
+  using Policy = message_filters::sync_policies::ExactTime<DetectedObjects, ClustersMsg>;
   std::unique_ptr<message_filters::Synchronizer<Policy>> m_sync_ptr;
   std::unique_ptr<message_filters::Subscriber<DetectedObjects>> m_mf_detected_objects_sub;
   std::unique_ptr<message_filters::Subscriber<ClustersMsg>> m_mf_clusters_sub;

@@ -26,6 +26,7 @@
     visualize_track_creation: True    # Parameters for visualizing track creation
     use_raw_clusters: True
     use_detected_objects: False
+    use_polygon_prisms: False
     vision_association:
       # The IoU threshold for a RoI and projection of another detection to be considered matches
       iou_threshold: 0.4

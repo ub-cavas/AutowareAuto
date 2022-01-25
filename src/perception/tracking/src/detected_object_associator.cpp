@@ -129,21 +129,62 @@ bool DetectedObjectAssociator::consider_associating(
   const autoware_auto_perception_msgs::msg::DetectedObject & detection,
   const TrackedObject & track) const
 {
-  // TODO(kcolak): geometry::convex_hull function not working properly.
-  /// After fix that, implement area ratio comparison for consider_associating
+  const auto get_shortest_edge_size_squared = [&]() -> float32_t {
+      float32_t retval = std::numeric_limits<float32_t>::max();
+      for (auto current = detection.shape.polygon.points.begin();
+        current != detection.shape.polygon.points.end(); ++current)
+      {
+        auto next = common::geometry::details::circular_next(
+          detection.shape.polygon.points.begin(), detection.shape.polygon.points.end(), current);
+        retval = std::min(retval, common::geometry::squared_distance_2d(*current, *next));
+      }
+      return retval;
+    };
+
+  const float32_t det_area = common::geometry::area_checked_2d(
+    detection.shape.polygon.points.begin(), detection.shape.polygon.points.end());
+
+  const float32_t track_area = common::geometry::area_checked_2d(
+    track.shape().polygon.points.begin(), track.shape().polygon.points.end());
+  static constexpr float32_t kAreaEps = 1e-3F;
+
+  if (common::helper_functions::comparisons::abs_eq_zero(det_area, kAreaEps) ||
+    common::helper_functions::comparisons::abs_eq_zero(track_area, kAreaEps))
+  {
+    throw std::runtime_error("Detection or track area is zero");
+  }
+
+  const float32_t area_ratio = det_area / track_area;
 
   geometry_msgs::msg::Point track_centroid{};
   track_centroid.x = track.centroid().x();
   track_centroid.y = track.centroid().y();
 
+  const auto compute_distance_threshold = [&get_shortest_edge_size_squared, this]() -> float32_t {
+      if (m_association_cfg.consider_edge_for_big_detections()) {
+        return std::max(
+          m_association_cfg.get_max_distance_squared(),
+          get_shortest_edge_size_squared());
+      } else {
+        return m_association_cfg.get_max_distance_squared();
+      }
+    };
+
   if (common::geometry::squared_distance_2d(
       detection.kinematics.pose_with_covariance.pose.position,
-      track_centroid) > m_association_cfg.get_max_distance_squared())
+      track_centroid) > compute_distance_threshold())
   {
     return false;
   }
-  return true;
+
+  if (area_ratio < m_association_cfg.get_max_area_ratio()) {
+    if (area_ratio > m_association_cfg.get_max_area_ratio_inv()) {
+      return true;
+    }
+  }
+  return false;
 }
+
 
 void DetectedObjectAssociator::set_weight(
   const float32_t weight,
