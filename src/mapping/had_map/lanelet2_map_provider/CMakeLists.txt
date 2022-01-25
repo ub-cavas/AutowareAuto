@@ -90,13 +90,13 @@ if(BUILD_TESTING)
     test/lanelet2_map_provider_launch.test.py
     TIMEOUT "30"
     ENV
-    ROS_DOMAIN_ID=107
+    ROS_DOMAIN_ID=27
   )
 
   find_package(autoware_testing REQUIRED)
   add_smoke_test(${PROJECT_NAME} ${VISUALIZER_NODE_NAME}
     ENV
-    ROS_DOMAIN_ID=108
+    ROS_DOMAIN_ID=28
   )
 
   # Unit tests
@@ -104,7 +104,7 @@ if(BUILD_TESTING)
   set(TEST_LANELET2_MAP_PROVIDER_EXE test_lanelet2_map_provider)
   ament_add_gtest(${TEST_LANELET2_MAP_PROVIDER_EXE} ${TEST_SOURCES}
     ENV
-    ROS_DOMAIN_ID=109
+    ROS_DOMAIN_ID=29
   )
   autoware_set_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE})
   target_link_libraries(${TEST_LANELET2_MAP_PROVIDER_EXE}

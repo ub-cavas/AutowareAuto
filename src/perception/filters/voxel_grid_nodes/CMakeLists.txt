@@ -54,7 +54,7 @@ if(BUILD_TESTING)
   ament_add_gtest(${VOXEL_GRID_NODE_GTEST}
     test/test_voxel_grid_nodes.cpp
     ENV
-    ROS_DOMAIN_ID=100
+    ROS_DOMAIN_ID=20
   )
   autoware_set_compile_options(${VOXEL_GRID_NODE_GTEST})
   target_link_libraries(${VOXEL_GRID_NODE_GTEST} ${VOXEL_GRID_NODE_LIB})

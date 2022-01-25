@@ -21,7 +21,7 @@ if(BUILD_TESTING)
     test/test_astar_search.cpp
     TIMEOUT 600
     ENV
-    ROS_DOMAIN_ID=104
+    ROS_DOMAIN_ID=24
   )
   autoware_set_compile_options(${ASTAR_SEARCH_LIB}_test)
   target_link_libraries(${ASTAR_SEARCH_LIB}_test ${ASTAR_SEARCH_LIB})

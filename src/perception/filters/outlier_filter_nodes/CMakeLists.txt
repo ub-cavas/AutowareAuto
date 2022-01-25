@@ -69,14 +69,14 @@ if(BUILD_TESTING)
     test/radius_search_2d_filter_node_launch.test.py
     TIMEOUT "30"
     ENV
-    ROS_DOMAIN_ID=111
+    ROS_DOMAIN_ID=31
   )
 
   add_ros_test(
     test/voxel_grid_outlier_filter_node_launch.test.py
     TIMEOUT "30"
     ENV
-    ROS_DOMAIN_ID=112
+    ROS_DOMAIN_ID=32
   )
 endif()
 

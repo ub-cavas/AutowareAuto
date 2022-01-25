@@ -25,7 +25,7 @@ if(BUILD_TESTING)
   find_package(autoware_testing REQUIRED)
   add_smoke_test(${PROJECT_NAME} ${NODE_NAME}
     ENV
-    ROS_DOMAIN_ID=113
+    ROS_DOMAIN_ID=33
   )
 
   # gtest
@@ -35,7 +35,7 @@ if(BUILD_TESTING)
     test/src/gtest_main.cpp
     test/src/test_lgsvl_interface.cpp
     ENV
-    ROS_DOMAIN_ID=114
+    ROS_DOMAIN_ID=34
   )
   autoware_set_compile_options(${LGSVL_INTERFACE_GTEST})
   target_include_directories(${LGSVL_INTERFACE_GTEST} PRIVATE "include" "test/include")
