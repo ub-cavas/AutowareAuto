@@ -34,6 +34,12 @@ ENV LC_ALL en_US.UTF-8
 RUN echo deb https://deb.nodesource.com/node_10.x ${CODENAME} main | tee /etc/apt/sources.list.d/nodesource.list
 RUN apt-key adv --keyserver 'hkp://keyserver.ubuntu.com:80' --recv-key 1655A0AB68576280
 
+COPY apt-packages /tmp/
+RUN apt-get update && \
+    apt-get install -y \
+        $(cat /tmp/apt-packages | cut -d# -f1 | envsubst) \
+    && rm -rf /var/lib/apt/lists/* /tmp/apt-packages
+
 COPY ros-deps /tmp/
 RUN apt-get update && \
     apt-get install -y \
@@ -42,12 +48,6 @@ RUN apt-get update && \
       ros-$ROS_DISTRO-rmw-cyclonedds-cpp && \
     /bin/bash /tmp/ros-deps && \
     rm -rf /var/lib/apt/lists/* /tmp/ros-deps
-
-COPY apt-packages /tmp/
-RUN apt-get update && \
-    apt-get install -y \
-        $(cat /tmp/apt-packages | cut -d# -f1 | envsubst) \
-    && rm -rf /var/lib/apt/lists/* /tmp/apt-packages
 
 RUN echo 'ALL ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 RUN echo 'Defaults env_keep += "DEBUG ROS_DISTRO"' >> /etc/sudoers
