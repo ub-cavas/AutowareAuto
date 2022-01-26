@@ -55,7 +55,7 @@ public:
   /// \param[in] timer_callback_group Callback group to be used to invoke timer callbacks
   SafetyMonitorInterface(
     rclcpp::Node * parent_node,
-    rclcpp::callback_group::CallbackGroup::SharedPtr timer_callback_group)
+    rclcpp::CallbackGroup::SharedPtr timer_callback_group)
   : m_parent_node(parent_node), m_timer_callback_group(timer_callback_group)
   {
     // Create a publisher to publish diagnostic messages. The topic name is hard coded so that all
@@ -230,7 +230,7 @@ private:
   // Mutex to control multi threaded access to the timers
   std::mutex m_timers_mutex{};
   // Shared pointer to the callback group used to invoke timer callbacks.
-  rclcpp::callback_group::CallbackGroup::SharedPtr m_timer_callback_group{};
+  rclcpp::CallbackGroup::SharedPtr m_timer_callback_group{};
 
   /// \brief get the diagnostic message's "name" field. This is a combination of a hard-coded
   ///        prefix and the parent node's name
