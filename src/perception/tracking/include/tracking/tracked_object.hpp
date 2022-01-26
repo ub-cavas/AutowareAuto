@@ -97,9 +97,6 @@ public:
   void update(
     const ObjectClassifications & obj_type, const common::types::float32_t covariance);
 
-  /// Update object shape
-  void update_shape(const DetectedObjectMsg & detection_bbox);
-
   /// Call when no correspondence for this track was found.
   void no_update();
 
