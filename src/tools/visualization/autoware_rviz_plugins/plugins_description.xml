@@ -25,6 +25,17 @@
   </class>
 
   <class
+    name="autoware_rviz_plugins/PathWithLaneId"
+    type="autoware::rviz_plugins::PathDisplay"
+    base_class_type="rviz_common::Display"
+  >
+    <description>
+      Convert a PathWithLaneId to markers and display them.
+    </description>
+    <message_type>autoware_auto_planning_msgs/msg/PathWithLaneId</message_type>
+  </class>
+
+  <class
           name="autoware_rviz_plugins/TrackedObjects"
           type="autoware::rviz_plugins::object_detection::TrackedObjectsDisplay"
           base_class_type="rviz_common::Display"
