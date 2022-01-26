@@ -61,7 +61,7 @@ public:
     CallbackT && callback, std::chrono::milliseconds max_callback_duration,
     SafetyMonitorInterface::SharedPtr safety_monitor_interface,
     rclcpp::Node * parent_node,
-    rclcpp::callback_group::CallbackGroup::SharedPtr subscription_callback_group)
+    rclcpp::CallbackGroup::SharedPtr subscription_callback_group)
   : m_topic_name(topic_name), m_callback(callback),
     m_safety_monitor_interface(safety_monitor_interface),
     m_max_callback_duration(max_callback_duration)
