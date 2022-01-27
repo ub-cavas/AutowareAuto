@@ -101,6 +101,3 @@ TEST_F(MultiObjectTrackerTest, TestTrackerFrameMismatch) {
   const auto result = m_tracker.update(m_detections, m_clusters, m_odom);
   EXPECT_EQ(result.status, TrackerUpdateStatus::TrackerFrameMismatch);
 }
-
-
-
