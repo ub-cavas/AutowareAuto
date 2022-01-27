@@ -34,7 +34,9 @@ target_compile_options(${COSTMAP_GENERATOR_LIB} PRIVATE
   -Wno-sign-conversion
   -Wno-conversion
   -Wno-double-conversion
-  -Wno-double-promotion)
+  -Wno-double-promotion
+  -Wno-useless-cast
+)
 
 if(BUILD_TESTING)
   # run linters

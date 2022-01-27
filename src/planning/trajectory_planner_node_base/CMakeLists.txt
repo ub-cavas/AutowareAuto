@@ -34,6 +34,13 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${TRAJECTORY_PLANNER_NODE_BASE_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
+target_compile_options(${PROJECT_NAME} PRIVATE
+  -Wno-conversion
+  -Wno-double-promotion
+  -Wno-old-style-cast
+  -Wno-sign-conversion
+  -Wno-useless-cast
+)
 
 # Testing
 if(BUILD_TESTING)
@@ -45,6 +52,13 @@ if(BUILD_TESTING)
   set(TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE test_trajectory_planner_node_base)
   ament_add_gtest(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE})
+  target_compile_options(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} PRIVATE
+    -Wno-conversion
+    -Wno-double-promotion
+    -Wno-old-style-cast
+    -Wno-sign-conversion
+    -Wno-useless-cast
+  )
   target_link_libraries(${TEST_TRAJECTORY_PLANNER_NODE_BASE_EXE} ${PROJECT_NAME})
 endif()
 
