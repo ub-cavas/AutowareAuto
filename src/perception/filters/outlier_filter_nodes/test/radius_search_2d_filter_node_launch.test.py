@@ -50,8 +50,6 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, radius_search_2d_filter_node):
+        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info,
-            [-15, -2],
-            process=radius_search_2d_filter_node
-        )
+            proc_info, [-2, -6, -15], process=radius_search_2d_filter_node)

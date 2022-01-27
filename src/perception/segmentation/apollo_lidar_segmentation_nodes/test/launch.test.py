@@ -51,10 +51,6 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, apollo_lidar_segmentation):
-        # Check that process exits with code -15: termination request
-        # or code -2: interactive attention signal, sent to the program
+        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info,
-            [-15, -2],
-            process=apollo_lidar_segmentation
-        )
+            proc_info, [-2, -6, -15], process=apollo_lidar_segmentation)

@@ -54,5 +54,6 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, ros_info):
-        # Check that process exits with code -2 code: termination request, sent to the program
-        launch_testing.asserts.assertExitCodes(proc_info, [-2], process=ros_info)
+        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
+        launch_testing.asserts.assertExitCodes(
+            proc_info, [-2, -6, -15], process=ros_info)

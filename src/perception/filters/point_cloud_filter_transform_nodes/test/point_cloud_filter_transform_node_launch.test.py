@@ -53,9 +53,6 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, point_cloud_filter_transform_node):
-        # Check that process exits with code -2 code: termination request, sent to the program
+        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info,
-            [-2],
-            process=point_cloud_filter_transform_node
-        )
+            proc_info, [-2, -6, -15], process=point_cloud_filter_transform_node)
