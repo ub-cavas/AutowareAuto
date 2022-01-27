@@ -44,7 +44,13 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${LANELET2_MAP_PROVIDER_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
-
+target_compile_options(${PROJECT_NAME} PRIVATE
+  -Wno-conversion
+  -Wno-double-promotion
+  -Wno-old-style-cast
+  -Wno-sign-conversion
+  -Wno-useless-cast
+)
 target_link_libraries(${PROJECT_NAME}
   ${GeographicLib_LIBRARIES})
 
@@ -105,6 +111,12 @@ if(BUILD_TESTING)
   ament_add_gtest(${TEST_LANELET2_MAP_PROVIDER_EXE} ${TEST_SOURCES}
     ENV
     ROS_DOMAIN_ID=29
+  )
+  target_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE} PRIVATE
+    -Wno-conversion
+    -Wno-old-style-cast
+    -Wno-sign-conversion
+    -Wno-useless-cast
   )
   autoware_set_compile_options(${TEST_LANELET2_MAP_PROVIDER_EXE})
   target_link_libraries(${TEST_LANELET2_MAP_PROVIDER_EXE}
