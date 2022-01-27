@@ -39,6 +39,14 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${OFF_MAP_OBSTACLES_FILTER_NODE_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
+target_compile_options(${PROJECT_NAME} PRIVATE
+  -Wno-conversion
+  -Wno-double-promotion
+  -Wno-old-style-cast
+  -Wno-sign-conversion
+  -Wno-useless-cast
+)
+
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::off_map_obstacles_filter_nodes::OffMapObstaclesFilterNode"
   EXECUTABLE ${PROJECT_NAME}_exe
@@ -54,6 +62,13 @@ if(BUILD_TESTING)
   set(TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE test_off_map_obstacles_filter_nodes)
   ament_add_gtest(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE})
+  target_compile_options(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} PRIVATE
+    -Wno-conversion
+    -Wno-double-promotion
+    -Wno-old-style-cast
+    -Wno-sign-conversion
+    -Wno-useless-cast
+  )
   target_link_libraries(${TEST_OFF_MAP_OBSTACLES_FILTER_NODES_EXE} ${PROJECT_NAME})
 endif()
 

@@ -47,6 +47,13 @@ if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(${COSTMAP_GENERATOR_LIB}_test test/test_costmap_generator.cpp TIMEOUT 100)
   autoware_set_compile_options(${COSTMAP_GENERATOR_LIB}_test)
+  target_compile_options(${COSTMAP_GENERATOR_LIB}_test PRIVATE
+    -Wno-conversion
+    -Wno-double-promotion
+    -Wno-old-style-cast
+    -Wno-sign-conversion
+    -Wno-useless-cast
+  )
   target_link_libraries(${COSTMAP_GENERATOR_LIB}_test ${COSTMAP_GENERATOR_LIB})
 endif()
 

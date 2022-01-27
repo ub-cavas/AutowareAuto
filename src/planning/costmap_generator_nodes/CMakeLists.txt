@@ -32,7 +32,9 @@ target_compile_options(${COSTMAP_GENERATOR_NODE_NAME} PRIVATE
   -Wno-sign-conversion
   -Wno-conversion
   -Wno-double-conversion
-  -Wno-double-promotion)
+  -Wno-double-promotion
+  -Wno-useless-cast
+)
 
 rclcpp_components_register_node(${COSTMAP_GENERATOR_NODE_NAME}
   PLUGIN "autoware::planning::costmap_generator::CostmapGeneratorNode"
