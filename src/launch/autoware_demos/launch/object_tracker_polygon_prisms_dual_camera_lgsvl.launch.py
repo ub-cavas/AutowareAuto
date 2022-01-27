@@ -136,7 +136,7 @@ def generate_launch_description():
         on_exit=Shutdown(),
         package='euclidean_cluster_nodes',
         parameters=[get_param_file('euclidean_cluster_nodes',
-                                   'vlp16_lexus_cluster_as_polygon.param.yaml.param.yaml')],
+                                   'vlp16_lexus_cluster_as_polygon.param.yaml')],
         remappings=[
             ("points_in", "points_nonground"),
             ("points_clustered", "cluster_points")
