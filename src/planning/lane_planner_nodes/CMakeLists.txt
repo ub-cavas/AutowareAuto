@@ -35,6 +35,14 @@ ament_auto_add_library(lane_planner_node SHARED
 )
 
 autoware_set_compile_options(lane_planner_node)
+target_compile_options(lane_planner_node PRIVATE
+  -Wno-conversion
+  -Wno-double-promotion
+  -Wno-old-style-cast
+  -Wno-sign-conversion
+  -Wno-useless-cast
+)
+
 set(NODE_NAME lane_planner_node_exe)
 rclcpp_components_register_node(lane_planner_node
   PLUGIN "autoware::lane_planner_nodes::LanePlannerNode"
@@ -54,6 +62,13 @@ if(BUILD_TESTING)
   set(TEST_LANE_PLANNER_NODE_EXE test_lane_planner_node)
   ament_add_gtest(${TEST_LANE_PLANNER_NODE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_LANE_PLANNER_NODE_EXE})
+  target_compile_options(${TEST_LANE_PLANNER_NODE_EXE} PRIVATE
+    -Wno-conversion
+    -Wno-double-promotion
+    -Wno-old-style-cast
+    -Wno-sign-conversion
+    -Wno-useless-cast
+  )
   target_link_libraries(${TEST_LANE_PLANNER_NODE_EXE} lane_planner_node)
 endif()
 
