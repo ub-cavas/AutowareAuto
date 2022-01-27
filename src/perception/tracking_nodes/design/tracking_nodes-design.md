@@ -15,7 +15,7 @@ This is a ROS-layer wrapper around the `tracking` package.
 <!-- Required -->
 <!-- Things to consider:
     - How does it work? -->
-`DetectedObjects` and (optionally) `ClassifiedRoiArray` messages are time synchronized with `Odometry` 
+Optionally, one or more `DetectedObjects`(as a polygon prisms or/and boundingx boxes), `CloudClusters` and `ClassifiedRoiArray` messages are time synchronized with `Odometry` 
 or `PoseWithCovarianceStamped` messages which are then forwarded to the tracker implementation which 
 updates the state of the tracks. The updated tracks are then acquired and published. 
 
@@ -31,12 +31,15 @@ updates the state of the tracks. The updated tracks are then acquired and publis
 <!-- Things to consider:
     - How do you use the package / API? -->
 Input topics:
-* "detected_objects"
+* "detected_objects" [as a bounding boxes shape] (optional)
+* "clusters" [as a raw clusters shape] (optional)
+* "polygon_prisms" [as a polygon prisms shape] (optional)
 * "classified_rois" (optional)
 * "odometry"
 
 Output topics:
 * "tracked_objects"
+* "leftover_clusters"
 
 Parameters:
 * use_vision - Set this to true to subscribe to `ClassifiedRoiArray` topic. This also means

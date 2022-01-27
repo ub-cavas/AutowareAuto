@@ -21,3 +21,8 @@ Run the following launch command to launch the tracker with dual camera,
 ```
 ros2 launch autoware_demos object_tracker_lidar_dual_camera_lgsvl.launch.py
 ```
+
+Run the following launch command to launch the tracker with polygon prisms input and dual camera,
+```
+ros2 launch autoware_demos object_tracker_polygon_prisms_dual_camera_lgsvl.launch.py
+```

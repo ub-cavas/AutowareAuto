@@ -444,7 +444,7 @@ template<class TrackCreatorT>
 DetectedObjectsUpdateResult MultiObjectTracker<TrackCreatorT>::update(
   const MultiObjectTracker::DetectedObjectsMsg & detected_polygon_prisms,
   const MultiObjectTracker::ClustersMsg & incoming_clusters,
-  const Odometry & detection_frame_odometry)
+  const nav_msgs::msg::Odometry & detection_frame_odometry)
 {
   ClustersMsg clusters = incoming_clusters;
   DetectedObjectsUpdateResult result;

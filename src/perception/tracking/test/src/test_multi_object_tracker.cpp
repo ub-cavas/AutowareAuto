@@ -28,6 +28,7 @@ using autoware::perception::tracking::TrackCreator;
 using autoware::perception::tracking::MultiObjectTrackerOptions;
 using autoware::perception::tracking::TrackerUpdateStatus;
 using autoware_auto_perception_msgs::msg::DetectedObjects;
+using autoware_auto_perception_msgs::msg::PointClusters;
 using nav_msgs::msg::Odometry;
 
 class MultiObjectTrackerTest : public ::testing::Test
@@ -58,11 +59,20 @@ public:
   TrackCreatorType m_track_creator;
   MultiObjectTracker<TrackCreatorType> m_tracker;
   DetectedObjects m_detections;
+  PointClusters m_clusters;
   Odometry m_odom;
 };
 
-TEST_F(MultiObjectTrackerTest, TestHappyPath) {
+TEST_F(MultiObjectTrackerTest, TestHappyPathDetections) {
   EXPECT_NO_THROW(m_tracker.update(m_detections, m_odom));
+}
+
+TEST_F(MultiObjectTrackerTest, TestHappyPathClusters) {
+  EXPECT_NO_THROW(m_tracker.update(m_clusters, m_odom));
+}
+
+TEST_F(MultiObjectTrackerTest, TestHappyPathDetectionsAndClusters) {
+  EXPECT_NO_THROW(m_tracker.update(m_detections, m_clusters, m_odom));
 }
 
 TEST_F(MultiObjectTrackerTest, TestTimestamps) {
@@ -79,3 +89,18 @@ TEST_F(MultiObjectTrackerTest, TestFrameOrientationValidation) {
   const auto result = m_tracker.update(m_detections, m_odom);
   EXPECT_EQ(result.status, TrackerUpdateStatus::FrameNotGravityAligned);
 }
+
+TEST_F(MultiObjectTrackerTest, TestDetectionFrameValidation) {
+  m_detections.header.frame_id = "test_frame";
+  const auto result = m_tracker.update(m_detections, m_clusters, m_odom);
+  EXPECT_EQ(result.status, TrackerUpdateStatus::DetectionFrameMismatch);
+}
+
+TEST_F(MultiObjectTrackerTest, TestTrackerFrameMismatch) {
+  m_odom.header.frame_id = "test_frame";
+  const auto result = m_tracker.update(m_detections, m_clusters, m_odom);
+  EXPECT_EQ(result.status, TrackerUpdateStatus::TrackerFrameMismatch);
+}
+
+
+
