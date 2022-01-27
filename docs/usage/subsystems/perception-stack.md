@@ -158,6 +158,15 @@ To simplify the process of launching these nodes there exists a convenience laun
   ade$ ros2 run velodyne_nodes velodyne_cloud_node_exe --model vlp16 --ros-args --remap __ns:=/lidar_rear --params-file /opt/AutowareAuto/share/velodyne_nodes/param/vlp16_test_rear.param.yaml
   ```
 4. Enter ADE and run the launch file
+   
+   Publish the convex polygon prisms for describe the spatial location of objects.
+
+  ```{bash}
+  ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 launch autoware_demos lidar_polygon_prisms_pcap.launch.py
+  ```
+  Or alternativelly, publish the bounding boxes for describe the spatial location of objects.
   ```{bash}
   ade enter
   ade$ source /opt/AutowareAuto/setup.bash
@@ -170,6 +179,16 @@ To simplify the process of launching these nodes there exists a convenience laun
 
 1. See [Running the SVL Simulator along side Autoware.Auto](lgsvl.html)
 2. Enter ADE and run the launch file
+
+   Publish the convex polygon prisms for describe the spatial location of objects.
+
+  ```{bash}
+  $ ade enter
+  ade$ source /opt/AutowareAuto/setup.bash
+  ade$ ros2 launch autoware_demos lidar_polygon_prisms_lgsvl.launch.py
+  ```
+  Or alternativelly, publish the bounding boxes for describe the spatial location of objects.
+
   ```{bash}
   $ ade enter
   ade$ source /opt/AutowareAuto/setup.bash
