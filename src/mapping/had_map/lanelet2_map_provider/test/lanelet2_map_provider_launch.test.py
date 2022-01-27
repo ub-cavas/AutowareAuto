@@ -61,4 +61,5 @@ class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, lanelet2_map_provider):
         # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
-        launch_testing.asserts.assertExitCodes(proc_info, [-2, -6, -15], process=lanelet2_map_provider)
+        launch_testing.asserts.assertExitCodes(
+            proc_info, [-2, -6, -15], process=lanelet2_map_provider)
