@@ -25,6 +25,8 @@ import launch_ros.actions
 import launch_testing
 import launch_testing.util
 
+import signal
+
 
 def generate_test_description():
     # The node under test and the checker node that will pass/fail our tests:
@@ -63,8 +65,8 @@ class TestWaitForShutdown(unittest.TestCase):
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, state_node):
-        # Check that process exits with code -6 (failure due to uncaught error
-        launch_testing.asserts.assertExitCodes(proc_info, [-6],
+        # Check that process exits with code SIGABRT -6 (failure due to uncaught error
+        launch_testing.asserts.assertExitCodes(proc_info, [-signal.SIGABRT],
                                                process=state_node)
 
         # Check that correct error message is produced, we get the same error

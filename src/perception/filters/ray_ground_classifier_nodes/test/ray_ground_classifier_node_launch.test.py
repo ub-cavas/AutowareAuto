@@ -24,6 +24,8 @@ import launch_testing
 
 import pytest
 
+import signal
+
 
 @pytest.mark.launch_test
 def generate_test_description():
@@ -51,6 +53,8 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, ray_ground_classifier_node):
-        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
+        # Check that process exits with expected codes: either SIGINT, SIGABRT or SIGTERM codes
+        # are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info, [-2, -6, -15], process=ray_ground_classifier_node)
+            proc_info, [-signal.SIGINT, -signal.SIGABRT, -signal.SIGTERM],
+            process=ray_ground_classifier_node)

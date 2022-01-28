@@ -24,6 +24,8 @@ import os
 import pytest
 import unittest
 
+import signal
+
 
 @pytest.mark.launch_test
 def generate_test_description():
@@ -60,6 +62,8 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, lanelet2_map_provider):
-        # Check that process exits with expected codes: either SIGINT or SIGTERM codes are fine
+        # Check that process exits with expected codes: either SIGINT, SIGABRT or SIGTERM codes
+        # are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info, [-2, -6, -15], process=lanelet2_map_provider)
+            proc_info, [-signal.SIGINT, -signal.SIGABRT, -signal.SIGTERM],
+            process=lanelet2_map_provider)
