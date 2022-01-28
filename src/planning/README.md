@@ -34,3 +34,4 @@ generation process.
 - @subpage trajectory-planner-node-base
 - @subpage trajectory-smoother-package-design
 - @subpage trajectory-spoofer-design
+- @subpage global_velocity_planner-package-design
