@@ -31,6 +31,7 @@ git checkout a8e30ebaa7e24f132e28b0c1ff96295fa5730b75
 * build Autoware, `scenario_test_runner` and `kashiwanoha_map` (needed for this demo only)
  ```
 cd ~/AutowareAuto
+sudo apt update; rosdep install --from-paths src --ignore-src -r -y
 colcon build --packages-up-to scenario_test_runner scenario_simulator_launch kashiwanoha_map --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
@@ -61,15 +62,24 @@ Autoware launch file needs to be ran from the repo root directory (inside `Autow
 
 ### Steps
 
+If you restart ade, make sure to reinstall the dependencies by the following:
+```
+ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
+cd AutowareAuto
+sudo apt update; rosdep install --from-paths src --ignore-src -r -y
+```
+
 In `ade` in `AutowareAuto` do the following:
 
 * launch rviz2 with Autoware.Auto avp config
 ```
+ade enter
 source install/setup.bash
 ros2 run rviz2 rviz2 -d $(ros2 pkg prefix autoware_auto_launch)/share/autoware_auto_launch/config/avp.rviz
 ```
 * launch scenario test runner
 ```
+ade enter
 source install/setup.bash
 ros2 launch scenario_test_runner scenario_test_runner.launch.py sensor_model:=aip_xx1 vehicle_model:=lexus scenario:=src/external/scenario_simulator/test_runner/scenario_test_runner/test/scenario/AutowareAutoDemo.yaml architecture_type:=awf/auto
 ```
