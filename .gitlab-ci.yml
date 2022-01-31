@@ -111,6 +111,7 @@ stages:
     - rm opt.tar.gz
     - source /opt/AutowareAuto/setup.bash
     - 'colcon test
+           --executor sequential
            --merge-install
            --install-base /opt/AutowareAuto
            --packages-skip $(cat external_deps.txt)
