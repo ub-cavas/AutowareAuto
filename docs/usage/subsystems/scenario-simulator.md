@@ -31,7 +31,7 @@ git checkout a8e30ebaa7e24f132e28b0c1ff96295fa5730b75
 * build Autoware, `scenario_test_runner` and `kashiwanoha_map` (needed for this demo only)
  ```
 cd ~/AutowareAuto
-sudo apt update; rosdep install --from-paths src --ignore-src -r -y
+sudo apt update; rosdep update; rosdep install --from-paths src --ignore-src -r -y
 colcon build --packages-up-to scenario_test_runner scenario_simulator_launch kashiwanoha_map --cmake-args -DCMAKE_BUILD_TYPE=Release
 ```
 
@@ -66,7 +66,7 @@ If you restart ade, make sure to reinstall the dependencies by the following:
 ```
 ade --rc .aderc-amd64-foxy-lgsvl start --update --enter
 cd AutowareAuto
-sudo apt update; rosdep install --from-paths src --ignore-src -r -y
+sudo apt update; rosdep update; rosdep install --from-paths src --ignore-src -r -y
 ```
 
 In `ade` in `AutowareAuto` do the following:
