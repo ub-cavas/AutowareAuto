@@ -25,6 +25,12 @@ ament_auto_find_build_dependencies()
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  add_launch_test(test/test_avp_sim_launch.py)
+  add_launch_test(test/test_ekf_ndt_smoothing_lgsvl_launch.py)
+  add_launch_test(test/test_lidar_bounding_boxes_lgsvl_launch.py)
+  add_launch_test(test/test_recordreplay_planner_demo_launch.py)
+  add_launch_test(test/test_localization_rosbag_launch.py)
 endif()
 
 ament_auto_package(
