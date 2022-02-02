@@ -30,7 +30,14 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 

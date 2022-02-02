@@ -16,7 +16,15 @@
 #define HAD_MAP_UTILS__HAD_MAP_CONVERSION_HPP_
 
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <memory>
 #include "had_map_utils/visibility_control.hpp"
 

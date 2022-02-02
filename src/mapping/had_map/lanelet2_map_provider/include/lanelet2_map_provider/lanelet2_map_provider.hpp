@@ -21,7 +21,14 @@
 
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <common/types.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/LaneletMap.h>
+#pragma GCC diagnostic pop
+
 #include <lanelet2_map_provider/visibility_control.hpp>
 
 #include <string>

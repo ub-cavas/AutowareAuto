@@ -24,7 +24,10 @@
 #include <limits>
 #include <stdexcept>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
+#pragma GCC diagnostic pop
 #include "geometry/interval.hpp"
 
 using autoware::common::types::float32_t;
