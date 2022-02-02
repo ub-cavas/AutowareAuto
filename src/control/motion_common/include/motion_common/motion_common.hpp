@@ -15,7 +15,12 @@
 #define MOTION_COMMON__MOTION_COMMON_HPP_
 
 #include <motion_common/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_system_msgs/msg/control_diagnostic.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
