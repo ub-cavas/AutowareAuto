@@ -35,13 +35,6 @@ ament_auto_add_library(behavior_planner_node SHARED
 )
 set(NODE_NAME behavior_planner_node_exe)
 autoware_set_compile_options(behavior_planner_node)
-target_compile_options(behavior_planner_node PRIVATE
-  -Wno-conversion
-  -Wno-double-promotion
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-useless-cast
-)
 target_compile_options(behavior_planner_node PRIVATE -Wno-old-style-cast)
 
 rclcpp_components_register_node(behavior_planner_node
@@ -62,13 +55,6 @@ if(BUILD_TESTING)
   set(TEST_BEHAVIOR_PLANNER_NODE_EXE test_behavior_planner_node)
   ament_add_gtest(${TEST_BEHAVIOR_PLANNER_NODE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_BEHAVIOR_PLANNER_NODE_EXE})
-  target_compile_options(${TEST_BEHAVIOR_PLANNER_NODE_EXE} PRIVATE
-    -Wno-conversion
-    -Wno-double-promotion
-    -Wno-old-style-cast
-    -Wno-sign-conversion
-    -Wno-useless-cast
-  )
   target_link_libraries(${TEST_BEHAVIOR_PLANNER_NODE_EXE} behavior_planner_node)
 endif()
 

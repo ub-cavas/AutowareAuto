@@ -10,13 +10,6 @@ set(RECORDREPLAY_PLANNER_NODE_LIB recordreplay_planner_node)
 ament_auto_add_library(${RECORDREPLAY_PLANNER_NODE_LIB} SHARED
   src/recordreplay_planner_nodes/recordreplay_planner_node.cpp)
 autoware_set_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB})
-target_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB} PRIVATE
-  -Wno-conversion
-  -Wno-double-promotion
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-useless-cast
-)
 
 set(NODE_NAME ${RECORDREPLAY_PLANNER_NODE_LIB}_exe)
 rclcpp_components_register_node(${RECORDREPLAY_PLANNER_NODE_LIB}
@@ -40,13 +33,6 @@ if(BUILD_TESTING)
     test/gtest_main.cpp
     test/sanity_checks.cpp)
   autoware_set_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests)
-  target_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests PRIVATE
-    -Wno-conversion
-    -Wno-double-promotion
-    -Wno-old-style-cast
-    -Wno-sign-conversion
-    -Wno-useless-cast
-  )
   target_link_libraries(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests ${RECORDREPLAY_PLANNER_NODE_LIB})
   target_include_directories(${RECORDREPLAY_PLANNER_NODE_LIB}_unit_tests PRIVATE "include")
 endif()

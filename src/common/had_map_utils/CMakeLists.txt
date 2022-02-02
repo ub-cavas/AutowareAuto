@@ -29,12 +29,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
 set(CGAL_DO_NOT_WARN_ABOUT_CMAKE_BUILD_TYPE TRUE)
 target_link_libraries(${PROJECT_NAME} CGAL CGAL::CGAL CGAL::CGAL_Core)
 autoware_set_compile_options(${PROJECT_NAME})
-target_compile_options(${PROJECT_NAME} PRIVATE
-  -Wno-conversion
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-useless-cast
-)
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

@@ -34,13 +34,6 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${LANE_PLANNER_LIB_HEADERS}
 )
 autoware_set_compile_options(${PROJECT_NAME})
-target_compile_options(${PROJECT_NAME} PRIVATE
-  -Wno-conversion
-  -Wno-double-promotion
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-useless-cast
-)
 
 # Testing
 if(BUILD_TESTING)
@@ -52,13 +45,6 @@ if(BUILD_TESTING)
   set(TEST_LANE_PLANNER_EXE test_lane_planner)
   ament_add_gtest(${TEST_LANE_PLANNER_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_LANE_PLANNER_EXE})
-  target_compile_options(${TEST_LANE_PLANNER_EXE} PRIVATE
-    -Wno-conversion
-    -Wno-double-promotion
-    -Wno-old-style-cast
-    -Wno-sign-conversion
-    -Wno-useless-cast
-  )
   target_link_libraries(${TEST_LANE_PLANNER_EXE} ${PROJECT_NAME})
   add_dependencies(${TEST_LANE_PLANNER_EXE} ${PROJECT_NAME})
 endif()

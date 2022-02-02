@@ -14,13 +14,6 @@ ament_auto_add_library(${GB_PLANNER_LIB} SHARED
   include/lanelet2_global_planner/visibility_control.hpp
 )
 autoware_set_compile_options(${GB_PLANNER_LIB})
-target_compile_options(${GB_PLANNER_LIB} PRIVATE
-  -Wno-conversion
-  -Wno-double-promotion
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-useless-cast
-)
 
 if(BUILD_TESTING)
   # run linters
@@ -41,13 +34,8 @@ if(BUILD_TESTING)
           src/lanelet2_global_planner.cpp)
   ament_target_dependencies(${GB_PLANNER_GTEST} "ament_index_cpp")
   autoware_set_compile_options(${GB_PLANNER_GTEST})
-  target_compile_options(${GB_PLANNER_GTEST} PRIVATE
-    -Wno-conversion
-    -Wno-double-promotion
-    -Wno-old-style-cast
-    -Wno-sign-conversion
-    -Wno-useless-cast
-  )
+  target_compile_options(${GB_PLANNER_GTEST} PRIVATE -Wno-sign-conversion -Wno-conversion
+    -Wno-useless-cast -Wno-double-promotion)
   target_link_libraries(${GB_PLANNER_GTEST} ${GB_PLANNER_LIB})
   target_include_directories(${GB_PLANNER_GTEST} PRIVATE "test/include" "include")
 endif()
