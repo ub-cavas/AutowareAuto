@@ -7,3 +7,4 @@
     frame_id: "lidar_rear"
     timeout_ms: 10
     rpm:        600
+    model: "vlp16"

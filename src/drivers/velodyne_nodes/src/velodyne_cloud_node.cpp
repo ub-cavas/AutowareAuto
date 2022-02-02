@@ -16,6 +16,7 @@
 
 #include <string>
 #include <chrono>
+#include <memory>
 #include <vector>
 
 #include "common/types.hpp"
@@ -23,6 +24,8 @@
 #include "point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp"
 #include "sensor_msgs/point_cloud2_iterator.hpp"
 #include "velodyne_nodes/velodyne_cloud_node.hpp"
+
+#include "rclcpp_components/register_node_macro.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -59,7 +62,6 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
     throw std::runtime_error("VelodyneCloudNode: cloud_size must be > PointBlock::CAPACITY");
   }
 
-
   init_udp_driver();
   init_output(m_pc2_msg);
 }
@@ -92,7 +94,7 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
     // And then just continue running
   } catch (...) {
     // Something really weird happened and I can't handle it here
-    RCLCPP_WARN(this->get_logger(), "Unknown exception occured in VelodynceCloudNode");
+    RCLCPP_WARN(this->get_logger(), "Unknown exception occured in VelodyneCloudNode");
     throw;
   }
 }
@@ -164,9 +166,37 @@ bool8_t VelodyneCloudNode<T>::get_output_remainder(sensor_msgs::msg::PointCloud2
   return false;
 }
 
-template class VelodyneCloudNode<velodyne_driver::VLP16Data>;
-template class VelodyneCloudNode<velodyne_driver::VLP32CData>;
-template class VelodyneCloudNode<velodyne_driver::VLS128Data>;
+VLP16DriverNode::VLP16DriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLP16Data>("vlp16_driver_node", node_options) {}
+VLP32CDriverNode::VLP32CDriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLP32CData>("vlp32c_driver_node", node_options) {}
+VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
+: VelodyneCloudNode<velodyne_driver::VLS128Data>("vls128_driver_node", node_options) {}
+
+VelodyneCloudWrapperNode::VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options)
+: rclcpp::Node("velodyne_cloud_node_wrapper", node_options)
+{
+  std::string model = declare_parameter("model").get<std::string>();
+
+  if (model == "vlp16") {
+    vlp16_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP16Data>>(
+      "vlp16_driver_node", node_options);
+  } else if (model == "vlp32c") {
+    vlp32c_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP32CData>>(
+      "vlp32c_driver_node", node_options);
+  } else if (model == "vls128") {
+    vls128_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLS128Data>>(
+      "vls128_driver_node", node_options);
+  } else {
+    throw std::runtime_error("Model " + model + " is not supported.");
+  }
+}
+
 }  // namespace velodyne_nodes
 }  // namespace drivers
 }  // namespace autoware
+
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLP16DriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLP32CDriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VLS128DriverNode)
+RCLCPP_COMPONENTS_REGISTER_NODE(autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode)

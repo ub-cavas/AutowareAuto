@@ -7,3 +7,7 @@ repositories:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
     version: 869c5d56f05c01c73e0ef8fa30c85ba7f68f8558
+  src/external/transport_drivers:
+    type: git
+    url: https://github.com/ros-drivers/transport_drivers.git
+    version: 0140e5e7c0702a675472ee0e5bff22955e45729c

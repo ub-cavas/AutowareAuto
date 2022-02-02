@@ -38,8 +38,7 @@ def generate_test_description():
                 "cloud_size": 500,
                 "topic": test_topic
             }
-        ],
-        arguments=["--model", "vlp16"]
+        ]
     )
 
     context = {'vel_node': velodyne_cloud_node}
@@ -63,8 +62,8 @@ class TestWaitForShutdown(unittest.TestCase):
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, vel_node):
-        # Check that process exits with code 2 (failure due to caught error
-        launch_testing.asserts.assertExitCodes(proc_info, [2], process=vel_node)
+        # Check that process exits with code -6 (failure due to caught error
+        launch_testing.asserts.assertExitCodes(proc_info, [-6], process=vel_node)
 
         # Check that correct error message is produced, we get the same error
         # code if the configuration file is not found

@@ -42,8 +42,7 @@ def generate_launch_description():
         namespace="lidar_front",
         executable='velodyne_cloud_node_exe',
         parameters=[LaunchConfiguration('vlp16_node_param_file')],
-        remappings=[("topic", "points_xyzi")],
-        arguments=["--model", "vlp16"])
+        remappings=[("topic", "points_xyzi")])
 
     return launch.LaunchDescription([
         vlp16_node_param,

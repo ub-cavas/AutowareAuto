@@ -30,10 +30,26 @@ ament_auto_add_library(${CLOUD_LIB} SHARED
   src/velodyne_cloud_node.cpp)
 autoware_set_compile_options(${CLOUD_LIB})
 
-# generate executable for ros1-style standalone nodes
-set(CLOUD_EXEC "velodyne_cloud_node_exe")
-ament_auto_add_executable(${CLOUD_EXEC} src/velodyne_cloud_node_main.cpp)
-autoware_set_compile_options(${CLOUD_EXEC})
+# generate library
+rclcpp_components_register_node(velodyne_cloud_node
+  PLUGIN "autoware::drivers::velodyne_nodes::VelodyneCloudWrapperNode"
+  EXECUTABLE velodyne_cloud_node_exe
+)
+
+rclcpp_components_register_node(velodyne_cloud_node
+  PLUGIN "autoware::drivers::velodyne_nodes::VLP16DriverNode"
+  EXECUTABLE vlp16_driver_node_exe
+)
+
+rclcpp_components_register_node(velodyne_cloud_node
+  PLUGIN "autoware::drivers::velodyne_nodes::VLP32CDriverNode"
+  EXECUTABLE vlp32c_driver_node_exe
+)
+
+rclcpp_components_register_node(velodyne_cloud_node
+  PLUGIN "autoware::drivers::velodyne_nodes::VLS128DriverNode"
+  EXECUTABLE vls128_driver_node_exe
+)
 
 if(BUILD_TESTING)
     find_package(ament_lint_auto REQUIRED)
@@ -74,9 +90,13 @@ if(BUILD_TESTING)
     )
 
     find_package(autoware_testing REQUIRED)
-    add_smoke_test(${PROJECT_NAME} ${CLOUD_EXEC}
-      EXECUTABLE_ARGUMENTS "--model vlp16"
-    )
+    add_smoke_test(${PROJECT_NAME} vlp16_driver_node_exe)
+
+    find_package(autoware_testing REQUIRED)
+    add_smoke_test(${PROJECT_NAME} vlp32c_driver_node_exe)
+
+    find_package(autoware_testing REQUIRED)
+    add_smoke_test(${PROJECT_NAME} vls128_driver_node_exe)
 endif()
 
 ## install stuff

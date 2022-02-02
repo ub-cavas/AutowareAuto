@@ -89,9 +89,38 @@ private:
   const std::uint32_t m_cloud_size;
 };  // class VelodyneCloudNode
 
-using VLP16DriverNode = VelodyneCloudNode<velodyne_driver::VLP16Data>;
-using VLP32CDriverNode = VelodyneCloudNode<velodyne_driver::VLP32CData>;
-using VLS128DriverNode = VelodyneCloudNode<velodyne_driver::VLS128Data>;
+class VELODYNE_NODES_PUBLIC VelodyneCloudWrapperNode : public rclcpp::Node
+{
+private:
+  VelodyneCloudNode<velodyne_driver::VLP16Data>::SharedPtr vlp16_driver_node_ptr_ = nullptr;
+  VelodyneCloudNode<velodyne_driver::VLP32CData>::SharedPtr vlp32c_driver_node_ptr_ = nullptr;
+  VelodyneCloudNode<velodyne_driver::VLS128Data>::SharedPtr vls128_driver_node_ptr_ = nullptr;
+
+public:
+  explicit VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options);
+};
+
+class VELODYNE_NODES_PUBLIC VLP16DriverNode : public VelodyneCloudNode<velodyne_driver::VLP16Data>
+{
+private:
+  VelodyneCloudNode<velodyne_driver::VLP16Data>::SharedPtr vlp16_driver_node_ptr_;
+
+public:
+  explicit VLP16DriverNode(const rclcpp::NodeOptions & node_options);
+};
+
+class VELODYNE_NODES_PUBLIC VLP32CDriverNode : public VelodyneCloudNode<velodyne_driver::VLP32CData>
+{
+public:
+  explicit VLP32CDriverNode(const rclcpp::NodeOptions & node_options);
+};
+
+class VELODYNE_NODES_PUBLIC VLS128DriverNode : public VelodyneCloudNode<velodyne_driver::VLS128Data>
+{
+public:
+  explicit VLS128DriverNode(const rclcpp::NodeOptions & node_options);
+};
+
 }  // namespace velodyne_nodes
 }  // namespace drivers
 }  // namespace autoware

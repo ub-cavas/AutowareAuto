@@ -74,16 +74,14 @@ def generate_launch_description():
         executable='velodyne_cloud_node_exe',
         namespace='lidar_front',
         parameters=[LaunchConfiguration('vlp16_front_param_file')],
-        condition=IfCondition(LaunchConfiguration('with_lidars')),
-        arguments=["--model", "vlp16"]
+        condition=IfCondition(LaunchConfiguration('with_lidars'))
     )
     vlp16_rear = Node(
         package='velodyne_nodes',
         executable='velodyne_cloud_node_exe',
         namespace='lidar_rear',
         parameters=[LaunchConfiguration('vlp16_rear_param_file')],
-        condition=IfCondition(LaunchConfiguration('with_lidars')),
-        arguments=["--model", "vlp16"]
+        condition=IfCondition(LaunchConfiguration('with_lidars'))
     )
     urdf_publisher = Node(
         package='robot_state_publisher',
