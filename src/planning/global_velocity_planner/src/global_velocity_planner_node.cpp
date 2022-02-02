@@ -39,22 +39,22 @@ void GlobalVelocityPlannerNode::init()
   using rclcpp::QoS;
   using namespace std::chrono_literals;
   const VehicleConfig vehicle_param{
-    static_cast<Real>(declare_parameter("vehicle.cg_to_front_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.cg_to_rear_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_corner_stiffness").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.mass_kg").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.yaw_inertia_kgm2").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.width_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.front_overhang_m").get<float32_t>()),
-    static_cast<Real>(declare_parameter("vehicle.rear_overhang_m").get<float32_t>())};
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.cg_to_front_m")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.cg_to_rear_m")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.front_corner_stiffness")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.rear_corner_stiffness")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.mass_kg")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.yaw_inertia_kgm2")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.width_m")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.front_overhang_m")),
+    static_cast<Real>(declare_parameter<float32_t>("vehicle.rear_overhang_m"))};
   const global_velocity_planner::GlobalVelocityPlannerConfig planner_config{
     static_cast<float32_t>(
-      declare_parameter("global_velocity_planner.trajectory_resolution").get<float32_t>()),
+      declare_parameter<float32_t>("global_velocity_planner.trajectory_resolution")),
     static_cast<float32_t>(
-      declare_parameter("global_velocity_planner.lateral_acceleration").get<float32_t>()),
+      declare_parameter<float32_t>("global_velocity_planner.lateral_acceleration")),
     static_cast<float32_t>(
-      declare_parameter("global_velocity_planner.longitudinal_acceleration").get<float32_t>())};
+      declare_parameter<float32_t>("global_velocity_planner.longitudinal_acceleration"))};
 
   velocity_planner = std::make_unique<GlobalVelocityPlanner>(vehicle_param, planner_config);
 
