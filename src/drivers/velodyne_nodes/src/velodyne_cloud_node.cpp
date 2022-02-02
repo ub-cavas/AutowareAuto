@@ -175,7 +175,7 @@ VLS128DriverNode::VLS128DriverNode(const rclcpp::NodeOptions & node_options)
 VelodyneCloudWrapperNode::VelodyneCloudWrapperNode(const rclcpp::NodeOptions & node_options)
 : rclcpp::Node("velodyne_cloud_node_wrapper", node_options)
 {
-  std::string model = declare_parameter("model").get<std::string>();
+  std::string model = declare_parameter<std::string>("model");
 
   if (model == "vlp16") {
     vlp16_driver_node_ptr_ = std::make_shared<VelodyneCloudNode<velodyne_driver::VLP16Data>>(
