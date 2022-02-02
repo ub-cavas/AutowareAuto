@@ -11,6 +11,10 @@ repositories:
     type: git
     url: https://github.com/ANYbotics/grid_map.git
     version: 7afca6c8314bd3016dc974541aecca3ed39ccab0
+  src/external/transport_drivers:
+    type: git
+    url: https://github.com/ros-drivers/transport_drivers.git
+    version: 0140e5e7c0702a675472ee0e5bff22955e45729c
   src/external/raptor_dbw_ros2:
     type: git
     url: https://github.com/NewEagleRaptor/raptor-dbw-ros2.git
