@@ -14,8 +14,21 @@
 #ifndef RECORDREPLAY_PLANNER_NODES__RECORDREPLAY_PLANNER_NODE_HPP_
 #define RECORDREPLAY_PLANNER_NODES__RECORDREPLAY_PLANNER_NODE_HPP_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_ros/transform_listener.h>
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_ros/buffer.h>
+#pragma GCC diagnostic pop
+
 #include <recordreplay_planner_nodes/visibility_control.hpp>
 #include <recordreplay_planner/recordreplay_planner.hpp>
 #include <autoware_auto_planning_msgs/action/record_trajectory.hpp>

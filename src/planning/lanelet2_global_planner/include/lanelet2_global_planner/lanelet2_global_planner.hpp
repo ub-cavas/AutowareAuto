@@ -18,17 +18,38 @@
 #define  LANELET2_GLOBAL_PLANNER__LANELET2_GLOBAL_PLANNER_HPP_
 
 // lanelet2
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_core/primitives/Lanelet.h>
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <lanelet2_io/Io.h>
+#pragma GCC diagnostic pop
+
 #include <lanelet2_projection/UTM.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <lanelet2_routing/Route.h>
+#pragma GCC diagnostic pop
+
 #include <lanelet2_routing/RoutingCost.h>
 #include <lanelet2_routing/RoutingGraph.h>
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <lanelet2_traffic_rules/TrafficRulesFactory.h>
 // autoware
 #include <lanelet2_global_planner/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#pragma GCC diagnostic pop
+
 #include <common/types.hpp>
 // c++
 #include <chrono>

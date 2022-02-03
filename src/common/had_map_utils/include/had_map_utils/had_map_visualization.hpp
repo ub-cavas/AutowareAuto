@@ -15,13 +15,24 @@
 #ifndef HAD_MAP_UTILS__HAD_MAP_VISUALIZATION_HPP_
 #define HAD_MAP_UTILS__HAD_MAP_VISUALIZATION_HPP_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <visualization_msgs/msg/marker.hpp>
+#pragma GCC diagnostic pop
+
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <geometry_msgs/msg/point.hpp>
 #include <geometry_msgs/msg/point32.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
 #include <common/types.hpp>
+#pragma GCC diagnostic pop
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

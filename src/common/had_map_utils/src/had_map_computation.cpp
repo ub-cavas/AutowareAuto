@@ -14,7 +14,10 @@
 
 #include <CGAL/Boolean_set_operations_2.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <geometry_msgs/msg/polygon.hpp>
+#pragma GCC diagnostic pop
 
 #include <vector>
 

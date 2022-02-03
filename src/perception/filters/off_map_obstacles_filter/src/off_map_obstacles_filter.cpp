@@ -27,7 +27,14 @@
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "lanelet2_core/geometry/Point.h"
 #include "lanelet2_core/geometry/Polygon.h"
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "lanelet2_core/LaneletMap.h"
+#pragma GCC diagnostic pop
+
 
 #include "boost/geometry/geometries/geometries.hpp"
 #include "boost/geometry.hpp"

@@ -23,11 +23,23 @@
 
 #include <memory>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include "autoware_auto_perception_msgs/msg/bounding_box_array.hpp"
+#pragma GCC diagnostic pop
+
 #include "common/types.hpp"
 
 #include "geometry_msgs/msg/transform_stamped.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "lanelet2_core/LaneletMap.h"
+#pragma GCC diagnostic pop
+
 #include "off_map_obstacles_filter/visibility_control.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 

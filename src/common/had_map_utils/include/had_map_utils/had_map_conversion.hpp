@@ -15,7 +15,10 @@
 #ifndef HAD_MAP_UTILS__HAD_MAP_CONVERSION_HPP_
 #define HAD_MAP_UTILS__HAD_MAP_CONVERSION_HPP_
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
+#pragma GCC diagnostic pop
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

@@ -22,7 +22,12 @@
 #include <behavior_planner/visibility_control.hpp>
 
 #include <common/types.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <autoware_auto_planning_msgs/msg/had_map_route.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 

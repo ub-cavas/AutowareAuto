@@ -16,7 +16,13 @@
 
 //lint -e537 pclint vs cpplint NOLINT
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <lanelet2_io/io_handlers/Serialize.h>
+#pragma GCC diagnostic pop
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
