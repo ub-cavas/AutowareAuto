@@ -11,3 +11,7 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/transport_drivers.git
     version: 0140e5e7c0702a675472ee0e5bff22955e45729c
+  src/external/vesc:
+    type: git
+    url: https://github.com/f1tenth/vesc
+    version: ros2
