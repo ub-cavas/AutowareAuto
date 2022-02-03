@@ -16,7 +16,13 @@
 #include <recordreplay_planner_nodes/recordreplay_planner_node.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <motion_testing/motion_testing.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <motion_common/config.hpp>
 
 #include <chrono>

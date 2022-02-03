@@ -19,7 +19,13 @@
 #ifndef POINT_TYPE_ADAPTER__POINT_TYPE_ADAPTER_NODE_HPP_
 #define POINT_TYPE_ADAPTER__POINT_TYPE_ADAPTER_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <common/types.hpp>
 #include <helper_functions/float_comparisons.hpp>

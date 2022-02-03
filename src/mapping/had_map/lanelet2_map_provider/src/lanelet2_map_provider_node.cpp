@@ -24,7 +24,13 @@
 #include <tf2_ros/buffer.h>
 #include <geometry_msgs/msg/transform_stamped.h>
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/time_source.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
 #include <common/types.hpp>

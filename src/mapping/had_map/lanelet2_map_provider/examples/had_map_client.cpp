@@ -16,7 +16,13 @@
 /// \file
 /// \brief main function for lanelet2_map_provider
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

@@ -27,7 +27,13 @@
 
 #include "filter_node_base/filter_node_base.hpp"
 #include "outlier_filter/voxel_grid_outlier_filter.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 
 
 namespace autoware

@@ -24,7 +24,13 @@
 #include "autoware_auto_control_msgs/msg/ackermann_lateral_command.hpp"
 #include "autoware_auto_control_msgs/msg/longitudinal_command.hpp"
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "rclcpp/time.hpp"
 #include "rclcpp_components/register_node_macro.hpp"
 

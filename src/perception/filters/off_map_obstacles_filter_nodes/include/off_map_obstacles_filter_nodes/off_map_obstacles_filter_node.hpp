@@ -38,7 +38,13 @@
 #include "lanelet2_core/LaneletMap.h"
 #pragma GCC diagnostic pop
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/transform_listener.h"
 #include "visualization_msgs/msg/marker_array.hpp"

@@ -40,7 +40,13 @@
 #include "geometry_msgs/msg/pose.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "osqp_interface/osqp_interface.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "rclcpp_components/register_node_macro.hpp"
 #include "tf2/utils.h"
 #include "tf2_ros/buffer.h"

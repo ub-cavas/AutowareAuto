@@ -32,7 +32,13 @@
 #include <message_filters/time_synchronizer.h>
 #include <mpark_variant_vendor/variant.hpp>
 #include <nav_msgs/msg/odometry.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <tf2/buffer_core.h>
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/transform_listener.h>

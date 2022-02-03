@@ -25,7 +25,13 @@
 #include <ray_ground_classifier_nodes/visibility_control.hpp>
 #include <ray_ground_classifier/ray_aggregator.hpp>
 #include <ray_ground_classifier/ray_ground_classifier.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
 #include <memory>

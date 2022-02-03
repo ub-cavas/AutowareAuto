@@ -52,7 +52,10 @@
 #include <utility>
 #include <vector>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "tf2/utils.h"
+#pragma GCC diagnostic pop
 
 #include "costmap_generator/costmap_generator.hpp"
 #include "costmap_generator/object_map_utils.hpp"

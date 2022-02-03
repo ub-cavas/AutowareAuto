@@ -18,7 +18,13 @@
 #ifndef LIDAR_INTEGRATION__LIDAR_INTEGRATION_COMMON_HPP_
 #define LIDAR_INTEGRATION__LIDAR_INTEGRATION_COMMON_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #define LIDAR_INTEGRATION_LOGGER rclcpp::get_logger("lidar_integration")
 

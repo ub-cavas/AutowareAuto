@@ -23,7 +23,13 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <tf2_ros/transform_listener.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <point_cloud_fusion/point_cloud_fusion.hpp>
 #include <point_cloud_fusion_nodes/visibility_control.hpp>
 #include <common/types.hpp>

@@ -20,7 +20,13 @@
 #include "common/types.hpp"
 #include "eigen3/Eigen/Dense"
 #include "osqp_interface/osqp_interface.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "trajectory_follower/visibility_control.hpp"
 
 namespace autoware

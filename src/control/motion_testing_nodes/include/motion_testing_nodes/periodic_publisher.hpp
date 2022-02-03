@@ -17,7 +17,13 @@
 #include <motion_testing_nodes/visibility_control.hpp>
 #include <motion_testing_nodes/wait_for_matched.hpp>
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <chrono>
 #include <list>

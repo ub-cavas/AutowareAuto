@@ -19,7 +19,13 @@
 
 #include <localization_common/optimized_registration_summary.hpp>
 #include <localization_common/initialization.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <tf2/buffer_core.h>
 #include <tf2_ros/transform_listener.h>
 #pragma GCC diagnostic push

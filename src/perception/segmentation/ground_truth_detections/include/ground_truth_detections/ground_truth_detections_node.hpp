@@ -27,7 +27,13 @@
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <lgsvl_msgs/msg/detection2_d_array.hpp>
 #include <lgsvl_msgs/msg/detection3_d_array.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <string>
 
 namespace autoware

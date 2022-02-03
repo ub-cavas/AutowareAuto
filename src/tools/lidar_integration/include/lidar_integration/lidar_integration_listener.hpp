@@ -17,7 +17,13 @@
 #ifndef LIDAR_INTEGRATION__LIDAR_INTEGRATION_LISTENER_HPP_
 #define LIDAR_INTEGRATION__LIDAR_INTEGRATION_LISTENER_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <lidar_integration/visibility_control.hpp>

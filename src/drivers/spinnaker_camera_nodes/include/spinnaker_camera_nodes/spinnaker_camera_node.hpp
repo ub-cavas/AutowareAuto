@@ -17,7 +17,13 @@
 #ifndef SPINNAKER_CAMERA_NODES__SPINNAKER_CAMERA_NODE_HPP_
 #define SPINNAKER_CAMERA_NODES__SPINNAKER_CAMERA_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/publisher.hpp>
 #include <sensor_msgs/msg/image.hpp>
 #include <spinnaker_camera_driver/system_wrapper.hpp>

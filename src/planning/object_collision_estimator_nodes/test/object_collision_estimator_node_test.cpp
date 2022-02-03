@@ -26,7 +26,13 @@
 
 #include <tf2/LinearMath/Quaternion.h>
 #include <motion_testing/motion_testing.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <gtest/gtest.h>
 #include <chrono>
 #include <memory>

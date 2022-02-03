@@ -17,7 +17,13 @@
 #include <lidar_utils/point_cloud_utils.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <ray_ground_classifier_nodes/ray_ground_classifier_cloud_node.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp_components/register_node_macro.hpp>
 #include <stdlib.h>
 

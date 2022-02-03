@@ -15,7 +15,13 @@
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
 #include <cluster_projection_node/cluster_projection_node.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <time_utils/time_utils.hpp>
 #include <tracking/greedy_roi_associator.hpp>  // For the shape transformer
 #include <string>

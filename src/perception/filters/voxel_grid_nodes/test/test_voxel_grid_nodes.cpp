@@ -16,7 +16,13 @@
 
 #include <common/types.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <voxel_grid_nodes/algorithm/voxel_cloud_approximate.hpp>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>
 #include <voxel_grid_nodes/voxel_cloud_node.hpp>

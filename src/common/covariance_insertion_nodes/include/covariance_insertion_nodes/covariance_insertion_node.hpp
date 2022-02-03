@@ -20,7 +20,13 @@
 #ifndef COVARIANCE_INSERTION_NODES__COVARIANCE_INSERTION_NODE_HPP_
 #define COVARIANCE_INSERTION_NODES__COVARIANCE_INSERTION_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/publisher.hpp>
 #include <rclcpp/subscription.hpp>
 

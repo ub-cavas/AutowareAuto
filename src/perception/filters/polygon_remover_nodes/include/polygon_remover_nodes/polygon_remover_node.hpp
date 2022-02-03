@@ -19,7 +19,13 @@
 #ifndef POLYGON_REMOVER_NODES__POLYGON_REMOVER_NODE_HPP_
 #define POLYGON_REMOVER_NODES__POLYGON_REMOVER_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <geometry_msgs/msg/polygon.hpp>
 #include <visualization_msgs/msg/marker.hpp>

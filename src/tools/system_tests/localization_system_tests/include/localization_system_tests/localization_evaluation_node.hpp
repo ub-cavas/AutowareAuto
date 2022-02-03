@@ -19,7 +19,13 @@
 #define LOCALIZATION_SYSTEM_TESTS__LOCALIZATION_EVALUATION_NODE_HPP_
 
 #include <localization_system_tests/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 #include <message_filters/subscriber.h>
 #include <message_filters/synchronizer.h>

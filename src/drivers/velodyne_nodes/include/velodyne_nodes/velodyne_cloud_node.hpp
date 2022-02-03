@@ -27,7 +27,13 @@
 #include <vector>
 #include "common/types.hpp"
 #include "lidar_utils/point_cloud_utils.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "udp_driver/udp_driver.hpp"
 #include "velodyne_driver/velodyne_translator.hpp"
 #include "velodyne_nodes/visibility_control.hpp"

@@ -16,7 +16,13 @@
 #include <vector>
 
 #include "gtest/gtest.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "trajectory_follower/smooth_stop.hpp"
 
 TEST(TestSmoothStop, calculate_stopping_acceleration) {

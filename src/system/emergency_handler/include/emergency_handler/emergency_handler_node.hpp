@@ -25,7 +25,13 @@
 #include "diagnostic_msgs/msg/diagnostic_array.hpp"
 #include "std_srvs/srv/trigger.hpp"
 #include "rclcpp/create_timer.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 
 // Autoware
 #include "autoware_auto_system_msgs/msg/autoware_state.hpp"

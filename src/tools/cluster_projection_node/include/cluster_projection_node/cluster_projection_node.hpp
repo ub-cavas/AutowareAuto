@@ -24,7 +24,13 @@
 #include <autoware_auto_perception_msgs/msg/classified_roi_array.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <cluster_projection_node/visibility_control.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <tracking/projection.hpp>
 #include <tf2/buffer_core.h>
 #include <tf2_ros/transform_listener.h>

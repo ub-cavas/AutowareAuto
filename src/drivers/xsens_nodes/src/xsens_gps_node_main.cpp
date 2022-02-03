@@ -23,7 +23,13 @@
 #include <memory>
 #include <vector>
 #include <cstdio>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 
 // this file is simply a main file to create a ros1 style standalone node
 int32_t main(const int32_t argc, char ** const argv)

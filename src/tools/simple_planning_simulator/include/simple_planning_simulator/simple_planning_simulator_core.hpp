@@ -23,7 +23,13 @@
 #include <string>
 #include <random>
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 
 #include "simple_planning_simulator/visibility_control.hpp"
 

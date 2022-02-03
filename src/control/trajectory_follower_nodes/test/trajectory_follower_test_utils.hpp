@@ -20,7 +20,13 @@
 
 #include "fake_test_node/fake_test_node.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "rclcpp/time.hpp"
 #include "tf2_ros/static_transform_broadcaster.h"
 

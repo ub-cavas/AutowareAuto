@@ -13,7 +13,13 @@
 // limitations under the License.
 
 #include <gtest/gtest.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <std_msgs/msg/u_int8.hpp>
 
 #include <chrono>

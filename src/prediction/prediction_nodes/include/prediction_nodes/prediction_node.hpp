@@ -26,7 +26,13 @@
 
 #include "lonely_world_prediction/parameters.hpp"
 #include "prediction_nodes/visibility_control.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "tf2/buffer_core.h"
 #include "tf2_ros/transform_listener.h"
 

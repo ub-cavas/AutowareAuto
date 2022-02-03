@@ -14,7 +14,13 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rcutils/cmdline_parser.h>
 #include <common/types.hpp>
 #include <lidar_integration/lidar_integration_common.hpp>

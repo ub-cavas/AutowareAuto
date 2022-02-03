@@ -68,7 +68,13 @@
 
 #include <std_msgs/msg/bool.hpp>
 #include <motion_common/motion_common.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/clock.hpp>
 
 #include <chrono>

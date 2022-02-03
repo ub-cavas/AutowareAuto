@@ -24,7 +24,13 @@
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <optimization/newtons_method_optimizer.hpp>
 #include <optimization/line_search/more_thuente_line_search.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <utility>
 #include <string>
 #include <memory>

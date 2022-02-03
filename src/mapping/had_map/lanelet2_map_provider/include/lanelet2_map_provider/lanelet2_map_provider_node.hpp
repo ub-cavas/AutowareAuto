@@ -19,7 +19,13 @@
 #ifndef LANELET2_MAP_PROVIDER__LANELET2_MAP_PROVIDER_NODE_HPP_
 #define LANELET2_MAP_PROVIDER__LANELET2_MAP_PROVIDER_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <lanelet2_map_provider/lanelet2_map_provider.hpp>
 #include <memory>

@@ -30,7 +30,13 @@
 #include <measurement_conversion/measurement_transformation.hpp>
 #include <nav_msgs/msg/odometry.hpp>
 #include <rclcpp/publisher.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp/subscription.hpp>
 #include <state_estimation_nodes/kalman_filter_wrapper.hpp>
 #include <state_estimation_nodes/visibility_control.hpp>

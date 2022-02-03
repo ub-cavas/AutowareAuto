@@ -29,7 +29,13 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 #include "gtest/gtest.h"
 #include "fake_test_node/fake_test_node.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "rclcpp/time.hpp"
 #include "trajectory_follower_test_utils.hpp"
 

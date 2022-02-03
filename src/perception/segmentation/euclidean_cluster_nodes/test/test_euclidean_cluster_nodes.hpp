@@ -17,7 +17,13 @@
 #ifndef TEST_EUCLIDEAN_CLUSTER_NODES_HPP_
 #define TEST_EUCLIDEAN_CLUSTER_NODES_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <euclidean_cluster_nodes/euclidean_cluster_node.hpp>
 
 #include <vector>

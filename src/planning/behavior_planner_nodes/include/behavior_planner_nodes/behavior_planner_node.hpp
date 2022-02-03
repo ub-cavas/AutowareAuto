@@ -23,7 +23,13 @@
 #include <behavior_planner_nodes/visibility_control.hpp>
 
 // rclcpp headers
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp_action/rclcpp_action.hpp>
 
 // autoware packages

@@ -19,7 +19,13 @@
 #ifndef EUCLIDEAN_CLUSTER_NODES__EUCLIDEAN_CLUSTER_NODE_HPP_
 #define EUCLIDEAN_CLUSTER_NODES__EUCLIDEAN_CLUSTER_NODE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <euclidean_cluster_nodes/visibility_control.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>

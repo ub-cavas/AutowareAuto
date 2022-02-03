@@ -15,7 +15,13 @@
 #ifndef MONITORED_NODE__SAFETY_MONITOR_INTERFACE_HPP_
 #define MONITORED_NODE__SAFETY_MONITOR_INTERFACE_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <diagnostic_msgs/msg/key_value.hpp>
 

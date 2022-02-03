@@ -16,7 +16,13 @@
 #ifndef LIDAR_INTEGRATION__POINT_CLOUD_MUTATION_SPOOFER_HPP_
 #define LIDAR_INTEGRATION__POINT_CLOUD_MUTATION_SPOOFER_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <common/types.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <lidar_integration/visibility_control.hpp>

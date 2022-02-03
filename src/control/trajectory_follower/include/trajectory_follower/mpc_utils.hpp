@@ -32,7 +32,13 @@
 #include "geometry_msgs/msg/twist_stamped.hpp"
 #include "helper_functions/angle_utils.hpp"
 #include "motion_common/motion_common.hpp"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "rclcpp/rclcpp.hpp"
+#pragma GCC diagnostic pop
+
 #include "tf2/utils.h"
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"

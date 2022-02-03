@@ -20,7 +20,13 @@
 #include <joystick_vehicle_interface_nodes/visibility_control.hpp>
 
 #include <mpark_variant_vendor/variant.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 
 #include <memory>
 #include <string>

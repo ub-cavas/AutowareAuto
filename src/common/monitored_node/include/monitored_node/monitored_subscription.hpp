@@ -15,7 +15,13 @@
 #ifndef MONITORED_NODE__MONITORED_SUBSCRIPTION_HPP_
 #define MONITORED_NODE__MONITORED_SUBSCRIPTION_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <std_msgs/msg/u_int32.hpp>
 
 #include <chrono>

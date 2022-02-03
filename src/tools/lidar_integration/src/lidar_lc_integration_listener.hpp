@@ -18,7 +18,13 @@
 #ifndef LIDAR_LC_INTEGRATION_LISTENER_HPP_
 #define LIDAR_LC_INTEGRATION_LISTENER_HPP_
 
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <std_msgs/msg/u_int8_multi_array.hpp>
 #include <lifecycle_msgs/msg/state.hpp>
 #include <lifecycle_msgs/msg/transition.hpp>

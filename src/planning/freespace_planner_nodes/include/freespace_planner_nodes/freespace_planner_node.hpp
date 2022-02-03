@@ -32,7 +32,13 @@
 #include <freespace_planner/astar_search.hpp>
 #include <freespace_planner_nodes/visibility_control.hpp>
 #include <motion_common/motion_common.hpp>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <rclcpp/rclcpp.hpp>
+#pragma GCC diagnostic pop
+
 #include <rclcpp_action/rclcpp_action.hpp>
 #include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 
