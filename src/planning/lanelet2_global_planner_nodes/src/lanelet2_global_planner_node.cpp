@@ -14,9 +14,21 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 #include <rclcpp/node_options.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+#pragma GCC diagnostic pop
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2/buffer_core.h>
+#pragma GCC diagnostic pop
+
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
 #pragma GCC diagnostic ignored "-Wdouble-promotion"
