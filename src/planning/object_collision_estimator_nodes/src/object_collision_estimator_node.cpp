@@ -16,7 +16,16 @@
 #include <autoware_auto_tf2/tf2_autoware_auto_msgs.hpp>
 #include <motion_common/config.hpp>
 #include <tf2_ros/transform_listener.h>
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_ros/buffer.h>
+#pragma GCC diagnostic pop
+
 #include <common/types.hpp>
 #include <string>
 #include <memory>
