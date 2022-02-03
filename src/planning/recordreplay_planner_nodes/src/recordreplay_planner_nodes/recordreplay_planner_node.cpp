@@ -280,6 +280,7 @@ void RecordReplayPlannerNode::record_handle_accepted(
 {
   // Store the goal handle otherwise the action gets canceled immediately
   m_recordgoalhandle = goal_handle;
+  m_planner->clear_record();
   m_planner->start_recording();
 
   // If a path was recorded previously, clear the markers
