@@ -21,7 +21,15 @@
 #include <ndt/ndt_map_publisher.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <ndt/ndt_map.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#pragma GCC diagnostic pop
+
 #include <tf2_msgs/msg/tf_message.hpp>
 #include <tf2_ros/static_transform_broadcaster.h>
 #include <voxel_grid_nodes/algorithm/voxel_cloud_centroid.hpp>

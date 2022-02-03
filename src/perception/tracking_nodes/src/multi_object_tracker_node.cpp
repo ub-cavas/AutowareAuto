@@ -20,7 +20,15 @@
 #include <geometry_msgs/msg/point32.hpp>
 #include <lidar_utils/cluster_utils/point_clusters_view.hpp>
 #include <rclcpp_components/register_node_macro.hpp>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wconversion"
+#pragma GCC diagnostic ignored "-Wdouble-promotion"
+#pragma GCC diagnostic ignored "-Wold-style-cast"
+#pragma GCC diagnostic ignored "-Wsign-conversion"
+#pragma GCC diagnostic ignored "-Wuseless-cast"
 #include <tf2_geometry_msgs/tf2_geometry_msgs.h>
+#pragma GCC diagnostic pop
+
 #include <time_utils/time_utils.hpp>
 
 #include <cstddef>
