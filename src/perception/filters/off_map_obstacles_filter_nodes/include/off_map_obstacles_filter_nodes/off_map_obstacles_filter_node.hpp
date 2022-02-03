@@ -26,7 +26,6 @@
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
-// #pragma GCC diagnostic ignored "-Wuseless-cast"
 #include "autoware_auto_perception_msgs/msg/bounding_box_array.hpp"
 #pragma GCC diagnostic pop
 
