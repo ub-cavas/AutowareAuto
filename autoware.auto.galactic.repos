@@ -23,3 +23,7 @@ repositories:
     type: git
     url: https://github.com/lgsvl/ros2-lgsvl-bridge.git
     version: 4654ff45d21f84ce1ccc4546d9394e10217a6339
+  src/external/vesc:
+    type: git
+    url: https://github.com/f1tenth/vesc
+    version: ros2
