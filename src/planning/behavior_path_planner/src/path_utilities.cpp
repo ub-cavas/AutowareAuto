@@ -130,7 +130,7 @@ PathWithLaneId resamplePathWithSpline(const PathWithLaneId & path, double interv
     while (base_idx < base_points.size() - 1 && sampling_points.at(i) > base_points.at(base_idx)) {
       ++base_idx;
     }
-    size_t ref_idx = std::max(static_cast<int>(base_idx) - 1, 0);
+    auto ref_idx = static_cast<size_t>(std::max(static_cast<int>(base_idx) - 1, 0));
     if (i == resampled_path.points.size() - 1) {
       ref_idx = base_points.size() - 1;                                           // for last point
     }
@@ -221,7 +221,7 @@ void clipPathLength(
   const auto end_idx = util::getIdxByArclength(path, base_pos, forward);
 
   const std::vector<PathPointWithLaneId> clipped_points{
-    path.points.begin() + start_idx, path.points.begin() + end_idx + 1};
+    path.points.begin() + static_cast<int32_t>(start_idx), path.points.begin() + static_cast<int32_t>(end_idx) + 1};
 
   path.points = clipped_points;
 }

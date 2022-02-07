@@ -184,7 +184,7 @@ bool SideShiftModule::addShiftPoint()
 
   // remove shift points on a far position.
   for (int i = static_cast<int>(shift_points.size()) - 1; i >= 0; --i) {
-    const auto dist_to_start = calcLongitudinal(shift_points.at(i));
+    const auto dist_to_start = calcLongitudinal(shift_points.at(static_cast<size_t>(i)));
     const double remove_threshold = std::max(
       planner_data_->self_velocity->twist.linear.x * 1.0 /* sec */, 2.0 /* m */);
     if (dist_to_start > remove_threshold) {  // TODO(Horibe)

@@ -43,7 +43,7 @@ std::vector<T> arange(const T start, const T stop, const T step = 1)
   std::vector<T> out;
   out.reserve(max_i);
   for (size_t i = 0; i < max_i; ++i) {
-    out.push_back(start + i * step);
+    out.push_back(start + static_cast<T>(i) * step);
   }
 
   return out;

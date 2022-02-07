@@ -808,9 +808,9 @@ bool setGoal(
     size_t min_dist_out_of_circle_index = 0;
     {
       // NOTE: type of i must be int since i will be -1 even if the condition is 0<=i
-      for (int i = min_dist_index; 0 <= i; --i) {
-        const double dist = autoware_utils::calcDistance2d(input.points.at(i).point, goal);
-        min_dist_out_of_circle_index = i;
+      for (auto i = static_cast<int32_t>(min_dist_index); 0 <= i; --i) {
+        const double dist = autoware_utils::calcDistance2d(input.points.at(static_cast<size_t>(i)).point, goal);
+        min_dist_out_of_circle_index = static_cast<size_t>(i);
         if (search_radius_range < dist) {
           break;
         }
@@ -941,11 +941,11 @@ OccupancyGrid generateDrivableArea(
 
   // info
   {
-    const int width_cell = width / resolution;
-    const int height_cell = height / resolution;
+    const auto width_cell = static_cast<uint32_t>(width / resolution);
+    const auto height_cell = static_cast<uint32_t>(height / resolution);
 
     occupancy_grid.info.map_load_time = occupancy_grid.header.stamp;
-    occupancy_grid.info.resolution = resolution;
+    occupancy_grid.info.resolution = static_cast<float>(resolution);
     occupancy_grid.info.width = width_cell;
     occupancy_grid.info.height = height_cell;
     occupancy_grid.info.origin = grid_origin.pose;
@@ -963,7 +963,7 @@ OccupancyGrid generateDrivableArea(
 
     // convert lane polygons into cv type
     cv::Mat cv_image(
-      occupancy_grid.info.width, occupancy_grid.info.height, CV_8UC1, cv::Scalar(occupied_space));
+            static_cast<int32_t>(occupancy_grid.info.width), static_cast<int32_t>(occupancy_grid.info.height), CV_8UC1, cv::Scalar(occupied_space));
     for (const auto & lane : drivable_lanes) {
       lanelet::BasicPolygon2d lane_poly = lane.polygon2d().basicPolygon();
 
@@ -1152,7 +1152,7 @@ std::vector<uint64_t> getIds(const lanelet::ConstLanelets & lanelets)
 {
   std::vector<uint64_t> ids;
   for (const auto & llt : lanelets) {
-    ids.push_back(llt.id());
+    ids.push_back(static_cast<uint64_t>(llt.id()));
   }
   return ids;
 }
@@ -1204,7 +1204,7 @@ PathPointWithLaneId insertStopPoint(
   }
 
   double accumulated_length = 0;
-  double insert_idx = 0;
+  size_t insert_idx = 0;
   Pose stop_pose;
   for (size_t i = 1; i < path->points.size(); i++) {
     const auto prev_pose = path->points.at(i - 1).point.pose;
@@ -1222,7 +1222,7 @@ PathPointWithLaneId insertStopPoint(
   PathPointWithLaneId stop_point;
   stop_point.lane_ids = path->points.at(insert_idx).lane_ids;
   stop_point.point.pose = stop_pose;
-  path->points.insert(path->points.begin() + insert_idx, stop_point);
+  path->points.insert(path->points.begin() + static_cast<int32_t>(insert_idx), stop_point);
   for (size_t i = insert_idx; i < path->points.size(); i++) {
     Twist zero_velocity;
     path->points.at(insert_idx).point.twist = zero_velocity;
@@ -1334,7 +1334,7 @@ void occupancyGridToImage(const OccupancyGrid & occupancy_grid, cv::Mat * cv_ima
   for (int x = width - 1; x >= 0; x--) {
     for (int y = height - 1; y >= 0; y--) {
       const int idx = (height - 1 - y) + (width - 1 - x) * height;
-      const unsigned char intensity = occupancy_grid.data.at(idx);
+      const auto intensity = static_cast<unsigned char>(occupancy_grid.data.at(static_cast<size_t>(idx)));
       cv_image->at<unsigned char>(y, x) = intensity;
     }
   }
@@ -1345,12 +1345,12 @@ void imageToOccupancyGrid(const cv::Mat & cv_image, OccupancyGrid * occupancy_gr
   const int width = cv_image.cols;
   const int height = cv_image.rows;
   occupancy_grid->data.clear();
-  occupancy_grid->data.resize(width * height);
+  occupancy_grid->data.resize(static_cast<size_t>(width * height));
   for (int x = width - 1; x >= 0; x--) {
     for (int y = height - 1; y >= 0; y--) {
       const int idx = (height - 1 - y) + (width - 1 - x) * height;
       const unsigned char intensity = cv_image.at<unsigned char>(y, x);
-      occupancy_grid->data.at(idx) = intensity;
+      occupancy_grid->data.at(static_cast<size_t>(idx)) = static_cast<int8_t>(intensity);
     }
   }
 }

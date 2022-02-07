@@ -260,7 +260,7 @@ AvoidanceParameters BehaviorPathPlannerNode::getAvoidanceParam()
     dp("longitudinal_collision_margin_min_distance", 0.0);
   p.longitudinal_collision_margin_time = dp("longitudinal_collision_margin_time", 0.0);
 
-  p.object_hold_max_count = dp("object_hold_max_count", 0);
+  p.object_hold_max_count = static_cast<int>(dp("object_hold_max_count", 0));
 
   p.min_avoidance_speed_for_acc_prevention = dp("min_avoidance_speed_for_acc_prevention", 3.0);
   p.max_avoidance_acceleration = dp("max_avoidance_acceleration", 0.5);
@@ -301,7 +301,7 @@ LaneChangeParameters BehaviorPathPlannerNode::getLaneChangeParam()
   p.prediction_time_resolution = dp("prediction_time_resolution", 0.5);
   p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
   p.maximum_deceleration = dp("maximum_deceleration", 1.0);
-  p.lane_change_sampling_num = dp("lane_change_sampling_num", 10);
+  p.lane_change_sampling_num = static_cast<int>(dp("lane_change_sampling_num", 10));
   p.enable_abort_lane_change = dp("enable_abort_lane_change", true);
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
@@ -352,7 +352,7 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   p.prediction_time_resolution = dp("prediction_time_resolution", 0.5);
   p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
   p.maximum_deceleration = dp("maximum_deceleration", 1.0);
-  p.pull_over_sampling_num = dp("pull_over_sampling_num", 4);
+  p.pull_over_sampling_num = static_cast<int>(dp("pull_over_sampling_num", 4));
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
   p.use_all_predicted_path = dp("use_all_predicted_path", false);
@@ -406,7 +406,7 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.prediction_time_resolution = dp("prediction_time_resolution", 0.5);
   p.static_obstacle_velocity_thresh = dp("static_obstacle_velocity_thresh", 0.1);
   p.maximum_deceleration = dp("maximum_deceleration", 1.0);
-  p.pull_out_sampling_num = dp("pull_out_sampling_num", 4);
+  p.pull_out_sampling_num = static_cast<int>(dp("pull_out_sampling_num", 4));
   p.enable_collision_check_at_prepare_phase = dp("enable_collision_check_at_prepare_phase", true);
   p.use_predicted_path_outside_lanelet = dp("use_predicted_path_outside_lanelet", true);
   p.use_all_predicted_path = dp("use_all_predicted_path", false);
@@ -444,8 +444,8 @@ BehaviorTreeManagerParam BehaviorPathPlannerNode::getBehaviorTreeManagerParam()
 {
   BehaviorTreeManagerParam p{};
   p.bt_tree_config_path = declare_parameter("bt_tree_config_path", "default");
-  p.groot_zmq_publisher_port = declare_parameter("groot_zmq_publisher_port", 1666);
-  p.groot_zmq_server_port = declare_parameter("groot_zmq_server_port", 1667);
+  p.groot_zmq_publisher_port = static_cast<int>(declare_parameter("groot_zmq_publisher_port", 1666));
+  p.groot_zmq_server_port = static_cast<int>(declare_parameter("groot_zmq_server_port", 1667));
   return p;
 }
 

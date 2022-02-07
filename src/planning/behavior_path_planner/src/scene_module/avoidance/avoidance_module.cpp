@@ -1689,7 +1689,7 @@ boost::optional<AvoidPoint> AvoidanceModule::calcIntersectionShiftPoint(
   boost::optional<PathPointWithLaneId> intersection_point{};
   for (const auto & p : avoidance_data_.reference_path.points) {
     for (const auto & id : p.lane_ids) {
-      const lanelet::ConstLanelet ll = planner_data_->route_handler->getLaneletsFromId(id);
+      const lanelet::ConstLanelet ll = planner_data_->route_handler->getLaneletsFromId(static_cast<int64_t>(id));
       std::string turn_direction = ll.attributeOr("turn_direction", "else");
       if (turn_direction == "right" || turn_direction == "left") {
         intersection_point = p;
@@ -2163,7 +2163,7 @@ void AvoidanceModule::updateRegisteredObject(const ObjectDataArray & now_objects
 
   // -- check registered_objects, remove if lost_count exceeds limit. --
   for (int i = static_cast<int>(registered_objects_.size()) - 1; i >= 0; --i) {
-    auto & r = registered_objects_.at(i);
+    auto & r = registered_objects_.at(static_cast<size_t>(i));
     const std::string s = getUuidStr(r);
 
     // registered object is not detected this time. lost count up.

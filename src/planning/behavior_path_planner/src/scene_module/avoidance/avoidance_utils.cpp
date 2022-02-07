@@ -119,7 +119,7 @@ void clipByMinStartIdx(const AvoidPointArray & shift_points, PathWithLaneId & pa
   }
   min_start_idx = std::min(min_start_idx, path.points.size() - 1);
   path.points =
-    std::vector<PathPointWithLaneId>{path.points.begin() + min_start_idx, path.points.end()};
+    std::vector<PathPointWithLaneId>{path.points.begin() + static_cast<int>(min_start_idx), path.points.end()};
 }
 
 double calcDistanceToClosestFootprintPoint(

@@ -45,7 +45,7 @@ void BehaviorTreeManager::createBehaviorTree()
     exit(EXIT_FAILURE);
   }
   addGrootMonitoring(
-    &bt_tree_, bt_manager_param_.groot_zmq_publisher_port, bt_manager_param_.groot_zmq_server_port);
+    &bt_tree_, static_cast<uint16_t>(bt_manager_param_.groot_zmq_publisher_port), static_cast<uint16_t>(bt_manager_param_.groot_zmq_server_port));
 }
 
 void BehaviorTreeManager::registerSceneModule(const std::shared_ptr<SceneModuleInterface> & module)

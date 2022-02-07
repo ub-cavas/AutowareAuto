@@ -32,7 +32,7 @@ inline int64_t bitShift(int64_t original_id) {return original_id << (sizeof(int3
 MarkerArray createShiftLengthMarkerArray(
   const std::vector<double> shift_distance,
   const autoware_auto_planning_msgs::msg::PathWithLaneId & reference, const std::string & ns,
-  const double r, const double g, const double b)
+  const float r, const float g, const float b)
 {
   MarkerArray ma;
 
@@ -48,7 +48,7 @@ MarkerArray createShiftLengthMarkerArray(
   marker.action = Marker::ADD;
   marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
   marker.scale = autoware_utils::createMarkerScale(0.1, 0.0, 0.0);
-  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.9);
+  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.9f);
   marker.type = Marker::LINE_STRIP;
 
   for (size_t i = 0; i < shift_distance.size(); ++i) {
@@ -62,8 +62,8 @@ MarkerArray createShiftLengthMarkerArray(
 }
 
 MarkerArray createAvoidPointMarkerArray(
-  const AvoidPointArray & shift_points, const std::string & ns, const double r, const double g,
-  const double b, const double w)
+  const AvoidPointArray & shift_points, const std::string & ns, const float r, const float g,
+  const float b, const float w)
 {
   int32_t id = 0;
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -84,7 +84,7 @@ MarkerArray createAvoidPointMarkerArray(
     marker.action = Marker::ADD;
     marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
     marker.scale = autoware_utils::createMarkerScale(0.5, 0.5, 0.5);
-    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.9);
+    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.9f);
     {
       marker.type = Marker::CUBE;
 
@@ -120,7 +120,7 @@ MarkerArray createAvoidPointMarkerArray(
 
 MarkerArray createShiftPointMarkerArray(
   const ShiftPointArray & shift_points, const double base_shift, const std::string & ns,
-  const double r, const double g, const double b, const double w)
+  const float r, const float g, const float b, const float w)
 {
   int32_t id = 0;
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -143,7 +143,7 @@ MarkerArray createShiftPointMarkerArray(
     marker.action = Marker::ADD;
     marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
     marker.scale = autoware_utils::createMarkerScale(0.5, 0.5, 0.5);
-    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.5);
+    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.5f);
     {
       marker.type = Marker::CUBE;
 
@@ -177,8 +177,8 @@ MarkerArray createShiftPointMarkerArray(
 }
 
 MarkerArray createLaneletsAreaMarkerArray(
-  const std::vector<lanelet::ConstLanelet> & lanelets, const std::string & ns, const double r,
-  const double g, const double b)
+  const std::vector<lanelet::ConstLanelet> & lanelets, const std::string & ns, const float r,
+  const float g, const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -189,13 +189,13 @@ MarkerArray createLaneletsAreaMarkerArray(
     marker.header.stamp = current_time;
 
     marker.ns = ns;
-    marker.id = lanelet.id();
+    marker.id = static_cast<int>(lanelet.id());
     marker.lifetime = rclcpp::Duration::from_seconds(0.2);
     marker.type = Marker::LINE_STRIP;
     marker.action = Marker::ADD;
     marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
     marker.scale = autoware_utils::createMarkerScale(0.1, 0.0, 0.0);
-    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999);
+    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999f);
     for (const auto & p : lanelet.polygon3d()) {
       Point point;
       point.x = p.x();
@@ -220,7 +220,7 @@ MarkerArray createLaneletPolygonsMarkerArray(
   MarkerArray msg;
 
   int32_t i = 0;
-  int32_t uid = bitShift(lane_id);
+  int32_t uid = static_cast<int>(bitShift(lane_id));
   for (const auto & polygon : polygons) {
     Marker marker{};
     marker.header.frame_id = "map";
@@ -233,7 +233,7 @@ MarkerArray createLaneletPolygonsMarkerArray(
     marker.action = Marker::ADD;
     marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
     marker.scale = autoware_utils::createMarkerScale(0.1, 0.0, 0.0);
-    marker.color = autoware_utils::createMarkerColor(0.0, 1.0, 0.0, 0.999);
+    marker.color = autoware_utils::createMarkerColor(0.0f, 1.0f, 0.0f, 0.999f);
     for (const auto & p : polygon) {
       Point point;
       point.x = p.x();
@@ -251,8 +251,8 @@ MarkerArray createLaneletPolygonsMarkerArray(
 }
 
 MarkerArray createPolygonMarkerArray(
-  const Polygon & polygon, const std::string & ns, const int64_t lane_id, const double r,
-  const double g, const double b)
+  const Polygon & polygon, const std::string & ns, const int32_t lane_id, const float r,
+  const float g, const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -268,12 +268,12 @@ MarkerArray createPolygonMarkerArray(
   marker.action = Marker::ADD;
   marker.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
   marker.scale = autoware_utils::createMarkerScale(0.3, 0.0, 0.0);
-  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.8);
+  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.8f);
   for (const auto & p : polygon.points) {
     Point point;
-    point.x = p.x;
-    point.y = p.y;
-    point.z = p.z;
+    point.x = static_cast<double>(p.x);
+    point.y = static_cast<double>(p.y);
+    point.z = static_cast<double>(p.z);
     marker.points.push_back(point);
   }
   if (!marker.points.empty()) {
@@ -285,8 +285,8 @@ MarkerArray createPolygonMarkerArray(
 }
 
 MarkerArray createObjectsMarkerArray(
-  const behavior_path_planner::PredictedObjects & objects, const std::string & ns, const int64_t lane_id, const double r,
-  const double g, const double b)
+  const behavior_path_planner::PredictedObjects & objects, const std::string & ns, const int64_t lane_id, const float r,
+  const float g, const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -296,7 +296,7 @@ MarkerArray createObjectsMarkerArray(
   marker.header.stamp = current_time;
   marker.ns = ns;
 
-  int32_t uid = bitShift(lane_id);
+  int32_t uid = static_cast<int>(bitShift(lane_id));
   int32_t i = 0;
   for (const auto & object : objects.objects) {
     marker.id = uid + i++;
@@ -305,7 +305,7 @@ MarkerArray createObjectsMarkerArray(
     marker.action = Marker::ADD;
     marker.pose = object.kinematics.initial_pose.pose;
     marker.scale = autoware_utils::createMarkerScale(3.0, 1.0, 1.0);
-    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.8);
+    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.8f);
     msg.markers.push_back(marker);
   }
 
@@ -323,8 +323,8 @@ MarkerArray createAvoidanceObjectsMarkerArray(
   marker.header.stamp = current_time;
   marker.ns = ns;
 
-  const auto normal_color = autoware_utils::createMarkerColor(0.9, 0.0, 0.0, 0.8);
-  const auto disappearing_color = autoware_utils::createMarkerColor(0.9, 0.5, 0.9, 0.6);
+  const auto normal_color = autoware_utils::createMarkerColor(0.9f, 0.0f, 0.0f, 0.8f);
+  const auto disappearing_color = autoware_utils::createMarkerColor(0.9f, 0.5f, 0.9f, 0.6f);
 
   int32_t i = 0;
   for (const auto & object : objects) {
@@ -342,15 +342,15 @@ MarkerArray createAvoidanceObjectsMarkerArray(
 }
 
 MarkerArray createPathMarkerArray(
-  const PathWithLaneId & path, const std::string & ns, const int64_t lane_id, const double r,
-  const double g, const double b)
+  const PathWithLaneId & path, const std::string & ns, const int64_t lane_id, const float r,
+  const float g, const float b)
 {
   const auto arclength = calcPathArcLengthArray(path);
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
-  int32_t uid = bitShift(lane_id);
+  int32_t uid = static_cast<int>(bitShift(lane_id));
   int32_t i = 0;
-  int32_t idx = 0;
+  size_t idx = 0;
   for (const auto & p : path.points) {
     Marker marker{};
     marker.header.frame_id = "map";
@@ -362,7 +362,7 @@ MarkerArray createPathMarkerArray(
     marker.action = Marker::ADD;
     marker.pose = p.point.pose;
     marker.scale = autoware_utils::createMarkerScale(0.2, 0.1, 0.3);
-    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999);
+    marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999f);
     msg.markers.push_back(marker);
     if (idx % 10 == 0) {
       auto marker_text = marker;
@@ -371,7 +371,7 @@ MarkerArray createPathMarkerArray(
       std::stringstream ss;
       ss << std::fixed << std::setprecision(1) << "i=" << idx << "\ns=" << arclength.at(idx);
       marker_text.text = ss.str();
-      marker_text.color = autoware_utils::createMarkerColor(1, 1, 1, 0.999);
+      marker_text.color = autoware_utils::createMarkerColor(1, 1, 1, 0.999f);
       msg.markers.push_back(marker_text);
     }
     ++idx;
@@ -381,7 +381,7 @@ MarkerArray createPathMarkerArray(
 }
 
 MarkerArray createVirtualWallMarkerArray(
-  const Pose & pose, const int64_t lane_id, const std::string & stop_factor)
+  const Pose & pose, const int32_t lane_id, const std::string & stop_factor)
 {
   MarkerArray msg;
 
@@ -410,7 +410,7 @@ MarkerArray createVirtualWallMarkerArray(
   marker_factor_text.pose = pose;
   marker_factor_text.pose.position.z += 2.0;
   marker_factor_text.scale = autoware_utils::createMarkerScale(0.0, 0.0, 1.0);
-  marker_factor_text.color = autoware_utils::createMarkerColor(1.0, 1.0, 1.0, 0.999);
+  marker_factor_text.color = autoware_utils::createMarkerColor(1.0f, 1.0f, 1.0f, 0.999f);
   marker_factor_text.text = stop_factor;
   msg.markers.push_back(marker_factor_text);
 
@@ -418,8 +418,8 @@ MarkerArray createVirtualWallMarkerArray(
 }
 
 MarkerArray createPoseLineMarkerArray(
-  const Pose & pose, const std::string & ns, const int64_t id, const double r, const double g,
-  const double b)
+  const Pose & pose, const std::string & ns, const int32_t id, const float r, const float g,
+  const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -434,7 +434,7 @@ MarkerArray createPoseLineMarkerArray(
   marker_line.action = Marker::ADD;
   marker_line.pose.orientation = autoware_utils::createMarkerOrientation(0, 0, 0, 1.0);
   marker_line.scale = autoware_utils::createMarkerScale(0.1, 0.0, 0.0);
-  marker_line.color = autoware_utils::createMarkerColor(r, g, b, 0.999);
+  marker_line.color = autoware_utils::createMarkerColor(r, g, b, 0.999f);
 
   const double yaw = tf2::getYaw(pose.orientation);
 
@@ -457,8 +457,8 @@ MarkerArray createPoseLineMarkerArray(
 }
 
 MarkerArray createPoseMarkerArray(
-  const Pose & pose, const std::string & ns, const int64_t id, const double r, const double g,
-  const double b)
+  const Pose & pose, const std::string & ns, const int32_t id, const float r, const float g,
+  const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -473,7 +473,7 @@ MarkerArray createPoseMarkerArray(
   marker.action = Marker::ADD;
   marker.pose = pose;
   marker.scale = autoware_utils::createMarkerScale(0.7, 0.3, 0.3);
-  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999);
+  marker.color = autoware_utils::createMarkerColor(r, g, b, 0.999f);
   msg.markers.push_back(marker);
 
   return msg;

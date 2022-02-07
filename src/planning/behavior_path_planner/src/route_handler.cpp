@@ -299,7 +299,8 @@ bool RouteHandler::isDeadEndLanelet(const lanelet::ConstLanelet & lanelet) const
 { // todo MD: Activate the function when continued_lane_ids field available?
 //  for (const auto & route_section : route_msg_.segments) {
 //    if (exists(route_section.continued_lane_ids, lanelet.id())) {
-      return false;
+    (void)lanelet;
+    return false;
 //    }
 //  }
 //  return true;
@@ -322,7 +323,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceAfter(
     }
     lanelet_sequence_forward.push_back(next_lanelet);
     current_lanelet = next_lanelet;
-    length += boost::geometry::length(next_lanelet.centerline().basicLineString());
+    length += static_cast<double>(boost::geometry::length(next_lanelet.centerline().basicLineString()));
   }
 
   return lanelet_sequence_forward;
@@ -345,7 +346,7 @@ lanelet::ConstLanelets RouteHandler::getLaneletSequenceUpTo(
       break;
     }
     lanelet_sequence_backward.push_back(prev_lanelet);
-    length += boost::geometry::length(prev_lanelet.centerline().basicLineString());
+    length += static_cast<double>(boost::geometry::length(prev_lanelet.centerline().basicLineString()));
     current_lanelet = prev_lanelet;
   }
 
@@ -442,7 +443,7 @@ lanelet::ConstLanelets RouteHandler::getShoulderLaneletSequenceAfter(
     }
     lanelet_sequence_forward.push_back(next_lanelet);
     current_lanelet = next_lanelet;
-    length += boost::geometry::length(next_lanelet.centerline().basicLineString());
+    length += static_cast<double>(boost::geometry::length(next_lanelet.centerline().basicLineString()));
   }
 
   return lanelet_sequence_forward;
@@ -494,7 +495,7 @@ lanelet::ConstLanelets RouteHandler::getShoulderLaneletSequenceUpTo(
 
     lanelet_sequence_backward.insert(lanelet_sequence_backward.begin(), prev_lanelet);
     current_lanelet = prev_lanelet;
-    length += boost::geometry::length(prev_lanelet.centerline().basicLineString());
+    length += static_cast<double>(boost::geometry::length(prev_lanelet.centerline().basicLineString()));
   }
 
   return lanelet_sequence_backward;
@@ -761,7 +762,7 @@ PathWithLaneId RouteHandler::getCenterLinePath(
     const auto addPathPoint = [&reference_path, &limit, &llt](const auto & pt) {
         PathPointWithLaneId p{};
         p.point.pose.position = lanelet::utils::conversion::toGeomMsgPt(pt);
-        p.lane_ids.push_back(llt.id());
+        p.lane_ids.push_back(static_cast<size_t>(llt.id()));
         p.point.twist.linear.x = limit.speedLimit.value();
         reference_path.points.push_back(p);
       };
@@ -791,12 +792,12 @@ PathWithLaneId RouteHandler::getCenterLinePath(
 
   // append a point only when having one point so that yaw calculation would work
   if (reference_path.points.size() == 1) {
-    const int lane_id = reference_path.points.front().lane_ids.front();
+    const int lane_id = static_cast<int>(reference_path.points.front().lane_ids.front());
     const auto lanelet = lanelet_map_ptr_->laneletLayer.get(lane_id);
     const auto point = reference_path.points.front().point.pose.position;
     const auto lane_yaw = lanelet::utils::getLaneletAngle(lanelet, point);
     PathPointWithLaneId path_point{};
-    path_point.lane_ids.push_back(lane_id);
+    path_point.lane_ids.push_back(static_cast<size_t>(lane_id));
     constexpr double ds{0.1};
     path_point.point.pose.position.x = point.x + ds * std::cos(lane_yaw);
     path_point.point.pose.position.y = point.y + ds * std::sin(lane_yaw);
@@ -885,8 +886,8 @@ PathWithLaneId RouteHandler::updatePathTwist(const PathWithLaneId & path) const
 {
   PathWithLaneId updated_path = path;
   for (auto & point : updated_path.points) {
-    const auto id = point.lane_ids.at(0);
-    const auto llt = lanelet_map_ptr_->laneletLayer.get(id);
+    const size_t id = point.lane_ids.at(0);
+    const auto llt = lanelet_map_ptr_->laneletLayer.get(static_cast<int64_t>(id));
     lanelet::traffic_rules::SpeedLimitInformation limit = traffic_rules_ptr_->speedLimit(llt);
     point.point.twist.linear.x = limit.speedLimit.value();
   }
@@ -981,7 +982,7 @@ lanelet::ConstLanelets RouteHandler::getCheckTargetLanesFromPath(
   for (const auto & point : path.points) {
     for (const auto & lane_id : point.lane_ids) {
       if (exists(target_lane_ids, static_cast<int64_t>(lane_id))) {
-        root_lane_id = lane_id;
+        root_lane_id = static_cast<int64_t>(lane_id);
       }
     }
   }

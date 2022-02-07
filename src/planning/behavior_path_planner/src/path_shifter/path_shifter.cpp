@@ -83,7 +83,7 @@ bool PathShifter::generate(
   if (!is_index_aligned_) {
     updateShiftPointIndices();
     for (const auto &shift_point : shift_points_) {
-      int idx_gap = shift_point.end_idx - shift_point.start_idx;
+      int idx_gap = static_cast<int>(shift_point.end_idx - shift_point.start_idx);
       if (idx_gap <= 1) {
         RCLCPP_WARN_STREAM(
           logger_,
