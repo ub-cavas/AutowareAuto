@@ -33,10 +33,10 @@ VESCInterfaceNode::VESCInterfaceNode(const rclcpp::NodeOptions & options)
   set_interface(
     std::make_unique<VESCInterface>(
       *this,
-      declare_parameter("vesc.speed_to_erpm_gain").get<double>(),
-      declare_parameter("vesc.speed_to_erpm_offset").get<double>(),
-      declare_parameter("vesc.steering_angle_to_servo_gain").get<double>(),
-      declare_parameter("vesc.steering_angle_to_servo_offset").get<double>()
+      declare_parameter<float64_t>("vesc.speed_to_erpm_gain"),
+      declare_parameter<float64_t>("vesc.speed_to_erpm_offset"),
+      declare_parameter<float64_t>("vesc.steering_angle_to_servo_gain"),
+      declare_parameter<float64_t>("vesc.steering_angle_to_servo_offset")
     )
   );
 }
