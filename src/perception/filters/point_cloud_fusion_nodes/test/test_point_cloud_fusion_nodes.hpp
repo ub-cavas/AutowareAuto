@@ -48,9 +48,9 @@ sensor_msgs::msg::PointCloud2 make_pc(
   builtin_interfaces::msg::Time stamp)
 {
   using autoware::common::types::PointXYZIF;
-  using autoware::common::lidar_utils::CloudModifier;
+  using autoware::common::lidar_utils::CloudModifierRing;
   sensor_msgs::msg::PointCloud2 msg;
-  CloudModifier modifier{msg, "base_link"};
+  CloudModifierRing modifier{msg, "base_link"};
   // modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {

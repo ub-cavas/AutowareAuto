@@ -162,7 +162,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
 
   auto && intensity_it = autoware::common::lidar_utils::IntensityIteratorWrapper(msg);
 
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   CloudModifier modifier{m_filtered_transformed_msg};
   modifier.clear();
   modifier.reserve(m_pcl_size);
@@ -170,7 +170,7 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
   m_filtered_transformed_msg.header.stamp = msg.header.stamp;
 
   for (size_t it = 0; it < (msg.data.size() / 16); it++) {
-    PointXYZIF pt;
+    PointXYZI pt;
     pt.x = *x_it;
     pt.y = *y_it;
     pt.z = *z_it;

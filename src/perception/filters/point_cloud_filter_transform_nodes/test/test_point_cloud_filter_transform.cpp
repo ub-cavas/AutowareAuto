@@ -79,8 +79,8 @@ sensor_msgs::msg::PointCloud2 make_pc(
 {
   sensor_msgs::msg::PointCloud2 msg;
   using autoware::common::types::PointXYZIF;
-  using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier modifier{msg, "base_link"};
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing modifier{msg, "base_link"};
   modifier.reserve(seeds.size());
 
   for (auto seed : seeds) {
@@ -304,8 +304,8 @@ TEST_F(PointCloudFilterTransformIntegration, Filter270Radius10) {
   std::vector<std::vector<PointXYZIF>> expected_filter_output_points(1);
   PointCloud2 raw_msg;
   using autoware::common::types::PointXYZIF;
-  using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier modifier{raw_msg, "lidar_front"};
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing modifier{raw_msg, "lidar_front"};
   modifier.reserve(5);
 
   PointXYZIF pt;

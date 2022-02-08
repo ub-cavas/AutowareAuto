@@ -174,7 +174,7 @@ TEST(RayGroundClassifierPclValidation, FilterTest)
     float32_t x = std::cos(angle) * radius_ring_1;
     float32_t y = std::sin(angle) * radius_ring_1;
     float32_t z = 0;
-    PointXYZIF pt{x, y, z};
+    PointXYZI pt{x, y, z};
     modifier1.push_back(pt);
     modifier2.push_back(pt);
   }
