@@ -50,8 +50,12 @@ namespace lidar_utils
 {
 
 using CloudModifier =
+  point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZI>;
+using CloudView = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZI>;
+
+using CloudModifierRing =
   point_cloud_msg_wrapper::PointCloud2Modifier<autoware::common::types::PointXYZIF>;
-using CloudView = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>;
+using CloudViewRing = point_cloud_msg_wrapper::PointCloud2View<autoware::common::types::PointXYZIF>;
 
 using sensor_msgs::msg::PointCloud2;
 
