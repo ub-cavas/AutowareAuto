@@ -28,7 +28,7 @@ using autoware::perception::filters::voxel_grid::Voxel;
 using autoware::perception::filters::voxel_grid::ApproximateVoxel;
 using autoware::perception::filters::voxel_grid::CentroidVoxel;
 using autoware::perception::filters::voxel_grid::VoxelGrid;
-using autoware::perception::filters::voxel_grid::PointXYZI;
+using autoware::perception::filters::voxel_grid::PointXYZIF;
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
 
@@ -82,7 +82,7 @@ protected:
 };
 
 // Instantiate tests for given types, add more types here as they are used
-using PointTypes = ::testing::Types<PointXYZ, PointXYZI>;
+using PointTypes = ::testing::Types<PointXYZ, PointXYZIF>;
 // cppcheck-suppress syntaxError
 TYPED_TEST_CASE(TypedVoxelTest, PointTypes, );
 /// NOTE: This is the older version due to 1.8.0 of GTest. v1.8.1 uses TYPED_TEST_SUITE

@@ -50,7 +50,7 @@ public:
 
 private:
   sensor_msgs::msg::PointCloud2 m_cloud;
-  voxel_grid::VoxelGrid<voxel_grid::CentroidVoxel<PointXYZI>> m_grid;
+  voxel_grid::VoxelGrid<voxel_grid::CentroidVoxel<PointXYZIF>> m_grid;
 };  // VoxelCloudCentroid
 }  // namespace algorithm
 }  // namespace voxel_grid_nodes

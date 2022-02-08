@@ -69,11 +69,11 @@ PointCloud2::SharedPtr generate_cloud_rect_counted(
 
   auto generate_random_point_within_rect =
     [&dist_within_x, &dist_within_y, &dist_within_z, &mt]() {
-      using autoware::common::types::PointXYZIF;
-      PointXYZIF point_xyzif;
-      point_xyzif.x = dist_within_x(mt);
-      point_xyzif.y = dist_within_y(mt);
-      point_xyzif.z = dist_within_z(mt);
+      using autoware::common::types::PointXYZI;
+      PointXYZI point_xyzi;
+      point_xyzi.x = dist_within_x(mt);
+      point_xyzi.y = dist_within_y(mt);
+      point_xyzi.z = dist_within_z(mt);
       return point_xyzif;
     };
 

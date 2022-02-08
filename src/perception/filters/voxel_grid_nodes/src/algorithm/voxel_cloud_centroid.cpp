@@ -55,7 +55,7 @@ void VoxelCloudCentroid::insert(
     throw std::runtime_error("VoxelCloudCentroid: Malformed PointCloud2");
   }
   // Verify the point cloud format and assign correct point_step
-  constexpr auto field_size = sizeof(decltype(autoware::common::types::PointXYZI::x));
+  constexpr auto field_size = sizeof(decltype(autoware::common::types::PointXYZIF::x));
   auto point_step = 4U * field_size;
   if (!has_intensity_and_throw_if_no_xyz(msg)) {
     point_step = 3U * field_size;
@@ -68,7 +68,7 @@ void VoxelCloudCentroid::insert(
   // x y z i a b c x y z i a b c
   // ^------       ^------
   for (std::size_t idx = 0U; idx < msg.data.size(); idx += msg.point_step) {
-    PointXYZI pt;
+    PointXYZIF pt;
     //lint -e{925, 9110} Need to convert pointers and use bit for external API NOLINT
     (void)memmove(
       static_cast<void *>(&pt.x),
@@ -82,6 +82,7 @@ void VoxelCloudCentroid::insert(
 ////////////////////////////////////////////////////////////////////////////////
 const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
 {
+  using autoware::common::types::PointXYZI;
   using autoware::common::lidar_utils::CloudModifier;
   CloudModifier modifier{m_cloud};
   modifier.clear();
@@ -89,7 +90,7 @@ const sensor_msgs::msg::PointCloud2 & VoxelCloudCentroid::get()
 
   for (const auto & it : m_grid) {
     const auto & pt = it.second.get();
-    modifier.push_back(pt);
+    modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
   }
   m_grid.clear();
 

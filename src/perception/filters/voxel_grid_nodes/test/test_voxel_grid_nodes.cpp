@@ -32,7 +32,6 @@ using autoware::perception::filters::voxel_grid::Config;
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudBase;
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudApproximate;
 using autoware::perception::filters::voxel_grid_nodes::algorithm::VoxelCloudCentroid;
-using autoware::perception::filters::voxel_grid::PointXYZI;
 
 using autoware::common::types::PointXYZI;
 using autoware::common::types::bool8_t;

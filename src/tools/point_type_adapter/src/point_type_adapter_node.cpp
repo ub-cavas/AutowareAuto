@@ -40,7 +40,7 @@ using sensor_msgs::msg::PointCloud2;
 PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
 :  Node("point_type_adapter", options),
   pub_ptr_cloud_output_{this->create_publisher<sensor_msgs::msg::PointCloud2>(
-      "points_xyzif",
+      "points_xyzi",
       rclcpp::QoS(rclcpp::KeepLast(::QOS_HISTORY_DEPTH)))}
   ,
   sub_ptr_cloud_input_(this->create_subscription<PointCloud2>(
@@ -55,7 +55,7 @@ PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
 void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg_ptr)
 {
   try {
-    PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzif(msg_ptr);
+    PointCloud2::SharedPtr cloud_out = cloud_in_to_cloud_xyzi(msg_ptr);
     pub_ptr_cloud_output_->publish(*cloud_out);
   } catch (std::exception & ex) {
     RCLCPP_ERROR(
@@ -65,10 +65,10 @@ void PointTypeAdapterNode::callback_cloud_input(const PointCloud2::SharedPtr msg
   }
 }
 
-PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
+PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzi(
   const PointCloud2::ConstSharedPtr cloud_in) const
 {
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   using autoware::common::lidar_utils::CloudModifier;
   PointCloud2::SharedPtr cloud_out_ptr = std::make_shared<PointCloud2>();
 
@@ -124,9 +124,9 @@ PointCloud2::SharedPtr PointTypeAdapterNode::cloud_in_to_cloud_xyzif(
     iter_z != iter_z.end() ||
     !intensity_iter_wrapper.is_end())
   {
-    PointXYZIF point_xyzif{*iter_x, *iter_y, *iter_z,
+    PointXYZI point_xyzi{*iter_x, *iter_y, *iter_z,
       intensity_iter_wrapper.get_current_value<float32_t>()};
-    cloud_modifier_out.push_back(point_xyzif);
+    cloud_modifier_out.push_back(point_xyzi);
     iter_x += 1;
     iter_y += 1;
     iter_z += 1;

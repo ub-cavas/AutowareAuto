@@ -51,7 +51,7 @@ struct PointSvl
 };
 
 TEST(TestPointTypeAdapter, TestCloudConverter) {
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   using sensor_msgs::msg::PointCloud2;
   PointCloud2::SharedPtr cloud_svl_ptr = std::make_shared<PointCloud2>();
   using CloudModifierSvl = point_cloud_msg_wrapper::PointCloud2Modifier<PointSvl>;
@@ -59,8 +59,8 @@ TEST(TestPointTypeAdapter, TestCloudConverter) {
   cloud_modifier_svl.push_back(PointSvl{3.0F, 4.0F, 5.0F, 100, 123456789});
   cloud_modifier_svl.push_back(PointSvl{6.0F, 8.0F, 10.0F, 200, 123456789});
 
-  PointXYZIF point_xyzif_0{3.0F, 4.0F, 5.0F, 100, 0};
-  PointXYZIF point_xyzif_1{6.0F, 8.0F, 10.0F, 200, 0};
+  PointXYZI point_xyzi_0{3.0F, 4.0F, 5.0F, 100};
+  PointXYZI point_xyzi_1{6.0F, 8.0F, 10.0F, 200};
 
   rclcpp::init(0, nullptr);
   std::vector<rclcpp::Parameter> params;
@@ -71,15 +71,15 @@ TEST(TestPointTypeAdapter, TestCloudConverter) {
   node_options.parameter_overrides(params);
   autoware::tools::point_type_adapter::PointTypeAdapterNode point_type_adapter_node(node_options);
 
-  PointCloud2::SharedPtr cloud_xyzif_ptr = point_type_adapter_node.cloud_in_to_cloud_xyzif(
+  PointCloud2::SharedPtr cloud_xyzi_ptr = point_type_adapter_node.cloud_in_to_cloud_xyzi(
     cloud_svl_ptr);
   rclcpp::shutdown();
 
   using autoware::common::lidar_utils::CloudView;
-  CloudView cloud_view_xyzif(*cloud_xyzif_ptr);
-  EXPECT_EQ(cloud_xyzif_ptr->header, cloud_svl_ptr->header);
-  EXPECT_EQ(cloud_xyzif_ptr->width, cloud_svl_ptr->width);
-  EXPECT_EQ(cloud_xyzif_ptr->fields.size(), 5UL);
-  EXPECT_EQ(cloud_view_xyzif.at(0), point_xyzif_0);
-  EXPECT_EQ(cloud_view_xyzif.at(1), point_xyzif_1);
+  CloudView cloud_view_xyzi(*cloud_xyzi_ptr);
+  EXPECT_EQ(cloud_xyzi_ptr->header, cloud_svl_ptr->header);
+  EXPECT_EQ(cloud_xyzi_ptr->width, cloud_svl_ptr->width);
+  EXPECT_EQ(cloud_xyzi_ptr->fields.size(), 4UL);
+  EXPECT_EQ(cloud_view_xyzi.at(0), point_xyzi_0);
+  EXPECT_EQ(cloud_view_xyzi.at(1), point_xyzi_1);
 }

@@ -54,7 +54,7 @@ public:
   virtual const sensor_msgs::msg::PointCloud2 & get() = 0;
 
 protected:
-  using PointXYZI = autoware::perception::filters::voxel_grid::PointXYZI;
+  using PointXYZIF = autoware::perception::filters::voxel_grid::PointXYZIF;
 };  // VoxelCloudBase
 }  // namespace algorithm
 }  // namespace voxel_grid_nodes
