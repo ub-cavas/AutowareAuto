@@ -31,8 +31,8 @@ using float32_t = autoware::common::types::float32_t;
 using FilterNodeTest = autoware::tools::testing::FakeTestNode;
 using FilterNodeBase = autoware::perception::filters::filter_node_base::FilterNodeBase;
 using PointCloud2 = sensor_msgs::msg::PointCloud2;
-using CloudModifier = autoware::common::lidar_utils::CloudModifier;
-using CloudView = autoware::common::lidar_utils::CloudView;
+using CloudModifierRing = autoware::common::lidar_utils::CloudModifierRing;
+using CloudViewRing = autoware::common::lidar_utils::CloudViewRing;
 
 using ::testing::_;
 using ::testing::AtLeast;
@@ -153,7 +153,7 @@ void create_dummy_cloud(sensor_msgs::msg::PointCloud2 & cloud)
   std::vector<float32_t> seeds = {0.0, 0.0, 0.0};
 
   using autoware::common::types::PointXYZIF;
-  CloudModifier modifier{cloud, "base_link"};
+  CloudModifierRing modifier{cloud, "base_link"};
 
   for (auto seed : seeds) {
     PointXYZIF pt;
@@ -171,9 +171,9 @@ void check_pc(
   sensor_msgs::msg::PointCloud2 & msg2)
 {
   // Convert to using the wrapper
-  const CloudView msg1_wrapper{
+  const CloudViewRing msg1_wrapper{
     msg1};
-  const CloudView msg2_wrapper{
+  const CloudViewRing msg2_wrapper{
     msg2};
 
   EXPECT_EQ(msg1.header.frame_id, msg2.header.frame_id);
