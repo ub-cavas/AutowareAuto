@@ -245,7 +245,7 @@ TEST_F(NDTMapTest, MapRepresentationBadInput) {
 
   // initialize the messages
   // Message with the missing fields
-  CloudModifier pc_view_with_wrong_point{
+  CloudModifierRing pc_view_with_wrong_point{
     invalid_pc1, "map"};
   pc_view_with_wrong_point.resize(100U);
   // Correct message format, but empty
@@ -361,7 +361,7 @@ sensor_msgs::msg::PointCloud2 make_pcl(const std::vector<Eigen::Vector3d> & pts)
 {
   sensor_msgs::msg::PointCloud2 cloud;
   using autoware::common::types::PointXYZIF;
-  CloudModifier modifier{cloud, "map"};
+  CloudModifierRing modifier{cloud, "map"};
   for (const auto & pt : pts) {
     autoware::common::types::PointXYZIF ptF{};
     ptF.x = static_cast<float>(pt(0U));

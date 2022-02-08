@@ -31,7 +31,7 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware::common::lidar_utils::CloudModifier;
+using autoware::common::lidar_utils::CloudModifierRing;
 
 using autoware::localization::ndt::DynamicNDTMap;
 constexpr auto kNumConfigPoints = DynamicNDTMap::kNumConfigPoints;

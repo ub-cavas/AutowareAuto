@@ -89,14 +89,14 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
   using point_cloud_msg_wrapper::PointCloud2Modifier;
   using autoware::common::lidar_utils::CloudModifier;
 
-  if (PointCloud2View<PointXYZIF>::can_be_created_from(cloud)) {
+  if (PointCloud2View<PointXYZI>::can_be_created_from(cloud)) {
     // The cloud already has correct fields.
     *msg = std::move(cloud);
     return;
   }
 
-  if (PointCloud2View<PointXYZI>::can_be_created_from(cloud)) {
-    // We need to convert the intensity field.
+  if (PointCloud2View<PointXYZIF>::can_be_created_from(cloud)) {
+    // We need to get rid of the ring field
     sensor_msgs::msg::PointCloud2 adjusted_cloud;
     point_cloud_msg_wrapper::PointCloud2View<PointXYZI> old_cloud_view{cloud};
     CloudModifier adjusted_cloud_modifier{
@@ -104,12 +104,11 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const PointXYZI point{
         old_point.x,
         old_point.y,
         old_point.z,
-        old_point.intensity,
-        0};  // TODO(esteve): calculate ring from beam angle?
+        old_point.intensity};
       adjusted_cloud_modifier.push_back(point);
     }
 
@@ -132,12 +131,11 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const PointXYZI point{
         old_point.x,
         old_point.y,
         old_point.z,
-        0.0f,
-        0};  // TODO(esteve): calculate ring from beam angle?
+        0.0f};
       adjusted_cloud_modifier.push_back(point);
     }
 
@@ -165,12 +163,11 @@ void read_from_pcd(const std::string & file_name, sensor_msgs::msg::PointCloud2 
     adjusted_cloud_modifier.reserve(old_cloud_view.size());
 
     for (const auto & old_point : old_cloud_view) {
-      const PointXYZIF point{
+      const PointXYZI point{
         old_point.x,
         old_point.y,
         old_point.z,
-        static_cast<float>(old_point.intensity),
-        0};  // TODO(esteve): calculate ring from beam angle?
+        static_cast<float>(old_point.intensity)};
       adjusted_cloud_modifier.push_back(point);
     }
 
@@ -186,8 +183,8 @@ geocentric_pose_t load_map(
   const std::string & pcl_file_name,
   sensor_msgs::msg::PointCloud2 & pc_out)
 {
-  using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier{pc_out}.clear();
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing{pc_out}.clear();
   geodetic_pose_t geodetic_pose{0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
 
   if (!yaml_file_name.empty()) {
