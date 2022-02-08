@@ -34,7 +34,7 @@ namespace filters
 namespace voxel_grid
 {
 
-using autoware::common::types::PointXYZIF;
+using autoware::common::types::PointXYZI;
 using autoware::common::types::float32_t;
 
 /// \brief Default addition operator for a point type for use with CentroidVoxel
@@ -67,35 +67,35 @@ VOXEL_GRID_PUBLIC PointT operator*(const PointT & lhs, const float32_t rhs)
   return ret;
 }
 
-/// \brief Addition operator for a PointXYZIF for use with CentroidVoxel
+/// \brief Addition operator for a PointXYZI for use with CentroidVoxel
 /// \param[in] lhs Left hand operator
 /// \param[in] rhs Right hand operator
 /// \return lhs + rhs
 template<>
-inline VOXEL_GRID_PUBLIC PointXYZIF operator+(
+inline VOXEL_GRID_PUBLIC PointXYZI operator+(
   //lint -e{9073} NOLINT This is a template specialization, not a token mismatch
-  const PointXYZIF & lhs,
+  const PointXYZI & lhs,
   //lint -e{9073} NOLINT This is a template specialization, not a token mismatch
-  const PointXYZIF & rhs)
+  const PointXYZI & rhs)
 {
-  PointXYZIF ret = lhs;
+  PointXYZI ret = lhs;
   ret.x += rhs.x;
   ret.y += rhs.y;
   ret.z += rhs.z;
   ret.intensity += rhs.intensity;
   return ret;
 }
-/// \brief Scalar multiplication operator for a PointXYZIF for use with CentroidVoxel
+/// \brief Scalar multiplication operator for a PointXYZI for use with CentroidVoxel
 /// \param[in] lhs Left hand operator
 /// \param[in] rhs Right hand operator, a floating point value
 /// \return lhs * rhs
 template<>
-inline VOXEL_GRID_PUBLIC PointXYZIF operator*(
+inline VOXEL_GRID_PUBLIC PointXYZI operator*(
   //lint -e{9073} NOLINT This is a template specialization, not a token mismatch
-  const PointXYZIF & lhs,
+  const PointXYZI & lhs,
   const float32_t rhs)
 {
-  PointXYZIF ret = lhs;
+  PointXYZI ret = lhs;
   ret.x *= rhs;
   ret.y *= rhs;
   ret.z *= rhs;

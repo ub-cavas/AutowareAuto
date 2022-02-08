@@ -60,13 +60,13 @@ void PointCloudFusion::concatenate_pointcloud(
     throw Error::TOO_LARGE;
   }
 
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   using autoware::common::lidar_utils::CloudView;
   CloudView view{pc_in};
 
   auto view_it = view.cbegin();
   while (view_it != view.cend()) {
-    PointXYZIF pt;
+    PointXYZI pt;
     pt.x = (*view_it).x;
     pt.y = (*view_it).y;
     pt.z = (*view_it).z;

@@ -61,7 +61,6 @@ void VoxelCloudApproximate::insert(
   if (!has_intensity_and_throw_if_no_xyz(msg)) {
     point_step = 3U * field_size;
   }
-  point_step += sizeof(decltype(autoware::common::types::PointXYZIF::id));
 
   // Iterate through the data, but skip intensity in case the point cloud does not have it.
   // For example:
@@ -70,7 +69,7 @@ void VoxelCloudApproximate::insert(
   // x y z i a b c x y z i a b c
   // ^------       ^------
   for (std::size_t idx = 0U; idx < msg.data.size(); idx += msg.point_step) {
-    PointXYZIF pt;
+    PointXYZI pt;
     //lint -e{925, 9110} Need to convert pointers and use bit for external API NOLINT
     (void)memmove(
       static_cast<void *>(&pt.x),
