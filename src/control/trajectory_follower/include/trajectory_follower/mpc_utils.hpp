@@ -50,7 +50,6 @@
 #pragma GCC diagnostic pop
 
 
-
 namespace autoware
 {
 namespace motion

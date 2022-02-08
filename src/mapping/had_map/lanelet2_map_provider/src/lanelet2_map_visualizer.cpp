@@ -15,7 +15,6 @@
 /// \brief main function for lanelet2_map_provider
 
 
-
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wsign-conversion"
 #pragma GCC diagnostic ignored "-Wuseless-cast"

@@ -35,7 +35,6 @@
 #pragma GCC diagnostic pop
 
 
-
 namespace autoware
 {
 namespace perception

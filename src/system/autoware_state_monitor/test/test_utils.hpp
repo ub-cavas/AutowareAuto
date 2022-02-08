@@ -32,7 +32,6 @@
 #pragma GCC diagnostic pop
 
 
-
 #include "autoware_auto_vehicle_msgs/msg/engage.hpp"
 #include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_odometry.hpp"

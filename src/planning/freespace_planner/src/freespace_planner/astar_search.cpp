@@ -30,7 +30,6 @@
 #pragma GCC diagnostic pop
 
 
-
 namespace autoware
 {
 namespace planning
