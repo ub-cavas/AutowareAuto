@@ -102,8 +102,8 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
-  using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier{
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing{
     output, m_frame_id}.reserve(m_cloud_size);
 }
 
@@ -115,8 +115,8 @@ bool8_t VelodyneCloudNode<T>::convert(
 {
   // This handles the case when the below loop exited due to containing extra points
   using autoware::common::types::PointXYZIF;
-  using autoware::common::lidar_utils::CloudModifier;
-  CloudModifier modifier{output};
+  using autoware::common::lidar_utils::CloudModifierRing;
+  CloudModifierRing modifier{output};
   if (m_published_cloud) {
     // reset the pointcloud
     modifier.clear();
