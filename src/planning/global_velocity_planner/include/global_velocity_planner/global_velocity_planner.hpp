@@ -1,4 +1,4 @@
-// Copyright 2022 The Autoware Foundation
+// Copyright 2022 Leo Drive Teknoloji A.Ş.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-// Co-developed by Tier IV, Inc. and Apex.AI, Inc.
+// Co-developed by Tier IV, Inc. Apex.AI, Inc. and Leo Drive Teknoloji A.Ş.
 
-/// \copyright Copyright 2021 The Autoware Foundation
+/// \copyright Copyright 2022 Leo Drive Teknoloji A.Ş.
 /// \file
 /// \brief This file defines the global_velocity_planner class.
 

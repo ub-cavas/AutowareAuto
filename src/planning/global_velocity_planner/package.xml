@@ -4,7 +4,7 @@
   <name>global_velocity_planner</name>
   <version>1.0.0</version>
   <description>Global velocity planner, it will be used to test the controllers</description>
-  <maintainer email="berkay@leodrive.ai">berkay</maintainer>
+  <maintainer email="berkay@leodrive.ai">Berkay Karaman</maintainer>
   <license>Apache 2.0</license>
 
 
@@ -37,7 +37,8 @@
   <test_depend>autoware_testing</test_depend>
   <test_depend>ros_testing</test_depend>
 
-  <export>
+
+    <export>
     <build_type>ament_cmake</build_type>
   </export>
 </package>

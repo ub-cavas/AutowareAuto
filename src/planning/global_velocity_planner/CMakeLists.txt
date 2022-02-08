@@ -1,4 +1,4 @@
-# Copyright 2021 The Autoware Foundation
+# Copyright 2022 Leo Drive Teknoloji A.Ş.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -63,15 +63,22 @@ if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
-  # Unit tests
-  set(TEST_SOURCES test/test_global_velocity_planner.cpp)
+  # Unit tests for API
+  set(TEST_SOURCES_API test/test_global_velocity_planner.cpp)
   set(TEST_GLOBAL_VELOCITY_PLANNER_EXE test_global_velocity_planner)
-  ament_add_gtest(${TEST_GLOBAL_VELOCITY_PLANNER_EXE} ${TEST_SOURCES})
+  ament_add_gtest(${TEST_GLOBAL_VELOCITY_PLANNER_EXE} ${TEST_SOURCES_API})
   autoware_set_compile_options(${TEST_GLOBAL_VELOCITY_PLANNER_EXE})
   target_link_libraries(${TEST_GLOBAL_VELOCITY_PLANNER_EXE} ${PROJECT_NAME})
 
-  # Integration test
+  # Unit tests for node
+  set(TEST_SOURCES_NODE test/test_global_velocity_planner_node.cpp)
+  set(TEST_GLOBAL_VELOCITY_PLANNER_NODE_EXE test_global_velocity_planner_node)
+  ament_add_gtest(${TEST_GLOBAL_VELOCITY_PLANNER_NODE_EXE} ${TEST_SOURCES_NODE})
+  autoware_set_compile_options(${TEST_GLOBAL_VELOCITY_PLANNER_NODE_EXE})
+  target_link_libraries(${TEST_GLOBAL_VELOCITY_PLANNER_NODE_EXE} ${PROJECT_NAME}_node)
 
+
+  # Integration test
   add_ros_test(
           test/global_velocity_planner_node_launch.test.py
           TIMEOUT "30"

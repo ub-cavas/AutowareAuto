@@ -1,4 +1,4 @@
-# Copyright 2022, The Autoware Foundation
+# Copyright 2022 Leo Drive Teknoloji A.Ş.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
