@@ -24,6 +24,8 @@ import os
 import pytest
 import unittest
 
+import signal
+
 
 @pytest.mark.launch_test
 def generate_test_description():
@@ -51,9 +53,8 @@ def generate_test_description():
 class TestProcessOutput(unittest.TestCase):
 
     def test_exit_code(self, proc_output, proc_info, global_velocity_planner):
-        # Check that process exits with code -15 code: termination request, sent to the program
+        # Check that process exits with expected codes: either SIGINT, SIGABRT or SIGTERM codes
+        # are fine
         launch_testing.asserts.assertExitCodes(
-            proc_info,
-            [-15],
-            process=global_velocity_planner
-        )
+            proc_info, [-signal.SIGINT, -signal.SIGABRT, -signal.SIGTERM],
+            process=global_velocity_planner)
