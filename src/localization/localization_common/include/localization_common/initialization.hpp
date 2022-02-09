@@ -92,6 +92,12 @@ public:
     m_fallback_pose.emplace(pose);
   }
 
+  PoseT get_fallback_pose(tf2::TimePoint time_point)
+  {
+    m_fallback_pose.value().header.stamp = ::time_utils::to_message(time_point);
+    return m_fallback_pose.value();
+  }
+
 private:
   std::experimental::optional<PoseT> m_fallback_pose{std::experimental::nullopt};
 };

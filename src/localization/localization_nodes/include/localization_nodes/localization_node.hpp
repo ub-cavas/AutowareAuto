@@ -342,8 +342,14 @@ private:
     const auto & map_frame = m_map_ptr->frame_id();
 
     try {
-      geometry_msgs::msg::TransformStamped initial_guess = m_pose_initializer.guess(
-        m_tf_buffer, observation_time, map_frame, observation_frame);
+      geometry_msgs::msg::TransformStamped initial_guess;
+      if (is_reinitialization) {
+        initial_guess = m_pose_initializer.get_fallback_pose(observation_time);
+        is_reinitialization = false;
+      } else {
+        initial_guess = m_pose_initializer.guess(
+          m_tf_buffer, observation_time, map_frame, observation_frame);
+      }
       RegistrationSummary summary{};
       const auto pose_out =
         m_localizer_ptr->register_measurement(*msg_ptr, initial_guess, *m_map_ptr, &summary);
@@ -439,6 +445,7 @@ private:
     // Ensure the parent frame is the map frame
     assert_ptr_not_null(m_map_ptr, "map");
     const std::string & map_frame = m_map_ptr->frame_id();
+    is_reinitialization = true;
     if (!m_tf_buffer.canTransform(map_frame, msg_ptr->header.frame_id, tf2::TimePointZero)) {
       RCLCPP_ERROR(
         get_logger(),
@@ -449,7 +456,6 @@ private:
     const auto transform = m_tf_buffer.lookupTransform(
       map_frame, msg_ptr->header.frame_id,
       tf2::TimePointZero);
-
 
     geometry_msgs::msg::TransformStamped input_pose_stamped;
     input_pose_stamped.header = msg_ptr->header;
@@ -480,6 +486,7 @@ private:
   PoseInitializerT m_pose_initializer;
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
+  bool is_reinitialization = false;
   typename rclcpp::Subscription<ObservationMsgT>::SharedPtr m_observation_sub;
   typename rclcpp::Subscription<MapMsgT>::SharedPtr m_map_sub;
   typename rclcpp::Publisher<PoseWithCovarianceStamped>::SharedPtr m_pose_publisher;

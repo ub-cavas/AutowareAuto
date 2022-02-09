@@ -378,3 +378,10 @@ Transform MockInitializer::guess(
 }
 
 void MockInitializer::set_fallback_pose(const geometry_msgs::msg::TransformStamped &) {}
+
+Transform MockInitializer::get_fallback_pose(tf2::TimePoint time_point)
+{
+  Transform transform;
+  transform.header.stamp = ::time_utils::to_message(time_point);
+  return transform;
+}

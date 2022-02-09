@@ -84,6 +84,7 @@ public:
     const std::string & id1, const std::string & id2);
 
   void set_fallback_pose(const geometry_msgs::msg::TransformStamped &);
+  Transform get_fallback_pose(tf2::TimePoint time_point);
 };
 
 class TestRelativeLocalizerNode : public RelativeLocalizerNode<
