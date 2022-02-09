@@ -32,7 +32,7 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware::common::types::PointXYZIF;
+using autoware::common::types::PointXYZI;
 using autoware::common::lidar_utils::CloudModifier;
 using autoware::common::lidar_utils::CloudView;
 
