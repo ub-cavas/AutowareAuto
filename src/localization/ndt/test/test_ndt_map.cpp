@@ -245,7 +245,7 @@ TEST_F(NDTMapTest, MapRepresentationBadInput) {
 
   // initialize the messages
   // Message with the missing fields
-  CloudModifierRing pc_view_with_wrong_point{
+  CloudModifier pc_view_with_wrong_point{
     invalid_pc1, "map"};
   pc_view_with_wrong_point.resize(100U);
   // Correct message format, but empty
@@ -360,10 +360,9 @@ sensor_msgs::msg::PointCloud2 make_pcl(
 sensor_msgs::msg::PointCloud2 make_pcl(const std::vector<Eigen::Vector3d> & pts)
 {
   sensor_msgs::msg::PointCloud2 cloud;
-  using autoware::common::types::PointXYZIF;
-  CloudModifierRing modifier{cloud, "map"};
+  CloudModifier modifier{cloud, "map"};
   for (const auto & pt : pts) {
-    autoware::common::types::PointXYZIF ptF{};
+    autoware::common::types::PointXYZI ptF{};
     ptF.x = static_cast<float>(pt(0U));
     ptF.y = static_cast<float>(pt(1U));
     ptF.z = static_cast<float>(pt(2U));
@@ -385,9 +384,9 @@ sensor_msgs::msg::PointField make_pf(
   return pf;
 }
 
-autoware::common::types::PointXYZIF get_point_from_vector(const Eigen::Vector3d & v)
+autoware::common::types::PointXYZI get_point_from_vector(const Eigen::Vector3d & v)
 {
-  autoware::common::types::PointXYZIF ptF{};
+  autoware::common::types::PointXYZI ptF{};
   ptF.x = static_cast<float32_t>(v(0));
   ptF.y = static_cast<float32_t>(v(1));
   ptF.z = static_cast<float32_t>(v(2));

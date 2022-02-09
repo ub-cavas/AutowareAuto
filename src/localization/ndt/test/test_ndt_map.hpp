@@ -31,7 +31,7 @@
 
 using autoware::common::types::float32_t;
 using autoware::common::types::float64_t;
-using autoware::common::lidar_utils::CloudModifierRing;
+using autoware::common::lidar_utils::CloudModifier;
 
 using autoware::localization::ndt::DynamicNDTMap;
 constexpr auto kNumConfigPoints = DynamicNDTMap::kNumConfigPoints;
@@ -54,9 +54,9 @@ sensor_msgs::msg::PointField make_pf(
 void populate_pc(
   sensor_msgs::msg::PointCloud2 & pc,
   size_t num_points);
-using autoware::common::types::PointXYZIF;
+using autoware::common::types::PointXYZI;
 
-PointXYZIF get_point_from_vector(const Eigen::Vector3d & v);
+PointXYZI get_point_from_vector(const Eigen::Vector3d & v);
 
 // add the point `center` and 4 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance

@@ -209,7 +209,7 @@ public:
 private:
   perception::filters::voxel_grid::Config m_grid_config;
   std::unordered_map<uint64_t,
-    perception::filters::voxel_grid::CentroidVoxel<common::types::PointXYZIF>> m_grid;
+    perception::filters::voxel_grid::CentroidVoxel<common::types::PointXYZI>> m_grid;
   std::string m_frame_id;
   LocalizerMapT m_localizer_map;
 };

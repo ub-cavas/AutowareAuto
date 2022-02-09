@@ -66,7 +66,7 @@ public:
   using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
   using Cloud = sensor_msgs::msg::PointCloud2;
   using RegistrationSummary = localization::localization_common::OptimizedRegistrationSummary;
-  using PointXYZIF = autoware::common::types::PointXYZIF;
+  using PointXYZI = autoware::common::types::PointXYZI;
   // Static asserts to make sure the policies are valid
   static_assert(
     std::is_base_of<mapping::point_cloud_mapping::TriggerPolicyBase<WriteTriggerPolicyT>,

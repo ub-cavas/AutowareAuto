@@ -112,7 +112,7 @@ void autoware::mapping::point_cloud_mapping::check_pc(PclCloud & pc, std::size_t
 }
 
 sensor_msgs::msg::PointCloud2 autoware::mapping::point_cloud_mapping::make_pc(
-  const std::vector<autoware::common::types::PointXYZIF> & pts,
+  const std::vector<autoware::common::types::PointXYZI> & pts,
   const std::string & frame)
 {
   sensor_msgs::msg::PointCloud2 pc;
@@ -128,12 +128,12 @@ sensor_msgs::msg::PointCloud2 autoware::mapping::point_cloud_mapping::make_pc(
   std::size_t size, std::size_t offset,
   const std::string & frame)
 {
-  std::vector<autoware::common::types::PointXYZIF> pts(size);
+  std::vector<autoware::common::types::PointXYZI> pts(size);
   auto idx = 0U;
   std::generate(
     pts.begin(), pts.end(), [&idx, offset]() {
       auto val = static_cast<float_t>((idx++) + offset);
-      return autoware::common::types::PointXYZIF{val, val, val, val};
+      return autoware::common::types::PointXYZI{val, val, val, val};
     });
   return autoware::mapping::point_cloud_mapping::make_pc(pts, frame);
 }
@@ -142,7 +142,7 @@ sensor_msgs::msg::PointCloud2 autoware::mapping::point_cloud_mapping::make_pc_de
   std::size_t size, std::size_t offset,
   const std::string & frame, float_t deviation)
 {
-  std::vector<autoware::common::types::PointXYZIF> pts;
+  std::vector<autoware::common::types::PointXYZI> pts;
   pts.reserve(VoxelMapContext::NUM_PTS_PER_CELL * size);
   for (auto idx = 0U; idx < size; ++idx) {
     auto val = static_cast<float_t>((idx) + offset);
@@ -172,11 +172,11 @@ VoxelMapContext::VoxelMapContext()
 
 // Get the point `center` and 6 additional points in a fixed distance from the center
 // resulting in 7 points with random but bounded covariance.
-std::vector<autoware::common::types::PointXYZIF> autoware::mapping::point_cloud_mapping::get_cells(
+std::vector<autoware::common::types::PointXYZI> autoware::mapping::point_cloud_mapping::get_cells(
   const std::array<float_t, 4U> & center,
   float_t fixed_deviation)
 {
-  std::vector<autoware::common::types::PointXYZIF> pts;
+  std::vector<autoware::common::types::PointXYZI> pts;
   pts.reserve(VoxelMapContext::NUM_PTS_PER_CELL);
   pts.push_back({center[0], center[1], center[2], center[3]});
   for (auto idx = 0U; idx < 3U; idx++) {

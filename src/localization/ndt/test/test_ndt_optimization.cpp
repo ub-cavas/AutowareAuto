@@ -37,7 +37,7 @@ using P2DProblem = P2DNDTOptimizationProblem<autoware::localization::ndt::Static
 constexpr double kPoseEpsilon{0.01};
 
 sensor_msgs::msg::PointCloud2 create_xz_plane_point_cloud(
-  const PointXYZIF & corner,
+  const PointXYZI & corner,
   const float size,
   const float step)
 {
@@ -137,7 +137,7 @@ TEST_P(AlignmentXyzTest, AlignShapesWithinOneVoxel) {
   const auto shape_size = 0.4F;
   const auto voxel_side_size = 0.5F;
   const auto half_shape_size = 0.5F * shape_size;
-  const PointXYZIF corner_coord{-half_shape_size, 0.0F, -half_shape_size, 0.0F};
+  const PointXYZI corner_coord{-half_shape_size, 0.0F, -half_shape_size, 0.0F};
   ASSERT_LT(shape_size, voxel_side_size);
   ASSERT_LT(corner_coord.x + shape_size + diff.x(), voxel_side_size) <<
     "Moving the shape will move it out of the voxel which is not allowed in this test.";

@@ -44,7 +44,7 @@ public:
 
 /// Initialize a pc, insert points in the vector and return it.
 sensor_msgs::msg::PointCloud2 make_pc(
-  const std::vector<autoware::common::types::PointXYZIF> & pts,
+  const std::vector<autoware::common::types::PointXYZI> & pts,
   const std::string & frame = "map");
 
 /// Create a point cloud with with a size of `size`. The magnitudes of fields ranges as follows:
@@ -78,7 +78,7 @@ sensor_msgs::msg::PointCloud2 make_pc_deviated(
   std::size_t size, std::size_t offset,
   const std::string & frame, float_t deviation);
 
-std::vector<autoware::common::types::PointXYZIF> get_cells(
+std::vector<autoware::common::types::PointXYZI> get_cells(
   const std::array<float_t, 4U> & center,
   float_t fixed_deviation);
 

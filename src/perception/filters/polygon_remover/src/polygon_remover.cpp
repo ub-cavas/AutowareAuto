@@ -58,7 +58,7 @@ PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
 {
   PointCloud2::SharedPtr cloud_filtered_ptr = std::make_shared<PointCloud2>();
 
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::types::PointXYZI;
   using autoware::common::lidar_utils::CloudModifier;
   using autoware::common::lidar_utils::CloudView;
 
@@ -68,7 +68,7 @@ PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
   CloudView cloud_view_in(*cloud_in_ptr);
   cloud_modifier_filtered.resize(static_cast<uint32_t>(cloud_view_in.size()));
 
-  auto point_is_outside_polygon = [&polyline_polygon](const PointXYZIF & point) {
+  auto point_is_outside_polygon = [&polyline_polygon](const PointXYZI & point) {
       auto result = CGAL::bounded_side_2(
         polyline_polygon.begin(), polyline_polygon.end(),
         PointCgal(point.x, point.y), K());
@@ -79,7 +79,7 @@ PointCloud2::SharedPtr PolygonRemover::remove_polygon_cgal_from_cloud(
     cloud_view_in.cbegin(),
     cloud_view_in.cend(),
     cloud_modifier_filtered.begin(),
-    [&point_is_outside_polygon](const PointXYZIF & point) {
+    [&point_is_outside_polygon](const PointXYZI & point) {
       return point_is_outside_polygon(point);
     });
 
