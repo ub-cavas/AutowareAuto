@@ -36,9 +36,9 @@ pcl::PointCloud<pcl::PointXYZ> make_pc(
   builtin_interfaces::msg::Time stamp)
 {
   using autoware::common::types::PointXYZIF;
-  using autoware::common::lidar_utils::CloudModifier;
+  using autoware::common::lidar_utils::CloudModifierRing;
   sensor_msgs::msg::PointCloud2 msg;
-  CloudModifier modifier{msg, "base_link"};
+  CloudModifierRing modifier{msg, "base_link"};
   modifier.reserve(points.size());
 
   for (auto point : points) {
