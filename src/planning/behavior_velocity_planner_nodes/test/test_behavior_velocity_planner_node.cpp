@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
 #include "behavior_velocity_planner_nodes/behavior_velocity_planner_node.hpp"
+#include "gtest/gtest.h"
 
-//  TEST(test_behavior_velocity_planner_node, test_hello) {
-//    EXPECT_EQ(autoware::behavior_velocity_planner_nodes::print_hello(), 0);
-//  }
+TEST(test_behavior_velocity_planner_node, test_hello)
+{
+  //    EXPECT_EQ(autoware::behavior_velocity_planner_nodes::print_hello(), 0);
+}

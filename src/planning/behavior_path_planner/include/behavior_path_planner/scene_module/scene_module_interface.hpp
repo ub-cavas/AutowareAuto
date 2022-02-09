@@ -20,17 +20,16 @@
 #include <string>
 #include <utility>
 
+#include "behavior_path_planner/data_manager.hpp"
+#include "behavior_path_planner/scene_module/approval_handler.hpp"
+#include "behavior_path_planner/turn_signal_decider.hpp"
+#include "behavior_path_planner/utilities.hpp"
+#include "behaviortree_cpp_v3/basic_types.h"
 #include "boost/optional.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
-#include "behaviortree_cpp_v3/basic_types.h"
-#include "rclcpp/rclcpp.hpp"
-
-#include "behavior_path_planner/data_manager.hpp"
-#include "behavior_path_planner/scene_module/approval_handler.hpp"
-#include "behavior_path_planner/utilities.hpp"
-#include "behavior_path_planner/turn_signal_decider.hpp"
 
 namespace behavior_path_planner
 {
@@ -67,8 +66,12 @@ class SceneModuleInterface
 {
 public:
   SceneModuleInterface(const std::string & name, rclcpp::Node & node)
-  : name_{name}, logger_{node.get_logger().get_child(name)}, clock_{node.get_clock()},
-    approval_handler_(node) {}
+  : name_{name},
+    logger_{node.get_logger().get_child(name)},
+    clock_{node.get_clock()},
+    approval_handler_(node)
+  {
+  }
 
   virtual ~SceneModuleInterface() = default;
 

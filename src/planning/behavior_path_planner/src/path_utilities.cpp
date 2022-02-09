@@ -12,18 +12,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/path_utilities.hpp"
+
 #include <algorithm>
 #include <utility>
 #include <vector>
 
-#include "behavior_path_planner/path_utilities.hpp"
 #include "autoware_utils/autoware_utils.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "interpolation/spline_interpolation.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "opencv2/opencv.hpp"
-#include "interpolation/spline_interpolation.hpp"
 #include "tf2/utils.h"
 
 namespace behavior_path_planner
@@ -59,7 +60,9 @@ std::vector<double> calcPathArcLengthArray(
  */
 double calcPathArcLength(const PathWithLaneId & path, size_t start, size_t end)
 {
-  if (path.points.size() < 2) {return 0.0;}
+  if (path.points.size() < 2) {
+    return 0.0;
+  }
 
   // swap
   bool is_negative_direction = false;
@@ -87,7 +90,9 @@ PathWithLaneId resamplePathWithSpline(const PathWithLaneId & path, double interv
   const auto base_points = calcPathArcLengthArray(path);
   const auto sampling_points = autoware_utils::arange(0.0, base_points.back(), interval);
 
-  if (base_points.empty() || sampling_points.empty()) {return path;}
+  if (base_points.empty() || sampling_points.empty()) {
+    return path;
+  }
 
   std::vector<double> base_x, base_y, base_z;
   for (const auto & p : path.points) {
@@ -132,7 +137,7 @@ PathWithLaneId resamplePathWithSpline(const PathWithLaneId & path, double interv
     }
     auto ref_idx = static_cast<size_t>(std::max(static_cast<int>(base_idx) - 1, 0));
     if (i == resampled_path.points.size() - 1) {
-      ref_idx = base_points.size() - 1;                                           // for last point
+      ref_idx = base_points.size() - 1;  // for last point
     }
     auto & p = resampled_path.points.at(i);
     p.lane_ids = path.points.at(ref_idx).lane_ids;
@@ -210,8 +215,7 @@ size_t getIdxByArclength(const PathWithLaneId & path, const Point & origin, cons
 }
 
 void clipPathLength(
-  PathWithLaneId & path, const Point base_pos, const double forward,
-  const double backward)
+  PathWithLaneId & path, const Point base_pos, const double forward, const double backward)
 {
   if (path.points.size() < 3) {
     return;
@@ -221,7 +225,8 @@ void clipPathLength(
   const auto end_idx = util::getIdxByArclength(path, base_pos, forward);
 
   const std::vector<PathPointWithLaneId> clipped_points{
-    path.points.begin() + static_cast<int32_t>(start_idx), path.points.begin() + static_cast<int32_t>(end_idx) + 1};
+    path.points.begin() + static_cast<int32_t>(start_idx),
+    path.points.begin() + static_cast<int32_t>(end_idx) + 1};
 
   path.points = clipped_points;
 }

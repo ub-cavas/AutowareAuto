@@ -18,8 +18,7 @@
 #include "autoware_utils/geometry/geometry.hpp"
 
 inline autoware_utils::LinearRing2d createVehicleFootprint(
-  const BehaviorPathPlannerParameters & vehicle_info,
-  const double margin = 0.0)
+  const BehaviorPathPlannerParameters & vehicle_info, const double margin = 0.0)
 {
   using autoware_utils::LinearRing2d;
   using autoware_utils::Point2d;

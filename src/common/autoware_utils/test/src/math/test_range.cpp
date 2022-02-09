@@ -14,13 +14,14 @@
 
 #include <vector>
 
-#include "gtest/gtest.h"
-
 #include "autoware_utils/math/range.hpp"
+#include "gtest/gtest.h"
 
 template<class T>
 void expect_near_vector(
-  const std::vector<T> & input, const std::vector<T> & expect, const T abs_error = 1e-6)
+  const std::vector<T> & input,
+  const std::vector<T> & expect,
+  const T abs_error = static_cast<T>(1e-6))
 {
   ASSERT_EQ(input.size(), expect.size()) << "unequal length";
 

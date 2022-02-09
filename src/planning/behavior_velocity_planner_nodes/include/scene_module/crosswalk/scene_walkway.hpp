@@ -15,21 +15,19 @@
 #ifndef SCENE_MODULE__CROSSWALK__SCENE_WALKWAY_HPP_
 #define SCENE_MODULE__CROSSWALK__SCENE_WALKWAY_HPP_
 
-#include <common/types.hpp>
+#include <lanelet2_core/LaneletMap.h>
+#include <lanelet2_routing/RoutingGraph.h>
+#include <lanelet2_routing/RoutingGraphContainer.h>
 
-#include "rclcpp/rclcpp.hpp"
+#include <common/types.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <rclcpp/rclcpp.hpp>
+#include <scene_module/crosswalk/scene_crosswalk.hpp>
+#include <scene_module/crosswalk/util.hpp>
+#include <scene_module/scene_module_interface.hpp>
 
 #include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 #include "sensor_msgs/msg/point_cloud2.hpp"
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_routing/RoutingGraph.h"
-#include "lanelet2_routing/RoutingGraphContainer.h"
-
-#include "scene_module/crosswalk/scene_crosswalk.hpp"
-#include "scene_module/crosswalk/util.hpp"
-#include "scene_module/scene_module_interface.hpp"
 
 namespace autoware
 {

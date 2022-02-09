@@ -15,9 +15,10 @@
 #ifndef BEHAVIOR_VELOCITY_PLANNER_NODES__PLANNER_MANAGER_HPP_
 #define BEHAVIOR_VELOCITY_PLANNER_NODES__PLANNER_MANAGER_HPP_
 
+#include <scene_module/scene_module_interface.hpp>
+
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
-#include <scene_module/scene_module_interface.hpp>
 
 #include <memory>
 #include <vector>

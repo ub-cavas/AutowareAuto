@@ -12,15 +12,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "boost/variant.hpp"
-
-#include "lanelet2_core/primitives/RegulatoryElement.h"
 #include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 
 #include <algorithm>
 #include <memory>
 #include <utility>
 #include <vector>
+
+#include "boost/variant.hpp"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
 
 namespace lanelet
 {
@@ -70,7 +70,10 @@ void RoadMarking::setRoadMarking(const LineString3d & road_marking)
   parameters()[RoleName::Refers] = {road_marking};
 }
 
-void RoadMarking::removeRoadMarking() {parameters()[RoleName::Refers] = {};}
+void RoadMarking::removeRoadMarking()
+{
+  parameters()[RoleName::Refers] = {};
+}
 
 #if __cplusplus < 201703L
 constexpr char RoadMarking::RuleName[];  // instantiate string in cpp file

@@ -12,7 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "utilization/interpolation/spline_interpolation.hpp"
+#include <utilization/interpolation/spline_interpolation.hpp>
+
+#include <vector>
+#include <algorithm>
+#include <functional>
 
 namespace autoware
 {
@@ -87,8 +91,11 @@ double SplineInterpolator::getValue(
 }
 
 bool SplineInterpolator::interpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value, const Method method)
+  const std::vector<double> & base_index,
+  const std::vector<double> & base_value,
+  const std::vector<double> & return_index,
+  std::vector<double> & return_value,
+  const Method method)
 {
   method_ = method;
 
@@ -112,7 +119,9 @@ bool SplineInterpolator::interpolate(
 bool SplineInterpolator::isIncrease(const std::vector<double> & x) const
 {
   for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
-    if (x[static_cast<size_t>(i)] >= x[static_cast<size_t>(i) + 1]) {return false;}
+    if (x[static_cast<size_t>(i)] >= x[static_cast<size_t>(i) + 1]) {
+      return false;
+    }
   }
   return true;
 }
@@ -120,13 +129,16 @@ bool SplineInterpolator::isIncrease(const std::vector<double> & x) const
 bool SplineInterpolator::isNonDecrease(const std::vector<double> & x) const
 {
   for (int i = 0; i < static_cast<int>(x.size()) - 1; ++i) {
-    if (x[static_cast<size_t>(i)] > x[static_cast<size_t>(i) + 1]) {return false;}
+    if (x[static_cast<size_t>(i)] > x[static_cast<size_t>(i) + 1]) {
+      return false;
+    }
   }
   return true;
 }
 
 bool SplineInterpolator::isValidInput(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
+  const std::vector<double> & base_index,
+  const std::vector<double> & base_value,
   const std::vector<double> & return_index,
   [[maybe_unused]] std::vector<double> & return_value) const
 {
@@ -247,7 +259,9 @@ std::vector<double> PreconditionedConjugateGradient::solve() const
   // r = rhs - Ax
   const std::vector<double> Ax = calcMatrixVectorProduct(x_in);
   std::transform(rhs_in.begin(), rhs_in.end(), Ax.begin(), r.begin(), std::minus<double>());
-  if (isConvergeL1(rhs_in, Ax)) {return x;}
+  if (isConvergeL1(rhs_in, Ax)) {
+    return x;
+  }
   // p0 = DiagonalScaling(r)
   // z0 = p0
   p = calcDiagonalScaling(r);
@@ -294,8 +308,7 @@ std::vector<double> PreconditionedConjugateGradient::solve() const
 
   if (num_iter == max_iter_) {
     RCLCPP_WARN(
-      rclcpp::get_logger(
-        "PreconditionedConjugateGradient"), "[interpolate (PCG)] unconverged!");
+      rclcpp::get_logger("PreconditionedConjugateGradient"), "[interpolate (PCG)] unconverged!");
   }
   return x;
 }
@@ -305,9 +318,13 @@ std::vector<double> PreconditionedConjugateGradient::calcMatrixVectorProduct(
 {
   std::vector<double> dst(src.size(), 0.0);
   for (size_t i = 0; i < src.size(); ++i) {
-    if (i != 0) {dst[i] += coef_prev_[i + 1] * src[i - 1];}
+    if (i != 0) {
+      dst[i] += coef_prev_[i + 1] * src[i - 1];
+    }
     dst[i] += coef_diag_[i + 1] * src[i];
-    if (i != (src.size() - 1)) {dst[i] += coef_next_[i + 1] * src[i + 1];}
+    if (i != (src.size() - 1)) {
+      dst[i] += coef_next_[i + 1] * src[i + 1];
+    }
   }
   return dst;
 }

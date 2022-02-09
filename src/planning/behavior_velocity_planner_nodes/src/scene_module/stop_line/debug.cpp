@@ -13,9 +13,9 @@
 // limitations under the License.
 
 #include "scene_module/stop_line/scene.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 namespace autoware
 {
@@ -93,7 +93,9 @@ visualization_msgs::msg::MarkerArray StopLineModule::createDebugMarkerArray()
   visualization_msgs::msg::MarkerArray debug_marker_array;
 
   appendMarkerArray(
-    createMarkers(debug_data_, static_cast<int32_t>(module_id_)), this->clock_->now(), &debug_marker_array);
+    createMarkers(debug_data_, static_cast<int32_t>(module_id_)),
+    this->clock_->now(),
+    &debug_marker_array);
 
   return debug_marker_array;
 }

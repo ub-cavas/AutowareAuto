@@ -16,23 +16,21 @@
  * Authors: Simon Thompson, Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_VISUALIZATION_VISUALIZATION_H
-#define LANELET2_EXTENSION_VISUALIZATION_VISUALIZATION_H
-
-#include "geometry_msgs/msg/polygon.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_core/primitives/Lanelet.h"
-
-#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
-#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
-#include "lanelet2_extension/utility/query.hpp"
+#ifndef LANELET2_EXTENSION__VISUALIZATION__VISUALIZATION_HPP_
+#define LANELET2_EXTENSION__VISUALIZATION__VISUALIZATION_HPP_
 
 #include <string>
 #include <vector>
+
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
+#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
+#include "lanelet2_extension/utility/query.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+#include "geometry_msgs/msg/polygon.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 namespace lanelet
 {
@@ -71,7 +69,9 @@ void lanelet2Polygon(const lanelet::ConstLanelet & ll, geometry_msgs::msg::Polyg
  * @param c          [color of the marker]
  */
 void initLineStringMarker(
-  visualization_msgs::msg::Marker * marker, const std::string frame_id, const std::string ns,
+  visualization_msgs::msg::Marker * marker,
+  const std::string frame_id,
+  const std::string ns,
   const std_msgs::msg::ColorRGBA c);
 
 /**
@@ -82,8 +82,10 @@ void initLineStringMarker(
  * @param lss        [thickness of the marker]
  */
 void pushLineStringMarker(
-  visualization_msgs::msg::Marker * marker, const lanelet::ConstLineString3d & ls,
-  const std_msgs::msg::ColorRGBA c, const float lss = 0.1);
+  visualization_msgs::msg::Marker * marker,
+  const lanelet::ConstLineString3d & ls,
+  const std_msgs::msg::ColorRGBA c,
+  const float lss = 0.1);
 
 /**
  * [initTrafficLightTriangleMarker initializes marker to visualize shape of traffic
@@ -94,7 +96,8 @@ void pushLineStringMarker(
  */
 void initTrafficLightTriangleMarker(
   visualization_msgs::msg::Marker * marker,
-  const std::string ns, const rclcpp::Duration duration = rclcpp::Duration(0, 0));
+  const std::string ns,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 
 /**
  * [pushTrafficLightTriangleMarker pushes marker vertices to visualize shape of traffic
@@ -105,8 +108,10 @@ void initTrafficLightTriangleMarker(
  * @param scale    [scale of the marker]
  */
 void pushTrafficLightTriangleMarker(
-  visualization_msgs::msg::Marker * marker, const lanelet::ConstLineString3d ls,
-  const std_msgs::msg::ColorRGBA cl, const double scale = 1.0);
+  visualization_msgs::msg::Marker * marker,
+  const lanelet::ConstLineString3d ls,
+  const std_msgs::msg::ColorRGBA cl,
+  const double scale = 1.0);
 
 /**
  * [laneletsBoundaryAsMarkerArray create marker array to visualize shape of
@@ -117,8 +122,10 @@ void pushTrafficLightTriangleMarker(
  * @return                [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletsBoundaryAsMarkerArray(
-  const lanelet::ConstLanelets & lanelets, const std_msgs::msg::ColorRGBA c,
-  const bool viz_centerline, const std::string & additional_namespace = "");
+  const lanelet::ConstLanelets & lanelets,
+  const std_msgs::msg::ColorRGBA c,
+  const bool viz_centerline,
+  const std::string & additional_namespace = "");
 /**
  * [laneletsAsTriangleMarkerArray create marker array to visualize shape of the
  * lanelet]
@@ -149,8 +156,10 @@ visualization_msgs::msg::MarkerArray laneletDirectionAsMarkerArray(
  * @return              [created marker array]
  */
 visualization_msgs::msg::MarkerArray lineStringsAsMarkerArray(
-  const std::vector<lanelet::ConstLineString3d> line_strings, const std::string name_space,
-  const std_msgs::msg::ColorRGBA c, const double lss);
+  const std::vector<lanelet::ConstLineString3d> line_strings,
+  const std::string name_space,
+  const std_msgs::msg::ColorRGBA c,
+  const double lss);
 
 /**
  * [autowareTrafficLightsAsMarkerArray creates marker array to visualize traffic
@@ -162,7 +171,8 @@ visualization_msgs::msg::MarkerArray lineStringsAsMarkerArray(
  */
 visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
-  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
+  const std_msgs::msg::ColorRGBA c,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0),
   const double scale = 1.0);
 
 /**
@@ -175,7 +185,8 @@ visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
  */
 visualization_msgs::msg::MarkerArray generateTrafficLightIdMaker(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
-  const std_msgs::msg::ColorRGBA c, const rclcpp::Duration duration = rclcpp::Duration(0, 0),
+  const std_msgs::msg::ColorRGBA c,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0),
   const double scale = 1.0);
 
 /**
@@ -188,8 +199,10 @@ visualization_msgs::msg::MarkerArray generateTrafficLightIdMaker(
  * @return              [created marker array]
  */
 visualization_msgs::msg::MarkerArray trafficLightsAsTriangleMarkerArray(
-  const std::vector<lanelet::TrafficLightConstPtr> tl_reg_elems, const std_msgs::msg::ColorRGBA c,
-  const rclcpp::Duration duration = rclcpp::Duration(0, 0), const double scale = 1.0);
+  const std::vector<lanelet::TrafficLightConstPtr> tl_reg_elems,
+  const std_msgs::msg::ColorRGBA c,
+  const rclcpp::Duration duration = rclcpp::Duration(0, 0),
+  const double scale = 1.0);
 
 /**
  * [detectionAreasAsMarkerArray creates marker array to visualize detection areas]
@@ -198,7 +211,8 @@ visualization_msgs::msg::MarkerArray trafficLightsAsTriangleMarkerArray(
  * @param  duration     [lifetime of the marker]
  */
 visualization_msgs::msg::MarkerArray detectionAreasAsMarkerArray(
-  const std::vector<lanelet::DetectionAreaConstPtr> & da_reg_elems, const std_msgs::msg::ColorRGBA c,
+  const std::vector<lanelet::DetectionAreaConstPtr> & da_reg_elems,
+  const std_msgs::msg::ColorRGBA c,
   const rclcpp::Duration duration = rclcpp::Duration(0, 0));
 
 /**
@@ -244,7 +258,8 @@ visualization_msgs::msg::MarkerArray parkingSpacesAsMarkerArray(
  * @return visualization_msgs::msg::MarkerArray
  */
 visualization_msgs::msg::MarkerArray generateLaneletIdMarker(
-  const lanelet::ConstLanelets road_lanelets, const std_msgs::msg::ColorRGBA c,
+  const lanelet::ConstLanelets road_lanelets,
+  const std_msgs::msg::ColorRGBA c,
   const double scale = 0.5);
 
 visualization_msgs::msg::MarkerArray obstaclePolygonsAsMarkerArray(
@@ -253,4 +268,4 @@ visualization_msgs::msg::MarkerArray obstaclePolygonsAsMarkerArray(
 }  // namespace visualization
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_VISUALIZATION_VISUALIZATION_H
+#endif  // LANELET2_EXTENSION__VISUALIZATION__VISUALIZATION_HPP_

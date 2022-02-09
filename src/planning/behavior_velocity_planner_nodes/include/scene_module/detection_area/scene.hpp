@@ -23,14 +23,11 @@
 
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
-
-#include "rclcpp/rclcpp.hpp"
-#include "tf2/LinearMath/Transform.h"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/regulatory_elements/detection_area.hpp"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
+#include "tf2/LinearMath/Transform.h"
 #include "utilization/boost_geometry_helper.hpp"
 
 namespace autoware
@@ -68,12 +65,13 @@ public:
 
 public:
   DetectionAreaModule(
-    const int64_t module_id, const lanelet::autoware::DetectionArea & detection_area_reg_elem,
-    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const int64_t module_id,
+    const lanelet::autoware::DetectionArea & detection_area_reg_elem,
+    const PlannerParam & planner_param,
+    const rclcpp::Logger logger,
     const rclcpp::Clock::SharedPtr clock);
 
-  bool modifyPathVelocity(
-    autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
+  bool modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
 
   visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
@@ -86,7 +84,8 @@ private:
 
   bool isOverLine(
     const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
-    const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const;
+    const geometry_msgs::msg::Pose & self_pose,
+    const geometry_msgs::msg::Pose & line_pose) const;
 
   bool hasEnoughBrakingDistance(
     const geometry_msgs::msg::Pose & self_pose, const geometry_msgs::msg::Pose & line_pose) const;
@@ -96,7 +95,8 @@ private:
     const PathIndexWithPose & stop_point) const;
 
   boost::optional<PathIndexWithPose> createTargetPoint(
-    const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const LineString2d & stop_line,
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+    const LineString2d & stop_line,
     const double margin) const;
 
   // Key Feature

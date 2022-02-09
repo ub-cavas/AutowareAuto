@@ -12,12 +12,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "utilization/util.hpp"
+
 #include <algorithm>
 #include <limits>
 #include <string>
 #include <vector>
-
-#include "utilization/util.hpp"
 
 namespace autoware
 {
@@ -49,7 +49,10 @@ geometry_msgs::msg::Quaternion getQuaternionFromYaw(double yaw)
 
 template<class T>
 bool calcClosestIndex(
-  const T & path, const geometry_msgs::msg::Pose & pose, int & closest, double dist_thr,
+  const T & path,
+  const geometry_msgs::msg::Pose & pose,
+  int & closest,
+  double dist_thr,
   double angle_thr)
 {
   double dist_squared_min = std::numeric_limits<double>::max();
@@ -60,13 +63,17 @@ bool calcClosestIndex(
     const double dist_squared = calcSquaredDist2d(getPose(path, i), pose);
 
     /* check distance threshold */
-    if (dist_squared > dist_thr * dist_thr) {continue;}
+    if (dist_squared > dist_thr * dist_thr) {
+      continue;
+    }
 
     /* check angle threshold */
     double yaw_i = tf2::getYaw(getPose(path, i).orientation);
     double yaw_diff = normalizeEulerAngle(yaw_pose - yaw_i);
 
-    if (std::fabs(yaw_diff) > angle_thr) {continue;}
+    if (std::fabs(yaw_diff) > angle_thr) {
+      continue;
+    }
 
     if (dist_squared < dist_squared_min) {
       dist_squared_min = dist_squared;
@@ -78,14 +85,23 @@ bool calcClosestIndex(
 }
 
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::Trajectory>(
-  const autoware_auto_planning_msgs::msg::Trajectory & path, const geometry_msgs::msg::Pose & pose,
-  int & closest, double dist_thr, double angle_thr);
+  const autoware_auto_planning_msgs::msg::Trajectory & path,
+  const geometry_msgs::msg::Pose & pose,
+  int & closest,
+  double dist_thr,
+  double angle_thr);
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::PathWithLaneId>(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Pose & pose,
-  int & closest, double dist_thr, double angle_thr);
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Pose & pose,
+  int & closest,
+  double dist_thr,
+  double angle_thr);
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::Path>(
-  const autoware_auto_planning_msgs::msg::Path & path, const geometry_msgs::msg::Pose & pose,
-  int & closest, double dist_thr, double angle_thr);
+  const autoware_auto_planning_msgs::msg::Path & path,
+  const geometry_msgs::msg::Pose & pose,
+  int & closest,
+  double dist_thr,
+  double angle_thr);
 
 template<class T>
 bool calcClosestIndex(
@@ -98,7 +114,9 @@ bool calcClosestIndex(
     const double dist_squared = calcSquaredDist2d(getPose(path, i), point);
 
     /* check distance threshold */
-    if (dist_squared > dist_thr * dist_thr) {continue;}
+    if (dist_squared > dist_thr * dist_thr) {
+      continue;
+    }
 
     if (dist_squared < dist_squared_min) {
       dist_squared_min = dist_squared;
@@ -109,14 +127,20 @@ bool calcClosestIndex(
   return closest != -1;
 }
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::Trajectory>(
-  const autoware_auto_planning_msgs::msg::Trajectory & path, const geometry_msgs::msg::Point & point,
-  int & closest, double dist_thr);
+  const autoware_auto_planning_msgs::msg::Trajectory & path,
+  const geometry_msgs::msg::Point & point,
+  int & closest,
+  double dist_thr);
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::PathWithLaneId>(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point,
-  int & closest, double dist_thr);
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Point & point,
+  int & closest,
+  double dist_thr);
 template bool calcClosestIndex<autoware_auto_planning_msgs::msg::Path>(
-  const autoware_auto_planning_msgs::msg::Path & path, const geometry_msgs::msg::Point & point,
-  int & closest, double dist_thr);
+  const autoware_auto_planning_msgs::msg::Path & path,
+  const geometry_msgs::msg::Point & point,
+  int & closest,
+  double dist_thr);
 
 geometry_msgs::msg::Pose transformRelCoordinate2D(
   const geometry_msgs::msg::Pose & target, const geometry_msgs::msg::Pose & origin)
@@ -158,8 +182,7 @@ geometry_msgs::msg::Pose transformAbsCoordinate2D(
 }
 
 double calcJudgeLineDistWithAccLimit(
-  const double velocity, const double max_stop_acceleration,
-  const double delay_response_time)
+  const double velocity, const double max_stop_acceleration, const double delay_response_time)
 {
   double judge_line_dist =
     (velocity * velocity) / (2.0 * (-max_stop_acceleration)) + delay_response_time * velocity;
@@ -167,8 +190,10 @@ double calcJudgeLineDistWithAccLimit(
 }
 
 double calcJudgeLineDistWithJerkLimit(
-  const double velocity, const double acceleration,
-  const double max_stop_jerk, const double max_stop_acceleration,
+  const double velocity,
+  const double acceleration,
+  const double max_stop_jerk,
+  const double max_stop_acceleration,
   const double delay_response_time)
 {
   if (velocity <= 0.0) {
@@ -183,23 +208,22 @@ double calcJudgeLineDistWithJerkLimit(
   const double t1 = delay_response_time;
   const double x1 = velocity * t1;
 
-  const double v2 = velocity +
-    (std::pow(max_stop_acceleration, 2) - std::pow(acceleration, 2)) / (2.0 * max_stop_jerk);
+  const double v2 = velocity + (std::pow(max_stop_acceleration, 2) - std::pow(acceleration, 2)) /
+    (2.0 * max_stop_jerk);
 
   if (v2 <= 0.0) {
     const double t2 = -1.0 *
       (max_stop_acceleration +
-      std::sqrt(acceleration * acceleration - 2.0 * max_stop_jerk * velocity)) / max_stop_jerk;
-    const double x2 = velocity * t2 +
-      acceleration * std::pow(t2, 2) / 2.0 +
-      max_stop_jerk * std::pow(t2, 3) / 6.0;
+      std::sqrt(acceleration * acceleration - 2.0 * max_stop_jerk * velocity)) /
+      max_stop_jerk;
+    const double x2 =
+      velocity * t2 + acceleration * std::pow(t2, 2) / 2.0 + max_stop_jerk * std::pow(t2, 3) / 6.0;
     return std::max(0.0, x1 + x2);
   }
 
   const double t2 = (max_stop_acceleration - acceleration) / max_stop_jerk;
-  const double x2 = velocity * t2 +
-    acceleration * std::pow(t2, 2) / 2.0 +
-    max_stop_jerk * std::pow(t2, 3) / 6.0;
+  const double x2 =
+    velocity * t2 + acceleration * std::pow(t2, 2) / 2.0 + max_stop_jerk * std::pow(t2, 3) / 6.0;
 
   const double x3 = -1.0 * std::pow(v2, 2) / (2.0 * max_stop_acceleration);
   return std::max(0.0, x1 + x2 + x3);

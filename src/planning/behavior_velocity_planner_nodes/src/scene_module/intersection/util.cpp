@@ -24,7 +24,6 @@
 #include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-
 #include "rclcpp/rclcpp.hpp"
 #include "utilization/interpolate.hpp"
 #include "utilization/util.hpp"
@@ -67,8 +66,10 @@ int insertPoint(
 }
 
 bool splineInterpolate(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const double interval,
-  autoware_auto_planning_msgs::msg::PathWithLaneId * output, const rclcpp::Logger logger)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input,
+  const double interval,
+  autoware_auto_planning_msgs::msg::PathWithLaneId * output,
+  const rclcpp::Logger logger)
 {
   *output = input;
 
@@ -155,7 +156,8 @@ bool splineInterpolate(
 }
 
 geometry_msgs::msg::Pose getAheadPose(
-  const size_t start_idx, const double ahead_dist,
+  const size_t start_idx,
+  const double ahead_dist,
   const autoware_auto_planning_msgs::msg::PathWithLaneId & path)
 {
   if (path.points.size() == 0) {
@@ -215,7 +217,8 @@ bool hasLaneId(const autoware_auto_planning_msgs::msg::PathPointWithLaneId & p, 
 }
 
 bool hasDuplicatedPoint(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Point & point)
 {
   for (const auto & path_point : path.points) {
     const auto & p = path_point.point.pose.position;
@@ -253,12 +256,16 @@ int getFirstPointInsidePolygons(
 }
 
 bool generateStopLine(
-  const int lane_id, const std::vector<lanelet::CompoundPolygon3d> detection_areas,
+  const int lane_id,
+  const std::vector<lanelet::CompoundPolygon3d> detection_areas,
   const std::shared_ptr<const PlannerData> & planner_data,
   const IntersectionModule::PlannerParam & planner_param,
   autoware_auto_planning_msgs::msg::PathWithLaneId * original_path,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & target_path, int * stop_line_idx,
-  int * pass_judge_line_idx, int * first_idx_inside_lane, const rclcpp::Logger logger)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & target_path,
+  int * stop_line_idx,
+  int * pass_judge_line_idx,
+  int * first_idx_inside_lane,
+  const rclcpp::Logger logger)
 {
   /* set judge line dist */
   const double current_vel = planner_data->current_velocity->twist.linear.x;
@@ -272,10 +279,8 @@ bool generateStopLine(
 
   const int margin_idx_dist =
     static_cast<int32_t>(std::ceil(planner_param.stop_line_margin / interval));
-  const int base2front_idx_dist =
-    static_cast<int32_t>(std::ceil(
-      planner_data->vehicle_constants_.offset_longitudinal_max /
-      interval));
+  const int base2front_idx_dist = static_cast<int32_t>(
+    std::ceil(planner_data->vehicle_constants_.offset_longitudinal_max / interval));
   const int pass_judge_idx_dist = static_cast<int32_t>(std::ceil(pass_judge_line_dist / interval));
 
   /* spline interpolation */
@@ -301,8 +306,8 @@ bool generateStopLine(
       return false;
     }
     // only for visualization
-    const auto first_inside_point = path_ip.points.at(
-      static_cast<uint64_t>(first_idx_ip_inside_lane)).point.pose;
+    const auto first_inside_point =
+      path_ip.points.at(static_cast<uint64_t>(first_idx_ip_inside_lane)).point.pose;
     planning_utils::calcClosestIndex(
       *original_path, first_inside_point, *first_idx_inside_lane, 10.0);
     if (*first_idx_inside_lane == 0) {
@@ -336,7 +341,8 @@ bool generateStopLine(
   if (has_prior_stopline || stop_idx_ip == pass_judge_idx_ip) {
     *pass_judge_line_idx = *stop_line_idx;
   } else {
-    const auto inserted_pass_judge_point = path_ip.points.at(static_cast<size_t>(pass_judge_idx_ip)).point.pose;
+    const auto inserted_pass_judge_point =
+      path_ip.points.at(static_cast<size_t>(pass_judge_idx_ip)).point.pose;
     *pass_judge_line_idx = util::insertPoint(inserted_pass_judge_point, original_path);
     ++(*stop_line_idx);  // stop index is incremented by judge line insertion
   }
@@ -345,13 +351,18 @@ bool generateStopLine(
     logger,
     "generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = "
     "%d, pass_judge_idx_ip = %d, has_prior_stopline = %d",
-    *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
+    *stop_line_idx,
+    *pass_judge_line_idx,
+    stop_idx_ip,
+    pass_judge_idx_ip,
+    has_prior_stopline);
 
   return true;
 }
 
 bool getStopPoseFromMap(
-  const int lane_id, geometry_msgs::msg::Point * stop_point,
+  const int lane_id,
+  geometry_msgs::msg::Point * stop_point,
   const std::shared_ptr<const PlannerData> & planner_data)
 {
   lanelet::ConstLanelet lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);
@@ -379,10 +390,13 @@ bool getStopPoseFromMap(
 }
 
 bool getObjectivePolygons(
-  lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
-  const int lane_id, const IntersectionModule::PlannerParam & planner_param,
+  lanelet::LaneletMapConstPtr lanelet_map_ptr,
+  lanelet::routing::RoutingGraphPtr routing_graph_ptr,
+  const int lane_id,
+  const IntersectionModule::PlannerParam & planner_param,
   std::vector<lanelet::CompoundPolygon3d> * conflicting_polygons,
-  std::vector<lanelet::CompoundPolygon3d> * objective_polygons, const rclcpp::Logger logger)
+  std::vector<lanelet::CompoundPolygon3d> * objective_polygons,
+  const rclcpp::Logger logger)
 {
   const auto & assigned_lanelet = lanelet_map_ptr->laneletLayer.get(lane_id);
 
@@ -420,8 +434,8 @@ bool getObjectivePolygons(
   const auto & conflicting_lanelets =
     lanelet::utils::getConflictingLanelets(routing_graph_ptr, assigned_lanelet);
 
-  lanelet::ConstLanelets                // conflicting lanes with "lane_id"
-    conflicting_lanelets_ex_yield_ego;  // excluding ego lanes and yield lanes
+  lanelet::ConstLanelets                      // conflicting lanes with "lane_id"
+    conflicting_lanelets_ex_yield_ego;        // excluding ego lanes and yield lanes
   lanelet::ConstLanelets objective_lanelets;  // final objective lanelets
 
   // exclude yield lanelets and ego lanelets from objective_lanelets
@@ -487,10 +501,15 @@ bool getObjectivePolygons(
     }
   }
   RCLCPP_DEBUG(
-    logger, "getObjectivePolygons() conflict = %s yield = %s ego = %s", ss_c.str().c_str(),
-    ss_y.str().c_str(), ss_e.str().c_str());
+    logger,
+    "getObjectivePolygons() conflict = %s yield = %s ego = %s",
+    ss_c.str().c_str(),
+    ss_y.str().c_str(),
+    ss_e.str().c_str());
   RCLCPP_DEBUG(
-    logger, "getObjectivePolygons() object = %s object_sequences = %s", ss_o.str().c_str(),
+    logger,
+    "getObjectivePolygons() object = %s object_sequences = %s",
+    ss_o.str().c_str(),
     ss_os.str().c_str());
   return true;
 }

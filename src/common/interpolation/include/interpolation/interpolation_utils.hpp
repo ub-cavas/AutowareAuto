@@ -52,7 +52,8 @@ inline bool isNotDecreasing(const std::vector<double> & x)
 }
 
 inline void validateInput(
-  const std::vector<double> & base_keys, const std::vector<double> & base_values,
+  const std::vector<double> & base_keys,
+  const std::vector<double> & base_values,
   const std::vector<double> & query_keys)
 {
   // when vectors are empty
@@ -69,10 +70,7 @@ inline void validateInput(
   }
 
   // when indices are not sorted
-  if (
-    !isIncreasing(base_keys) ||
-    !isNotDecreasing(query_keys))
-  {
+  if (!isIncreasing(base_keys) || !isNotDecreasing(query_keys)) {
     throw std::invalid_argument("Either base_keys or query_keys is not sorted.");
   }
 

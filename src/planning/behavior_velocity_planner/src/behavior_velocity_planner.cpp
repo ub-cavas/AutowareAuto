@@ -22,7 +22,6 @@ namespace planning
 {
 namespace behavior_velocity_planner
 {
-
 int32_t BehaviorVelocityPlannerManager::print_hello()
 {
   std::cout << "Hello World" << std::endl;

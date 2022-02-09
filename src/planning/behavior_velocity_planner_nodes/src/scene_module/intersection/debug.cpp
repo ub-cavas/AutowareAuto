@@ -17,7 +17,6 @@
 
 #include "scene_module/intersection/scene_intersection.hpp"
 #include "scene_module/intersection/scene_merge_from_private_road.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 
@@ -59,7 +58,9 @@ visualization_msgs::msg::MarkerArray createLaneletPolygonsMarkerArray(
       point.z = p.z();
       marker.points.push_back(point);
     }
-    if (!marker.points.empty()) {marker.points.push_back(marker.points.front());}
+    if (!marker.points.empty()) {
+      marker.points.push_back(marker.points.front());
+    }
     msg.markers.push_back(marker);
   }
 
@@ -95,7 +96,9 @@ visualization_msgs::msg::MarkerArray createPolygonMarkerArray(
     point.z = p.z;
     marker.points.push_back(point);
   }
-  if (!marker.points.empty()) {marker.points.push_back(marker.points.front());}
+  if (!marker.points.empty()) {
+    marker.points.push_back(marker.points.front());
+  }
   msg.markers.push_back(marker);
 
   return msg;
@@ -303,7 +306,12 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
 
   appendMarkerArray(
     createPolygonMarkerArray(
-      debug_data_.stuck_vehicle_detect_area, "stuck_vehicle_detect_area", lane_id_, 0.0f, 0.5f, 0.5f),
+      debug_data_.stuck_vehicle_detect_area,
+      "stuck_vehicle_detect_area",
+      lane_id_,
+      0.0f,
+      0.5f,
+      0.5f),
     current_time,
     &debug_marker_array);
 
@@ -333,12 +341,14 @@ visualization_msgs::msg::MarkerArray IntersectionModule::createDebugMarkerArray(
 
     if (debug_data_.stop_required) {
       appendMarkerArray(
-        createVirtualStopWallMarkerArray(debug_data_.stop_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
+        createVirtualStopWallMarkerArray(
+          debug_data_.stop_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
         current_time,
         &debug_marker_array);
     } else {
       appendMarkerArray(
-        createVirtualSlowWallMarkerArray(debug_data_.slow_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
+        createVirtualSlowWallMarkerArray(
+          debug_data_.slow_wall_pose, static_cast<int32_t>(lane_id_), "intersection"),
         current_time,
         &debug_marker_array);
     }

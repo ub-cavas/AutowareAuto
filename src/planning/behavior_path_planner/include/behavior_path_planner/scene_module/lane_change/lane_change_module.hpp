@@ -20,15 +20,15 @@
 #include <utility>
 #include <vector>
 
-#include "autoware_auto_planning_msgs/msg/path.hpp"
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
+#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
+#include "behavior_path_planner/utilities.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/utils.h"
 
-#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
-#include "behavior_path_planner/utilities.hpp"
+#include "autoware_auto_planning_msgs/msg/path.hpp"
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace behavior_path_planner
 {
@@ -75,8 +75,7 @@ class LaneChangeModule : public SceneModuleInterface
 {
 public:
   LaneChangeModule(
-    const std::string & name, rclcpp::Node & node,
-    const LaneChangeParameters & parameters);
+    const std::string & name, rclcpp::Node & node, const LaneChangeParameters & parameters);
 
   BehaviorModuleOutput run() override;
 
@@ -103,10 +102,10 @@ private:
   lanelet::ConstLanelets getLaneChangeLanes(
     const lanelet::ConstLanelets & current_lanes, const double lane_change_lane_length) const;
   std::pair<bool, bool> getSafePath(
-    const lanelet::ConstLanelets & lane_change_lanes, const double check_distance,
+    const lanelet::ConstLanelets & lane_change_lanes,
+    const double check_distance,
     LaneChangePath & safe_path) const;
-  TurnSignalInfo getTurnSignalAndDistance(
-    const PathWithLaneId & path) const;
+  TurnSignalInfo getTurnSignalAndDistance(const PathWithLaneId & path) const;
 
   void updateLaneChangeStatus();
 

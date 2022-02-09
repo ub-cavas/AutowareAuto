@@ -21,7 +21,7 @@
 #ifndef UTILIZATION__INTERPOLATION__CUBIC_SPLINE_HPP_
 #define UTILIZATION__INTERPOLATION__CUBIC_SPLINE_HPP_
 
-
+#include <Eigen/Eigen>
 #include <common/types.hpp>
 
 #include <algorithm>
@@ -31,15 +31,12 @@
 #include <string>
 #include <vector>
 
-#include "Eigen/Eigen"
-
 namespace autoware
 {
 namespace planning
 {
 namespace behavior_velocity_planner_nodes
 {
-
 using std::int64_t;
 
 static std::vector<double> vec_diff(const std::vector<double> & input)

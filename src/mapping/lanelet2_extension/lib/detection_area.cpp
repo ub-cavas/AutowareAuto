@@ -16,15 +16,15 @@
  * Authors: Ryohsuke Mitsudome
  */
 
-#include "boost/variant.hpp"
-
-#include "lanelet2_core/primitives/RegulatoryElement.h"
 #include "lanelet2_extension/regulatory_elements/detection_area.hpp"
 
 #include <algorithm>
-#include <utility>
 #include <memory>
+#include <utility>
 #include <vector>
+
+#include "boost/variant.hpp"
+#include "lanelet2_core/primitives/RegulatoryElement.h"
 
 namespace lanelet
 {
@@ -85,7 +85,9 @@ ConstPolygons3d getConstPoly(const RuleParameterMap & params, RoleName role)
 }
 
 RegulatoryElementDataPtr constructDetectionAreaData(
-  Id id, const AttributeMap & attributes, const Polygons3d & detectionAreas,
+  Id id,
+  const AttributeMap & attributes,
+  const Polygons3d & detectionAreas,
   const LineString3d & stopLine)
 {
   RuleParameterMap rpm = {{RoleNameString::Refers, toRuleParameters(detectionAreas)}};
@@ -112,7 +114,9 @@ DetectionArea::DetectionArea(const lanelet::RegulatoryElementDataPtr & data)
 }
 
 DetectionArea::DetectionArea(
-  Id id, const AttributeMap & attributes, const Polygons3d & detectionAreas,
+  Id id,
+  const AttributeMap & attributes,
+  const Polygons3d & detectionAreas,
   const LineString3d & stopLine)
 : DetectionArea(constructDetectionAreaData(id, attributes, detectionAreas, stopLine))
 {
@@ -122,7 +126,10 @@ ConstPolygons3d DetectionArea::detectionAreas() const
 {
   return getConstPoly(parameters(), RoleName::Refers);
 }
-Polygons3d DetectionArea::detectionAreas() {return getPoly(parameters(), RoleName::Refers);}
+Polygons3d DetectionArea::detectionAreas()
+{
+  return getPoly(parameters(), RoleName::Refers);
+}
 
 void DetectionArea::addDetectionArea(const Polygon3d & primitive)
 {
@@ -149,7 +156,10 @@ void DetectionArea::setStopLine(const LineString3d & stopLine)
   parameters()[RoleName::RefLine] = {stopLine};
 }
 
-void DetectionArea::removeStopLine() {parameters()[RoleName::RefLine] = {};}
+void DetectionArea::removeStopLine()
+{
+  parameters()[RoleName::RefLine] = {};
+}
 
 #if __cplusplus < 201703L
 constexpr char DetectionArea::RuleName[];  // instantiate string in cpp file

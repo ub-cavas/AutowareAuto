@@ -12,14 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/avoidance/debug.hpp"
+
 #include <string>
 #include <vector>
 
-#include "tf2/utils.h"
-
 #include "behavior_path_planner/path_utilities.hpp"
-#include "behavior_path_planner/scene_module/avoidance/debug.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "tf2/utils.h"
 
 namespace marker_utils
 {
@@ -27,16 +27,24 @@ using behavior_path_planner::util::calcPathArcLengthArray;
 using behavior_path_planner::util::shiftPose;
 using visualization_msgs::msg::Marker;
 
-inline int64_t bitShift(int64_t original_id) {return original_id << (sizeof(int32_t) * 8 / 2);}
+inline int64_t bitShift(int64_t original_id)
+{
+  return original_id << (sizeof(int32_t) * 8 / 2);
+}
 
 MarkerArray createShiftLengthMarkerArray(
   const std::vector<double> shift_distance,
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & reference, const std::string & ns,
-  const float r, const float g, const float b)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & reference,
+  const std::string & ns,
+  const float r,
+  const float g,
+  const float b)
 {
   MarkerArray ma;
 
-  if (shift_distance.size() != reference.points.size()) {return ma;}
+  if (shift_distance.size() != reference.points.size()) {
+    return ma;
+  }
 
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
 
@@ -62,8 +70,12 @@ MarkerArray createShiftLengthMarkerArray(
 }
 
 MarkerArray createAvoidPointMarkerArray(
-  const AvoidPointArray & shift_points, const std::string & ns, const float r, const float g,
-  const float b, const float w)
+  const AvoidPointArray & shift_points,
+  const std::string & ns,
+  const float r,
+  const float g,
+  const float b,
+  const float w)
 {
   int32_t id = 0;
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -119,8 +131,13 @@ MarkerArray createAvoidPointMarkerArray(
 }
 
 MarkerArray createShiftPointMarkerArray(
-  const ShiftPointArray & shift_points, const double base_shift, const std::string & ns,
-  const float r, const float g, const float b, const float w)
+  const ShiftPointArray & shift_points,
+  const double base_shift,
+  const std::string & ns,
+  const float r,
+  const float g,
+  const float b,
+  const float w)
 {
   int32_t id = 0;
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -177,8 +194,11 @@ MarkerArray createShiftPointMarkerArray(
 }
 
 MarkerArray createLaneletsAreaMarkerArray(
-  const std::vector<lanelet::ConstLanelet> & lanelets, const std::string & ns, const float r,
-  const float g, const float b)
+  const std::vector<lanelet::ConstLanelet> & lanelets,
+  const std::string & ns,
+  const float r,
+  const float g,
+  const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -213,7 +233,8 @@ MarkerArray createLaneletsAreaMarkerArray(
 }
 
 MarkerArray createLaneletPolygonsMarkerArray(
-  const std::vector<lanelet::CompoundPolygon3d> & polygons, const std::string & ns,
+  const std::vector<lanelet::CompoundPolygon3d> & polygons,
+  const std::string & ns,
   const int64_t lane_id)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -251,8 +272,12 @@ MarkerArray createLaneletPolygonsMarkerArray(
 }
 
 MarkerArray createPolygonMarkerArray(
-  const Polygon & polygon, const std::string & ns, const int32_t lane_id, const float r,
-  const float g, const float b)
+  const Polygon & polygon,
+  const std::string & ns,
+  const int32_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -285,8 +310,12 @@ MarkerArray createPolygonMarkerArray(
 }
 
 MarkerArray createObjectsMarkerArray(
-  const behavior_path_planner::PredictedObjects & objects, const std::string & ns, const int64_t lane_id, const float r,
-  const float g, const float b)
+  const behavior_path_planner::PredictedObjects & objects,
+  const std::string & ns,
+  const int64_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
   MarkerArray msg;
@@ -342,8 +371,12 @@ MarkerArray createAvoidanceObjectsMarkerArray(
 }
 
 MarkerArray createPathMarkerArray(
-  const PathWithLaneId & path, const std::string & ns, const int64_t lane_id, const float r,
-  const float g, const float b)
+  const PathWithLaneId & path,
+  const std::string & ns,
+  const int64_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   const auto arclength = calcPathArcLengthArray(path);
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -418,7 +451,11 @@ MarkerArray createVirtualWallMarkerArray(
 }
 
 MarkerArray createPoseLineMarkerArray(
-  const Pose & pose, const std::string & ns, const int32_t id, const float r, const float g,
+  const Pose & pose,
+  const std::string & ns,
+  const int32_t id,
+  const float r,
+  const float g,
   const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -457,7 +494,11 @@ MarkerArray createPoseLineMarkerArray(
 }
 
 MarkerArray createPoseMarkerArray(
-  const Pose & pose, const std::string & ns, const int32_t id, const float r, const float g,
+  const Pose & pose,
+  const std::string & ns,
+  const int32_t id,
+  const float r,
+  const float g,
   const float b)
 {
   const auto current_time = rclcpp::Clock{RCL_ROS_TIME}.now();

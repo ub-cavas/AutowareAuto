@@ -15,23 +15,24 @@
 #ifndef UTILIZATION__UTIL_HPP_
 #define UTILIZATION__UTIL_HPP_
 
+#include <tf2/utils.h>
+
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
 #include <common/types.hpp>
+
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_planning_msgs/msg/path.hpp>
+#include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <geometry_msgs/msg/quaternion.hpp>
+#include <visualization_msgs/msg/marker.hpp>
 
 #include <string>
 #include <vector>
-
-#include "autoware_auto_planning_msgs/msg/path.hpp"
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory.hpp"
-#include "autoware_auto_planning_msgs/msg/trajectory_point.hpp"
-#include "boost/geometry.hpp"
-#include "boost/geometry/geometries/linestring.hpp"
-#include "boost/geometry/geometries/point_xy.hpp"
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/quaternion.hpp"
-#include "tf2/utils.h"
-#include "visualization_msgs/msg/marker.hpp"
 
 namespace autoware
 {
@@ -42,9 +43,15 @@ namespace behavior_velocity_planner_nodes
 using Point2d = boost::geometry::model::d2::point_xy<double>;
 namespace planning_utils
 {
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p) {return p;}
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Point & p)
+{
+  return p;
+}
 
-inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p) {return p.position;}
+inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::Pose & p)
+{
+  return p.position;
+}
 
 inline geometry_msgs::msg::Point getPoint(const geometry_msgs::msg::PoseStamped & p)
 {
@@ -56,12 +63,14 @@ inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg
   return p.pose.position;
 }
 
-inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg::PathPointWithLaneId & p)
+inline geometry_msgs::msg::Point getPoint(
+  const autoware_auto_planning_msgs::msg::PathPointWithLaneId & p)
 {
   return p.point.pose.position;
 }
 
-inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg::TrajectoryPoint & p)
+inline geometry_msgs::msg::Point getPoint(
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & p)
 {
   geometry_msgs::msg::Point point;
   point.set__x(p.pose.position.x);
@@ -69,7 +78,8 @@ inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg
   point.set__z(p.pose.position.z);
   return point;
 }
-inline geometry_msgs::msg::Pose getPose(const autoware_auto_planning_msgs::msg::Path & path, size_t idx)
+inline geometry_msgs::msg::Pose getPose(
+  const autoware_auto_planning_msgs::msg::Path & path, size_t idx)
 {
   return path.points.at(idx).pose;
 }
@@ -86,9 +96,15 @@ inline geometry_msgs::msg::Pose getPose(
   return traj.points.at(idx).pose;
 }
 
-inline int64_t bitShift(int64_t original_id) {return original_id << (sizeof(int32_t) * 8 / 2);}
+inline int64_t bitShift(int64_t original_id)
+{
+  return original_id << (sizeof(int32_t) * 8 / 2);
+}
 
-inline double square(const double & a) {return a * a;}
+inline double square(const double & a)
+{
+  return a * a;
+}
 double normalizeEulerAngle(double euler);
 geometry_msgs::msg::Quaternion getQuaternionFromYaw(double yaw);
 

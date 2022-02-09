@@ -16,17 +16,17 @@
  * Authors: Simon Thompson, Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_UTILITY_MESSAGE_CONVERSION_H
-#define LANELET2_EXTENSION_UTILITY_MESSAGE_CONVERSION_H
+#ifndef LANELET2_EXTENSION__UTILITY__MESSAGE_CONVERSION_HPP_
+#define LANELET2_EXTENSION__UTILITY__MESSAGE_CONVERSION_HPP_
+
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
+#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
 #include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/point32.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
-#include "lanelet2_core/LaneletMap.h"
-
-#include "lanelet2_routing/RoutingGraph.h"
-#include "lanelet2_traffic_rules/TrafficRulesFactory.h"
 
 namespace lanelet
 {
@@ -50,7 +50,8 @@ void toBinMsg(const lanelet::LaneletMapPtr & map, autoware_auto_mapping_msgs::ms
  */
 void fromBinMsg(const autoware_auto_mapping_msgs::msg::HADMapBin & msg, lanelet::LaneletMapPtr map);
 void fromBinMsg(
-  const autoware_auto_mapping_msgs::msg::HADMapBin & msg, lanelet::LaneletMapPtr map,
+  const autoware_auto_mapping_msgs::msg::HADMapBin & msg,
+  lanelet::LaneletMapPtr map,
   lanelet::traffic_rules::TrafficRulesPtr * traffic_rules,
   lanelet::routing::RoutingGraphPtr * routing_graph);
 
@@ -85,8 +86,7 @@ void toLaneletPoint(const geometry_msgs::msg::Point & src, lanelet::ConstPoint3d
  * @param geom_poly [converted geometry_msgs point]
  */
 void toGeomMsgPoly(
-  const lanelet::ConstPolygon3d & ll_poly,
-  geometry_msgs::msg::Polygon * geom_poly);
+  const lanelet::ConstPolygon3d & ll_poly, geometry_msgs::msg::Polygon * geom_poly);
 
 /**
  * [toGeomMsgPt32 converts Eigen::Vector3d(lanelet:BasicPoint3d to
@@ -100,4 +100,4 @@ void toGeomMsgPt32(const Eigen::Vector3d & src, geometry_msgs::msg::Point32 * ds
 }  // namespace utils
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_UTILITY_MESSAGE_CONVERSION_H
+#endif  // LANELET2_EXTENSION__UTILITY__MESSAGE_CONVERSION_HPP_

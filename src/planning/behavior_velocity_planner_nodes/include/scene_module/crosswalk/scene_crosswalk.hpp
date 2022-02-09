@@ -20,19 +20,16 @@
 #include "boost/geometry.hpp"
 #include "boost/geometry/geometries/linestring.hpp"
 #include "boost/geometry/geometries/point_xy.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
-#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
-#include "sensor_msgs/msg/point_cloud2.hpp"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/crosswalk/util.hpp"
 #include "scene_module/scene_module_interface.hpp"
+
+#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
+#include "sensor_msgs/msg/point_cloud2.hpp"
 
 namespace autoware
 {
@@ -55,12 +52,13 @@ public:
   };
 
   CrosswalkModule(
-    const int64_t module_id, const lanelet::ConstLanelet & crosswalk,
-    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const int64_t module_id,
+    const lanelet::ConstLanelet & crosswalk,
+    const PlannerParam & planner_param,
+    const rclcpp::Logger logger,
     const rclcpp::Clock::SharedPtr clock);
 
-  bool modifyPathVelocity(
-    autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
+  bool modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
 
   visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
@@ -79,7 +77,8 @@ private:
     const boost::geometry::model::polygon<boost::geometry::model::d2::point_xy<double>> & polygon,
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr & objects_ptr,
     const sensor_msgs::msg::PointCloud2::ConstSharedPtr & no_ground_pointcloud_ptr,
-    autoware_auto_planning_msgs::msg::PathWithLaneId & output, bool * insert_stop);
+    autoware_auto_planning_msgs::msg::PathWithLaneId & output,
+    bool * insert_stop);
 
   bool createVehiclePathPolygonInCrosswalk(
     const autoware_auto_planning_msgs::msg::PathWithLaneId & input,

@@ -18,8 +18,8 @@
 #include <set>
 #include <string>
 #include <vector>
-#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 
+#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/util.hpp"
 
@@ -69,8 +69,9 @@ IntersectionModuleManager::IntersectionModuleManager(rclcpp::Node & node)
   const std::string ns(getModuleName());
   auto & p = planner_param_;
 
-//  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(node).getVehicleInfo();
-  const auto vehicle_info = common::vehicle_constants_manager::declare_and_get_vehicle_constants(node);
+  //  const auto vehicle_info = vehicle_info_util::VehicleInfoUtil(node).getVehicleInfo();
+  const auto vehicle_info =
+    common::vehicle_constants_manager::declare_and_get_vehicle_constants(node);
   p.state_transit_margin_time = node.declare_parameter(ns + ".state_transit_margin_time", 2.0);
   p.decel_velocity = node.declare_parameter(ns + ".decel_velocity", 30.0 / 3.6);
   p.path_expand_width = node.declare_parameter(ns + ".path_expand_width", 2.0);
@@ -114,14 +115,22 @@ void IntersectionModuleManager::launchNewModules(
       if (lane_location == "private" && next_lane_location != "private") {
         registerModule(
           std::make_shared<MergeFromPrivateRoadModule>(
-            module_id, lane_id, planner_data_, planner_param_,
-            logger_.get_child("merge_from_private_road_module"), clock_));
+            module_id,
+            lane_id,
+            planner_data_,
+            planner_param_,
+            logger_.get_child("merge_from_private_road_module"),
+            clock_));
       }
     }
 
     registerModule(
       std::make_shared<IntersectionModule>(
-        module_id, lane_id, planner_data_, planner_param_, logger_.get_child("intersection_module"),
+        module_id,
+        lane_id,
+        planner_data_,
+        planner_param_,
+        logger_.get_child("intersection_module"),
         clock_));
   }
 }

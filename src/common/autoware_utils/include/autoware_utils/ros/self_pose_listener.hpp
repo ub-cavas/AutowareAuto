@@ -17,10 +17,9 @@
 
 #include <memory>
 
-#include "rclcpp/rclcpp.hpp"
-
 #include "autoware_utils/geometry/geometry.hpp"
 #include "autoware_utils/ros/transform_listener.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace autoware_utils
 {

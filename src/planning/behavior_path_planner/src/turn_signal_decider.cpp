@@ -12,21 +12,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/turn_signal_decider.hpp"
+
 #include <limits>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "autoware_utils/autoware_utils.hpp"
-
-#include "behavior_path_planner/turn_signal_decider.hpp"
 #include "behavior_path_planner/utilities.hpp"
 
 namespace behavior_path_planner
 {
 TurnSignalDecider::TurnSignal TurnSignalDecider::getTurnSignal(
-  const PathWithLaneId & path, const Pose & current_pose,
+  const PathWithLaneId & path,
+  const Pose & current_pose,
   const RouteHandler & route_handler,
-  const TurnSignal & turn_signal_plan, const double plan_distance) const
+  const TurnSignal & turn_signal_plan,
+  const double plan_distance) const
 {
   auto turn_signal = turn_signal_plan;
 
@@ -36,7 +39,9 @@ TurnSignalDecider::TurnSignal TurnSignalDecider::getTurnSignal(
   const auto intersection_turn_signal = intersection_result.first;
   const auto intersection_distance = intersection_result.second;
 
-  if (intersection_distance < plan_distance) {turn_signal.data = intersection_turn_signal.data;}
+  if (intersection_distance < plan_distance) {
+    turn_signal.data = intersection_turn_signal.data;
+  }
 
   // Set time stamp
   auto clock{rclcpp::Clock{RCL_ROS_TIME}};
@@ -47,8 +52,7 @@ TurnSignalDecider::TurnSignal TurnSignalDecider::getTurnSignal(
 }
 
 std::pair<TurnSignalDecider::TurnSignal, double> TurnSignalDecider::getIntersectionTurnSignal(
-  const PathWithLaneId & path, const Pose & current_pose,
-  const RouteHandler & route_handler) const
+  const PathWithLaneId & path, const Pose & current_pose, const RouteHandler & route_handler) const
 {
   TurnSignal turn_signal;
   turn_signal.data = TurnSignal::NONE;
@@ -63,8 +67,7 @@ std::pair<TurnSignalDecider::TurnSignal, double> TurnSignalDecider::getIntersect
   util::FrenetCoordinate3d vehicle_pose_frenet;
   if (!util::convertToFrenetCoordinate3d(path, current_pose.position, &vehicle_pose_frenet)) {
     RCLCPP_ERROR_THROTTLE(
-      logger_, clock, 5000,
-      "failed to convert vehicle pose into frenet coordinate");
+      logger_, clock, 5000, "failed to convert vehicle pose into frenet coordinate");
     return std::make_pair(turn_signal, distance);
   }
 
@@ -93,7 +96,12 @@ std::pair<TurnSignalDecider::TurnSignal, double> TurnSignalDecider::getIntersect
         lane.attributeOr("turn_signal_distance", std::numeric_limits<double>::max()) <
         distance_from_vehicle_front)
       {
-        if (1 < path_point.lane_ids.size() && lane.id() == static_cast<int64_t>(path_point.lane_ids.back())) {continue;}
+        if (
+          1 < path_point.lane_ids.size() &&
+          lane.id() == static_cast<int64_t>(path_point.lane_ids.back()))
+        {
+          continue;
+        }
       }
       if (lane.attributeOr("turn_direction", std::string("none")) == "left") {
         turn_signal.data = TurnSignal::LEFT;

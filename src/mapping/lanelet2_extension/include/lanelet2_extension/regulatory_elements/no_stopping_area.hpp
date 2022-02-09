@@ -15,8 +15,8 @@
 #ifndef LANELET2_EXTENSION__REGULATORY_ELEMENTS__NO_STOPPING_AREA_HPP_
 #define LANELET2_EXTENSION__REGULATORY_ELEMENTS__NO_STOPPING_AREA_HPP_
 
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_core/primitives/Lanelet.h"
@@ -35,7 +35,9 @@ public:
   //! Directly construct a stop line from its required rule parameters.
   //! Might modify the input data in oder to get correct tags.
   static Ptr make(
-    Id id, const AttributeMap & attributes, const Polygons3d & no_stopping_areas,
+    Id id,
+    const AttributeMap & attributes,
+    const Polygons3d & no_stopping_areas,
     const Optional<LineString3d> & stopLine = {})
   {
     return Ptr{new NoStoppingArea(id, attributes, no_stopping_areas, stopLine)};
@@ -82,7 +84,9 @@ private:
   // when loading a map with this regulatory element
   friend class lanelet::RegisterRegulatoryElement<NoStoppingArea>;
   NoStoppingArea(
-    Id id, const AttributeMap & attributes, const Polygons3d & no_stopping_area,
+    Id id,
+    const AttributeMap & attributes,
+    const Polygons3d & no_stopping_area,
     const Optional<LineString3d> & stopLine);
   explicit NoStoppingArea(const lanelet::RegulatoryElementDataPtr & data);
 };

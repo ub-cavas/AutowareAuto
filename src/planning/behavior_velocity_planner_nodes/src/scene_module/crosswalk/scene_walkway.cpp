@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/crosswalk/scene_walkway.hpp"
+
 #include <cmath>
 
-#include "scene_module/crosswalk/scene_walkway.hpp"
 #include "utilization/util.hpp"
 
 namespace autoware
@@ -30,8 +31,10 @@ using Line = bg::model::linestring<Point>;
 using std::int32_t;
 
 WalkwayModule::WalkwayModule(
-  const int64_t module_id, const lanelet::ConstLanelet & walkway,
-  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const int64_t module_id,
+  const lanelet::ConstLanelet & walkway,
+  const PlannerParam & planner_param,
+  const rclcpp::Logger logger,
   const rclcpp::Clock::SharedPtr clock)
 : SceneModuleInterface(module_id, logger, clock),
   module_id_(module_id),
@@ -41,8 +44,7 @@ WalkwayModule::WalkwayModule(
   planner_param_ = planner_param;
 }
 
-bool WalkwayModule::modifyPathVelocity(
-  autoware_auto_planning_msgs::msg::PathWithLaneId * path)
+bool WalkwayModule::modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path)
 {
   debug_data_ = DebugData();
   debug_data_.base_link2front = planner_data_->vehicle_constants_.offset_longitudinal_max;
@@ -64,15 +66,27 @@ bool WalkwayModule::modifyPathVelocity(
       getStopLineFromMap(static_cast<int32_t>(module_id_), planner_data_, "crosswalk_id");
     if (!!stop_line_opt) {
       if (!insertTargetVelocityPoint(
-          input, stop_line_opt.get(), planner_param_.stop_margin, 0.0, *planner_data_, *path,
-          debug_data_, first_stop_path_point_index_))
+          input,
+          stop_line_opt.get(),
+          planner_param_.stop_margin,
+          0.0,
+          *planner_data_,
+          *path,
+          debug_data_,
+          first_stop_path_point_index_))
       {
         return false;
       }
     } else {
       if (!insertTargetVelocityPoint(
-          input, polygon, planner_param_.stop_line_distance + planner_param_.stop_margin, 0.0,
-          *planner_data_, *path, debug_data_, first_stop_path_point_index_))
+          input,
+          polygon,
+          planner_param_.stop_line_distance + planner_param_.stop_margin,
+          0.0,
+          *planner_data_,
+          *path,
+          debug_data_,
+          first_stop_path_point_index_))
       {
         return false;
       }
@@ -86,7 +100,9 @@ bool WalkwayModule::modifyPathVelocity(
     const double distance = bg::distance(stop_pose, self_pose);
     const double distance_threshold = 1.0;
     debug_data_.stop_judge_range = distance_threshold;
-    if (distance < distance_threshold && planner_data_->isVehicleStopped()) {state_ = State::STOP;}
+    if (distance < distance_threshold && planner_data_->isVehicleStopped()) {
+      state_ = State::STOP;
+    }
     return true;
   } else if (state_ == State::STOP) {
     if (planner_data_->isVehicleStopped()) {

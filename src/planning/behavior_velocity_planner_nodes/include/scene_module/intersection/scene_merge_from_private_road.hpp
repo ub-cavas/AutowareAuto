@@ -19,24 +19,22 @@
 #include <string>
 #include <vector>
 
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
 #include "rclcpp/rclcpp.hpp"
+#include "scene_module/intersection/scene_intersection.hpp"
+#include "scene_module/scene_module_interface.hpp"
+#include "utilization/boost_geometry_helper.hpp"
 
 #include "autoware_auto_perception_msgs/msg/predicted_object.hpp"
 #include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/point.hpp"
 
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-
-#include "scene_module/intersection/scene_intersection.hpp"
-#include "scene_module/scene_module_interface.hpp"
-#include "utilization/boost_geometry_helper.hpp"
-
 /**
- * @brief This module makes sure that vehicle will stop before entering public road from private road.
- *        This module is meant to be registered with intersection module, which looks at intersecting lanes
- *        before entering intersection
+ * @brief This module makes sure that vehicle will stop before entering public road from private
+ * road. This module is meant to be registered with intersection module, which looks at intersecting
+ * lanes before entering intersection
  */
 
 namespace autoware
@@ -103,8 +101,11 @@ private:
 
 public:
   MergeFromPrivateRoadModule(
-    const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-    const IntersectionModule::PlannerParam & planner_param, const rclcpp::Logger logger,
+    const int64_t module_id,
+    const int64_t lane_id,
+    std::shared_ptr<const PlannerData> planner_data,
+    const IntersectionModule::PlannerParam & planner_param,
+    const rclcpp::Logger logger,
     const rclcpp::Clock::SharedPtr clock);
 
   /**

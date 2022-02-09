@@ -42,8 +42,11 @@ namespace behavior_velocity_planner_nodes
 namespace bg = boost::geometry;
 
 BlindSpotModule::BlindSpotModule(
-  const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const int64_t module_id,
+  const int64_t lane_id,
+  std::shared_ptr<const PlannerData> planner_data,
+  const PlannerParam & planner_param,
+  const rclcpp::Logger logger,
   const rclcpp::Clock::SharedPtr clock)
 : SceneModuleInterface(module_id, logger, clock),
   lane_id_(lane_id),
@@ -61,8 +64,7 @@ BlindSpotModule::BlindSpotModule(
     !(assigned_lanelet.regulatoryElementsAs<const lanelet::TrafficLight>().empty());
 }
 
-bool BlindSpotModule::modifyPathVelocity(
-  autoware_auto_planning_msgs::msg::PathWithLaneId * path)
+bool BlindSpotModule::modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path)
 {
   debug_data_ = DebugData();
 
@@ -82,9 +84,8 @@ bool BlindSpotModule::modifyPathVelocity(
   /* set stop-line and stop-judgement-line for base_link */
   int stop_line_idx = -1;
   int pass_judge_line_idx = -1;
-  const auto straight_lanelets = getStraightLanelets(
-    lanelet_map_ptr, routing_graph_ptr,
-    static_cast<int32_t>(lane_id_));
+  const auto straight_lanelets =
+    getStraightLanelets(lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_));
   if (!generateStopLine(straight_lanelets, path, &stop_line_idx, &pass_judge_line_idx)) {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(
       logger_, *clock_, 1000 /* ms */, "[BlindSpotModule::run] setStopLineIdx fail");
@@ -109,9 +110,9 @@ bool BlindSpotModule::modifyPathVelocity(
   }
 
   /* get debug info */
-  const auto stop_line_pose =
-    util::getAheadPose(
-    static_cast<size_t>(stop_line_idx), planner_data_->vehicle_constants_.offset_longitudinal_max,
+  const auto stop_line_pose = util::getAheadPose(
+    static_cast<size_t>(stop_line_idx),
+    planner_data_->vehicle_constants_.offset_longitudinal_max,
     *path);
   debug_data_.virtual_wall_pose = stop_line_pose;
   debug_data_.stop_point_pose = path->points.at(static_cast<size_t>(stop_line_idx)).point.pose;
@@ -128,7 +129,7 @@ bool BlindSpotModule::modifyPathVelocity(
   if (current_state == State::GO && is_over_pass_judge_line) {
     RCLCPP_DEBUG(logger_, "over the pass judge line. no plan needed.");
     *path = input_path;  // reset path
-    return true;  // no plan needed.
+    return true;         // no plan needed.
   }
 
   /* get dynamic object */
@@ -136,7 +137,11 @@ bool BlindSpotModule::modifyPathVelocity(
 
   /* calculate dynamic collision around detection area */
   bool has_obstacle = checkObstacleInBlindSpot(
-    lanelet_map_ptr, routing_graph_ptr, *path, objects_ptr, static_cast<size_t>(closest_idx),
+    lanelet_map_ptr,
+    routing_graph_ptr,
+    *path,
+    objects_ptr,
+    static_cast<size_t>(closest_idx),
     stop_line_pose);
   state_machine_.setStateWithMarginTime(
     has_obstacle ? State::STOP : State::GO, logger_.get_child("state_machine"), *clock_);
@@ -166,7 +171,8 @@ boost::optional<int> BlindSpotModule::getFirstPointConflictingLanelets(
     const auto line = (turn_direction_ == TurnDirection::LEFT) ? ll.leftBound() : ll.rightBound();
     for (size_t i = 0; i < path.points.size(); ++i) {
       const auto vehicle_edge = getVehicleEdge(
-        path.points.at(i).point.pose, planner_data_->vehicle_constants_.vehicle_width,
+        path.points.at(i).point.pose,
+        planner_data_->vehicle_constants_.vehicle_width,
         planner_data_->vehicle_constants_.offset_longitudinal_max);
       if (bg::intersects(toHybrid(to2D(line)), toHybrid(vehicle_edge))) {
         first_idx_conflicting_lanelets =
@@ -185,7 +191,8 @@ boost::optional<int> BlindSpotModule::getFirstPointConflictingLanelets(
 
 bool BlindSpotModule::generateStopLine(
   const lanelet::ConstLanelets straight_lanelets,
-  autoware_auto_planning_msgs::msg::PathWithLaneId * path, int * stop_line_idx,
+  autoware_auto_planning_msgs::msg::PathWithLaneId * path,
+  int * stop_line_idx,
   int * pass_judge_line_idx) const
 {
   /* set judge line dist */
@@ -199,10 +206,8 @@ bool BlindSpotModule::generateStopLine(
   constexpr double interval = 0.2;
   const int margin_idx_dist =
     static_cast<int32_t>(std::ceil(planner_param_.stop_line_margin / interval));
-  const int base2front_idx_dist =
-    static_cast<int32_t>(std::ceil(
-      planner_data_->vehicle_constants_.offset_longitudinal_max /
-      interval));
+  const int base2front_idx_dist = static_cast<int32_t>(
+    std::ceil(planner_data_->vehicle_constants_.offset_longitudinal_max / interval));
   const int pass_judge_idx_dist = static_cast<int32_t>(std::ceil(pass_judge_line_dist / interval));
 
   /* spline interpolation */
@@ -263,7 +268,11 @@ bool BlindSpotModule::generateStopLine(
     logger_,
     "generateStopLine() : stop_idx = %d, pass_judge_idx = %d, stop_idx_ip = %d, "
     "pass_judge_idx_ip = %d, has_prior_stopline = %d",
-    *stop_line_idx, *pass_judge_line_idx, stop_idx_ip, pass_judge_idx_ip, has_prior_stopline);
+    *stop_line_idx,
+    *pass_judge_line_idx,
+    stop_idx_ip,
+    pass_judge_idx_ip,
+    has_prior_stopline);
 
   return true;
 }
@@ -272,12 +281,13 @@ void BlindSpotModule::cutPredictPathWithDuration(
   autoware_auto_perception_msgs::msg::PredictedObjects * objects_ptr, const double time_thr) const
 {
   const rclcpp::Time current_time = clock_->now();
-  for (auto & object : objects_ptr->objects) {                    // each objects
+  for (auto & object : objects_ptr->objects) {                         // each objects
     for (auto & predicted_path : object.kinematics.predicted_paths) {  // each predicted paths
       rosidl_runtime_cpp::BoundedVector<geometry_msgs::msg::Pose_<std::allocator<void>>, 100> vp;
       for (size_t i = 0; i < predicted_path.path.size(); ++i) {  // each path points
         auto & predicted_pose = predicted_path.path.at(i);
-        rclcpp::Time pose_time_calculated = rclcpp::Time(objects_ptr->header.stamp) +
+        rclcpp::Time pose_time_calculated =
+          rclcpp::Time(objects_ptr->header.stamp) +
           rclcpp::Duration(
           static_cast<int32_t>(i) * predicted_path.time_step.sec,
           static_cast<uint32_t>(i) * predicted_path.time_step.nanosec);
@@ -291,7 +301,8 @@ void BlindSpotModule::cutPredictPathWithDuration(
 }
 
 int BlindSpotModule::insertPoint(
-  const int insert_idx_ip, const autoware_auto_planning_msgs::msg::PathWithLaneId path_ip,
+  const int insert_idx_ip,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId path_ip,
   autoware_auto_planning_msgs::msg::PathWithLaneId * inout_path) const
 {
   double insert_point_s = 0.0;
@@ -324,7 +335,8 @@ int BlindSpotModule::insertPoint(
 }
 
 bool BlindSpotModule::checkObstacleInBlindSpot(
-  lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
+  lanelet::LaneletMapConstPtr lanelet_map_ptr,
+  lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
   const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr,
   const size_t closest_idx,
@@ -482,7 +494,8 @@ boost::optional<BlindSpotPolygons> BlindSpotModule::generateBlindSpotPolygons(
 }
 
 lanelet::LineString2d BlindSpotModule::getVehicleEdge(
-  const geometry_msgs::msg::Pose & vehicle_pose, const double vehicle_width,
+  const geometry_msgs::msg::Pose & vehicle_pose,
+  const double vehicle_width,
   const double base_link2front) const
 {
   lanelet::LineString2d vehicle_edge;
@@ -518,11 +531,11 @@ bool BlindSpotModule::isTargetObjectType(
 {
   if (
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::PEDESTRIAN ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE)
+    autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE)
   {
     return true;
   }
@@ -546,7 +559,8 @@ boost::optional<geometry_msgs::msg::Point> BlindSpotModule::getStartPointFromLan
 }
 
 lanelet::ConstLanelets BlindSpotModule::getStraightLanelets(
-  lanelet::LaneletMapConstPtr lanelet_map_ptr, lanelet::routing::RoutingGraphPtr routing_graph_ptr,
+  lanelet::LaneletMapConstPtr lanelet_map_ptr,
+  lanelet::routing::RoutingGraphPtr routing_graph_ptr,
   const int lane_id)
 {
   lanelet::ConstLanelets straight_lanelets;
@@ -599,11 +613,20 @@ void BlindSpotModule::StateMachine::setStateWithMarginTime(
   RCLCPP_ERROR(logger, "Unsuitable state. ignore request.");
 }
 
-void BlindSpotModule::StateMachine::setState(State state) {state_ = state;}
+void BlindSpotModule::StateMachine::setState(State state)
+{
+  state_ = state;
+}
 
-void BlindSpotModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
+void BlindSpotModule::StateMachine::setMarginTime(const double t)
+{
+  margin_time_ = t;
+}
 
-BlindSpotModule::State BlindSpotModule::StateMachine::getState() {return state_;}
+BlindSpotModule::State BlindSpotModule::StateMachine::getState()
+{
+  return state_;
+}
 }  // namespace behavior_velocity_planner_nodes
 }  // namespace planning
 }  // namespace autoware

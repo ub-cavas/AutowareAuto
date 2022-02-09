@@ -22,13 +22,10 @@
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_routing/RoutingGraph.h"
-
+#include "rclcpp/rclcpp.hpp"
 #include "scene_module/scene_module_interface.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 
@@ -76,12 +73,13 @@ public:
 
 public:
   StopLineModule(
-    const int64_t module_id, const lanelet::ConstLineString3d & stop_line,
-    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const int64_t module_id,
+    const lanelet::ConstLineString3d & stop_line,
+    const PlannerParam & planner_param,
+    const rclcpp::Logger logger,
     const rclcpp::Clock::SharedPtr clock);
 
-  bool modifyPathVelocity(
-    autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
+  bool modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
 
   visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 

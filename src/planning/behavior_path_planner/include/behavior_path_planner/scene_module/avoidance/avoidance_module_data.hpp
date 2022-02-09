@@ -19,12 +19,14 @@
 #include <string>
 #include <vector>
 
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/predicted_objects_msg.hpp"
-#include "autoware_auto_planning_msgs/msg/path.hpp"
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
 
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+
+#include "autoware_auto_planning_msgs/msg/path.hpp"
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace behavior_path_planner
 {

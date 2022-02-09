@@ -12,26 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
+
+#include <algorithm>
 #include <memory>
 #include <string>
-#include <algorithm>
 
-#include "opencv2/opencv.hpp"
-
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "tf2/utils.h"
-
-#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
+#include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/scene_module/side_shift/util.hpp"
 #include "behavior_path_planner/utilities.hpp"
-#include "behavior_path_planner/path_utilities.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "opencv2/opencv.hpp"
+#include "tf2/utils.h"
 
 
 namespace
 {
 lanelet::ConstLanelets calcLaneAroundPose(
   const std::shared_ptr<const behavior_path_planner::PlannerData> & planner_data,
-  const geometry_msgs::msg::Pose & pose, const double backward_length)
+  const geometry_msgs::msg::Pose & pose,
+  const double backward_length)
 {
   const auto & p = planner_data->parameters;
   const auto & route_handler = planner_data->route_handler;
@@ -127,15 +127,19 @@ BT::NodeStatus SideShiftModule::updateState()
         return true;
       } else {
         const auto max_planned_shift_length = std::max_element(
-          prev_output_.shift_length.begin(), prev_output_.shift_length.end(),
-          [](double a, double b) {return std::abs(a) < std::abs(b);});
+          prev_output_.shift_length.begin(), prev_output_.shift_length.end(), [](double a,
+          double b) {
+            return std::abs(a) < std::abs(b);
+          });
         return std::abs(*max_planned_shift_length) < 0.01;
       }
     } ();
 
 
   RCLCPP_DEBUG(
-    getLogger(), "ESS::updateState() : no_request = %d, no_shifted_plan = %d", no_request,
+    getLogger(),
+    "ESS::updateState() : no_request = %d, no_shifted_plan = %d",
+    no_request,
     no_shifted_plan);
 
   if (no_request && no_shifted_plan) {
@@ -185,8 +189,8 @@ bool SideShiftModule::addShiftPoint()
   // remove shift points on a far position.
   for (int i = static_cast<int>(shift_points.size()) - 1; i >= 0; --i) {
     const auto dist_to_start = calcLongitudinal(shift_points.at(static_cast<size_t>(i)));
-    const double remove_threshold = std::max(
-      planner_data_->self_velocity->twist.linear.x * 1.0 /* sec */, 2.0 /* m */);
+    const double remove_threshold =
+      std::max(planner_data_->self_velocity->twist.linear.x * 1.0 /* sec */, 2.0 /* m */);
     if (dist_to_start > remove_threshold) {  // TODO(Horibe)
       shift_points.erase(shift_points.begin() + i);
     }
@@ -283,7 +287,9 @@ void SideShiftModule::onLateralOffset(const LateralOffset::ConstSharedPtr latera
   const double new_lateral_offset = lateral_offset_msg->lateral_offset;
 
   RCLCPP_DEBUG(
-    getLogger(), "onLateralOffset start : lateral offset current = %f, new = &%f", lateral_offset_,
+    getLogger(),
+    "onLateralOffset start : lateral offset current = %f, new = &%f",
+    lateral_offset_,
     new_lateral_offset);
 
   // offset is not changed.
@@ -303,8 +309,8 @@ ShiftPoint SideShiftModule::calcShiftPoint() const
   const auto ego_speed = std::abs(planner_data_->self_velocity->twist.linear.x);
   const auto ego_point = planner_data_->self_pose->pose.position;
 
-  const double dist_to_start = std::max(
-    p.min_distance_to_start_shifting, ego_speed * p.time_to_start_shifting);
+  const double dist_to_start =
+    std::max(p.min_distance_to_start_shifting, ego_speed * p.time_to_start_shifting);
 
   const double dist_to_end = [&]() {
       const double shift_length = lateral_offset_ - getClosestShiftLength();
@@ -313,8 +319,11 @@ ShiftPoint SideShiftModule::calcShiftPoint() const
       const double shifting_distance = std::max(jerk_shifting_distance, p.min_shifting_distance);
       const double dist_to_end = dist_to_start + shifting_distance;
       RCLCPP_DEBUG(
-        getLogger(), "min_distance_to_start_shifting = %f, dist_to_start = %f, dist_to_end = %f",
-        parameters_.min_distance_to_start_shifting, dist_to_start, dist_to_end);
+        getLogger(),
+        "min_distance_to_start_shifting = %f, dist_to_start = %f, dist_to_end = %f",
+        parameters_.min_distance_to_start_shifting,
+        dist_to_start,
+        dist_to_end);
       return dist_to_end;
     } ();
 
@@ -330,7 +339,9 @@ ShiftPoint SideShiftModule::calcShiftPoint() const
 
 double SideShiftModule::getClosestShiftLength() const
 {
-  if (prev_output_.shift_length.empty()) {return 0.0;}
+  if (prev_output_.shift_length.empty()) {
+    return 0.0;
+  }
 
   const auto ego_point = planner_data_->self_pose->pose.position;
   const auto closest = autoware_utils::findNearestIndex(prev_output_.path.points, ego_point);
@@ -352,8 +363,13 @@ void SideShiftModule::adjustDrivableArea(ShiftedPath * path) const
   {
     const auto & p = planner_data_->parameters;
     path->path.drivable_area = util::generateDrivableArea(
-      extended_lanelets, *(planner_data_->self_pose), p.drivable_area_width, p.drivable_area_height,
-      p.drivable_area_resolution, p.vehicle_length, *(planner_data_->route_handler));
+      extended_lanelets,
+      *(planner_data_->self_pose),
+      p.drivable_area_width,
+      p.drivable_area_height,
+      p.drivable_area_resolution,
+      p.vehicle_length,
+      *(planner_data_->route_handler));
   }
 }
 
@@ -400,7 +416,9 @@ PathWithLaneId SideShiftModule::calcCenterLinePath(
   RCLCPP_DEBUG(
     getLogger(),
     "p.backward_path_length = %f, longest_dist_to_shift_point = %f, backward_length = %f",
-    p.backward_path_length, longest_dist_to_shift_point, backward_length);
+    p.backward_path_length,
+    longest_dist_to_shift_point,
+    backward_length);
 
   const lanelet::ConstLanelets current_lanes =
     calcLaneAroundPose(planner_data, pose.pose, backward_length);

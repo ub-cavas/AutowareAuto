@@ -16,17 +16,18 @@
  * Authors: Kenji Miyake, Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_UTILITY_UTILITIES_H
-#define LANELET2_EXTENSION_UTILITY_UTILITIES_H
+#ifndef LANELET2_EXTENSION__UTILITY__UTILITIES_HPP_
+#define LANELET2_EXTENSION__UTILITY__UTILITIES_HPP_
 
 #include <rclcpp/rclcpp.hpp>
-#include "geometry_msgs/msg/point.hpp"
-#include "geometry_msgs/msg/pose.hpp"
+
+#include <map>
 
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingGraph.h"
 
-#include <map>
+#include "geometry_msgs/msg/point.hpp"
+#include "geometry_msgs/msg/pose.hpp"
 
 namespace lanelet
 {
@@ -49,7 +50,8 @@ lanelet::ConstLanelets getExpandedLanelets(
  * doesn't have enough quality
  */
 void overwriteLaneletsCenterline(
-  lanelet::LaneletMapPtr lanelet_map, const double resolution = 5.0,
+  lanelet::LaneletMapPtr lanelet_map,
+  const double resolution = 5.0,
   const bool force_overwrite = false);
 
 lanelet::ConstLanelets getConflictingLanelets(
@@ -77,10 +79,11 @@ lanelet::CompoundPolygon3d getPolygonFromArcLength(
 double getLaneletAngle(
   const lanelet::ConstLanelet & lanelet, const geometry_msgs::msg::Point & search_point);
 bool isInLanelet(
-  const geometry_msgs::msg::Pose & current_pose, const lanelet::ConstLanelet & lanelet,
+  const geometry_msgs::msg::Pose & current_pose,
+  const lanelet::ConstLanelet & lanelet,
   const double radius = 0.0);
 
 }  // namespace utils
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_UTILITY_UTILITIES_H
+#endif  // LANELET2_EXTENSION__UTILITY__UTILITIES_HPP_

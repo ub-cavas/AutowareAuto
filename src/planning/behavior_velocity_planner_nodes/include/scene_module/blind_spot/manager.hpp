@@ -19,11 +19,10 @@
 #include <memory>
 
 #include "rclcpp/rclcpp.hpp"
-
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-
 #include "scene_module/blind_spot/scene.hpp"
 #include "scene_module/scene_module_interface.hpp"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace autoware
 {

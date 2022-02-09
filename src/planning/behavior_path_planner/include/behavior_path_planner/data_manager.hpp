@@ -18,24 +18,23 @@
 #include <memory>
 #include <string>
 
+#include "behavior_path_planner/parameters.hpp"
+#include "behavior_path_planner/predicted_objects_msg.hpp"
+#include "behavior_path_planner/route_handler.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
+#include "rclcpp/rclcpp.hpp"
 
-#include "behavior_path_planner/predicted_objects_msg.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist_stamped.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-#include "behavior_path_planner/parameters.hpp"
-#include "behavior_path_planner/route_handler.hpp"
 
 namespace behavior_path_planner
 {
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::PoseStamped;
 using geometry_msgs::msg::TwistStamped;
-using autoware_auto_planning_msgs::msg::PathWithLaneId;
 struct BoolStamped
 {
   explicit BoolStamped(bool in_data)

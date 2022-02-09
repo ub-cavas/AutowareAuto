@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
+
 #include <algorithm>
 #include <limits>
 #include <memory>
@@ -19,15 +21,14 @@
 #include <utility>
 #include <vector>
 
-#include "autoware_auto_perception_msgs/msg/object_classification.hpp"
 #include "autoware_utils/autoware_utils.hpp"
+#include "behavior_path_planner/path_utilities.hpp"
+#include "behavior_path_planner/scene_module/lane_change/util.hpp"
+#include "behavior_path_planner/utilities.hpp"
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 
-#include "behavior_path_planner/path_utilities.hpp"
-#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
-#include "behavior_path_planner/scene_module/lane_change/util.hpp"
-#include "behavior_path_planner/utilities.hpp"
+#include "autoware_auto_perception_msgs/msg/object_classification.hpp"
 
 namespace behavior_path_planner
 {
@@ -70,7 +71,9 @@ void LaneChangeModule::onExit()
 
 bool LaneChangeModule::isExecutionRequested() const
 {
-  if (current_state_ == BT::NodeStatus::RUNNING) {return true;}
+  if (current_state_ == BT::NodeStatus::RUNNING) {
+    return true;
+  }
 
   // Get lane change lanes
   const auto current_lanes = getCurrentLanes();
@@ -87,7 +90,9 @@ bool LaneChangeModule::isExecutionRequested() const
 
 bool LaneChangeModule::isExecutionReady() const
 {
-  if (current_state_ == BT::NodeStatus::RUNNING) {return true;}
+  if (current_state_ == BT::NodeStatus::RUNNING) {
+    return true;
+  }
 
   // Get lane change lanes
   const auto current_lanes = getCurrentLanes();
@@ -139,8 +144,13 @@ BehaviorModuleOutput LaneChangeModule::plan()
     const double height = common_parameters.drivable_area_height;
     const double resolution = common_parameters.drivable_area_resolution;
     path.drivable_area = util::generateDrivableArea(
-      lanes, *(planner_data_->self_pose), width, height, resolution,
-      common_parameters.vehicle_length, *route_handler);
+      lanes,
+      *(planner_data_->self_pose),
+      width,
+      height,
+      resolution,
+      common_parameters.vehicle_length,
+      *route_handler);
   }
 
   if (isAbortConditionSatisfied()) {
@@ -238,14 +248,21 @@ PathWithLaneId LaneChangeModule::getReferencePath() const
     num_lane_change * (common_parameters.minimum_lane_change_length + buffer);
 
   reference_path = route_handler->getCenterLinePath(
-    current_lanes, current_pose, common_parameters.backward_path_length,
-    common_parameters.forward_path_length, common_parameters);
+    current_lanes,
+    current_pose,
+    common_parameters.backward_path_length,
+    common_parameters.forward_path_length,
+    common_parameters);
   reference_path = route_handler->setDecelerationVelocity(
     reference_path, current_lanes, parameters_.lane_change_prepare_duration, lane_change_buffer);
   reference_path.drivable_area = util::generateDrivableArea(
-    current_lanes, *planner_data_->self_pose, common_parameters.drivable_area_width,
-    common_parameters.drivable_area_height, common_parameters.drivable_area_resolution,
-    common_parameters.vehicle_length, *planner_data_->route_handler);
+    current_lanes,
+    *planner_data_->self_pose,
+    common_parameters.drivable_area_width,
+    common_parameters.drivable_area_height,
+    common_parameters.drivable_area_resolution,
+    common_parameters.vehicle_length,
+    *planner_data_->route_handler);
 
   return reference_path;
 }
@@ -264,7 +281,9 @@ lanelet::ConstLanelets LaneChangeModule::getCurrentLanes() const
 
   // For current_lanes with desired length
   return route_handler->getLaneletSequence(
-    current_lane, current_pose, common_parameters.backward_path_length,
+    current_lane,
+    current_pose,
+    common_parameters.backward_path_length,
     common_parameters.forward_path_length);
 }
 
@@ -300,7 +319,8 @@ lanelet::ConstLanelets LaneChangeModule::getLaneChangeLanes(
 }
 
 std::pair<bool, bool> LaneChangeModule::getSafePath(
-  const lanelet::ConstLanelets & lane_change_lanes, const double check_distance,
+  const lanelet::ConstLanelets & lane_change_lanes,
+  const double check_distance,
   LaneChangePath & safe_path) const
 {
   std::vector<LaneChangePath> valid_paths;
@@ -315,8 +335,13 @@ std::pair<bool, bool> LaneChangeModule::getSafePath(
   if (!lane_change_lanes.empty()) {
     // find candidate paths
     const auto lane_change_paths = lane_change_utils::getLaneChangePaths(
-      *route_handler, current_lanes, lane_change_lanes, current_pose, current_twist,
-      common_parameters, parameters_);
+      *route_handler,
+      current_lanes,
+      lane_change_lanes,
+      current_pose,
+      current_twist,
+      common_parameters,
+      parameters_);
 
     // get lanes used for detection
     lanelet::ConstLanelets check_lanes;
@@ -331,15 +356,29 @@ std::pair<bool, bool> LaneChangeModule::getSafePath(
 
     // select valid path
     valid_paths = lane_change_utils::selectValidPaths(
-      lane_change_paths, current_lanes, check_lanes, route_handler->getOverallGraph(), current_pose,
-      route_handler->isInGoalRouteSection(current_lanes.back()), route_handler->getGoalPose());
+      lane_change_paths,
+      current_lanes,
+      check_lanes,
+      route_handler->getOverallGraph(),
+      current_pose,
+      route_handler->isInGoalRouteSection(current_lanes.back()),
+      route_handler->getGoalPose());
 
-    if (valid_paths.empty()) {return std::make_pair(false, false);}
+    if (valid_paths.empty()) {
+      return std::make_pair(false, false);
+    }
 
     // select safe path
     bool found_safe_path = lane_change_utils::selectSafePath(
-      valid_paths, current_lanes, check_lanes, planner_data_->dynamic_object, current_pose,
-      current_twist, common_parameters.vehicle_width, parameters_, &safe_path);
+      valid_paths,
+      current_lanes,
+      check_lanes,
+      planner_data_->dynamic_object,
+      current_pose,
+      current_twist,
+      common_parameters.vehicle_width,
+      parameters_,
+      &safe_path);
     return std::make_pair(true, found_safe_path);
   }
 
@@ -362,8 +401,7 @@ TurnSignalInfo LaneChangeModule::getTurnSignalAndDistance(const PathWithLaneId &
   auto clock{rclcpp::Clock{RCL_ROS_TIME}};
   if (!convertToFrenetCoordinate3d(path, current_pose.position, &vehicle_pose_frenet)) {
     RCLCPP_ERROR_THROTTLE(
-      getLogger(), clock, 5000,
-      "failed to convert vehicle pose into frenet coordinate");
+      getLogger(), clock, 5000, "failed to convert vehicle pose into frenet coordinate");
     return {};
   }
 
@@ -421,7 +459,10 @@ TurnSignalInfo LaneChangeModule::getTurnSignalAndDistance(const PathWithLaneId &
   return {};
 }
 
-bool LaneChangeModule::isSafe() const {return status_.is_safe;}
+bool LaneChangeModule::isSafe() const
+{
+  return status_.is_safe;
+}
 
 bool LaneChangeModule::isNearEndOfLane() const
 {
@@ -511,7 +552,9 @@ bool LaneChangeModule::isAbortConditionSatisfied() const
   auto clock{rclcpp::Clock{RCL_ROS_TIME}};
   if (!lanelet::utils::query::getClosestLanelet(current_lanes, current_pose, &closest_lanelet)) {
     RCLCPP_ERROR_THROTTLE(
-      getLogger(), clock, 1000,
+      getLogger(),
+      clock,
+      1000,
       "Failed to find closest lane! Lane change aborting function is not working!");
     return false;
   }
@@ -528,8 +571,16 @@ bool LaneChangeModule::isAbortConditionSatisfied() const
       path.path, status_.lane_change_lanes, check_distance_with_path);
 
     is_path_safe = lane_change_utils::isLaneChangePathSafe(
-      path.path, current_lanes, check_lanes, objects, current_pose, current_twist,
-      common_parameters.vehicle_width, parameters_, false, status_.lane_change_path.acceleration);
+      path.path,
+      current_lanes,
+      check_lanes,
+      objects,
+      current_pose,
+      current_twist,
+      common_parameters.vehicle_width,
+      parameters_,
+      false,
+      status_.lane_change_path.acceleration);
   }
 
   // check vehicle velocity thresh
@@ -577,7 +628,9 @@ bool LaneChangeModule::isAbortConditionSatisfied() const
     }
     auto clock{rclcpp::Clock{RCL_ROS_TIME}};
     RCLCPP_WARN_STREAM_THROTTLE(
-      getLogger(), clock, 1000,
+      getLogger(),
+      clock,
+      1000,
       "DANGER!!! Path is not safe anymore, but it is too late to abort! Please be cautious");
   }
 

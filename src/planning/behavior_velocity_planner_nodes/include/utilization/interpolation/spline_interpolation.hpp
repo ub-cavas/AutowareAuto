@@ -12,7 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#ifndef UTILIZATION__INTERPOLATION__SPLINE_INTERPOLATION_HPP_
+#define UTILIZATION__INTERPOLATION__SPLINE_INTERPOLATION_HPP_
 
 #include <algorithm>
 #include <cmath>
@@ -77,8 +78,10 @@ class SplineInterpolator
 public:
   SplineInterpolator() = default;
   bool interpolate(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const std::vector<double> & return_index, std::vector<double> & return_value,
+    const std::vector<double> & base_index,
+    const std::vector<double> & base_value,
+    const std::vector<double> & return_index,
+    std::vector<double> & return_value,
     const Method method = Method::PCG);
 
 private:
@@ -88,8 +91,10 @@ private:
   bool isIncrease(const std::vector<double> & x) const;
   bool isNonDecrease(const std::vector<double> & x) const;
   bool isValidInput(
-    const std::vector<double> & base_index, const std::vector<double> & base_value,
-    const std::vector<double> & return_index, std::vector<double> & return_value) const;
+    const std::vector<double> & base_index,
+    const std::vector<double> & base_value,
+    const std::vector<double> & return_index,
+    std::vector<double> & return_value) const;
 
   std::vector<double> solveLinearSystemExplicit();
 
@@ -110,3 +115,5 @@ private:
 }  // namespace behavior_velocity_planner_nodes
 }  // namespace planning
 }  // namespace autoware
+
+#endif  // UTILIZATION__INTERPOLATION__SPLINE_INTERPOLATION_HPP_

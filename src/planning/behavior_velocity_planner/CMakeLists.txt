@@ -21,19 +21,16 @@ find_package(ament_cmake_auto REQUIRED)
 ament_auto_find_build_dependencies()
 
 set(BEHAVIOR_VELOCITY_PLANNER_LIB_SRC
-  src/behavior_velocity_planner.cpp
-)
+  src/behavior_velocity_planner.cpp)
 
 set(BEHAVIOR_VELOCITY_PLANNER_LIB_HEADERS
   include/behavior_velocity_planner/behavior_velocity_planner.hpp
-  include/behavior_velocity_planner/visibility_control.hpp
-)
+  include/behavior_velocity_planner/visibility_control.hpp)
 
 # generate library
 ament_auto_add_library(${PROJECT_NAME} SHARED
   ${BEHAVIOR_VELOCITY_PLANNER_LIB_SRC}
-  ${BEHAVIOR_VELOCITY_PLANNER_LIB_HEADERS}
-)
+  ${BEHAVIOR_VELOCITY_PLANNER_LIB_HEADERS})
 autoware_set_compile_options(${PROJECT_NAME})
 
 # Testing

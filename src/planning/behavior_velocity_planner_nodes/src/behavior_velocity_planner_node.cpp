@@ -12,41 +12,45 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "behavior_velocity_planner_nodes/behavior_velocity_planner_node.hpp"
+// Scene modules
+#include <scene_module/blind_spot/manager.hpp>
+#include <scene_module/crosswalk/manager.hpp>
+#include <scene_module/detection_area/manager.hpp>
+#include <scene_module/intersection/manager.hpp>
+#include <scene_module/stop_line/manager.hpp>
+#include <behavior_velocity_planner_nodes/behavior_velocity_planner_node.hpp>
 
 #include <lanelet2_routing/RoutingGraphContainer.h>
 #include <tf2_eigen/tf2_eigen.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
 
-#include <chrono>
-#include <functional>
-#include <memory>
-
-#include "autoware_utils/autoware_utils.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "utilization/path_utilization.hpp"
+#include <autoware_utils/autoware_utils.hpp>
+#include <lanelet2_extension/utility/message_conversion.hpp>
+#include <utilization/path_utilization.hpp>
 #include <geometry/common_2d.hpp>
 #include <point_cloud_msg_wrapper/point_cloud_msg_wrapper.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <time_utils/time_utils.hpp>
 
-#include "diagnostic_msgs/msg/diagnostic_status.hpp"
-#include "visualization_msgs/msg/marker_array.hpp"
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/order_movement.hpp>
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+
+#include <diagnostic_msgs/msg/diagnostic_status.hpp>
+#include <visualization_msgs/msg/marker_array.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 
-// Scene modules
-#include "scene_module/blind_spot/manager.hpp"
-#include "scene_module/crosswalk/manager.hpp"
-#include "scene_module/detection_area/manager.hpp"
-#include "scene_module/intersection/manager.hpp"
-#include "scene_module/stop_line/manager.hpp"
+#include <chrono>
+#include <functional>
+#include <memory>
+#include <vector>
+#include <limits>
+#include <algorithm>
+#include <string>
 
 namespace autoware
 {
@@ -62,11 +66,11 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
   tf_buffer_ptr_{std::make_shared<tf2_ros::Buffer>(this->get_clock())},
   tf_listener_ptr_{std::make_shared<tf2_ros::TransformListener>(*tf_buffer_ptr_)},
   pub_trajectory_{this->create_publisher<autoware_auto_planning_msgs::msg::Trajectory>(
-    "~/output/trajectory", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
+      "~/output/trajectory", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
   pub_diagnostic_status_{this->create_publisher<diagnostic_msgs::msg::DiagnosticStatus>(
-    "~/output/stop_reason", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
+      "~/output/stop_reason", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
   pub_markers_debug_{this->create_publisher<visualization_msgs::msg::MarkerArray>(
-    "~/debug/path", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
+      "~/debug/path", rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)))},
   sub_predicted_objects_{
     this->create_subscription<autoware_auto_perception_msgs::msg::PredictedObjects>(
       "~/input/dynamic_objects",
@@ -74,10 +78,10 @@ BehaviorVelocityPlannerNode::BehaviorVelocityPlannerNode(const rclcpp::NodeOptio
       std::bind(
         &BehaviorVelocityPlannerNode::callback_predicted_objects, this, std::placeholders::_1))},
   sub_cloud_no_ground_{this->create_subscription<sensor_msgs::msg::PointCloud2>(
-    "~/input/no_ground_pointcloud",
-    rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)),
-    std::bind(
-      &BehaviorVelocityPlannerNode::callback_cloud_no_ground, this, std::placeholders::_1))},
+      "~/input/no_ground_pointcloud",
+      rclcpp::QoS(rclcpp::KeepLast(QOS_HISTORY_DEPTH)),
+      std::bind(
+        &BehaviorVelocityPlannerNode::callback_cloud_no_ground, this, std::placeholders::_1))},
   sub_vehicle_state_{
     this->create_subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>(
       "~/input/vehicle_velocity",
@@ -156,7 +160,8 @@ void BehaviorVelocityPlannerNode::request_osm_binary_map()
   auto result = map_client_->async_send_request(request);
   if (
     rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) !=
-    rclcpp::executor::FutureReturnCode::SUCCESS) {
+    rclcpp::executor::FutureReturnCode::SUCCESS)
+  {
     RCLCPP_ERROR(this->get_logger(), "Service call failed");
     throw std::runtime_error("Lanelet2GlobalPlannerNode: Map service call fail");
   }
@@ -279,14 +284,14 @@ void BehaviorVelocityPlannerNode::callback_path_with_lane_id(
   const autoware_auto_planning_msgs::msg::PathWithLaneId::ConstSharedPtr msg_in)
 {
   auto transform2pose = [](const geometry_msgs::msg::TransformStamped & transform) {
-    geometry_msgs::msg::PoseStamped pose;
-    pose.header = transform.header;
-    pose.pose.position.x = transform.transform.translation.x;
-    pose.pose.position.y = transform.transform.translation.y;
-    pose.pose.position.z = transform.transform.translation.z;
-    pose.pose.orientation = transform.transform.rotation;
-    return pose;
-  };
+      geometry_msgs::msg::PoseStamped pose;
+      pose.header = transform.header;
+      pose.pose.position.x = transform.transform.translation.x;
+      pose.pose.position.y = transform.transform.translation.y;
+      pose.pose.position.z = transform.transform.translation.z;
+      pose.pose.orientation = transform.transform.rotation;
+      return pose;
+    };
 
   // Check ready
   try {
@@ -306,12 +311,12 @@ void BehaviorVelocityPlannerNode::callback_path_with_lane_id(
     planner_manager_.planPathVelocity(std::make_shared<const PlannerData>(planner_data_), *msg_in);
 
   auto to_path = [](const autoware_auto_planning_msgs::msg::PathWithLaneId & path_with_id) {
-    autoware_auto_planning_msgs::msg::Path path;
-    for (const auto & path_point : path_with_id.points) {
-      path.points.push_back(path_point.point);
-    }
-    return path;
-  };
+      autoware_auto_planning_msgs::msg::Path path;
+      for (const auto & path_point : path_with_id.points) {
+        path.points.push_back(path_point.point);
+      }
+      return path;
+    };
 
   // screening
   const auto filtered_path = filterLitterPathPoint(to_path(velocity_planned_path));
@@ -518,14 +523,14 @@ autoware_auto_planning_msgs::msg::Path BehaviorVelocityPlannerNode::transform_pa
   }
 
   auto pose_to_matrix = [](const geometry_msgs::msg::Pose & pose) {
-    Eigen::Matrix4d mat = Eigen::Matrix4d::Identity();
-    const auto & pos = pose.position;
-    const auto & ori = pose.orientation;
-    Eigen::Quaterniond quat(ori.w, ori.x, ori.y, ori.z);
-    mat.topLeftCorner<3, 3>() = quat.toRotationMatrix();
-    mat.topRightCorner<3, 1>() = Eigen::Vector3d(pos.x, pos.y, pos.z);
-    return mat;
-  };
+      Eigen::Matrix4d mat = Eigen::Matrix4d::Identity();
+      const auto & pos = pose.position;
+      const auto & ori = pose.orientation;
+      Eigen::Quaterniond quat(ori.w, ori.x, ori.y, ori.z);
+      mat.topLeftCorner<3, 3>() = quat.toRotationMatrix();
+      mat.topRightCorner<3, 1>() = Eigen::Vector3d(pos.x, pos.y, pos.z);
+      return mat;
+    };
 
   auto transform_stamped_to_matrix =
     [&pose_to_matrix](const geometry_msgs::msg::TransformStamped & transform_stamped) {
@@ -539,22 +544,22 @@ autoware_auto_planning_msgs::msg::Path BehaviorVelocityPlannerNode::transform_pa
     };
 
   auto transform_pose = [&pose_to_matrix, &transform_stamped_to_matrix, transform_data](
-                          const geometry_msgs::msg::Pose & pose) {
-    geometry_msgs::msg::Pose pose_trans;
-    auto mat_pose = pose_to_matrix(pose);
-    auto mat_transform = transform_stamped_to_matrix(transform_data);
-    Eigen::Matrix4d mat_transformed = mat_transform * mat_pose;
-    Eigen::Quaterniond quat(mat_transformed.topLeftCorner<3, 3>());
-    const Eigen::Vector3d & trans = mat_transformed.topRightCorner<3, 1>();
-    pose_trans.position.x = trans.x();
-    pose_trans.position.y = trans.y();
-    pose_trans.position.z = trans.z();
-    pose_trans.orientation.x = quat.x();
-    pose_trans.orientation.y = quat.y();
-    pose_trans.orientation.z = quat.z();
-    pose_trans.orientation.w = quat.w();
-    return pose_trans;
-  };
+    const geometry_msgs::msg::Pose & pose) {
+      geometry_msgs::msg::Pose pose_trans;
+      auto mat_pose = pose_to_matrix(pose);
+      auto mat_transform = transform_stamped_to_matrix(transform_data);
+      Eigen::Matrix4d mat_transformed = mat_transform * mat_pose;
+      Eigen::Quaterniond quat(mat_transformed.topLeftCorner<3, 3>());
+      const Eigen::Vector3d & trans = mat_transformed.topRightCorner<3, 1>();
+      pose_trans.position.x = trans.x();
+      pose_trans.position.y = trans.y();
+      pose_trans.position.z = trans.z();
+      pose_trans.orientation.x = quat.x();
+      pose_trans.orientation.y = quat.y();
+      pose_trans.orientation.z = quat.z();
+      pose_trans.orientation.w = quat.w();
+      return pose_trans;
+    };
 
   transformed_path.points.resize(path.points.size());
   for (size_t i = 0; i < path.points.size(); ++i) {

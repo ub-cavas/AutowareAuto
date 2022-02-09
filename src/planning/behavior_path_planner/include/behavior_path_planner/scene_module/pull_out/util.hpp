@@ -18,16 +18,14 @@
 #include <memory>
 #include <vector>
 
-#include "lanelet2_core/primitives/Primitive.h"
-
 #include "behavior_path_planner/predicted_objects_msg.hpp"
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-
 #include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 
 namespace behavior_path_planner
 {
@@ -39,48 +37,65 @@ using geometry_msgs::msg::Twist;
 
 PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2);
 std::vector<PullOutPath> getPullOutPaths(
-  const RouteHandler & route_handler, const lanelet::ConstLanelets & original_lanelets,
-  const lanelet::ConstLanelets & target_lanelets, const Pose & pose,
+  const RouteHandler & route_handler,
+  const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets,
+  const Pose & pose,
   const BehaviorPathPlannerParameters & common_parameter,
-  const behavior_path_planner::PullOutParameters & parameter, const bool is_retreat_path = false);
+  const behavior_path_planner::PullOutParameters & parameter,
+  const bool is_retreat_path = false);
 
 PullOutPath getBackPaths(
-  const RouteHandler & route_handler, const lanelet::ConstLanelets & target_lanelets,
-  const Pose & pose, const BehaviorPathPlannerParameters & common_parameter,
-  const behavior_path_planner::PullOutParameters & parameter, const double back_distance);
+  const RouteHandler & route_handler,
+  const lanelet::ConstLanelets & target_lanelets,
+  const Pose & pose,
+  const BehaviorPathPlannerParameters & common_parameter,
+  const behavior_path_planner::PullOutParameters & parameter,
+  const double back_distance);
 
 bool isPathInLanelets4pullover(
   const PathWithLaneId & path,
-  const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets);
+  const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets);
 
 Pose getBackedPose(
-  const Pose & current_pose, const double & yaw_shoulder_lane,
-  const double & back_distance);
+  const Pose & current_pose, const double & yaw_shoulder_lane, const double & back_distance);
 
 std::vector<PullOutPath> selectValidPaths(
-  const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOutPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
-  const Pose & current_pose, const bool isInGoalRouteSection,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
   const Pose & goal_pose);
 bool selectSafePath(
-  const std::vector<PullOutPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOutPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const std::shared_ptr<const PredictedObjects> & dynamic_objects, const Pose & current_pose,
-  const Twist & current_twist, const double vehicle_width,
+  const std::shared_ptr<const PredictedObjects> & dynamic_objects,
+  const Pose & current_pose,
+  const Twist & current_twist,
+  const double vehicle_width,
   const behavior_path_planner::PullOutParameters & ros_parameters,
-  const autoware_utils::LinearRing2d & vehicle_footprint, PullOutPath * selected_path);
+  const autoware_utils::LinearRing2d & vehicle_footprint,
+  PullOutPath * selected_path);
 bool isPullOutPathSafe(
-  const behavior_path_planner::PullOutPath & path, const lanelet::ConstLanelets & current_lanes,
+  const behavior_path_planner::PullOutPath & path,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const std::shared_ptr<const PredictedObjects> & dynamic_objects,
   const behavior_path_planner::PullOutParameters & ros_parameters,
-  const autoware_utils::LinearRing2d & vehicle_footprint, const bool use_buffer = true,
+  const autoware_utils::LinearRing2d & vehicle_footprint,
+  const bool use_buffer = true,
   const bool use_dynamic_object = false);
 bool hasEnoughDistance(
-  const PullOutPath & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
-  const bool isInGoalRouteSection, const Pose & goal_pose,
+  const PullOutPath & path,
+  const lanelet::ConstLanelets & current_lanes,
+  const lanelet::ConstLanelets & target_lanes,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
+  const Pose & goal_pose,
   const lanelet::routing::RoutingGraphContainer & overall_graphs);
 bool isObjectFront(const Pose & ego_pose, const Pose & obj_pose);
 }  // namespace pull_out_utils

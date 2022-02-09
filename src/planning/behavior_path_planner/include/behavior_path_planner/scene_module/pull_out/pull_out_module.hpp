@@ -20,16 +20,15 @@
 #include <utility>
 #include <vector>
 
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-#include "tf2/utils.h"
-
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "tf2/utils.h"
 #include "vehicle_constants_manager/vehicle_constants_manager.hpp"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace behavior_path_planner
 {
@@ -109,15 +108,20 @@ private:
   lanelet::ConstLanelets getCurrentLanes() const;
   lanelet::ConstLanelets getPullOutLanes(const lanelet::ConstLanelets & current_lanes) const;
   std::pair<bool, bool> getSafePath(
-    const lanelet::ConstLanelets & pull_out_lanes, const double check_distance,
+    const lanelet::ConstLanelets & pull_out_lanes,
+    const double check_distance,
     PullOutPath & safe_path) const;
   std::pair<bool, bool> getSafeRetreatPath(
-    const lanelet::ConstLanelets & pull_out_lanes, const double check_distance,
-    RetreatPath & safe_backed_path, double & back_distance) const;
+    const lanelet::ConstLanelets & pull_out_lanes,
+    const double check_distance,
+    RetreatPath & safe_backed_path,
+    double & back_distance) const;
 
   bool getBackDistance(
-    const lanelet::ConstLanelets & pullover_lanes, const double check_distance,
-    PullOutPath & safe_path, double & back_distance) const;
+    const lanelet::ConstLanelets & pullover_lanes,
+    const double check_distance,
+    PullOutPath & safe_path,
+    double & back_distance) const;
 
   // turn signal
   TurnSignalInfo calcTurnSignalInfo(const ShiftPoint & shift_point) const;
@@ -132,7 +136,6 @@ private:
   bool isCurrentSpeedLow() const;
   bool hasFinishedPullOut() const;
   bool hasFinishedBack() const;
-
 };
 }  // namespace behavior_path_planner
 

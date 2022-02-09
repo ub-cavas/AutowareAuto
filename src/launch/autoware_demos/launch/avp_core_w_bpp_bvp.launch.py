@@ -249,9 +249,9 @@ def generate_launch_description():
     # point cloud fusion runner to fuse front and rear lidar
 
     point_cloud_fusion_node = IncludeLaunchDescription(
-            PythonLaunchDescriptionSource(
-                os.path.join(point_cloud_fusion_node_pkg_prefix,
-                             'launch/vlp16_sim_lexus_pc_fusion.launch.py'))
+        PythonLaunchDescriptionSource(
+            os.path.join(point_cloud_fusion_node_pkg_prefix,
+                         'launch/vlp16_sim_lexus_pc_fusion.launch.py'))
     )
     ray_ground_classifier = Node(
         package='ray_ground_classifier_nodes',

@@ -22,12 +22,10 @@
 #include "boost/geometry/geometries/point_xy.hpp"
 #include "boost/geometry/geometries/polygon.hpp"
 #include "boost/geometry/geometry.hpp"
-
 #include "lanelet2_core/geometry/Lanelet.h"
 #include "lanelet2_routing/Route.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_routing/RoutingGraphContainer.h"
-
 #include "opencv2/opencv.hpp"
 
 #include "autoware_auto_planning_msgs/msg/path.hpp"
@@ -39,28 +37,27 @@ namespace behavior_path_planner
 {
 namespace util
 {
-using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using autoware_auto_planning_msgs::msg::Path;
+using autoware_auto_planning_msgs::msg::PathWithLaneId;
 using geometry_msgs::msg::Point;
 
 std::vector<double> calcPathArcLengthArray(
-  const PathWithLaneId & path, size_t start = 0, size_t end = std::numeric_limits<size_t>::max(),
+  const PathWithLaneId & path,
+  size_t start = 0,
+  size_t end = std::numeric_limits<size_t>::max(),
   double offset = 0.0);
 
 double calcPathArcLength(
-  const PathWithLaneId & path, size_t start = 0,
-  size_t end = std::numeric_limits<size_t>::max());
+  const PathWithLaneId & path, size_t start = 0, size_t end = std::numeric_limits<size_t>::max());
 
-PathWithLaneId resamplePathWithSpline(
-  const PathWithLaneId & path, double interval);
+PathWithLaneId resamplePathWithSpline(const PathWithLaneId & path, double interval);
 
 Path toPath(const PathWithLaneId & input);
 
 nav_msgs::msg::Path toNavPath(const PathWithLaneId & input);
 
 size_t getIdxByArclength(
-  const PathWithLaneId & path, const Point & origin,
-  const double signed_arc);
+  const PathWithLaneId & path, const Point & origin, const double signed_arc);
 
 void clipPathLength(
   PathWithLaneId & path, const Point base_pos, const double forward, const double backward);

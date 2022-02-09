@@ -13,15 +13,15 @@
 // limitations under the License.
 
 
+#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
+
 #include <algorithm>
-#include <vector>
-#include <utility>
 #include <memory>
+#include <utility>
+#include <vector>
 
 #include "boost/variant.hpp"
-
 #include "lanelet2_core/primitives/RegulatoryElement.h"
-#include "lanelet2_extension/regulatory_elements/no_stopping_area.hpp"
 
 
 namespace lanelet
@@ -85,7 +85,9 @@ ConstPolygons3d getConstPoly(const RuleParameterMap & params, RoleName role)
 }
 
 RegulatoryElementDataPtr constructNoStoppingAreaData(
-  Id id, const AttributeMap & attributes, const Polygons3d & noStoppingAreas,
+  Id id,
+  const AttributeMap & attributes,
+  const Polygons3d & noStoppingAreas,
   const Optional<LineString3d> & stopLine = {})
 {
   RuleParameterMap rpm = {{RoleNameString::Refers, toRuleParameters(noStoppingAreas)}};
@@ -112,7 +114,9 @@ NoStoppingArea::NoStoppingArea(const RegulatoryElementDataPtr & data)
 }
 
 NoStoppingArea::NoStoppingArea(
-  Id id, const AttributeMap & attributes, const Polygons3d & no_stopping_areas,
+  Id id,
+  const AttributeMap & attributes,
+  const Polygons3d & no_stopping_areas,
   const Optional<LineString3d> & stopLine)
 : NoStoppingArea(constructNoStoppingAreaData(id, attributes, no_stopping_areas, stopLine))
 {
@@ -122,7 +126,10 @@ ConstPolygons3d NoStoppingArea::noStoppingAreas() const
 {
   return getConstPoly(parameters(), RoleName::Refers);
 }
-Polygons3d NoStoppingArea::noStoppingAreas() {return getPoly(parameters(), RoleName::Refers);}
+Polygons3d NoStoppingArea::noStoppingAreas()
+{
+  return getPoly(parameters(), RoleName::Refers);
+}
 
 void NoStoppingArea::addNoStoppingArea(const Polygon3d & primitive)
 {
@@ -149,7 +156,10 @@ void NoStoppingArea::setStopLine(const LineString3d & stopLine)
   parameters()[RoleName::RefLine] = {stopLine};
 }
 
-void NoStoppingArea::removeStopLine() {parameters()[RoleName::RefLine] = {};}
+void NoStoppingArea::removeStopLine()
+{
+  parameters()[RoleName::RefLine] = {};
+}
 
 #if __cplusplus < 201703L
 constexpr char NoStoppingArea::RuleName[];  // instantiate string in cpp file

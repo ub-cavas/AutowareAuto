@@ -16,16 +16,16 @@
  * Authors: Simon Thompson, Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_PROJECTION_MGRS_PROJECTOR_H
-#define LANELET2_EXTENSION_PROJECTION_MGRS_PROJECTOR_H
-
-#include "lanelet2_io/Exceptions.h"
-#include "lanelet2_io/Projection.h"
-#include "GeographicLib/MGRS.hpp"
-#include "GeographicLib/UTMUPS.hpp"
+#ifndef LANELET2_EXTENSION__PROJECTION__MGRS_PROJECTOR_HPP_
+#define LANELET2_EXTENSION__PROJECTION__MGRS_PROJECTOR_HPP_
 
 #include <string>
 #include <utility>
+
+#include "GeographicLib/MGRS.hpp"
+#include "GeographicLib/UTMUPS.hpp"
+#include "lanelet2_io/Exceptions.h"
+#include "lanelet2_io/Projection.h"
 
 namespace lanelet
 {
@@ -113,4 +113,4 @@ private:
 }  // namespace projection
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_PROJECTION_MGRS_PROJECTOR_H
+#endif  // LANELET2_EXTENSION__PROJECTION__MGRS_PROJECTOR_HPP_

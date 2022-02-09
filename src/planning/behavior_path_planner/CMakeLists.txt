@@ -43,8 +43,7 @@ set(BEHAVIOR_PATH_PLANNER_SRC
   src/scene_module/pull_over/pull_over_module.cpp
   src/scene_module/pull_over/util.cpp
   src/scene_module/pull_out/pull_out_module.cpp
-  src/scene_module/pull_out/util.cpp
-)
+  src/scene_module/pull_out/util.cpp)
 
 set(BEHAVIOR_PATH_PLANNER_HEADERS
   include/behavior_path_planner/behavior_path_planner_node.hpp
@@ -73,14 +72,12 @@ set(BEHAVIOR_PATH_PLANNER_HEADERS
   include/behavior_path_planner/scene_module/pull_over/pull_over_module.hpp
   include/behavior_path_planner/scene_module/pull_over/util.hpp
   include/behavior_path_planner/scene_module/side_shift/side_shift_module.hpp
-  include/behavior_path_planner/scene_module/side_shift/util.hpp
-)
+  include/behavior_path_planner/scene_module/side_shift/util.hpp)
 
 # generate component node library
 ament_auto_add_library(${PROJECT_NAME} SHARED
   ${BEHAVIOR_PATH_PLANNER_SRC}
-  ${BEHAVIOR_PATH_PLANNER_HEADERS}
-)
+  ${BEHAVIOR_PATH_PLANNER_HEADERS})
 
 autoware_set_compile_options(${PROJECT_NAME})
 
@@ -88,13 +85,11 @@ target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast)
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "behavior_path_planner::BehaviorPathPlannerNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
-)
+  EXECUTABLE ${PROJECT_NAME}_exe)
 
 target_link_libraries(${PROJECT_NAME}
   ${OpenCV_LIBRARIES}
-  BT::behaviortree_cpp_v3
-)
+  BT::behaviortree_cpp_v3)
 
 # Testing
 if(BUILD_TESTING)
@@ -107,17 +102,11 @@ if(BUILD_TESTING)
   ament_add_gtest(${TEST_BEHAVIOR_PATH_PLANNER_NODE_EXE} ${TEST_SOURCES})
   autoware_set_compile_options(${TEST_BEHAVIOR_PATH_PLANNER_NODE_EXE})
   target_compile_options(${TEST_BEHAVIOR_PATH_PLANNER_NODE_EXE} PRIVATE
-          -Wno-old-style-cast
-          -Wno-sign-conversion
-          -Wno-conversion
-          -Wno-float-conversion
-          -Wno-unused-parameter
-  )
+    -Wno-old-style-cast)
   target_link_libraries(${TEST_BEHAVIOR_PATH_PLANNER_NODE_EXE} ${PROJECT_NAME})
 endif()
 
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
-    config
-    launch
-)
+  config
+  launch)

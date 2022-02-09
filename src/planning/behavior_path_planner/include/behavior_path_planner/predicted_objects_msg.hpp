@@ -12,33 +12,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef BEHAVIOR_PATH_PLANNER_PREDICTED_OBJECTS_MSG_HPP_
-#define BEHAVIOR_PATH_PLANNER_PREDICTED_OBJECTS_MSG_HPP_
+#ifndef BEHAVIOR_PATH_PLANNER__PREDICTED_OBJECTS_MSG_HPP_
+#define BEHAVIOR_PATH_PLANNER__PREDICTED_OBJECTS_MSG_HPP_
+
+#include <vector>
 
 #include "autoware_auto_perception_msgs/msg/object_classification.hpp"
 #include "autoware_auto_perception_msgs/msg/shape.hpp"
-#include "geometry_msgs/msg/twist_with_covariance.hpp"
+
 #include "geometry_msgs/msg/accel_with_covariance.hpp"
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
+#include "geometry_msgs/msg/twist_with_covariance.hpp"
 
 // This header contains a customized copy of predicted_objects.idl structure to
 // ease the usage of the message in the ported package.
 namespace behavior_path_planner
 {
-
-struct PredictedPath{
+struct PredictedPath
+{
   std::vector<geometry_msgs::msg::PoseWithCovarianceStamped> path;
   float confidence;
 };
 
-struct PredictedObjectKinematics{
+struct PredictedObjectKinematics
+{
   geometry_msgs::msg::PoseWithCovariance initial_pose;
   geometry_msgs::msg::TwistWithCovariance initial_twist;
   geometry_msgs::msg::AccelWithCovariance initial_acceleration;
   std::vector<PredictedPath> predicted_paths;
 };
 
-struct PredictedObject{
+struct PredictedObject
+{
   uint64_t object_id;
   float existence_probability;
   std::vector<autoware_auto_perception_msgs::msg::ObjectClassification> classification;
@@ -46,11 +51,12 @@ struct PredictedObject{
   std::vector<autoware_auto_perception_msgs::msg::Shape> shape;
 };
 
-struct PredictedObjects{
+struct PredictedObjects
+{
   std_msgs::msg::Header header;
   std::vector<PredictedObject> objects;
 };
 
-} //namespace behavior_path_planner
+}  // namespace behavior_path_planner
 
-#endif  // BEHAVIOR_PATH_PLANNER_PREDICTED_OBJECTS_MSG_HPP_
+#endif  // BEHAVIOR_PATH_PLANNER__PREDICTED_OBJECTS_MSG_HPP_

@@ -18,11 +18,11 @@
 
 #include "lanelet2_extension/projection/mgrs_projector.hpp"
 
+#include <iostream>
 #include <set>
 #include <string>
 #include <utility>
 #include <vector>
-#include <iostream>
 
 namespace lanelet
 {
@@ -110,7 +110,10 @@ GPSPoint MGRSProjector::reverse(
   return gps;
 }
 
-void MGRSProjector::setMGRSCode(const std::string & mgrs_code) {mgrs_code_ = mgrs_code;}
+void MGRSProjector::setMGRSCode(const std::string & mgrs_code)
+{
+  mgrs_code_ = mgrs_code;
+}
 
 void MGRSProjector::setMGRSCode(const GPSPoint & gps, const int precision)
 {

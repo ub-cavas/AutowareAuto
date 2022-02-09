@@ -37,7 +37,8 @@ std::vector<T> arange(const T start, const T stop, const T step = 1)
     throw std::invalid_argument("must be stop <= start for negative step.");
   }
 
-  const double max_i_double = std::ceil(static_cast<double>(stop - start) / step);
+  const double max_i_double =
+    std::ceil(static_cast<double>(stop - start) / static_cast<double>(step));
   const auto max_i = static_cast<size_t>(max_i_double);
 
   std::vector<T> out;

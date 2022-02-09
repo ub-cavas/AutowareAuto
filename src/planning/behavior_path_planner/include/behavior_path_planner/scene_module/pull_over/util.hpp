@@ -19,15 +19,13 @@
 #include <vector>
 
 #include "behavior_path_planner/predicted_objects_msg.hpp"
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-
-#include "geometry_msgs/msg/pose_stamped.hpp"
-#include "geometry_msgs/msg/twist_stamped.hpp"
-
-#include "lanelet2_core/primitives/Primitive.h"
-
 #include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_core/primitives/Primitive.h"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
+#include "geometry_msgs/msg/pose_stamped.hpp"
+#include "geometry_msgs/msg/twist_stamped.hpp"
 
 namespace behavior_path_planner
 {
@@ -40,37 +38,54 @@ using geometry_msgs::msg::Twist;
 // TODO(sugahara) move to util
 PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2);
 bool isPathInLanelets(
-  const PathWithLaneId & path, const lanelet::ConstLanelets & original_lanelets,
+  const PathWithLaneId & path,
+  const lanelet::ConstLanelets & original_lanelets,
   const lanelet::ConstLanelets & target_lanelets);
 std::vector<PullOverPath> getPullOverPaths(
-  const RouteHandler & route_handler, const lanelet::ConstLanelets & original_lanelets,
-  const lanelet::ConstLanelets & target_lanelets, const Pose & pose, const Twist & twist,
+  const RouteHandler & route_handler,
+  const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets,
+  const Pose & pose,
+  const Twist & twist,
   const BehaviorPathPlannerParameters & common_parameter,
   const behavior_path_planner::PullOverParameters & parameter);
 
 std::vector<PullOverPath> selectValidPaths(
-  const std::vector<PullOverPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOverPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
-  const lanelet::routing::RoutingGraphContainer & overall_graphs, const Pose & current_pose,
-  const bool isInGoalRouteSection, const Pose & goal_pose);
+  const lanelet::routing::RoutingGraphContainer & overall_graphs,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
+  const Pose & goal_pose);
 bool selectSafePath(
-  const std::vector<PullOverPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOverPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const std::shared_ptr<const PredictedObjects> & dynamic_objects,
-  const Pose & current_pose, const Twist & current_twist,
-  const double vehicle_width, const behavior_path_planner::PullOverParameters & ros_parameters,
+  const Pose & current_pose,
+  const Twist & current_twist,
+  const double vehicle_width,
+  const behavior_path_planner::PullOverParameters & ros_parameters,
   PullOverPath * selected_path);
 bool isPullOverPathSafe(
-  const PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
+  const PathWithLaneId & path,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const std::shared_ptr<const PredictedObjects> & dynamic_objects,
-  const Pose & current_pose, const Twist & current_twist,
-  const double vehicle_width, const behavior_path_planner::PullOverParameters & ros_parameters,
-  const bool use_buffer = true, const double acceleration = 0.0);
+  const Pose & current_pose,
+  const Twist & current_twist,
+  const double vehicle_width,
+  const behavior_path_planner::PullOverParameters & ros_parameters,
+  const bool use_buffer = true,
+  const double acceleration = 0.0);
 bool hasEnoughDistance(
-  const PullOverPath & path, const lanelet::ConstLanelets & current_lanes,
-  const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
-  const bool isInGoalRouteSection, const Pose & goal_pose,
+  const PullOverPath & path,
+  const lanelet::ConstLanelets & current_lanes,
+  const lanelet::ConstLanelets & target_lanes,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
+  const Pose & goal_pose,
   const lanelet::routing::RoutingGraphContainer & overall_graphs);
 bool isObjectFront(const Pose & ego_pose, const Pose & obj_pose);
 }  // namespace pull_over_utils

@@ -19,7 +19,6 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
-
 #include "tf2_ros/buffer.h"
 #include "tf2_ros/create_timer_ros.h"
 #include "tf2_ros/transform_listener.h"
@@ -57,7 +56,9 @@ public:
   }
 
   geometry_msgs::msg::TransformStamped::ConstSharedPtr getTransform(
-    const std::string & from, const std::string & to, const rclcpp::Time & time,
+    const std::string & from,
+    const std::string & to,
+    const rclcpp::Time & time,
     const rclcpp::Duration & duration)
   {
     geometry_msgs::msg::TransformStamped tf;

@@ -37,9 +37,12 @@ T waitForParam(
       return {};
     }
     RCLCPP_INFO_THROTTLE(
-      node->get_logger(), *node->get_clock(), static_cast<int64_t>(1000) /* ms */,
+      node->get_logger(),
+      *node->get_clock(),
+      1000 /* ms */,
       "waiting for node: %s, param: %s\n",
-      remote_node_name.c_str(), param_name.c_str());
+      remote_node_name.c_str(),
+      param_name.c_str());
   }
 
   if (param_client->has_parameter(param_name)) {

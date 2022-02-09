@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/behavior_path_planner_node.hpp"
+
 #include <chrono>
 #include <memory>
 #include <string>
@@ -19,23 +21,20 @@
 #include <vector>
 
 #include "autoware_utils/autoware_utils.hpp"
-#include "vehicle_constants_manager/vehicle_constants_manager.hpp"
-
-#include "behavior_path_planner/predicted_objects_msg.hpp"
-
-#include "behavior_path_planner/behavior_path_planner_node.hpp"
 #include "behavior_path_planner/path_utilities.hpp"
+#include "behavior_path_planner/predicted_objects_msg.hpp"
 #include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
 #include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
-#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
 #include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
+#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
 #include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "vehicle_constants_manager/vehicle_constants_manager.hpp"
 
 namespace behavior_path_planner
 {
-using autoware_auto_planning_msgs::msg::PathChangeModuleId;
 using autoware::common::vehicle_constants_manager::VehicleConstants;
+using autoware_auto_planning_msgs::msg::PathChangeModuleId;
 using namespace std::chrono_literals;
 
 BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & node_options)
@@ -55,7 +54,8 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   perception_subscriber_ = create_subscription<PredictedObjectsOrgMsg>(
     "~/input/perception", 1, std::bind(&BehaviorPathPlannerNode::onPerception, this, _1));
   external_approval_subscriber_ = create_subscription<ApprovalMsg>(
-    "~/input/external_approval", 1,
+    "~/input/external_approval",
+    1,
     std::bind(&BehaviorPathPlannerNode::onExternalApproval, this, _1));
   force_approval_subscriber_ = create_subscription<PathChangeModule>(
     "~/input/force_approval", 1, std::bind(&BehaviorPathPlannerNode::onForceApproval, this, _1));
@@ -64,7 +64,7 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
   route_subscriber_ = create_subscription<HADMapRoute>(
     "~/input/route", 1, std::bind(&BehaviorPathPlannerNode::onRoute, this, _1));
   map_client_ =
-      this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Client");
+    this->create_client<autoware_auto_mapping_msgs::srv::HADMapService>("HAD_Map_Client");
 
   // publisher
   path_publisher_ = create_publisher<PathWithLaneId>("~/output/path", 1);
@@ -136,7 +136,9 @@ BehaviorPathPlannerNode::BehaviorPathPlannerNode(const rclcpp::NodeOptions & nod
     const auto period = rclcpp::Rate(planning_hz).period();
     auto on_timer = std::bind(&BehaviorPathPlannerNode::run, this);
     timer_ = std::make_shared<rclcpp::GenericTimer<decltype(on_timer)>>(
-      this->get_clock(), period, std::move(on_timer),
+      this->get_clock(),
+      period,
+      std::move(on_timer),
       this->get_node_base_interface()->get_context());
     this->get_node_timers_interface()->add_timer(timer_, nullptr);
   }
@@ -149,17 +151,17 @@ void BehaviorPathPlannerNode::requestOsmBinaryMap()
   }
   if (!rclcpp::ok()) {
     RCLCPP_ERROR(
-        this->get_logger(),
-        "Client interrupted while waiting for map service to appear. Exiting.");
+      this->get_logger(), "Client interrupted while waiting for map service to appear. Exiting.");
   }
 
   auto request = std::make_shared<autoware_auto_mapping_msgs::srv::HADMapService_Request>();
   request->requested_primitives.push_back(
-      autoware_auto_mapping_msgs::srv::HADMapService_Request::FULL_MAP);
+    autoware_auto_mapping_msgs::srv::HADMapService_Request::FULL_MAP);
 
   auto result = map_client_->async_send_request(request);
-  if (rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) !=
-      rclcpp::executor::FutureReturnCode::SUCCESS)
+  if (
+    rclcpp::spin_until_future_complete(this->get_node_base_interface(), result) !=
+    rclcpp::executor::FutureReturnCode::SUCCESS)
   {
     RCLCPP_ERROR(this->get_logger(), "Service call failed");
     throw std::runtime_error("Lanelet2GlobalPlannerNode: Map service call fail");
@@ -277,8 +279,8 @@ LaneFollowingParameters BehaviorPathPlannerNode::getLaneFollowingParam()
   p.expand_drivable_area = declare_parameter("lane_following.expand_drivable_area", false);
   p.right_bound_offset = declare_parameter("lane_following.right_bound_offset", 0.5);
   p.left_bound_offset = declare_parameter("lane_following.left_bound_offset", 0.5);
-  p.lane_change_prepare_duration = declare_parameter(
-    "lane_following.lane_change_prepare_duration", 2.0);
+  p.lane_change_prepare_duration =
+    declare_parameter("lane_following.lane_change_prepare_duration", 2.0);
   return p;
 }
 
@@ -316,14 +318,16 @@ LaneChangeParameters BehaviorPathPlannerNode::getLaneChangeParam()
   // validation of parameters
   if (p.lane_change_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "lane_change_sampling_num must be positive integer. Given parameter: " <<
+      get_logger(),
+      "lane_change_sampling_num must be positive integer. Given parameter: " <<
         p.lane_change_sampling_num << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+      get_logger(),
+      "maximum_deceleration cannot be negative value. Given parameter: " <<
         p.maximum_deceleration << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
@@ -359,8 +363,7 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
   p.pull_over_search_distance = dp("pull_over_search_distance", 30.0);
   p.after_pull_over_straight_distance = dp("after_pull_over_straight_distance", 3.0);
-  p.before_pull_over_straight_distance =
-    dp("before_pull_over_straight_distance", 3.0);
+  p.before_pull_over_straight_distance = dp("before_pull_over_straight_distance", 3.0);
   p.margin_from_boundary = dp("margin_from_boundary", 0.3);
   p.maximum_lateral_jerk = dp("maximum_lateral_jerk", 3.0);
   p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 1.0);
@@ -370,14 +373,16 @@ PullOverParameters BehaviorPathPlannerNode::getPullOverParam()
   // validation of parameters
   if (p.pull_over_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "pull_over_sampling_num must be positive integer. Given parameter: " <<
+      get_logger(),
+      "pull_over_sampling_num must be positive integer. Given parameter: " <<
         p.pull_over_sampling_num << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+      get_logger(),
+      "maximum_deceleration cannot be negative value. Given parameter: " <<
         p.maximum_deceleration << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
@@ -414,8 +419,7 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   p.enable_blocked_by_obstacle = dp("enable_blocked_by_obstacle", false);
   p.pull_out_search_distance = dp("pull_out_search_distance", 30.0);
   p.after_pull_out_straight_distance = dp("after_pull_out_straight_distance", 3.0);
-  p.before_pull_out_straight_distance =
-    dp("before_pull_out_straight_distance", 3.0);
+  p.before_pull_out_straight_distance = dp("before_pull_out_straight_distance", 3.0);
   p.maximum_lateral_jerk = dp("maximum_lateral_jerk", 3.0);
   p.minimum_lateral_jerk = dp("minimum_lateral_jerk", 1.0);
   p.deceleration_interval = dp("deceleration_interval", 10.0);
@@ -424,14 +428,16 @@ PullOutParameters BehaviorPathPlannerNode::getPullOutParam()
   // validation of parameters
   if (p.pull_out_sampling_num < 1) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "pull_out_sampling_num must be positive integer. Given parameter: " <<
+      get_logger(),
+      "pull_out_sampling_num must be positive integer. Given parameter: " <<
         p.pull_out_sampling_num << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
   }
   if (p.maximum_deceleration < 0.0) {
     RCLCPP_FATAL_STREAM(
-      get_logger(), "maximum_deceleration cannot be negative value. Given parameter: " <<
+      get_logger(),
+      "maximum_deceleration cannot be negative value. Given parameter: " <<
         p.maximum_deceleration << std::endl <<
         "Terminating the program...");
     exit(EXIT_FAILURE);
@@ -444,7 +450,8 @@ BehaviorTreeManagerParam BehaviorPathPlannerNode::getBehaviorTreeManagerParam()
 {
   BehaviorTreeManagerParam p{};
   p.bt_tree_config_path = declare_parameter("bt_tree_config_path", "default");
-  p.groot_zmq_publisher_port = static_cast<int>(declare_parameter("groot_zmq_publisher_port", 1666));
+  p.groot_zmq_publisher_port =
+    static_cast<int>(declare_parameter("groot_zmq_publisher_port", 1666));
   p.groot_zmq_server_port = static_cast<int>(declare_parameter("groot_zmq_server_port", 1667));
   return p;
 }
@@ -463,7 +470,9 @@ void BehaviorPathPlannerNode::waitForData()
       break;
     }
     RCLCPP_WARN_THROTTLE(
-      get_logger(), *get_clock(), 5000,
+      get_logger(),
+      *get_clock(),
+      5000,
       "waiting for vehicle pose, vehicle_velocity, and obstacles");
     rclcpp::spin_some(this->get_node_base_interface());
     rclcpp::Rate(100).sleep();
@@ -503,8 +512,11 @@ void BehaviorPathPlannerNode::run()
 
   // for turn signal
   const auto turn_signal = turn_signal_decider_.getTurnSignal(
-    *path, planner_data_->self_pose->pose, *(planner_data_->route_handler),
-    output.turn_signal_info.turn_signal, output.turn_signal_info.signal_distance);
+    *path,
+    planner_data_->self_pose->pose,
+    *(planner_data_->route_handler),
+    output.turn_signal_info.turn_signal,
+    output.turn_signal_info.signal_distance);
 
   TurnIndicatorsCommand turn_indicators_command;
   turn_indicators_command.stamp = turn_signal.header.stamp;
@@ -565,7 +577,8 @@ PathWithLaneId::SharedPtr BehaviorPathPlannerNode::getPathCandidate(
   path_candidate->header = planner_data_->route_handler->getRouteHeader();
   path_candidate->header.stamp = this->now();
   RCLCPP_DEBUG(
-    get_logger(), "BehaviorTreeManager: path candidate is %s.",
+    get_logger(),
+    "BehaviorTreeManager: path candidate is %s.",
     bt_output.path_candidate ? "FOUND" : "NOT FOUND");
   return path_candidate;
 }
@@ -624,8 +637,11 @@ void BehaviorPathPlannerNode::publishModuleStatus(
       }
       is_ready = true;
       RCLCPP_DEBUG(
-        get_logger(), "%s is Ready : ready = %s, is_approved = %s", status->module_name.c_str(),
-        status->is_ready ? "true" : "false", status->is_waiting_approval ? "true" : "false");
+        get_logger(),
+        "%s is Ready : ready = %s, is_approved = %s",
+        status->module_name.c_str(),
+        status->is_ready ? "true" : "false",
+        status->is_waiting_approval ? "true" : "false");
       ready_module.module.type = getModuleType(status->module_name);
     }
   }
@@ -672,9 +688,10 @@ void BehaviorPathPlannerNode::onVelocity(const VehicleKinematicState::ConstShare
 void BehaviorPathPlannerNode::onPerception(const PredictedObjectsOrgMsg::ConstSharedPtr msg)
 {
   std::shared_ptr<PredictedObjects> predicted_objects;
+  predicted_objects = std::make_shared<PredictedObjects>();
   predicted_objects->header = msg->header;
 
-  for (auto const & obj:msg->objects) {
+  for (auto const & obj : msg->objects) {
     PredictedObject predicted_object;
 
     predicted_object.object_id = obj.object_id;
@@ -687,7 +704,7 @@ void BehaviorPathPlannerNode::onPerception(const PredictedObjectsOrgMsg::ConstSh
     predicted_object.kinematics.initial_pose = obj.kinematics.initial_pose;
     predicted_object.kinematics.initial_twist = obj.kinematics.initial_twist;
     predicted_object.kinematics.initial_acceleration = obj.kinematics.initial_acceleration;
-    for (auto const & predicted_path_org :obj.kinematics.predicted_paths) {
+    for (auto const & predicted_path_org : obj.kinematics.predicted_paths) {
       PredictedPath predicted_path;
 
       predicted_path.confidence = predicted_path_org.confidence;
@@ -696,7 +713,8 @@ void BehaviorPathPlannerNode::onPerception(const PredictedObjectsOrgMsg::ConstSh
         geometry_msgs::msg::PoseWithCovarianceStamped pose_wcs;
 
         pose_wcs.pose.pose = pose;
-        rclcpp::Time pose_time_calculated = rclcpp::Time(msg->header.stamp) +
+        rclcpp::Time pose_time_calculated =
+          rclcpp::Time(msg->header.stamp) +
           rclcpp::Duration(
           static_cast<int32_t>(i) * predicted_path_org.time_step.sec,
           static_cast<uint32_t>(i) * predicted_path_org.time_step.nanosec);
@@ -777,7 +795,10 @@ PathWithLaneId BehaviorPathPlannerNode::modifyPathForSmoothGoalConnection(
   }
 
   auto refined_path = util::refinePathForGoal(
-    planner_data_->parameters.refine_goal_search_radius_range, M_PI * 0.5, path, refined_goal,
+    planner_data_->parameters.refine_goal_search_radius_range,
+    M_PI * 0.5,
+    path,
+    refined_goal,
     goal_lane_id);
   refined_path.header.frame_id = "map";
   refined_path.header.stamp = this->now();

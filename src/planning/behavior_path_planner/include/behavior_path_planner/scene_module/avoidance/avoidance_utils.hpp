@@ -26,7 +26,8 @@ namespace behavior_path_planner
 bool isOnRight(const ObjectData & obj);
 
 lanelet::ConstLanelets calcLaneAroundPose(
-  const std::shared_ptr<const PlannerData> & planner_data, const Pose & pose,
+  const std::shared_ptr<const PlannerData> & planner_data,
+  const Pose & pose,
   const double backward_length);
 
 size_t findPathIndexFromArclength(
@@ -49,12 +50,18 @@ double calcDistanceToClosestFootprintPoint(
 double calcOverhangDistance(const ObjectData & object_data, const Pose & base_pose);
 
 void setEndData(
-  AvoidPoint & ap, const double length, const geometry_msgs::msg::Pose & end, const size_t end_idx,
+  AvoidPoint & ap,
+  const double length,
+  const geometry_msgs::msg::Pose & end,
+  const size_t end_idx,
   const double end_dist);
 
 void setStartData(
-  AvoidPoint & ap, const double start_length, const geometry_msgs::msg::Pose & start,
-  const size_t start_idx, const double start_dist);
+  AvoidPoint & ap,
+  const double start_length,
+  const geometry_msgs::msg::Pose & start,
+  const size_t start_idx,
+  const double start_dist);
 
 }  // namespace behavior_path_planner
 

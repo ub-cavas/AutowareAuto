@@ -27,8 +27,8 @@
 #include <rclcpp/rclcpp.hpp>
 #include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 
-#include <autoware_auto_planning_msgs/msg/order_movement.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_planning_msgs/msg/order_movement.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
@@ -87,7 +87,8 @@ struct PlannerData
   //  std::map<int, autoware_perception_msgs::msg::TrafficLightStateStamped>
   //    external_traffic_light_id_map;
   boost::optional<autoware_auto_planning_msgs::msg::OrderMovement> external_crosswalk_status_input;
-  boost::optional<autoware_auto_planning_msgs::msg::OrderMovement> external_intersection_status_input;
+  boost::optional<autoware_auto_planning_msgs::msg::OrderMovement>
+  external_intersection_status_input;
 
 
   // additional parameters

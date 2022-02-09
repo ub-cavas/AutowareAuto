@@ -12,27 +12,26 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/pull_over/util.hpp"
+
 #include <algorithm>
 #include <limits>
 #include <memory>
 #include <string>
 #include <vector>
 
-#include "autoware_auto_planning_msgs/msg/path_point.hpp"
+#include "autoware_utils/geometry/boost_geometry.hpp"
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+#include "behavior_path_planner/path_utilities.hpp"
+#include "boost/geometry/algorithms/dispatch/distance.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "tf2/utils.h"
 #include "tf2_ros/transform_listener.h"
 
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
-#include "behavior_path_planner/path_utilities.hpp"
-#include "behavior_path_planner/scene_module/pull_over/util.hpp"
-
-#include "autoware_utils/geometry/boost_geometry.hpp"
-#include "boost/geometry/algorithms/dispatch/distance.hpp"
+#include "autoware_auto_planning_msgs/msg/path_point.hpp"
 
 namespace behavior_path_planner
 {
@@ -40,8 +39,7 @@ namespace pull_over_utils
 {
 using autoware_auto_planning_msgs::msg::PathPoint;
 
-PathWithLaneId combineReferencePath(
-  const PathWithLaneId path1, const PathWithLaneId path2)
+PathWithLaneId combineReferencePath(const PathWithLaneId path1, const PathWithLaneId path2)
 {
   PathWithLaneId path;
   path.points.insert(path.points.end(), path1.points.begin(), path1.points.end());
@@ -54,7 +52,8 @@ PathWithLaneId combineReferencePath(
 
 bool isPathInLanelets(
   const PathWithLaneId & path,
-  const lanelet::ConstLanelets & original_lanelets, const lanelet::ConstLanelets & target_lanelets)
+  const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets)
 {
   for (const auto & pt : path.points) {
     bool is_in_lanelet = false;
@@ -68,16 +67,21 @@ bool isPathInLanelets(
         is_in_lanelet = true;
       }
     }
-    if (!is_in_lanelet) {return false;}
+    if (!is_in_lanelet) {
+      return false;
+    }
   }
   return true;
 }
 
 std::vector<PullOverPath> getPullOverPaths(
-  const RouteHandler & route_handler, const lanelet::ConstLanelets & original_lanelets,
-  const lanelet::ConstLanelets & target_lanelets, const Pose & pose,
+  const RouteHandler & route_handler,
+  const lanelet::ConstLanelets & original_lanelets,
+  const lanelet::ConstLanelets & target_lanelets,
+  const Pose & pose,
   [[maybe_unused]] const Twist & twist,
-  const BehaviorPathPlannerParameters & common_parameter, const PullOverParameters & parameter)
+  const BehaviorPathPlannerParameters & common_parameter,
+  const PullOverParameters & parameter)
 {
   std::vector<PullOverPath> candidate_paths;
 
@@ -209,8 +213,7 @@ std::vector<PullOverPath> getPullOverPaths(
       shift_point.end = reference_path2.points.front().point.pose;
 
       // distance between shoulder lane's left boundary and current lane center
-      double distance_road_to_left_boundary =
-        util::getDistanceToShoulderBoundary(
+      double distance_road_to_left_boundary = util::getDistanceToShoulderBoundary(
         route_handler.getShoulderLanelets(), reference_path1.points.back().point.pose);
       // distance between shoulder lane's left boundary and current lane center
       double distance_road_to_target =
@@ -281,17 +284,24 @@ std::vector<PullOverPath> getPullOverPaths(
 }
 
 std::vector<PullOverPath> selectValidPaths(
-  const std::vector<PullOverPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOverPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const lanelet::routing::RoutingGraphContainer & overall_graphs,
-  const Pose & current_pose, const bool isInGoalRouteSection,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
   const Pose & goal_pose)
 {
   std::vector<PullOverPath> available_paths;
 
   for (const auto & path : paths) {
     if (hasEnoughDistance(
-        path, current_lanes, target_lanes, current_pose, isInGoalRouteSection, goal_pose,
+        path,
+        current_lanes,
+        target_lanes,
+        current_pose,
+        isInGoalRouteSection,
+        goal_pose,
         overall_graphs))
     {
       available_paths.push_back(path);
@@ -302,17 +312,28 @@ std::vector<PullOverPath> selectValidPaths(
 }
 
 bool selectSafePath(
-  const std::vector<PullOverPath> & paths, const lanelet::ConstLanelets & current_lanes,
+  const std::vector<PullOverPath> & paths,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const std::shared_ptr<const PredictedObjects> & dynamic_objects,
-  const Pose & current_pose, const Twist & current_twist,
-  const double vehicle_width, const PullOverParameters & ros_parameters,
+  const Pose & current_pose,
+  const Twist & current_twist,
+  const double vehicle_width,
+  const PullOverParameters & ros_parameters,
   PullOverPath * selected_path)
 {
   for (const auto & path : paths) {
     if (isPullOverPathSafe(
-        path.path, current_lanes, target_lanes, dynamic_objects, current_pose, current_twist,
-        vehicle_width, ros_parameters, true, path.acceleration))
+        path.path,
+        current_lanes,
+        target_lanes,
+        dynamic_objects,
+        current_pose,
+        current_twist,
+        vehicle_width,
+        ros_parameters,
+        true,
+        path.acceleration))
     {
       *selected_path = path;
       return true;
@@ -329,9 +350,12 @@ bool selectSafePath(
 }
 
 bool hasEnoughDistance(
-  const PullOverPath & path, const lanelet::ConstLanelets & current_lanes,
-  [[maybe_unused]] const lanelet::ConstLanelets & target_lanes, const Pose & current_pose,
-  const bool isInGoalRouteSection, const Pose & goal_pose,
+  const PullOverPath & path,
+  const lanelet::ConstLanelets & current_lanes,
+  [[maybe_unused]] const lanelet::ConstLanelets & target_lanes,
+  const Pose & current_pose,
+  const bool isInGoalRouteSection,
+  const Pose & goal_pose,
   [[maybe_unused]] const lanelet::routing::RoutingGraphContainer & overall_graphs)
 {
   const double pull_over_prepare_distance = path.preparation_length;
@@ -363,11 +387,15 @@ bool hasEnoughDistance(
 }
 
 bool isPullOverPathSafe(
-  const PathWithLaneId & path, const lanelet::ConstLanelets & current_lanes,
+  const PathWithLaneId & path,
+  const lanelet::ConstLanelets & current_lanes,
   const lanelet::ConstLanelets & target_lanes,
   const std::shared_ptr<const PredictedObjects> & dynamic_objects,
-  const Pose & current_pose, const Twist & current_twist,
-  const double vehicle_width, const PullOverParameters & ros_parameters, const bool use_buffer,
+  const Pose & current_pose,
+  const Twist & current_twist,
+  const double vehicle_width,
+  const PullOverParameters & ros_parameters,
+  const bool use_buffer,
   const double acceleration)
 {
   if (path.points.empty()) {
@@ -416,7 +444,9 @@ bool isPullOverPathSafe(
   const auto current_lane_object_indices_lanelet = util::filterObjectsByLanelets(
     *dynamic_objects, current_lanes, arc.length, arc.length + check_distance);
   const auto current_lane_object_indices = util::filterObjectsByPath(
-    *dynamic_objects, current_lane_object_indices_lanelet, path,
+    *dynamic_objects,
+    current_lane_object_indices_lanelet,
+    path,
     vehicle_width / 2 + lateral_buffer);
 
   const auto & vehicle_predicted_path = util::convertToPredictedPath(
@@ -430,7 +460,8 @@ bool isPullOverPathSafe(
       predicted_paths = obj.kinematics.predicted_paths;
     } else {
       auto & max_confidence_path = *(std::max_element(
-          obj.kinematics.predicted_paths.begin(), obj.kinematics.predicted_paths.end(),
+          obj.kinematics.predicted_paths.begin(),
+          obj.kinematics.predicted_paths.end(),
           [](const auto & path1, const auto & path2) {
             return path1.confidence > path2.confidence;
           }));
@@ -438,8 +469,11 @@ bool isPullOverPathSafe(
     }
     for (const auto & obj_path : predicted_paths) {
       double distance = util::getDistanceBetweenPredictedPaths(
-        obj_path, vehicle_predicted_path, current_lane_check_start_time,
-        current_lane_check_end_time, time_resolution);
+        obj_path,
+        vehicle_predicted_path,
+        current_lane_check_start_time,
+        current_lane_check_end_time,
+        time_resolution);
       double thresh;
       if (isObjectFront(current_pose, obj.kinematics.initial_pose.pose)) {
         thresh = util::l2Norm(current_twist.linear) * stop_time;
@@ -462,7 +496,8 @@ bool isPullOverPathSafe(
       predicted_paths = obj.kinematics.predicted_paths;
     } else {
       auto & max_confidence_path = *(std::max_element(
-          obj.kinematics.predicted_paths.begin(), obj.kinematics.predicted_paths.end(),
+          obj.kinematics.predicted_paths.begin(),
+          obj.kinematics.predicted_paths.end(),
           [](const auto & path1, const auto & path2) {
             return path1.confidence > path2.confidence;
           }));
@@ -483,8 +518,11 @@ bool isPullOverPathSafe(
     if (is_object_in_target) {
       for (const auto & obj_path : predicted_paths) {
         const double distance = util::getDistanceBetweenPredictedPaths(
-          obj_path, vehicle_predicted_path, target_lane_check_start_time,
-          target_lane_check_end_time, time_resolution);
+          obj_path,
+          vehicle_predicted_path,
+          target_lane_check_start_time,
+          target_lane_check_end_time,
+          time_resolution);
         double thresh;
         if (isObjectFront(current_pose, obj.kinematics.initial_pose.pose)) {
           thresh = util::l2Norm(current_twist.linear) * stop_time;
@@ -499,7 +537,10 @@ bool isPullOverPathSafe(
       }
     } else {
       const double distance = util::getDistanceBetweenPredictedPathAndObject(
-        obj, vehicle_predicted_path, target_lane_check_start_time, target_lane_check_end_time,
+        obj,
+        vehicle_predicted_path,
+        target_lane_check_start_time,
+        target_lane_check_end_time,
         time_resolution);
       double thresh = min_thresh;
       if (isObjectFront(current_pose, obj.kinematics.initial_pose.pose)) {

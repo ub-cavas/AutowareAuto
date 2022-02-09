@@ -12,15 +12,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "gtest/gtest.h"
+#include <math.h>
 
+#include <vector>
+
+#include "gtest/gtest.h"
 #include "lanelet2_core/Attribute.h"
 #include "lanelet2_core/LaneletMap.h"
-
 #include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
-
-#include <math.h>
-#include <vector>
 
 using lanelet::LineString3d;
 using lanelet::LineStringOrPolygon3d;
@@ -70,7 +69,10 @@ TEST(TestSuite, FactoryConstructsTrafficLight)
   stop_line = LineString3d(getId(), stop);
 
   auto tl = lanelet::autoware::AutowareTrafficLight::make(
-    getId(), lanelet::AttributeMap(), convertToVector(traffic_light_base), stop_line,
+    getId(),
+    lanelet::AttributeMap(),
+    convertToVector(traffic_light_base),
+    stop_line,
     convertToVector(traffic_light_bulbs));
 
   auto factoryTl = lanelet::RegulatoryElementFactory::create(
@@ -106,7 +108,10 @@ TEST(TestSuite, TrafficLightWorksAsExpected)
   stop_line = LineString3d(getId(), stop);
 
   auto tl = lanelet::autoware::AutowareTrafficLight::make(
-    getId(), lanelet::AttributeMap(), convertToVector(traffic_light_base), stop_line,
+    getId(),
+    lanelet::AttributeMap(),
+    convertToVector(traffic_light_base),
+    stop_line,
     convertToVector(traffic_light_bulbs));
   tl->setStopLine(stop_line);
   EXPECT_EQ(stop_line, tl->stopLine());

@@ -49,12 +49,7 @@ BOOST_GEOMETRY_REGISTER_POINT_3D(
   pose.pose.position.y,
   pose.pose.position.z)
 BOOST_GEOMETRY_REGISTER_POINT_3D(
-  geometry_msgs::msg::Pose,
-  double,
-  cs::cartesian,
-  position.x,
-  position.y,
-  position.z)
+  geometry_msgs::msg::Pose, double, cs::cartesian, position.x, position.y, position.z)
 BOOST_GEOMETRY_REGISTER_POINT_3D(
   autoware_auto_planning_msgs::msg::PathPoint,
   double,

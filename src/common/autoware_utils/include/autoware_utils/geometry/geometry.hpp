@@ -21,6 +21,8 @@
 #define EIGEN_MPL2_ONLY
 #include "Eigen/Core"
 #include "Eigen/Geometry"
+#include "autoware_utils/geometry/boost_geometry.hpp"
+#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
 
 #include "autoware_auto_planning_msgs/msg/path.hpp"
 #include "autoware_auto_planning_msgs/msg/path_point_with_lane_id.hpp"
@@ -29,9 +31,6 @@
 #include "geometry_msgs/msg/pose_with_covariance_stamped.hpp"
 #include "geometry_msgs/msg/quaternion.hpp"
 #include "geometry_msgs/msg/transform_stamped.hpp"
-#include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
-#include "autoware_utils/geometry/boost_geometry.hpp"
 
 namespace autoware_utils
 {
@@ -72,7 +71,8 @@ inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg
 }
 
 template<>
-inline geometry_msgs::msg::Point getPoint(const autoware_auto_planning_msgs::msg::TrajectoryPoint & p)
+inline geometry_msgs::msg::Point getPoint(
+  const autoware_auto_planning_msgs::msg::TrajectoryPoint & p)
 {
   return p.pose.position;
 }
@@ -317,7 +317,8 @@ T transformVector(const T & points, const geometry_msgs::msg::Transform & transf
 }
 
 inline double calcCurvature(
-  const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2,
+  const geometry_msgs::msg::Point & p1,
+  const geometry_msgs::msg::Point & p2,
   const geometry_msgs::msg::Point & p3)
 {
   // Calculation details are described in the following page
@@ -331,7 +332,8 @@ inline double calcCurvature(
 }
 
 /**
- * @brief Calculate offset pose. The offset values are defined in the local coordinate of the input pose.
+ * @brief Calculate offset pose. The offset values are defined in the local coordinate of the input
+ * pose.
  */
 inline geometry_msgs::msg::Pose calcOffsetPose(
   const geometry_msgs::msg::Pose & p, const double x, const double y, const double z)

@@ -15,13 +15,12 @@
 #include "utilization/path_utilization.hpp"
 
 #include <algorithm>
-#include <vector>
 #include <memory>
+#include <vector>
 
 #include "rclcpp/rclcpp.hpp"
 #include "tf2/LinearMath/Quaternion.h"
 #include "tf2_geometry_msgs/tf2_geometry_msgs.h"
-
 #include "utilization/interpolation/cubic_spline.hpp"
 
 namespace autoware
@@ -31,7 +30,8 @@ namespace planning
 namespace behavior_velocity_planner_nodes
 {
 autoware_auto_planning_msgs::msg::Path interpolatePath(
-  const autoware_auto_planning_msgs::msg::Path & path, const double length,
+  const autoware_auto_planning_msgs::msg::Path & path,
+  const double length,
   const rclcpp::Logger & logger)
 {
   autoware_auto_planning_msgs::msg::Path interpolated_path;
@@ -42,7 +42,8 @@ autoware_auto_planning_msgs::msg::Path interpolatePath(
   std::vector<double> v;
   if (200 < path.points.size()) {
     RCLCPP_WARN(
-      logger, "because path size is too large, calculation cost is high. size is %z.",
+      logger,
+      "because path size is too large, calculation cost is high. size is %z.",
       path.points.size());
   }
   if (path.points.size() < 2) {
@@ -73,7 +74,8 @@ autoware_auto_planning_msgs::msg::Path interpolatePath(
       ++reference_velocity_idx;
     }
     reference_velocity = spline_ptr->calc_trajectory_point(
-      spline_ptr->s.at(static_cast<size_t>(std::max(0, static_cast<int>(reference_velocity_idx) - 1))))[3];
+      spline_ptr->s.at(
+        static_cast<size_t>(std::max(0, static_cast<int>(reference_velocity_idx) - 1))))[3];
 
     // insert check point before interpolated point
     while (checkpoint_idx < spline_ptr->s.size() && spline_ptr->s.at(checkpoint_idx) < s_t) {

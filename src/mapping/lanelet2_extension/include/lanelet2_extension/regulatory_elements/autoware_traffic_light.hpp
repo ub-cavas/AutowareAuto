@@ -16,13 +16,14 @@
  * Authors: Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_REGULATORY_ELEMENTS_AUTOWARE_TRAFFIC_LIGHT_H
-#define LANELET2_EXTENSION_REGULATORY_ELEMENTS_AUTOWARE_TRAFFIC_LIGHT_H
+#ifndef LANELET2_EXTENSION__REGULATORY_ELEMENTS__AUTOWARE_TRAFFIC_LIGHT_HPP_
+#define LANELET2_EXTENSION__REGULATORY_ELEMENTS__AUTOWARE_TRAFFIC_LIGHT_HPP_
+
+#include <memory>
+#include <vector>
 
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_core/primitives/Lanelet.h"
-#include <vector>
-#include <memory>
 
 namespace lanelet
 {
@@ -42,8 +43,11 @@ public:
   //! Directly construct a stop line from its required rule parameters.
   //! Might modify the input data in oder to get correct tags.
   static Ptr make(
-    Id id, const AttributeMap & attributes, const LineStringsOrPolygons3d & trafficLights,
-    const Optional<LineString3d> & stopLine = {}, const LineStrings3d & lightBulbs = {})
+    Id id,
+    const AttributeMap & attributes,
+    const LineStringsOrPolygons3d & trafficLights,
+    const Optional<LineString3d> & stopLine = {},
+    const LineStrings3d & lightBulbs = {})
   {
     return Ptr{new AutowareTrafficLight(id, attributes, trafficLights, stopLine, lightBulbs)};
   }
@@ -78,8 +82,11 @@ private:
   // when loading a map with this regulatory element
   friend class lanelet::RegisterRegulatoryElement<AutowareTrafficLight>;
   AutowareTrafficLight(
-    Id id, const AttributeMap & attributes, const LineStringsOrPolygons3d & trafficLights,
-    const Optional<LineString3d> & stopLine, const LineStrings3d & lightBulbs);
+    Id id,
+    const AttributeMap & attributes,
+    const LineStringsOrPolygons3d & trafficLights,
+    const Optional<LineString3d> & stopLine,
+    const LineStrings3d & lightBulbs);
   explicit AutowareTrafficLight(const lanelet::RegulatoryElementDataPtr & data);
 };
 static lanelet::RegisterRegulatoryElement<AutowareTrafficLight> regAutowareTraffic;
@@ -94,4 +101,4 @@ cpp file #endif
 }  // namespace autoware
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_REGULATORY_ELEMENTS_AUTOWARE_TRAFFIC_LIGHT_H
+#endif  // LANELET2_EXTENSION__REGULATORY_ELEMENTS__AUTOWARE_TRAFFIC_LIGHT_HPP_

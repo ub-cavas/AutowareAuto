@@ -14,8 +14,7 @@ ament_auto_find_build_dependencies()
 
 ament_auto_add_library(interpolation SHARED
   src/linear_interpolation.cpp
-  src/spline_interpolation.cpp
-)
+  src/spline_interpolation.cpp)
 
 # Test
 if(BUILD_TESTING)
@@ -29,8 +28,7 @@ if(BUILD_TESTING)
   ament_add_gtest(test_interpolation ${test_files})
 
   target_link_libraries(test_interpolation
-    interpolation
-  )
+    interpolation)
 endif()
 
 ament_auto_package()

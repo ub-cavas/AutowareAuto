@@ -12,7 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "behavior_velocity_planner_nodes/planner_data.hpp"
+#include <behavior_velocity_planner_nodes/planner_data.hpp>
+
+#include <vector>
 
 namespace autoware
 {
@@ -20,11 +22,11 @@ namespace planning
 {
 namespace behavior_velocity_planner_nodes
 {
-
-bool PlannerData::isVehicleStopped(
-  const double stop_duration) const
+bool PlannerData::isVehicleStopped(const double stop_duration) const
 {
-  if (velocity_buffer.empty()) {return false;}
+  if (velocity_buffer.empty()) {
+    return false;
+  }
 
   // Get velocities within stop_duration
   const auto now = rclcpp::Clock{RCL_ROS_TIME}.now();
@@ -33,13 +35,17 @@ bool PlannerData::isVehicleStopped(
     vs.push_back(velocity.twist.linear.x);
 
     const auto time_diff = now - velocity.header.stamp;
-    if (time_diff.seconds() >= stop_duration) {break;}
+    if (time_diff.seconds() >= stop_duration) {
+      break;
+    }
   }
 
   // Check all velocities
   constexpr double stop_velocity = 0.1;
   for (const auto & v : vs) {
-    if (v >= stop_velocity) {return false;}
+    if (v >= stop_velocity) {
+      return false;
+    }
   }
 
   return true;
@@ -51,7 +57,7 @@ void PlannerData::updateCurrentAcc()
     const double dv = current_velocity->twist.linear.x - prev_velocity_->twist.linear.x;
     const double dt = std::max(
       (rclcpp::Time(current_velocity->header.stamp) - rclcpp::Time(prev_velocity_->header.stamp))
-        .seconds(),
+      .seconds(),
       1e-03);
     const double accel = dv / dt;
     // apply lowpass filter

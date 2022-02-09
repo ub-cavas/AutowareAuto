@@ -18,9 +18,8 @@
 #include <memory>
 #include <string>
 
-#include "behaviortree_cpp_v3/bt_factory.h"
-
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
+#include "behaviortree_cpp_v3/bt_factory.h"
 
 namespace behavior_path_planner
 {
@@ -39,7 +38,8 @@ class SceneModuleBTNodeInterface : public BT::CoroActionNode
 {
 public:
   SceneModuleBTNodeInterface(
-    const std::string & name, const BT::NodeConfiguration & config,
+    const std::string & name,
+    const BT::NodeConfiguration & config,
     const std::shared_ptr<SceneModuleInterface> & scene_module,
     const std::shared_ptr<SceneModuleStatus> & module_status);
 

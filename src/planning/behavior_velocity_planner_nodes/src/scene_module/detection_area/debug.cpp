@@ -141,12 +141,12 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // ID
   {
     auto marker = createDefaultMarker(
-      "map", now, "detection_area_id", static_cast<int32_t>(detection_area_reg_elem.id()),
-      visualization_msgs::msg::Marker::TEXT_VIEW_FACING, createMarkerColor(
-        1.0f,
-        1.0f,
-        1.0f,
-        0.999f));
+      "map",
+      now,
+      "detection_area_id",
+      static_cast<int32_t>(detection_area_reg_elem.id()),
+      visualization_msgs::msg::Marker::TEXT_VIEW_FACING,
+      createMarkerColor(1.0f, 1.0f, 1.0f, 0.999f));
     marker.scale = createMarkerScale(0.0, 0.0, 1.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
@@ -164,12 +164,12 @@ visualization_msgs::msg::MarkerArray createCorrespondenceMarkerArray(
   // Polygon
   {
     auto marker = createDefaultMarker(
-      "map", now, "detection_area_polygon", static_cast<int32_t>(detection_area_reg_elem.id()),
-      visualization_msgs::msg::Marker::LINE_LIST, createMarkerColor(
-        0.1f,
-        0.1f,
-        1.0f,
-        0.500f));
+      "map",
+      now,
+      "detection_area_polygon",
+      static_cast<int32_t>(detection_area_reg_elem.id()),
+      visualization_msgs::msg::Marker::LINE_LIST,
+      createMarkerColor(0.1f, 0.1f, 1.0f, 0.500f));
     marker.scale = createMarkerScale(0.1, 0.0, 0.0);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
 
@@ -225,7 +225,11 @@ visualization_msgs::msg::MarkerArray createObstacleMarkerArray(
 
   {
     auto marker = createDefaultMarker(
-      "map", now, "obstacles", 0, visualization_msgs::msg::Marker::SPHERE,
+      "map",
+      now,
+      "obstacles",
+      0,
+      visualization_msgs::msg::Marker::SPHERE,
       createMarkerColor(1.0f, 0.0f, 0.0f, 0.999f));
     marker.scale = createMarkerScale(0.3, 0.3, 0.3);
     marker.lifetime = rclcpp::Duration::from_seconds(0.5);
@@ -252,14 +256,14 @@ visualization_msgs::msg::MarkerArray DetectionAreaModule::createDebugMarkerArray
 
   if (!debug_data_.stop_poses.empty()) {
     appendMarkerArray(
-      createCorrespondenceMarkerArray(
-        detection_area_reg_elem_,
-        current_time), current_time, &debug_marker_array);
+      createCorrespondenceMarkerArray(detection_area_reg_elem_, current_time),
+      current_time,
+      &debug_marker_array);
 
     appendMarkerArray(
-      createObstacleMarkerArray(
-        debug_data_.obstacle_points,
-        current_time), current_time, &debug_marker_array);
+      createObstacleMarkerArray(debug_data_.obstacle_points, current_time),
+      current_time,
+      &debug_marker_array);
   }
 
   return debug_marker_array;

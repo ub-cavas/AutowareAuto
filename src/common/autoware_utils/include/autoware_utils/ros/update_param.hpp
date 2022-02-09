@@ -25,9 +25,11 @@ namespace autoware_utils
 template<class T>
 bool updateParam(const std::vector<rclcpp::Parameter> & params, const std::string & name, T & value)
 {
-  const auto itr = std::find_if(
-    params.cbegin(), params.cend(),
-    [&name](const rclcpp::Parameter & p) {return p.get_name() == name;});
+  const auto itr =
+    std::find_if(
+    params.cbegin(), params.cend(), [&name](const rclcpp::Parameter & p) {
+      return p.get_name() == name;
+    });
 
   // Not found
   if (itr == params.cend()) {

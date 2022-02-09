@@ -18,6 +18,7 @@
 #include <string>
 
 #include "rclcpp/rclcpp.hpp"
+
 #include "visualization_msgs/msg/marker_array.hpp"
 
 namespace autoware_utils
@@ -62,8 +63,12 @@ inline std_msgs::msg::ColorRGBA createMarkerColor(float r, float g, float b, flo
 }
 
 inline visualization_msgs::msg::Marker createDefaultMarker(
-  const std::string & frame_id, const rclcpp::Time & now, const std::string & ns, const int32_t id,
-  const int32_t type, const geometry_msgs::msg::Vector3 & scale,
+  const std::string & frame_id,
+  const rclcpp::Time & now,
+  const std::string & ns,
+  const int32_t id,
+  const int32_t type,
+  const geometry_msgs::msg::Vector3 & scale,
   const std_msgs::msg::ColorRGBA & color)
 {
   visualization_msgs::msg::Marker marker;

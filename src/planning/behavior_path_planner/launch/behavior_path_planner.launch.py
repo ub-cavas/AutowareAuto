@@ -23,8 +23,8 @@ import launch.substitutions
 from launch_ros.actions import Node
 import yaml
 
-def generate_launch_description():
 
+def generate_launch_description():
     # params
     avoidance_param_path = os.path.join(
         get_package_share_directory('behavior_path_planner'),
@@ -120,6 +120,6 @@ def generate_launch_description():
             side_shift_param,
             behavior_path_planner_param,
             vehicle_constants_param
-            ],
+        ],
     )
     return launch.LaunchDescription([behavior_path_planner])

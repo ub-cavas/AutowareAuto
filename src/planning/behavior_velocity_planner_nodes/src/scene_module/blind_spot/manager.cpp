@@ -90,7 +90,11 @@ void BlindSpotModuleManager::launchNewModules(
 
     registerModule(
       std::make_shared<BlindSpotModule>(
-        module_id, lane_id, planner_data_, planner_param_, logger_.get_child("blind_spot_module"),
+        module_id,
+        lane_id,
+        planner_data_,
+        planner_param_,
+        logger_.get_child("blind_spot_module"),
         clock_));
   }
 }

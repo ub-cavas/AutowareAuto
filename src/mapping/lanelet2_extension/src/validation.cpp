@@ -12,24 +12,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <iostream>
+#include <string>
+
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_core/primitives/Lanelet.h"
+#include "lanelet2_extension/projection/mgrs_projector.hpp"
+#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
 #include "lanelet2_io/Io.h"
 #include "lanelet2_io/io_handlers/Factory.h"
 #include "lanelet2_io/io_handlers/Writer.h"
 #include "lanelet2_projection/UTM.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
-
-#include "lanelet2_extension/projection/mgrs_projector.hpp"
-#include "lanelet2_extension/regulatory_elements/autoware_traffic_light.hpp"
-
-#include <iostream>
-#include <string>
-
-#include "rclcpp/rclcpp.hpp"
-
 #include "pugixml.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace
 {
@@ -82,7 +79,9 @@ void validateTrafficLight(const lanelet::LaneletMapPtr lanelet_map)
   for (auto lanelet : lanelet_map->laneletLayer) {
     auto autoware_traffic_lights =
       lanelet.regulatoryElementsAs<lanelet::autoware::AutowareTrafficLight>();
-    if (autoware_traffic_lights.empty()) {continue;}
+    if (autoware_traffic_lights.empty()) {
+      continue;
+    }
     for (auto light : autoware_traffic_lights) {
       if (light->lightBulbs().size() == 0) {
         std::cerr << "regulatory element traffic light " << light->id() <<
@@ -132,7 +131,9 @@ void validateTurnDirection(const lanelet::LaneletMapPtr lanelet_map)
     }
 
     const auto conflicting_lanelets_or_areas = vehicle_graph->conflicting(lanelet);
-    if (conflicting_lanelets_or_areas.size() == 0) {continue;}
+    if (conflicting_lanelets_or_areas.size() == 0) {
+      continue;
+    }
     if (!lanelet.hasAttribute("turn_direction")) {
       std::cerr <<
         "lanelet " << lanelet.id() <<

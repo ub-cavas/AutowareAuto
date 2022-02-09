@@ -22,7 +22,6 @@
 #include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-
 #include "scene_module/intersection/util.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/interpolate.hpp"
@@ -37,9 +36,11 @@ namespace behavior_velocity_planner_nodes
 namespace bg = boost::geometry;
 
 MergeFromPrivateRoadModule::MergeFromPrivateRoadModule(
-  const int64_t module_id, const int64_t lane_id,
+  const int64_t module_id,
+  const int64_t lane_id,
   [[maybe_unused]] std::shared_ptr<const PlannerData> planner_data,
-  const IntersectionModule::PlannerParam & planner_param, const rclcpp::Logger logger,
+  const IntersectionModule::PlannerParam & planner_param,
+  const rclcpp::Logger logger,
   const rclcpp::Clock::SharedPtr clock)
 : SceneModuleInterface(module_id, logger, clock), lane_id_(lane_id)
 {
@@ -70,9 +71,13 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   std::vector<lanelet::CompoundPolygon3d> conflicting_areas;
 
   util::getObjectivePolygons(
-    lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_), planner_param_,
+    lanelet_map_ptr,
+    routing_graph_ptr,
+    static_cast<int32_t>(lane_id_),
+    planner_param_,
     &conflicting_areas,
-    &detection_areas, logger_);
+    &detection_areas,
+    logger_);
   if (detection_areas.empty()) {
     RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
     return true;
@@ -84,9 +89,16 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   int judge_line_idx = -1;
   int first_idx_inside_lane = -1;
   if (!util::generateStopLine(
-      static_cast<int32_t>(lane_id_), conflicting_areas, planner_data_, planner_param_, path, *path,
+      static_cast<int32_t>(lane_id_),
+      conflicting_areas,
+      planner_data_,
+      planner_param_,
+      path,
+      *path,
       &stop_line_idx,
-      &judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
+      &judge_line_idx,
+      &first_idx_inside_lane,
+      logger_.get_child("util")))
   {
     RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000ul /* ms */, "setStopLineIdx fail");
     return false;
@@ -98,10 +110,13 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   }
 
   debug_data_.virtual_wall_pose = util::getAheadPose(
-    static_cast<size_t>(stop_line_idx), planner_data_->vehicle_constants_.offset_longitudinal_max, *path);
+    static_cast<size_t>(stop_line_idx),
+    planner_data_->vehicle_constants_.offset_longitudinal_max,
+    *path);
   debug_data_.stop_point_pose = path->points.at(static_cast<size_t>(stop_line_idx)).point.pose;
   if (first_idx_inside_lane != -1) {
-    debug_data_.first_collision_point = path->points.at(static_cast<size_t>(first_idx_inside_lane)).point.pose.position;
+    debug_data_.first_collision_point =
+      path->points.at(static_cast<size_t>(first_idx_inside_lane)).point.pose.position;
   }
 
   /* set stop speed */
@@ -111,8 +126,8 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
     double v = (has_traffic_light_ && turn_direction_ == "straight") ? decel_vel : stop_vel;
     util::setVelocityFrom(static_cast<size_t>(stop_line_idx), v, path);
 
-    const double distance =
-      planning_utils::calcDist2d(current_pose.pose, path->points.at(static_cast<size_t>(stop_line_idx)).point.pose);
+    const double distance = planning_utils::calcDist2d(
+      current_pose.pose, path->points.at(static_cast<size_t>(stop_line_idx)).point.pose);
     constexpr double distance_threshold = 2.0;
     if (distance < distance_threshold && planner_data_->isVehicleStopped()) {
       state_machine_.setState(State::GO);
@@ -124,9 +139,15 @@ bool MergeFromPrivateRoadModule::modifyPathVelocity(
   return true;
 }
 
-void MergeFromPrivateRoadModule::StateMachine::setState(State state) {state_ = state;}
+void MergeFromPrivateRoadModule::StateMachine::setState(State state)
+{
+  state_ = state;
+}
 
-void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
+void MergeFromPrivateRoadModule::StateMachine::setMarginTime(const double t)
+{
+  margin_time_ = t;
+}
 
 MergeFromPrivateRoadModule::State MergeFromPrivateRoadModule::StateMachine::getState()
 {

@@ -20,6 +20,17 @@
 #include <string>
 #include <vector>
 
+#include "autoware_utils/ros/self_pose_listener.hpp"
+#include "behavior_path_planner/behavior_tree_manager.hpp"
+#include "behavior_path_planner/data_manager.hpp"
+#include "behavior_path_planner/route_handler.hpp"
+#include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
+#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
+#include "behavior_path_planner/scene_module/lane_following/lane_following_module.hpp"
+#include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
+#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
+#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
+#include "behavior_path_planner/turn_signal_decider.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
 #include "lanelet2_traffic_rules/TrafficRulesFactory.h"
@@ -28,42 +39,29 @@
 #include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
 #include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 #include "autoware_auto_planning_msgs/msg/approval.hpp"
+#include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
 #include "autoware_auto_planning_msgs/msg/path.hpp"
 #include "autoware_auto_planning_msgs/msg/path_change_module.hpp"
 #include "autoware_auto_planning_msgs/msg/path_change_module_array.hpp"
 #include "autoware_auto_planning_msgs/msg/path_change_module_id.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_auto_planning_msgs/msg/had_map_route.hpp"
-#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "nav_msgs/msg/path.hpp"
-
-#include "autoware_utils/ros/self_pose_listener.hpp"
-
-#include "behavior_path_planner/behavior_tree_manager.hpp"
-#include "behavior_path_planner/data_manager.hpp"
-#include "behavior_path_planner/route_handler.hpp"
-#include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
-#include "behavior_path_planner/scene_module/lane_change/lane_change_module.hpp"
-#include "behavior_path_planner/scene_module/lane_following/lane_following_module.hpp"
-#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
-#include "behavior_path_planner/scene_module/pull_out/pull_out_module.hpp"
-#include "behavior_path_planner/scene_module/side_shift/side_shift_module.hpp"
-#include "behavior_path_planner/turn_signal_decider.hpp"
 
 namespace behavior_path_planner
 {
 using ApprovalMsg = autoware_auto_planning_msgs::msg::Approval;
 using autoware_auto_mapping_msgs::msg::HADMapBin;
 using PredictedObjectsOrgMsg = autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_planning_msgs::msg::HADMapRoute;
 using autoware_auto_planning_msgs::msg::Path;
 using autoware_auto_planning_msgs::msg::PathChangeModule;
 using autoware_auto_planning_msgs::msg::PathChangeModuleArray;
 using autoware_auto_planning_msgs::msg::PathWithLaneId;
-using autoware_auto_planning_msgs::msg::HADMapRoute;
-using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
 using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
+using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using geometry_msgs::msg::TwistStamped;
 using nav_msgs::msg::OccupancyGrid;
@@ -74,6 +72,7 @@ class BehaviorPathPlannerNode : public rclcpp::Node
 public:
   explicit BehaviorPathPlannerNode(const rclcpp::NodeOptions & node_options);
   void requestOsmBinaryMap();
+
 private:
   rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr map_client_;
   rclcpp::Subscription<HADMapRoute>::SharedPtr route_subscriber_;

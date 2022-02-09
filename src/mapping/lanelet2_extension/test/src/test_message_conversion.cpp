@@ -14,11 +14,10 @@
 #include <math.h>
 
 #include "gtest/gtest.h"
-
-#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
-
 #include "lanelet2_extension/utility/message_conversion.hpp"
 #include "lanelet2_extension/utility/query.hpp"
+
+#include "autoware_auto_mapping_msgs/msg/had_map_bin.hpp"
 
 using lanelet::Lanelet;
 using lanelet::LineString3d;
@@ -68,8 +67,8 @@ TEST_F(TestSuite, BinMsgConversion)
   auto original_lanelet = lanelet::utils::query::laneletLayer(single_lanelet_map_ptr);
   auto regenerated_lanelet = lanelet::utils::query::laneletLayer(regenerated_map);
 
-  ASSERT_EQ(original_lanelet.front().id(), regenerated_lanelet.front().id())
-    << "regenerated map has different id";
+  ASSERT_EQ(original_lanelet.front().id(), regenerated_lanelet.front().id()) <<
+    "regenerated map has different id";
 }
 
 TEST_F(TestSuite, ToGeomMsgPt)

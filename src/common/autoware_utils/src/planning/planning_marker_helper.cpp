@@ -12,9 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <string>
-
 #include "autoware_utils/planning/planning_marker_helper.hpp"
+
+#include <string>
 
 using autoware_utils::createDefaultMarker;
 using autoware_utils::createMarkerColor;
@@ -23,8 +23,11 @@ using autoware_utils::createMarkerScale;
 namespace
 {
 inline visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
-  const geometry_msgs::msg::Pose & vehicle_front_pose, const std::string & module_name,
-  const std::string & ns_prefix, const rclcpp::Time & now, const int32_t id,
+  const geometry_msgs::msg::Pose & vehicle_front_pose,
+  const std::string & module_name,
+  const std::string & ns_prefix,
+  const rclcpp::Time & now,
+  const int32_t id,
   const std_msgs::msg::ColorRGBA & color)
 {
   visualization_msgs::msg::MarkerArray marker_array;
@@ -32,8 +35,13 @@ inline visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
   // Virtual Wall
   {
     auto marker = createDefaultMarker(
-      "map", now, ns_prefix + "virtual_wall", id, visualization_msgs::msg::Marker::CUBE,
-      createMarkerScale(0.1, 5.0, 2.0), color);
+      "map",
+      now,
+      ns_prefix + "virtual_wall",
+      id,
+      visualization_msgs::msg::Marker::CUBE,
+      createMarkerScale(0.1, 5.0, 2.0),
+      color);
 
     marker.pose = vehicle_front_pose;
     marker.pose.position.z += 1.0;
@@ -44,8 +52,13 @@ inline visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
   // Factor Text
   {
     auto marker = createDefaultMarker(
-      "map", now, ns_prefix + "factor_text", id, visualization_msgs::msg::Marker::TEXT_VIEW_FACING,
-      createMarkerScale(0.0, 0.0, 1.0), createMarkerColor(1.0, 1.0, 1.0, 1.0));
+      "map",
+      now,
+      ns_prefix + "factor_text",
+      id,
+      visualization_msgs::msg::Marker::TEXT_VIEW_FACING,
+      createMarkerScale(0.0, 0.0, 1.0),
+      createMarkerColor(1.0, 1.0, 1.0, 1.0));
 
     marker.pose = vehicle_front_pose;
     marker.pose.position.z += 2.0;
@@ -62,7 +75,9 @@ inline visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
 namespace autoware_utils
 {
 visualization_msgs::msg::MarkerArray createStopVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id)
 {
   return createVirtualWallMarkerArray(
@@ -70,7 +85,9 @@ visualization_msgs::msg::MarkerArray createStopVirtualWallMarker(
 }
 
 visualization_msgs::msg::MarkerArray createSlowDownVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id)
 {
   return createVirtualWallMarkerArray(
@@ -78,7 +95,9 @@ visualization_msgs::msg::MarkerArray createSlowDownVirtualWallMarker(
 }
 
 visualization_msgs::msg::MarkerArray createDeadLineVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id)
 {
   return createVirtualWallMarkerArray(

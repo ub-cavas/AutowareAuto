@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "scene_module/detection_area/manager.hpp"
+
 #include <memory>
 #include <set>
 #include <string>
@@ -19,7 +21,6 @@
 #include <utility>
 #include <vector>
 
-#include "scene_module/detection_area/manager.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "tf2/utils.h"
 
@@ -39,7 +40,7 @@ std::vector<lanelet::DetectionAreaConstPtr> getDetectionAreaRegElemsOnPath(
 
   for (const auto & p : path.points) {
     const auto lane_id = p.lane_ids.at(0);
-    const auto ll = lanelet_map->laneletLayer.get(static_cast<long>(lane_id));
+    const auto ll = lanelet_map->laneletLayer.get(static_cast<int64_t>(lane_id));
     const auto detection_areas = ll.regulatoryElementsAs<const lanelet::autoware::DetectionArea>();
     for (const auto & detection_area : detection_areas) {
       detection_area_reg_elems.push_back(detection_area);
@@ -83,7 +84,10 @@ void DetectionAreaModuleManager::launchNewModules(
     if (!isModuleRegistered(module_id)) {
       registerModule(
         std::make_shared<DetectionAreaModule>(
-          module_id, *detection_area, planner_param_, logger_.get_child("detection_area_module"),
+          module_id,
+          *detection_area,
+          planner_param_,
+          logger_.get_child("detection_area_module"),
           clock_));
     }
   }

@@ -16,7 +16,6 @@
 
 #include "scene_module/crosswalk/scene_crosswalk.hpp"
 #include "scene_module/crosswalk/scene_walkway.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 
@@ -483,8 +482,10 @@ visualization_msgs::msg::MarkerArray createWalkwayMarkers(
     point.z = debug_data.stop_poses.at(j).position.z;
     for (size_t i = 0; i < 50; ++i) {
       geometry_msgs::msg::Point range_point;
-      range_point.x = point.x + debug_data.stop_judge_range * std::cos(M_PI * 2 / 50 * static_cast<double>(i));
-      range_point.y = point.y + debug_data.stop_judge_range * std::sin(M_PI * 2 / 50 * static_cast<double>(i));
+      range_point.x =
+        point.x + debug_data.stop_judge_range * std::cos(M_PI * 2 / 50 * static_cast<double>(i));
+      range_point.y =
+        point.y + debug_data.stop_judge_range * std::sin(M_PI * 2 / 50 * static_cast<double>(i));
       range_point.z = point.z;
       range_marker.points.push_back(range_point);
     }

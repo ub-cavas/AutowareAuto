@@ -19,18 +19,14 @@
 #ifndef BEHAVIOR_VELOCITY_PLANNER_NODES__BEHAVIOR_VELOCITY_PLANNER_NODE_HPP_
 #define BEHAVIOR_VELOCITY_PLANNER_NODES__BEHAVIOR_VELOCITY_PLANNER_NODE_HPP_
 
-#include <tf2_ros/buffer.h>
-#include <tf2_ros/transform_listener.h>
-
-#include <memory>
-
 #include <behavior_velocity_planner/behavior_velocity_planner.hpp>
 #include <behavior_velocity_planner_nodes/planner_data.hpp>
 #include <behavior_velocity_planner_nodes/planner_manager.hpp>
 #include <behavior_velocity_planner_nodes/visibility_control.hpp>
+
 #include <rclcpp/rclcpp.hpp>
 
-#include "autoware_auto_mapping_msgs/srv/had_map_service.hpp"
+#include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_mapping_msgs/msg/had_map_bin.hpp>
 #include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <autoware_auto_planning_msgs/msg/order_movement.hpp>
@@ -38,11 +34,18 @@
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+
 #include <diagnostic_msgs/msg/diagnostic_status.hpp>
 #include <geometry_msgs/msg/twist_stamped.hpp>
 #include <sensor_msgs/msg/point_cloud2.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
+#include <tf2_ros/buffer.h>
+#include <tf2_ros/transform_listener.h>
+
+#include <memory>
+#include <vector>
+#include <string>
 
 namespace autoware
 {
@@ -105,8 +108,7 @@ private:
     const autoware_auto_planning_msgs::msg::Path & path);
   void set_steering_angle(
     std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & trajectory_points);
-  float distance2d(
-    const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
+  float distance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
   float calculate_curvature(
     const geometry_msgs::msg::Point & p1,
     const geometry_msgs::msg::Point & p2,

@@ -12,9 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include <math.h>
+
 #include "gtest/gtest.h"
 #include "lanelet2_extension/utility/query.hpp"
-#include <math.h>
 
 using lanelet::Lanelet;
 using lanelet::LineString3d;
@@ -68,7 +69,10 @@ public:
     stop_line = LineString3d(getId(), Points3d{p11, p12});               // NOLINT
 
     auto tl = lanelet::autoware::AutowareTrafficLight::make(
-      getId(), lanelet::AttributeMap(), {traffic_light_base}, stop_line,
+      getId(),
+      lanelet::AttributeMap(),
+      {traffic_light_base},
+      stop_line,
       {traffic_light_bulbs});  // NOLINT
 
     road_lanelet.addRegulatoryElement(tl);

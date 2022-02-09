@@ -23,8 +23,7 @@ find_package(Boost REQUIRED)
 
 set(AUTOWARE_UTILS_SRC
   src/autoware_utils.cpp
-  src/planning/planning_marker_helper.cpp
-)
+  src/planning/planning_marker_helper.cpp)
 
 set(AUTOWARE_UTILS_HEADERS
   include/autoware_utils/autoware_utils.hpp
@@ -46,38 +45,30 @@ set(AUTOWARE_UTILS_HEADERS
   include/autoware_utils/ros/wait_for_param.hpp
   include/autoware_utils/system/heartbeat_checker.hpp
   include/autoware_utils/system/stop_watch.hpp
-  include/autoware_utils/trajectory/trajectory.hpp
-)
+  include/autoware_utils/trajectory/trajectory.hpp)
 
 # generate component node library
 ament_auto_add_library(${PROJECT_NAME} SHARED
   ${AUTOWARE_UTILS_SRC}
-  ${AUTOWARE_UTILS_HEADERS}
-)
+  ${AUTOWARE_UTILS_HEADERS})
 
 autoware_set_compile_options(${PROJECT_NAME})
 
-target_compile_options(${PROJECT_NAME} PRIVATE
-  -Wno-old-style-cast
-  -Wno-sign-conversion
-  -Wno-conversion
-  -Wno-float-conversion
-)
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast)
 
 # Test
 if(BUILD_TESTING)
+  # run linters
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
 
+  # Unit tests
   find_package(ament_cmake_gtest REQUIRED)
-
   file(GLOB_RECURSE test_files test/**/*.cpp)
-
   ament_add_gtest(test_autoware_utils ${test_files})
-
-  target_link_libraries(test_autoware_utils
-    autoware_utils
-  )
+  autoware_set_compile_options(test_autoware_utils)
+  target_compile_options(test_autoware_utils PRIVATE -Wno-old-style-cast)
+  target_link_libraries(test_autoware_utils autoware_utils)
 endif()
 
 ament_auto_package()

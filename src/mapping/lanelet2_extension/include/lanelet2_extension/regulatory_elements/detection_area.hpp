@@ -16,13 +16,14 @@
  * Authors: Ryohsuke Mitsudome
  */
 
-#ifndef LANELET2_EXTENSION_REGULATORY_ELEMENTS_DETECTION_AREA_H
-#define LANELET2_EXTENSION_REGULATORY_ELEMENTS_DETECTION_AREA_H
+#ifndef LANELET2_EXTENSION__REGULATORY_ELEMENTS__DETECTION_AREA_HPP_
+#define LANELET2_EXTENSION__REGULATORY_ELEMENTS__DETECTION_AREA_HPP_
+
+#include <memory>
+#include <vector>
 
 #include "lanelet2_core/primitives/BasicRegulatoryElements.h"
 #include "lanelet2_core/primitives/Lanelet.h"
-#include <vector>
-#include <memory>
 
 namespace lanelet
 {
@@ -37,7 +38,9 @@ public:
   //! Directly construct a stop line from its required rule parameters.
   //! Might modify the input data in oder to get correct tags.
   static Ptr make(
-    Id id, const AttributeMap & attributes, const Polygons3d & detectionAreas,
+    Id id,
+    const AttributeMap & attributes,
+    const Polygons3d & detectionAreas,
     const LineString3d & stopLine)
   {
     return Ptr{new DetectionArea(id, attributes, detectionAreas, stopLine)};
@@ -84,7 +87,9 @@ private:
   // when loading a map with this regulatory element
   friend class lanelet::RegisterRegulatoryElement<DetectionArea>;
   DetectionArea(
-    Id id, const AttributeMap & attributes, const Polygons3d & detectionAreas,
+    Id id,
+    const AttributeMap & attributes,
+    const Polygons3d & detectionAreas,
     const LineString3d & stopLine);
   explicit DetectionArea(const lanelet::RegulatoryElementDataPtr & data);
 };
@@ -93,4 +98,4 @@ static lanelet::RegisterRegulatoryElement<DetectionArea> regDetectionArea;
 }  // namespace autoware
 }  // namespace lanelet
 
-#endif  // LANELET2_EXTENSION_REGULATORY_ELEMENTS_DETECTION_AREA_H
+#endif  // LANELET2_EXTENSION__REGULATORY_ELEMENTS__DETECTION_AREA_HPP_

@@ -19,15 +19,15 @@
 #include <string>
 #include <vector>
 
+#include "autoware_utils/ros/marker_helper.hpp"
+#include "behavior_path_planner/predicted_objects_msg.hpp"
 #include "lanelet2_core/LaneletMap.h"
 #include "lanelet2_routing/RoutingGraph.h"
+#include "rclcpp/rclcpp.hpp"
 
-#include "behavior_path_planner/predicted_objects_msg.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_utils/ros/marker_helper.hpp"
 #include "geometry_msgs/msg/point.hpp"
 #include "geometry_msgs/msg/polygon.hpp"
-#include "rclcpp/rclcpp.hpp"
 #include "visualization_msgs/msg/marker_array.hpp"
 
 namespace behavior_path_planner
@@ -91,7 +91,8 @@ public:
    * @return False if the path is empty or shift points have conflicts.
    */
   bool generate(
-    ShiftedPath * shift_path, const bool offset_back = true,
+    ShiftedPath * shift_path,
+    const bool offset_back = true,
     const SHIFT_TYPE type = SHIFT_TYPE::SPLINE);
 
   /**
@@ -146,9 +147,11 @@ public:
     // if (!is_index_aligned_) {
     //   updateShiftPointIndices();
     // }
-    const auto furthest = std::max_element(
-      shift_points_.begin(), shift_points_.end(),
-      [](auto & a, auto & b) {return a.end_idx < b.end_idx;});
+    const auto furthest =
+      std::max_element(
+      shift_points_.begin(), shift_points_.end(), [](auto & a, auto & b) {
+        return a.end_idx < b.end_idx;
+      });
 
     return furthest->length;
   }
@@ -159,9 +162,11 @@ public:
       return {};
     }
 
-    const auto furthest = std::max_element(
-      shift_points_.begin(), shift_points_.end(),
-      [](auto & a, auto & b) {return a.end_idx > b.end_idx;});
+    const auto furthest =
+      std::max_element(
+      shift_points_.begin(), shift_points_.end(), [](auto & a, auto & b) {
+        return a.end_idx > b.end_idx;
+      });
 
     return *furthest;
   }
@@ -176,8 +181,12 @@ public:
    * @brief  Calculate shift point from path arclength for start and end point.
    */
   static bool calcShiftPointFromArcLength(
-    const PathWithLaneId & path, const Point & origin, double dist_to_start, double dist_to_end,
-    double shift_length, ShiftPoint * shift_point);
+    const PathWithLaneId & path,
+    const Point & origin,
+    double dist_to_start,
+    double dist_to_end,
+    double shift_length,
+    ShiftPoint * shift_point);
 
 private:
   // The reference path along which the shift will be performed.

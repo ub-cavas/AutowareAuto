@@ -23,7 +23,6 @@
 #include "lanelet2_extension/regulatory_elements/road_marking.hpp"
 #include "lanelet2_extension/utility/query.hpp"
 #include "lanelet2_extension/utility/utilities.hpp"
-
 #include "scene_module/intersection/util.hpp"
 #include "utilization/boost_geometry_helper.hpp"
 #include "utilization/interpolate.hpp"
@@ -38,8 +37,11 @@ namespace behavior_velocity_planner_nodes
 namespace bg = boost::geometry;
 
 IntersectionModule::IntersectionModule(
-  const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const int64_t module_id,
+  const int64_t lane_id,
+  std::shared_ptr<const PlannerData> planner_data,
+  const PlannerParam & planner_param,
+  const rclcpp::Logger logger,
   const rclcpp::Clock::SharedPtr clock)
 : SceneModuleInterface(module_id, logger, clock), lane_id_(lane_id)
 {
@@ -51,8 +53,7 @@ IntersectionModule::IntersectionModule(
   state_machine_.setMarginTime(planner_param_.state_transit_margin_time);
 }
 
-bool IntersectionModule::modifyPathVelocity(
-  autoware_auto_planning_msgs::msg::PathWithLaneId * path)
+bool IntersectionModule::modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path)
 {
   const bool external_go =
     isTargetExternalInputStatus(autoware_auto_planning_msgs::msg::OrderMovement::GO);
@@ -79,9 +80,13 @@ bool IntersectionModule::modifyPathVelocity(
   std::vector<lanelet::CompoundPolygon3d> conflicting_areas;
 
   util::getObjectivePolygons(
-    lanelet_map_ptr, routing_graph_ptr, static_cast<int32_t>(lane_id_), planner_param_,
+    lanelet_map_ptr,
+    routing_graph_ptr,
+    static_cast<int32_t>(lane_id_),
+    planner_param_,
     &conflicting_areas,
-    &detection_areas, logger_);
+    &detection_areas,
+    logger_);
   if (detection_areas.empty()) {
     RCLCPP_DEBUG(logger_, "no detection area. skip computation.");
     return true;
@@ -94,13 +99,18 @@ bool IntersectionModule::modifyPathVelocity(
   int first_idx_inside_lane = -1;
   const auto target_path = trimPathWithLaneId(*path);
   if (!util::generateStopLine(
-      static_cast<int32_t>(lane_id_), conflicting_areas, planner_data_, planner_param_, path,
-      target_path, &stop_line_idx,
-      &pass_judge_line_idx, &first_idx_inside_lane, logger_.get_child("util")))
+      static_cast<int32_t>(lane_id_),
+      conflicting_areas,
+      planner_data_,
+      planner_param_,
+      path,
+      target_path,
+      &stop_line_idx,
+      &pass_judge_line_idx,
+      &first_idx_inside_lane,
+      logger_.get_child("util")))
   {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000 /* ms */,
-      "setStopLineIdx fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "setStopLineIdx fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -114,9 +124,7 @@ bool IntersectionModule::modifyPathVelocity(
   /* calc closest index */
   int closest_idx = -1;
   if (!planning_utils::calcClosestIndex(input_path, current_pose.pose, closest_idx)) {
-    RCLCPP_WARN_SKIPFIRST_THROTTLE(
-      logger_, *clock_, 1000 /* ms */,
-      "calcClosestIndex fail");
+    RCLCPP_WARN_SKIPFIRST_THROTTLE(logger_, *clock_, 1000 /* ms */, "calcClosestIndex fail");
     RCLCPP_DEBUG(logger_, "===== plan end =====");
     return false;
   }
@@ -160,18 +168,16 @@ bool IntersectionModule::modifyPathVelocity(
 
     if (is_stop_required) {
       debug_data_.stop_required = true;
-      debug_data_.stop_wall_pose = util::getAheadPose(
-        static_cast<size_t>(stop_line_idx),
-        base_link2front, *path);
+      debug_data_.stop_wall_pose =
+        util::getAheadPose(static_cast<size_t>(stop_line_idx), base_link2front, *path);
       debug_data_.stop_point_pose = path->points.at(static_cast<size_t>(stop_line_idx)).point.pose;
       debug_data_.judge_point_pose =
         path->points.at(static_cast<size_t>(pass_judge_line_idx)).point.pose;
 
     } else {
       debug_data_.stop_required = false;
-      debug_data_.slow_wall_pose = util::getAheadPose(
-        static_cast<size_t>(stop_line_idx),
-        base_link2front, *path);
+      debug_data_.slow_wall_pose =
+        util::getAheadPose(static_cast<size_t>(stop_line_idx), base_link2front, *path);
     }
   }
 
@@ -183,12 +189,13 @@ void IntersectionModule::cutPredictPathWithDuration(
   autoware_auto_perception_msgs::msg::PredictedObjects * objects_ptr, const double time_thr) const
 {
   const rclcpp::Time current_time = clock_->now();
-  for (auto & object : objects_ptr->objects) {                    // each objects
+  for (auto & object : objects_ptr->objects) {                         // each objects
     for (auto & predicted_path : object.kinematics.predicted_paths) {  // each predicted paths
       rosidl_runtime_cpp::BoundedVector<geometry_msgs::msg::Pose_<std::allocator<void>>, 100> vp;
       for (size_t i = 0; i < predicted_path.path.size(); ++i) {  // each path points
         auto & predicted_pose = predicted_path.path.at(i);
-        rclcpp::Time pose_time_calculated = rclcpp::Time(objects_ptr->header.stamp) +
+        rclcpp::Time pose_time_calculated =
+          rclcpp::Time(objects_ptr->header.stamp) +
           rclcpp::Duration(
           static_cast<int32_t>(i) * predicted_path.time_step.sec,
           static_cast<uint32_t>(i) * predicted_path.time_step.nanosec);
@@ -216,7 +223,9 @@ bool IntersectionModule::checkCollision(
   autoware_auto_perception_msgs::msg::PredictedObjects target_objects;
   for (const auto & object : objects_ptr->objects) {
     // ignore non-vehicle type objects, such as pedestrian.
-    if (!isTargetCollisionVehicleType(object)) {continue;}
+    if (!isTargetCollisionVehicleType(object)) {
+      continue;
+    }
 
     // ignore vehicle in ego-lane. (TODO update check algorithm)
     const auto object_pose = object.kinematics.initial_pose.pose;
@@ -279,8 +288,11 @@ autoware_auto_planning_msgs::msg::PathWithLaneId IntersectionModule::trimPathWit
 }
 
 Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
-  const int start_idx, const double extra_dist, const double ignore_dist) const
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const int closest_idx,
+  const int start_idx,
+  const double extra_dist,
+  const double ignore_dist) const
 {
   const size_t assigned_lane_start_idx = static_cast<size_t>(start_idx);
   size_t assigned_lane_end_idx = 0;
@@ -333,8 +345,8 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
     double y = path.points.at(i).point.pose.position.y - width * std::cos(yaw);
     ego_area.outer().push_back(Point2d(x, y));
   }
-  for (int i =
-    static_cast<int32_t>(ego_area_end_idx); i >= static_cast<int32_t>(ego_area_start_idx);
+  for (int i = static_cast<int32_t>(ego_area_end_idx);
+    i >= static_cast<int32_t>(ego_area_start_idx);
     --i)
   {
     if (i < 0) {
@@ -351,7 +363,8 @@ Polygon2d IntersectionModule::generateEgoIntersectionLanePolygon(
 }
 
 double IntersectionModule::calcIntersectionPassingTime(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const int closest_idx,
   const int objective_lane_id) const
 {
   double closest_vel =
@@ -390,7 +403,8 @@ double IntersectionModule::calcIntersectionPassingTime(
 }
 
 bool IntersectionModule::checkStuckVehicleInIntersection(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const int closest_idx,
   const int stop_idx,
   const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr) const
 {
@@ -423,14 +437,14 @@ bool IntersectionModule::checkStuckVehicleInIntersection(
 
 Polygon2d IntersectionModule::toFootprintPolygon(
   const autoware_auto_perception_msgs::msg::PredictedObject & object) const
-{   // TODO(Mehmet Dogru): Add shape check once shape info in the msg is merged into Autoware.Auto
-//  Polygon2d obj_footprint;
-//  if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
-//    obj_footprint = toBoostPoly(object.shape.footprint);
-//  } else {
-//    // cylinder type is treated as square-polygon
-//    obj_footprint = obj2polygon(object.state.pose_covariance.pose, object.shape.dimensions);
-//  }
+{  // TODO(Mehmet Dogru): Add shape check once shape info in the msg is merged into Autoware.Auto
+   //  Polygon2d obj_footprint;
+   //  if (object.shape.type == autoware_perception_msgs::msg::Shape::POLYGON) {
+   //    obj_footprint = toBoostPoly(object.shape.footprint);
+   //  } else {
+   //    // cylinder type is treated as square-polygon
+   //    obj_footprint = obj2polygon(object.state.pose_covariance.pose, object.shape.dimensions);
+   //  }
   Polygon2d obj_footprint = toBoostPoly(object.shape.front().polygon);
   return obj_footprint;
 }
@@ -440,17 +454,17 @@ bool IntersectionModule::isTargetCollisionVehicleType(
 {
   if (
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::CAR ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::BUS ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::BUS ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE)
+    autoware_auto_perception_msgs::msg::ObjectClassification::BICYCLE)
   {
     return true;
   }
@@ -462,15 +476,15 @@ bool IntersectionModule::isTargetStuckVehicleType(
 {
   if (
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::CAR ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::CAR ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::BUS ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::BUS ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRUCK ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER ||
+    autoware_auto_perception_msgs::msg::ObjectClassification::TRAILER ||
     object.classification.front().classification ==
-      autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE)
+    autoware_auto_perception_msgs::msg::ObjectClassification::MOTORCYCLE)
   {
     return true;
   }
@@ -509,11 +523,20 @@ void IntersectionModule::StateMachine::setStateWithMarginTime(
   RCLCPP_ERROR(logger, "Unsuitable state. ignore request.");
 }
 
-void IntersectionModule::StateMachine::setState(State state) {state_ = state;}
+void IntersectionModule::StateMachine::setState(State state)
+{
+  state_ = state;
+}
 
-void IntersectionModule::StateMachine::setMarginTime(const double t) {margin_time_ = t;}
+void IntersectionModule::StateMachine::setMarginTime(const double t)
+{
+  margin_time_ = t;
+}
 
-IntersectionModule::State IntersectionModule::StateMachine::getState() {return state_;}
+IntersectionModule::State IntersectionModule::StateMachine::getState()
+{
+  return state_;
+}
 
 bool IntersectionModule::isTargetExternalInputStatus(const int target_status)
 {

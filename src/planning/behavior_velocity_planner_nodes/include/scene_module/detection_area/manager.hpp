@@ -18,11 +18,11 @@
 #include <functional>
 #include <memory>
 
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "rclcpp/rclcpp.hpp"
-
 #include "scene_module/detection_area/scene.hpp"
 #include "scene_module/scene_module_interface.hpp"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace autoware
 {

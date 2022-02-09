@@ -20,18 +20,16 @@
 #include <string>
 #include <vector>
 
+#include "lanelet2_core/LaneletMap.h"
+#include "lanelet2_routing/RoutingGraph.h"
 #include "rclcpp/rclcpp.hpp"
+#include "scene_module/scene_module_interface.hpp"
+#include "utilization/boost_geometry_helper.hpp"
 
 #include "autoware_auto_perception_msgs/msg/predicted_object.hpp"
 #include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "geometry_msgs/msg/point.hpp"
-
-#include "lanelet2_core/LaneletMap.h"
-#include "lanelet2_routing/RoutingGraph.h"
-
-#include "scene_module/scene_module_interface.hpp"
-#include "utilization/boost_geometry_helper.hpp"
 
 namespace autoware
 {
@@ -104,10 +102,9 @@ public:
     double decel_velocity;     //! used when in straight and traffic_light lane
     double path_expand_width;  //! path width to calculate the edge line for both side
     double stop_line_margin;   //! distance from auto-generated stopline to detection_area boundary
+    double stuck_vehicle_detect_dist;  //! distance from end point to finish stuck vehicle check
     double
-      stuck_vehicle_detect_dist;  //! distance from end point to finish stuck vehicle check
-    double
-      stuck_vehicle_ignore_dist;  //! distance from intersection start to start stuck vehicle check
+      stuck_vehicle_ignore_dist;   //! distance from intersection start to start stuck vehicle check
     double stuck_vehicle_vel_thr;  //! Threshold of the speed to be recognized as stopped
     double intersection_velocity;  //! used for intersection passing time
     double intersection_max_acc;   //! used for calculating intersection velocity
@@ -116,16 +113,18 @@ public:
   };
 
   IntersectionModule(
-    const int64_t module_id, const int64_t lane_id, std::shared_ptr<const PlannerData> planner_data,
-    const PlannerParam & planner_param, const rclcpp::Logger logger,
+    const int64_t module_id,
+    const int64_t lane_id,
+    std::shared_ptr<const PlannerData> planner_data,
+    const PlannerParam & planner_param,
+    const rclcpp::Logger logger,
     const rclcpp::Clock::SharedPtr clock);
 
   /**
    * @brief plan go-stop velocity at traffic crossing with collision check between reference path
    * and object predicted path
    */
-  bool modifyPathVelocity(
-    autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
+  bool modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path) override;
 
   visualization_msgs::msg::MarkerArray createDebugMarkerArray() override;
 
@@ -152,30 +151,34 @@ private:
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr,
     const int closest_idx);
 
-//  /**
-//   * @brief Check if there is a stopped vehicle on the ego-lane.
-//   * @param path            ego-car lane
-//   * @param closest_idx     ego-car position on the lane
-//   * @param objects_ptr     target objects
-//   * @return true if exists
-//   */
+  //  /**
+  //   * @brief Check if there is a stopped vehicle on the ego-lane.
+  //   * @param path            ego-car lane
+  //   * @param closest_idx     ego-car position on the lane
+  //   * @param objects_ptr     target objects
+  //   * @return true if exists
+  //   */
   bool checkStuckVehicleInIntersection(
-    const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+    const int closest_idx,
     const int stop_idx,
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr objects_ptr) const;
 
-//  /**
-//   * @brief Calculate the polygon of the path from the ego-car position to the end of the
-//   * intersection lanelet (+ extra distance).
-//   * @param path           ego-car lane
-//   * @param closest_idx    ego-car position index on the lane
-//   * @param extra_dist     extra distance from the end point of the intersection lanelet
-//   * @param ignore_dist    ignore distance from the start point of the ego-intersection lane
-//   * @return generated polygon
-//   */
+  //  /**
+  //   * @brief Calculate the polygon of the path from the ego-car position to the end of the
+  //   * intersection lanelet (+ extra distance).
+  //   * @param path           ego-car lane
+  //   * @param closest_idx    ego-car position index on the lane
+  //   * @param extra_dist     extra distance from the end point of the intersection lanelet
+  //   * @param ignore_dist    ignore distance from the start point of the ego-intersection lane
+  //   * @return generated polygon
+  //   */
   Polygon2d generateEgoIntersectionLanePolygon(
-    const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
-    const int start_idx, const double extra_dist, const double ignore_dist) const;
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+    const int closest_idx,
+    const int start_idx,
+    const double extra_dist,
+    const double ignore_dist) const;
 
   /**
    * @brief trimming the path with target lane id
@@ -191,7 +194,8 @@ private:
    * @param time_thr    time threshold to cut path
    */
   void cutPredictPathWithDuration(
-    autoware_auto_perception_msgs::msg::PredictedObjects * objects_ptr, const double time_thr) const;
+    autoware_auto_perception_msgs::msg::PredictedObjects * objects_ptr,
+    const double time_thr) const;
 
   /**
    * @brief Calculate time that is needed for ego-vehicle to cross the intersection. (to be updated)
@@ -201,7 +205,8 @@ private:
    * @return calculated time [s]
    */
   double calcIntersectionPassingTime(
-    const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const int closest_idx,
+    const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+    const int closest_idx,
     const int objective_lane_id) const;
 
   /**
@@ -217,14 +222,16 @@ private:
    * @param object target object
    * @return true if the object has a target type
    */
-  bool isTargetStuckVehicleType(const autoware_auto_perception_msgs::msg::PredictedObject & object) const;
+  bool isTargetStuckVehicleType(
+    const autoware_auto_perception_msgs::msg::PredictedObject & object) const;
 
   /**
    * @brief convert object to footprint polygon
    * @param object detected object
    * @return 2d polygon of the object footprint
    */
-  Polygon2d toFootprintPolygon(const autoware_auto_perception_msgs::msg::PredictedObject & object) const;
+  Polygon2d toFootprintPolygon(
+    const autoware_auto_perception_msgs::msg::PredictedObject & object) const;
 
   /**
    * @brief Whether target autoware_api_msgs::Intersection::status is valid or not

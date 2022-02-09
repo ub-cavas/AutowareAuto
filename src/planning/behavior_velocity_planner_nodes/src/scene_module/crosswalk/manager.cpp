@@ -81,10 +81,8 @@ CrosswalkModuleManager::CrosswalkModuleManager(rclcpp::Node & node)
   // for walkway parameters
   auto & wp = walkway_planner_param_;
   wp.stop_margin = node.declare_parameter(ns + ".walkway.stop_margin", 1.0);
-  wp.stop_line_distance =
-    node.declare_parameter(ns + ".walkway.stop_line_distance", 1.0);
-  wp.external_input_timeout =
-    node.declare_parameter(ns + ".walkway.external_input_timeout", 1.0);
+  wp.stop_line_distance = node.declare_parameter(ns + ".walkway.stop_line_distance", 1.0);
+  wp.external_input_timeout = node.declare_parameter(ns + ".walkway.external_input_timeout", 1.0);
 }
 
 void CrosswalkModuleManager::launchNewModules(
@@ -97,7 +95,10 @@ void CrosswalkModuleManager::launchNewModules(
     if (!isModuleRegistered(module_id)) {
       registerModule(
         std::make_shared<CrosswalkModule>(
-          module_id, crosswalk, crosswalk_planner_param_, logger_.get_child("crosswalk_module"),
+          module_id,
+          crosswalk,
+          crosswalk_planner_param_,
+          logger_.get_child("crosswalk_module"),
           clock_));
       if (
         crosswalk.attributeOr(lanelet::AttributeNamesString::Subtype, std::string("")) ==
@@ -105,7 +106,10 @@ void CrosswalkModuleManager::launchNewModules(
       {
         registerModule(
           std::make_shared<WalkwayModule>(
-            module_id, crosswalk, walkway_planner_param_, logger_.get_child("walkway_module"),
+            module_id,
+            crosswalk,
+            walkway_planner_param_,
+            logger_.get_child("walkway_module"),
             clock_));
       }
     }

@@ -12,6 +12,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
+
 #include <algorithm>
 #include <memory>
 #include <string>
@@ -19,19 +21,15 @@
 #include <vector>
 
 #include "autoware_utils/autoware_utils.hpp"
-
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-
 #include "behavior_path_planner/behavior_path_planner_node.hpp"
 #include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/scene_module/avoidance/debug.hpp"
-#include "behavior_path_planner/scene_module/pull_over/pull_over_module.hpp"
 #include "behavior_path_planner/scene_module/pull_over/util.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+#include "rclcpp/rclcpp.hpp"
 
 namespace behavior_path_planner
 {
@@ -71,7 +69,9 @@ void PullOverModule::onExit()
 
 bool PullOverModule::isExecutionRequested() const
 {
-  if (current_state_ == BT::NodeStatus::RUNNING) {return true;}
+  if (current_state_ == BT::NodeStatus::RUNNING) {
+    return true;
+  }
 
   PathShifter path_shifter;
   lanelet::Lanelet closest_shoulder_lanelet;
@@ -80,7 +80,8 @@ bool PullOverModule::isExecutionRequested() const
   const auto current_lanes = getCurrentLanes();
 
   if (lanelet::utils::query::getClosestLanelet(
-      planner_data_->route_handler->getShoulderLanelets(), goal_pose,
+      planner_data_->route_handler->getShoulderLanelets(),
+      goal_pose,
       &closest_shoulder_lanelet))
   {
     // check if goal pose is in shoulder lane
@@ -100,7 +101,9 @@ bool PullOverModule::isExecutionRequested() const
 
 bool PullOverModule::isExecutionReady() const
 {
-  if (current_state_ == BT::NodeStatus::RUNNING) {return true;}
+  if (current_state_ == BT::NodeStatus::RUNNING) {
+    return true;
+  }
 
   const auto current_lanes = getCurrentLanes();
   const auto pull_over_lanes = getPullOverLanes(current_lanes);
@@ -132,8 +135,7 @@ BehaviorModuleOutput PullOverModule::plan()
 
   BehaviorModuleOutput output;
   output.path = std::make_shared<PathWithLaneId>(path);
-  output.turn_signal_info =
-    calcTurnSignalInfo(status_.pull_over_path.shift_point);
+  output.turn_signal_info = calcTurnSignalInfo(status_.pull_over_path.shift_point);
 
   return output;
 }
@@ -178,12 +180,10 @@ void PullOverModule::updatePullOverStatus()
   lanelet::ConstLanelet target_shoulder_lane;
 
   if (route_handler->getPullOverTarget(
-      route_handler->getShoulderLanelets(),
-      &target_shoulder_lane))
+      route_handler->getShoulderLanelets(), &target_shoulder_lane))
   {
     route_handler->setPullOverGoalPose(
-      target_shoulder_lane, common_parameters.vehicle_width,
-      parameters_.margin_from_boundary);
+      target_shoulder_lane, common_parameters.vehicle_width, parameters_.margin_from_boundary);
   } else {
     RCLCPP_ERROR(getLogger(), "failed to get shoulder lane!!!");
   }
@@ -216,8 +216,13 @@ void PullOverModule::updatePullOverStatus()
     const double height = common_parameters.drivable_area_height;
     const double resolution = common_parameters.drivable_area_resolution;
     status_.pull_over_path.path.drivable_area = util::generateDrivableArea(
-      lanes, *(planner_data_->self_pose), width, height, resolution,
-      common_parameters.vehicle_length, *route_handler);
+      lanes,
+      *(planner_data_->self_pose),
+      width,
+      height,
+      resolution,
+      common_parameters.vehicle_length,
+      *route_handler);
   }
 
   const auto current_pose = planner_data_->self_pose->pose;
@@ -247,18 +252,29 @@ PathWithLaneId PullOverModule::getReferencePath() const
   }
 
   reference_path = route_handler->getCenterLinePath(
-    current_lanes, current_pose, common_parameters.backward_path_length,
-    common_parameters.forward_path_length, common_parameters);
+    current_lanes,
+    current_pose,
+    common_parameters.backward_path_length,
+    common_parameters.forward_path_length,
+    common_parameters);
 
   reference_path = route_handler->setDecelerationVelocity(
-    reference_path, current_lanes, parameters_.after_pull_over_straight_distance,
-    common_parameters.minimum_pull_over_length, parameters_.before_pull_over_straight_distance,
-    parameters_.deceleration_interval, goal_pose);
+    reference_path,
+    current_lanes,
+    parameters_.after_pull_over_straight_distance,
+    common_parameters.minimum_pull_over_length,
+    parameters_.before_pull_over_straight_distance,
+    parameters_.deceleration_interval,
+    goal_pose);
 
   reference_path.drivable_area = util::generateDrivableArea(
-    current_lanes, *planner_data_->self_pose, common_parameters.drivable_area_width,
-    common_parameters.drivable_area_height, common_parameters.drivable_area_resolution,
-    common_parameters.vehicle_length, *planner_data_->route_handler);
+    current_lanes,
+    *planner_data_->self_pose,
+    common_parameters.drivable_area_width,
+    common_parameters.drivable_area_height,
+    common_parameters.drivable_area_resolution,
+    common_parameters.vehicle_length,
+    *planner_data_->route_handler);
 
   return reference_path;
 }
@@ -277,7 +293,9 @@ lanelet::ConstLanelets PullOverModule::getCurrentLanes() const
 
   // For current_lanes with desired length
   return route_handler->getLaneletSequence(
-    current_lane, current_pose, common_parameters.backward_path_length,
+    current_lane,
+    current_pose,
+    common_parameters.backward_path_length,
     common_parameters.forward_path_length);
 }
 
@@ -299,8 +317,7 @@ lanelet::ConstLanelets PullOverModule::getPullOverLanes(
     current_lanes, planner_data_->self_pose->pose, &current_lane);
 
   if (route_handler->getPullOverTarget(
-      route_handler->getShoulderLanelets(),
-      &target_shoulder_lane))
+      route_handler->getShoulderLanelets(), &target_shoulder_lane))
   {
     pull_over_lanes = route_handler->getShoulderLaneletSequence(
       target_shoulder_lane, current_pose, pull_over_lane_length_, pull_over_lane_length_);
@@ -313,7 +330,8 @@ lanelet::ConstLanelets PullOverModule::getPullOverLanes(
 }
 
 std::pair<bool, bool> PullOverModule::getSafePath(
-  const lanelet::ConstLanelets & pull_over_lanes, const double check_distance,
+  const lanelet::ConstLanelets & pull_over_lanes,
+  const double check_distance,
   PullOverPath & safe_path) const
 {
   std::vector<PullOverPath> valid_paths;
@@ -328,7 +346,11 @@ std::pair<bool, bool> PullOverModule::getSafePath(
   if (!pull_over_lanes.empty()) {
     // find candidate paths
     const auto pull_over_paths = pull_over_utils::getPullOverPaths(
-      *route_handler, current_lanes, pull_over_lanes, current_pose, current_twist,
+      *route_handler,
+      current_lanes,
+      pull_over_lanes,
+      current_pose,
+      current_twist,
       common_parameters,
       parameters_);
 
@@ -345,16 +367,28 @@ std::pair<bool, bool> PullOverModule::getSafePath(
 
     // select valid path
     valid_paths = pull_over_utils::selectValidPaths(
-      pull_over_paths, current_lanes, check_lanes, route_handler->getOverallGraph(), current_pose,
-      route_handler->isInGoalRouteSection(current_lanes.back()), route_handler->getGoalPose());
+      pull_over_paths,
+      current_lanes,
+      check_lanes,
+      route_handler->getOverallGraph(),
+      current_pose,
+      route_handler->isInGoalRouteSection(current_lanes.back()),
+      route_handler->getGoalPose());
 
     if (valid_paths.empty()) {
       return std::make_pair(false, false);
     }
     // select safe path
     bool found_safe_path = pull_over_utils::selectSafePath(
-      valid_paths, current_lanes, check_lanes, planner_data_->dynamic_object, current_pose,
-      current_twist, common_parameters.vehicle_width, parameters_, &safe_path);
+      valid_paths,
+      current_lanes,
+      check_lanes,
+      planner_data_->dynamic_object,
+      current_pose,
+      current_twist,
+      common_parameters.vehicle_width,
+      parameters_,
+      &safe_path);
     return std::make_pair(true, found_safe_path);
   }
   return std::make_pair(false, false);
@@ -387,7 +421,10 @@ bool PullOverModule::isLongEnough(const lanelet::ConstLanelets & lanelets) const
   return distance_to_goal > pull_over_total_distance_min;
 }
 
-bool PullOverModule::isSafe() const {return status_.is_safe;}
+bool PullOverModule::isSafe() const
+{
+  return status_.is_safe;
+}
 
 bool PullOverModule::isNearEndOfLane() const
 {
@@ -427,7 +464,8 @@ bool PullOverModule::hasFinishedPullOver() const
 
   if (
     lanelet::utils::query::getClosestLanelet(
-      planner_data_->route_handler->getShoulderLanelets(), planner_data_->self_pose->pose,
+      planner_data_->route_handler->getShoulderLanelets(),
+      planner_data_->self_pose->pose,
       &closest_shoulder_lanelet) &&
     car_is_on_goal && car_is_stopping)
   {
@@ -471,8 +509,8 @@ TurnSignalInfo PullOverModule::calcTurnSignalInfo(const ShiftPoint & shift_point
       lanelet::utils::getArcCoordinates(pull_over_lanes, pull_over_end);
     const auto arc_position_current_pose =
       lanelet::utils::getArcCoordinates(pull_over_lanes, planner_data_->self_pose->pose);
-    distance_to_pull_over_end = arc_position_pull_over_end.length -
-      arc_position_current_pose.length;
+    distance_to_pull_over_end =
+      arc_position_pull_over_end.length - arc_position_current_pose.length;
   }
 
   // calculate distance to shift start on target lanes

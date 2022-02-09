@@ -12,8 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <vector>
 #include "interpolation/linear_interpolation.hpp"
+
+#include <vector>
 
 namespace interpolation
 {
@@ -23,7 +24,8 @@ double lerp(const double src_val, const double dst_val, const double ratio)
 }
 
 std::vector<double> lerp(
-  const std::vector<double> & base_keys, const std::vector<double> & base_values,
+  const std::vector<double> & base_keys,
+  const std::vector<double> & base_values,
   const std::vector<double> & query_keys)
 {
   // throw exception for invalid arguments

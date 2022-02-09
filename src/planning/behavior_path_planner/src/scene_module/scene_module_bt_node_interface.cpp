@@ -12,10 +12,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+#include "behavior_path_planner/scene_module/scene_module_bt_node_interface.hpp"
+
 #include <memory>
 #include <string>
-
-#include "behavior_path_planner/scene_module/scene_module_bt_node_interface.hpp"
 
 namespace behavior_path_planner
 {
@@ -40,7 +40,8 @@ BT::NodeStatus isExecutionReady(
 }
 
 SceneModuleBTNodeInterface::SceneModuleBTNodeInterface(
-  const std::string & name, const BT::NodeConfiguration & config,
+  const std::string & name,
+  const BT::NodeConfiguration & config,
   const std::shared_ptr<SceneModuleInterface> & scene_module,
   const std::shared_ptr<SceneModuleStatus> & module_status)
 : BT::CoroActionNode(name, config), scene_module_(scene_module), module_status_(module_status)
@@ -97,8 +98,7 @@ BT::NodeStatus SceneModuleBTNodeInterface::tick()
     }
 
     RCLCPP_DEBUG_STREAM(
-      scene_module_->getLogger(),
-      "on tick: current status = " << BT::toStr(current_status));
+      scene_module_->getLogger(), "on tick: current status = " << BT::toStr(current_status));
     if (current_status != BT::NodeStatus::RUNNING) {
       RCLCPP_DEBUG(scene_module_->getLogger(), "on tick: module ended.");
       break;
@@ -109,8 +109,7 @@ BT::NodeStatus SceneModuleBTNodeInterface::tick()
 
   scene_module_->onExit();
   RCLCPP_DEBUG_STREAM(
-    scene_module_->getLogger(),
-    "on tick: return current status = " << BT::toStr(current_status));
+    scene_module_->getLogger(), "on tick: return current status = " << BT::toStr(current_status));
 
   return current_status;
 }

@@ -20,6 +20,7 @@
 #define BEHAVIOR_VELOCITY_PLANNER__BEHAVIOR_VELOCITY_PLANNER_HPP_
 
 #include <behavior_velocity_planner/visibility_control.hpp>
+
 #include <cstdint>
 
 namespace autoware
@@ -28,7 +29,6 @@ namespace planning
 {
 namespace behavior_velocity_planner
 {
-
 class BehaviorVelocityPlannerManager
 {
 public:

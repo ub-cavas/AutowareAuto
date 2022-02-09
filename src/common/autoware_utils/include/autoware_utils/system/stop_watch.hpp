@@ -22,7 +22,8 @@
 namespace autoware_utils
 {
 template<
-  class OutputUnit = std::chrono::seconds, class InternalUnit = std::chrono::microseconds,
+  class OutputUnit = std::chrono::seconds,
+  class InternalUnit = std::chrono::microseconds,
   class Clock = std::chrono::steady_clock>
 class StopWatch
 {

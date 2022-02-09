@@ -15,10 +15,10 @@
 #ifndef SCENE_MODULE__SCENE_MODULE_INTERFACE_HPP_
 #define SCENE_MODULE__SCENE_MODULE_INTERFACE_HPP_
 
+#include <behavior_velocity_planner_nodes/planner_data.hpp>
+
 #include <autoware_auto_planning_msgs/msg/path_with_lane_id.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
-
-#include "behavior_velocity_planner_nodes/planner_data.hpp"
 
 #include <memory>
 #include <set>
@@ -121,7 +121,9 @@ protected:
     const auto copied_scene_modules = scene_modules_;
 
     for (const auto & scene_module : copied_scene_modules) {
-      if (isModuleExpired(scene_module)) {unregisterModule(scene_module);}
+      if (isModuleExpired(scene_module)) {
+        unregisterModule(scene_module);
+      }
     }
   }
 

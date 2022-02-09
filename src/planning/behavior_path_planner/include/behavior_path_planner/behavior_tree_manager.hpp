@@ -21,15 +21,15 @@
 #include <unordered_map>
 #include <vector>
 
+#include "behavior_path_planner/data_manager.hpp"
+#include "behavior_path_planner/route_handler.hpp"
+#include "behavior_path_planner/scene_module/scene_module_bt_node_interface.hpp"
 #include "behaviortree_cpp_v3/behavior_tree.h"
 #include "behaviortree_cpp_v3/bt_factory.h"
 #include "behaviortree_cpp_v3/loggers/bt_cout_logger.h"
 #include "behaviortree_cpp_v3/loggers/bt_zmq_publisher.h"
-#include "visualization_msgs/msg/marker_array.hpp"
 
-#include "behavior_path_planner/data_manager.hpp"
-#include "behavior_path_planner/route_handler.hpp"
-#include "behavior_path_planner/scene_module/scene_module_bt_node_interface.hpp"
+#include "visualization_msgs/msg/marker_array.hpp"
 
 namespace behavior_path_planner
 {
@@ -72,7 +72,9 @@ private:
   std::unique_ptr<BT::PublisherZMQ> groot_monitor_;
 
   void addGrootMonitoring(
-    BT::Tree * tree, uint16_t publisher_port, uint16_t server_port,
+    BT::Tree * tree,
+    uint16_t publisher_port,
+    uint16_t server_port,
     uint16_t max_msg_per_second = 25);
 
   void resetGrootMonitor();

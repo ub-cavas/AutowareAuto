@@ -15,6 +15,7 @@
 #include "utilization/interpolate.hpp"
 
 #include <vector>
+
 #include "utilization/util.hpp"
 
 namespace autoware
@@ -29,8 +30,10 @@ namespace interpolation
  * linear interpolation
  */
 bool LinearInterpolate::interpolate(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
-  const std::vector<double> & return_index, std::vector<double> & return_value)
+  const std::vector<double> & base_index,
+  const std::vector<double> & base_value,
+  const std::vector<double> & return_index,
+  std::vector<double> & return_value)
 {
   if (!isValidInput(base_index, base_value, return_index)) {
     std::cerr << "[interpolate] invalid input. interpolation failed." << std::endl;
@@ -44,7 +47,9 @@ bool LinearInterpolate::interpolate(
       return_value.push_back(base_value[i]);
       continue;
     }
-    while (base_index[i] < idx) {++i;}
+    while (base_index[i] < idx) {
+      ++i;
+    }
     if (i <= 0 || base_index.size() - 1 < i) {
       std::cerr << "[interpolate] undesired condition. skip this idx!" << std::endl;
       continue;
@@ -73,13 +78,16 @@ bool LinearInterpolate::interpolate(
 bool isIncrease(const std::vector<double> & x)
 {
   for (size_t i = 0; i < x.size() - 1; ++i) {
-    if (x[i] > x[i + 1]) {return false;}
+    if (x[i] > x[i + 1]) {
+      return false;
+    }
   }
   return true;
 }
 
 bool isValidInput(
-  const std::vector<double> & base_index, const std::vector<double> & base_value,
+  const std::vector<double> & base_index,
+  const std::vector<double> & base_value,
   const std::vector<double> & return_index)
 {
   if (base_index.empty() || base_value.empty() || return_index.empty()) {

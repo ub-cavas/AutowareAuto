@@ -21,15 +21,15 @@
 #include <utility>
 #include <vector>
 
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/predicted_objects_msg.hpp"
+#include "behavior_path_planner/scene_module/avoidance/avoidance_module_data.hpp"
+#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
+#include "rclcpp/rclcpp.hpp"
+
 #include "autoware_auto_planning_msgs/msg/path.hpp"
 #include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
-#include "rclcpp/rclcpp.hpp"
-
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
-#include "behavior_path_planner/scene_module/avoidance/avoidance_module_data.hpp"
-#include "behavior_path_planner/scene_module/scene_module_interface.hpp"
 
 namespace behavior_path_planner
 {
@@ -76,7 +76,8 @@ private:
   void initVariables();
   AvoidancePlanningData calcAvoidancePlanningData(DebugData & debug) const;
   ObjectDataArray calcAvoidanceTargetObjects(
-    const lanelet::ConstLanelets & lanelets, const PathWithLaneId & reference_path,
+    const lanelet::ConstLanelets & lanelets,
+    const PathWithLaneId & reference_path,
     DebugData & debug) const;
 
   ObjectDataArray registered_objects_;
@@ -86,8 +87,7 @@ private:
 
   // -- for shift point generation --
   AvoidPointArray calcShiftPoints(
-    AvoidPointArray & current_raw_shift_points,
-    DebugData & debug) const;
+    AvoidPointArray & current_raw_shift_points, DebugData & debug) const;
 
   // shift point generation: generator
   AvoidPointArray calcRawShiftPointsFromObjects(const ObjectDataArray & objects) const;

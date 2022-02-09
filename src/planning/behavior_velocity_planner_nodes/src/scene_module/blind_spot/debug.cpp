@@ -15,7 +15,6 @@
 #include <string>
 
 #include "scene_module/blind_spot/scene.hpp"
-
 #include "utilization/marker_helper.hpp"
 #include "utilization/util.hpp"
 
@@ -30,8 +29,12 @@ namespace
 using State = BlindSpotModule::State;
 
 visualization_msgs::msg::MarkerArray createPolygonMarkerArray(
-  const lanelet::CompoundPolygon3d & polygon, const std::string & ns, const int64_t lane_id,
-  const float r, const float g, const float b)
+  const lanelet::CompoundPolygon3d & polygon,
+  const std::string & ns,
+  const int64_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -46,11 +49,8 @@ visualization_msgs::msg::MarkerArray createPolygonMarkerArray(
   marker.action = visualization_msgs::msg::Marker::ADD;
   marker.pose.orientation = createMarkerOrientation(0, 0, 0, 1.0);
   marker.scale = createMarkerScale(0.3, 0.0, 0.0);
-  marker.color = createMarkerColor(
-    static_cast<float>(r),
-    static_cast<float>(g),
-    static_cast<float>(b),
-    0.8f);
+  marker.color =
+    createMarkerColor(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), 0.8f);
   for (const auto & p : polygon) {
     geometry_msgs::msg::Point point;
     point.x = p.x();
@@ -67,8 +67,12 @@ visualization_msgs::msg::MarkerArray createPolygonMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray createObjectsMarkerArray(
-  const autoware_auto_perception_msgs::msg::PredictedObjects & objects, const std::string & ns,
-  const int64_t lane_id, const float r, const float g, const float b)
+  const autoware_auto_perception_msgs::msg::PredictedObjects & objects,
+  const std::string & ns,
+  const int64_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -93,8 +97,12 @@ visualization_msgs::msg::MarkerArray createObjectsMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray createPathMarkerArray(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const std::string & ns,
-  const int32_t lane_id, const float r, const float g, const float b)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const std::string & ns,
+  const int32_t lane_id,
+  const float r,
+  const float g,
+  const float b)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -154,8 +162,13 @@ visualization_msgs::msg::MarkerArray createVirtualWallMarkerArray(
 }
 
 visualization_msgs::msg::MarkerArray createPoseMarkerArray(
-  const geometry_msgs::msg::Pose & pose, const State & state, const std::string & ns,
-  const int32_t id, const float r, const float g, const float b)
+  const geometry_msgs::msg::Pose & pose,
+  const State & state,
+  const std::string & ns,
+  const int32_t id,
+  const float r,
+  const float g,
+  const float b)
 {
   visualization_msgs::msg::MarkerArray msg;
 
@@ -202,43 +215,73 @@ visualization_msgs::msg::MarkerArray BlindSpotModule::createDebugMarkerArray()
   const auto current_time = this->clock_->now();
 
   appendMarkerArray(
-    createPathMarkerArray(debug_data_.path_raw, "path_raw",  static_cast<int32_t>(lane_id_), 0.0, 1.0, 1.0), current_time,
+    createPathMarkerArray(
+      debug_data_.path_raw, "path_raw", static_cast<int32_t>(lane_id_), 0.0, 1.0, 1.0),
+    current_time,
     &debug_marker_array);
 
   appendMarkerArray(
     createPoseMarkerArray(
-      debug_data_.stop_point_pose, state, "stop_point_pose", static_cast<int32_t>(lane_id_), 1.0, 0.0, 0.0),
-    current_time, &debug_marker_array);
+      debug_data_.stop_point_pose,
+      state,
+      "stop_point_pose",
+      static_cast<int32_t>(lane_id_),
+      1.0,
+      0.0,
+      0.0),
+    current_time,
+    &debug_marker_array);
 
   appendMarkerArray(
     createPoseMarkerArray(
-      debug_data_.judge_point_pose, state, "judge_point_pose", static_cast<int32_t>(lane_id_), 1.0, 1.0, 0.5),
-    current_time, &debug_marker_array);
-
-  appendMarkerArray(
-    createPolygonMarkerArray(
-      debug_data_.conflict_area_for_blind_spot, "conflict_area_for_blind_spot", lane_id_, 0.0, 0.5,
+      debug_data_.judge_point_pose,
+      state,
+      "judge_point_pose",
+      static_cast<int32_t>(lane_id_),
+      1.0,
+      1.0,
       0.5),
-    current_time, &debug_marker_array);
+    current_time,
+    &debug_marker_array);
 
   appendMarkerArray(
     createPolygonMarkerArray(
-      debug_data_.detection_area_for_blind_spot, "detection_area_for_blind_spot", lane_id_, 0.0,
-      0.5, 0.5),
-    current_time, &debug_marker_array);
+      debug_data_.conflict_area_for_blind_spot,
+      "conflict_area_for_blind_spot",
+      lane_id_,
+      0.0,
+      0.5,
+      0.5),
+    current_time,
+    &debug_marker_array);
+
+  appendMarkerArray(
+    createPolygonMarkerArray(
+      debug_data_.detection_area_for_blind_spot,
+      "detection_area_for_blind_spot",
+      lane_id_,
+      0.0,
+      0.5,
+      0.5),
+    current_time,
+    &debug_marker_array);
 
   appendMarkerArray(
     createObjectsMarkerArray(
       debug_data_.conflicting_targets, "conflicting_targets", lane_id_, 0.99f, 0.4f, 0.0),
-    current_time, &debug_marker_array);
+    current_time,
+    &debug_marker_array);
 
   appendMarkerArray(
-    createPathMarkerArray(debug_data_.spline_path, "spline", static_cast<int32_t>(lane_id_), 0.5, 0.5, 0.5), current_time,
+    createPathMarkerArray(
+      debug_data_.spline_path, "spline", static_cast<int32_t>(lane_id_), 0.5, 0.5, 0.5),
+    current_time,
     &debug_marker_array);
 
   if (state == BlindSpotModule::State::STOP) {
     appendMarkerArray(
-      createVirtualWallMarkerArray(debug_data_.virtual_wall_pose, static_cast<int32_t>(lane_id_)), current_time,
+      createVirtualWallMarkerArray(debug_data_.virtual_wall_pose, static_cast<int32_t>(lane_id_)),
+      current_time,
       &debug_marker_array);
   }
 

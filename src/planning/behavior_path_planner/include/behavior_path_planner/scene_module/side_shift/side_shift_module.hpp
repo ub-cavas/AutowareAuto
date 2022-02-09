@@ -18,14 +18,13 @@
 #include <memory>
 #include <string>
 
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
-#include "autoware_auto_planning_msgs/msg/lateral_offset.hpp"
-
-#include "rclcpp/rclcpp.hpp"
-
+#include "behavior_path_planner/path_shifter/path_shifter.hpp"
 #include "behavior_path_planner/route_handler.hpp"
 #include "behavior_path_planner/scene_module/scene_module_interface.hpp"
-#include "behavior_path_planner/path_shifter/path_shifter.hpp"
+#include "rclcpp/rclcpp.hpp"
+
+#include "autoware_auto_planning_msgs/msg/lateral_offset.hpp"
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 namespace behavior_path_planner
 {
@@ -50,8 +49,7 @@ class SideShiftModule : public SceneModuleInterface
 {
 public:
   SideShiftModule(
-    const std::string & name, rclcpp::Node & node,
-    const SideShiftParameters & parameters);
+    const std::string & name, rclcpp::Node & node, const SideShiftParameters & parameters);
 
   bool isExecutionRequested() const override;
   bool isExecutionReady() const override;

@@ -52,8 +52,7 @@ set(BEHAVIOR_VELOCITY_PLANNER_NODE_SRC
 
   src/behavior_velocity_planner_node.cpp
   src/planner_data.cpp
-  src/planner_manager.cpp
-)
+  src/planner_manager.cpp)
 
 set(BEHAVIOR_VELOCITY_PLANNER_NODE_HEADERS
   include/behavior_velocity_planner_nodes/visibility_control.hpp
@@ -88,22 +87,19 @@ set(BEHAVIOR_VELOCITY_PLANNER_NODE_HEADERS
   include/utilization/interpolate.hpp
   include/utilization/marker_helper.hpp
   include/utilization/path_utilization.hpp
-  include/utilization/util.hpp
-)
+  include/utilization/util.hpp)
 
 # generate component node library
 ament_auto_add_library(${PROJECT_NAME} SHARED
   ${BEHAVIOR_VELOCITY_PLANNER_NODE_SRC}
-  ${BEHAVIOR_VELOCITY_PLANNER_NODE_HEADERS}
-)
+  ${BEHAVIOR_VELOCITY_PLANNER_NODE_HEADERS})
 autoware_set_compile_options(${PROJECT_NAME})
 
-target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast )
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast)
 
 rclcpp_components_register_node(${PROJECT_NAME}
   PLUGIN "autoware::planning::behavior_velocity_planner_nodes::BehaviorVelocityPlannerNode"
-  EXECUTABLE ${PROJECT_NAME}_exe
-)
+  EXECUTABLE ${PROJECT_NAME}_exe)
 
 # Testing
 if(BUILD_TESTING)
@@ -121,5 +117,4 @@ endif()
 # ament package generation and installing
 ament_auto_package(INSTALL_TO_SHARE
   config
-  launch
-)
+  launch)

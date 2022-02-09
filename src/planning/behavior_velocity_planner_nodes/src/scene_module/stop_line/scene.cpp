@@ -30,8 +30,7 @@ namespace bg = boost::geometry;
 namespace
 {
 double calcYawFromPoints(
-  const geometry_msgs::msg::Point & p_front,
-  const geometry_msgs::msg::Point & p_back)
+  const geometry_msgs::msg::Point & p_front, const geometry_msgs::msg::Point & p_back)
 {
   return std::atan2(p_back.y - p_front.y, p_back.x - p_front.x);
 }
@@ -72,7 +71,8 @@ geometry_msgs::msg::Pose calcInterpolatedPose(
 }
 
 boost::optional<StopLineModule::SegmentIndexWithOffset> findBackwardOffsetSegment(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const size_t base_idx,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const size_t base_idx,
   const double offset_length)
 {
   double sum_length = 0.0;
@@ -96,13 +96,16 @@ boost::optional<StopLineModule::SegmentIndexWithOffset> findBackwardOffsetSegmen
 }
 
 StopLineModule::SegmentIndexWithOffset findNearestSegment(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & point)
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Point & point)
 {
   std::vector<double> distances;
   distances.reserve(path.points.size());
 
   std::transform(
-    path.points.cbegin(), path.points.cend(), std::back_inserter(distances),
+    path.points.cbegin(),
+    path.points.cend(),
+    std::back_inserter(distances),
     [&point](const autoware_auto_planning_msgs::msg::PathPointWithLaneId & p) {
       return planning_utils::calcDist2d(p.point.pose.position, point);
     });
@@ -132,7 +135,8 @@ StopLineModule::SegmentIndexWithOffset findNearestSegment(
 }
 
 double calcSignedArcLength(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const size_t & idx_front,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const size_t & idx_front,
   const size_t & idx_back)
 {
   // If flipped, reverse index and take negative
@@ -151,7 +155,8 @@ double calcSignedArcLength(
 }
 
 double calcSignedArcLength(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & path, const geometry_msgs::msg::Point & p1,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & path,
+  const geometry_msgs::msg::Point & p1,
   const geometry_msgs::msg::Point & p2)
 {
   const auto seg_1 = findNearestSegment(path, p1);
@@ -163,8 +168,10 @@ double calcSignedArcLength(
 }  // namespace
 
 StopLineModule::StopLineModule(
-  const int64_t module_id, const lanelet::ConstLineString3d & stop_line,
-  const PlannerParam & planner_param, const rclcpp::Logger logger,
+  const int64_t module_id,
+  const lanelet::ConstLineString3d & stop_line,
+  const PlannerParam & planner_param,
+  const rclcpp::Logger logger,
   const rclcpp::Clock::SharedPtr clock)
 : SceneModuleInterface(module_id, logger, clock),
   module_id_(module_id),
@@ -243,7 +250,8 @@ autoware_auto_planning_msgs::msg::PathWithLaneId StopLineModule::insertStopPose(
   debug_data_.stop_pose = stop_point_with_lane_id.point.pose;
 
   // Insert stop point
-  modified_path.points.insert(modified_path.points.begin() + static_cast<int32_t>(insert_index), stop_point_with_lane_id);
+  modified_path.points.insert(
+    modified_path.points.begin() + static_cast<int32_t>(insert_index), stop_point_with_lane_id);
 
   // Insert 0 velocity after stop point
   for (size_t j = insert_index; j < modified_path.points.size(); ++j) {
@@ -253,8 +261,7 @@ autoware_auto_planning_msgs::msg::PathWithLaneId StopLineModule::insertStopPose(
   return modified_path;
 }
 
-bool StopLineModule::modifyPathVelocity(
-  autoware_auto_planning_msgs::msg::PathWithLaneId * path)
+bool StopLineModule::modifyPathVelocity(autoware_auto_planning_msgs::msg::PathWithLaneId * path)
 {
   debug_data_ = DebugData();
   debug_data_.base_link2front = planner_data_->vehicle_constants_.offset_longitudinal_max;

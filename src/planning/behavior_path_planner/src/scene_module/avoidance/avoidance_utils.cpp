@@ -20,24 +20,27 @@
 #include <string>
 #include <vector>
 
-
-#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 #include "autoware_utils/autoware_utils.hpp"
-#include "lanelet2_extension/utility/message_conversion.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
-
 #include "behavior_path_planner/path_utilities.hpp"
 #include "behavior_path_planner/scene_module/avoidance/avoidance_module.hpp"
 #include "behavior_path_planner/utilities.hpp"
+#include "lanelet2_extension/utility/message_conversion.hpp"
+#include "lanelet2_extension/utility/utilities.hpp"
+
+#include "autoware_auto_planning_msgs/msg/path_with_lane_id.hpp"
 
 
 namespace behavior_path_planner
 {
-bool isOnRight(const ObjectData & obj) {return obj.lateral < 0.0;}
+bool isOnRight(const ObjectData & obj)
+{
+  return obj.lateral < 0.0;
+}
 
 lanelet::ConstLanelets calcLaneAroundPose(
   const std::shared_ptr<const PlannerData> & planner_data,
-  const geometry_msgs::msg::Pose & pose, const double backward_length)
+  const geometry_msgs::msg::Pose & pose,
+  const double backward_length)
 {
   const auto & p = planner_data->parameters;
   const auto & route_handler = planner_data->route_handler;
@@ -78,10 +81,14 @@ ShiftPointArray toShiftPointArray(const AvoidPointArray & avoid_points)
 size_t findPathIndexFromArclength(
   const std::vector<double> & path_arclength_arr, const double target_arc)
 {
-  if (path_arclength_arr.empty()) {return 0;}
+  if (path_arclength_arr.empty()) {
+    return 0;
+  }
 
   for (size_t i = 0; i < path_arclength_arr.size(); ++i) {
-    if (path_arclength_arr.at(i) > target_arc) {return i;}
+    if (path_arclength_arr.at(i) > target_arc) {
+      return i;
+    }
   }
   return path_arclength_arr.size() - 1;
 }
@@ -111,15 +118,17 @@ double lerpShiftLengthOnArc(double arc, const AvoidPoint & ap)
 
 void clipByMinStartIdx(const AvoidPointArray & shift_points, PathWithLaneId & path)
 {
-  if (path.points.empty()) {return;}
+  if (path.points.empty()) {
+    return;
+  }
 
   size_t min_start_idx = std::numeric_limits<size_t>::max();
   for (const auto & sp : shift_points) {
     min_start_idx = std::min(min_start_idx, sp.start_idx);
   }
   min_start_idx = std::min(min_start_idx, path.points.size() - 1);
-  path.points =
-    std::vector<PathPointWithLaneId>{path.points.begin() + static_cast<int>(min_start_idx), path.points.end()};
+  path.points = std::vector<PathPointWithLaneId>{
+    path.points.begin() + static_cast<int>(min_start_idx), path.points.end()};
 }
 
 double calcDistanceToClosestFootprintPoint(
@@ -137,8 +146,7 @@ double calcDistanceToClosestFootprintPoint(
   return distance;
 }
 
-double calcOverhangDistance(
-  const ObjectData & object_data, const Pose & base_pose)
+double calcOverhangDistance(const ObjectData & object_data, const Pose & base_pose)
 {
   double largest_overhang = isOnRight(object_data) ? -100.0 : 100.0;  // large number
 
@@ -155,7 +163,10 @@ double calcOverhangDistance(
 }
 
 void setEndData(
-  AvoidPoint & ap, const double length, const geometry_msgs::msg::Pose & end, const size_t end_idx,
+  AvoidPoint & ap,
+  const double length,
+  const geometry_msgs::msg::Pose & end,
+  const size_t end_idx,
   const double end_dist)
 {
   ap.length = length;
@@ -165,8 +176,11 @@ void setEndData(
 }
 
 void setStartData(
-  AvoidPoint & ap, const double start_length, const geometry_msgs::msg::Pose & start,
-  const size_t start_idx, const double start_dist)
+  AvoidPoint & ap,
+  const double start_length,
+  const geometry_msgs::msg::Pose & start,
+  const size_t start_idx,
+  const double start_dist)
 {
   ap.start_length = start_length;
   ap.start = start;

@@ -22,15 +22,21 @@
 namespace autoware_utils
 {
 visualization_msgs::msg::MarkerArray createStopVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id);
 
 visualization_msgs::msg::MarkerArray createSlowDownVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id);
 
 visualization_msgs::msg::MarkerArray createDeadLineVirtualWallMarker(
-  const geometry_msgs::msg::Pose & pose, const std::string & module_name, const rclcpp::Time & now,
+  const geometry_msgs::msg::Pose & pose,
+  const std::string & module_name,
+  const rclcpp::Time & now,
   const int32_t id);
 }  // namespace autoware_utils
 

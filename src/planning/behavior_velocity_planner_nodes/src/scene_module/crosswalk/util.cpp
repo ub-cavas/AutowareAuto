@@ -14,30 +14,29 @@
 
 #include "scene_module/crosswalk/util.hpp"
 
+#include <boost/assert.hpp>
+#include <boost/assign/list_of.hpp>
+#include <boost/geometry.hpp>
+#include <boost/geometry/geometries/linestring.hpp>
+#include <boost/geometry/geometries/point_xy.hpp>
+#include <utilization/util.hpp>
+#include <utilization/boost_geometry_helper.hpp>
+
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+
+#define EIGEN_MPL2_ONLY
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+#include <lanelet2_core/primitives/BasicRegulatoryElements.h>
+#include <lanelet2_extension/regulatory_elements/road_marking.hpp>
+#include <lanelet2_extension/utility/query.hpp>
+#include <lanelet2_extension/utility/utilities.hpp>
+
 #include <algorithm>
 #include <cmath>
 #include <memory>
 #include <string>
 #include <vector>
-
-#include "boost/assert.hpp"
-#include "boost/assign/list_of.hpp"
-#include "boost/geometry.hpp"
-#include "boost/geometry/geometries/linestring.hpp"
-#include "boost/geometry/geometries/point_xy.hpp"
-#include "utilization/util.hpp"
-#include <utilization/boost_geometry_helper.hpp>
-
-#include "autoware_auto_perception_msgs/msg/predicted_objects.hpp"
-
-#define EIGEN_MPL2_ONLY
-#include "Eigen/Core"
-#include "Eigen/Geometry"
-
-#include "lanelet2_core/primitives/BasicRegulatoryElements.h"
-#include "lanelet2_extension/regulatory_elements/road_marking.hpp"
-#include "lanelet2_extension/utility/query.hpp"
-#include "lanelet2_extension/utility/utilities.hpp"
 
 namespace autoware
 {
@@ -51,8 +50,11 @@ using Polygon = bg::model::polygon<Point>;
 using Line = bg::model::linestring<Point>;
 
 bool getBackwardPointFromBasePoint(
-  const Eigen::Vector2d & line_point1, const Eigen::Vector2d & line_point2,
-  const Eigen::Vector2d & base_point, const double backward_length, Eigen::Vector2d & output_point)
+  const Eigen::Vector2d & line_point1,
+  const Eigen::Vector2d & line_point2,
+  const Eigen::Vector2d & base_point,
+  const double backward_length,
+  Eigen::Vector2d & output_point)
 {
   Eigen::Vector2d line_vec = line_point2 - line_point1;
   Eigen::Vector2d backward_vec = backward_length * line_vec.normalized();
@@ -61,9 +63,13 @@ bool getBackwardPointFromBasePoint(
 }
 
 bool insertTargetVelocityPoint(
-  const autoware_auto_planning_msgs::msg::PathWithLaneId & input, const Polygon & polygon,
-  const double & margin, const double & velocity, const PlannerData & planner_data,
-  autoware_auto_planning_msgs::msg::PathWithLaneId & output, DebugData & debug_data,
+  const autoware_auto_planning_msgs::msg::PathWithLaneId & input,
+  const Polygon & polygon,
+  const double & margin,
+  const double & velocity,
+  const PlannerData & planner_data,
+  autoware_auto_planning_msgs::msg::PathWithLaneId & output,
+  DebugData & debug_data,
   boost::optional<int> & first_stop_path_point_index)
 {
   output = input;
@@ -164,7 +170,7 @@ bool insertTargetVelocityPoint(
 
     // insert target point
     output.points.insert(
-      output.points.begin() + static_cast<long>(insert_target_point_idx),
+      output.points.begin() + static_cast<int64_t>(insert_target_point_idx),
       target_point_with_lane_id);
 
     // insert 0 velocity after target point
@@ -178,7 +184,8 @@ bool insertTargetVelocityPoint(
 }
 
 lanelet::Optional<lanelet::ConstLineString3d> getStopLineFromMap(
-  const int lane_id, const std::shared_ptr<const PlannerData> & planner_data,
+  const int lane_id,
+  const std::shared_ptr<const PlannerData> & planner_data,
   const std::string & attribute_name)
 {
   lanelet::ConstLanelet lanelet = planner_data->lanelet_map->laneletLayer.get(lane_id);
@@ -194,16 +201,22 @@ lanelet::Optional<lanelet::ConstLineString3d> getStopLineFromMap(
       break;  // only one stop_line exists.
     }
   }
-  if (stop_line.empty()) {return {};}
+  if (stop_line.empty()) {
+    return {};
+  }
 
   return stop_line.front();
 }
 
 bool insertTargetVelocityPoint(
   const autoware_auto_planning_msgs::msg::PathWithLaneId & input,
-  const lanelet::ConstLineString3d & stop_line, const double & margin, const double & velocity,
-  const PlannerData & planner_data, autoware_auto_planning_msgs::msg::PathWithLaneId & output,
-  DebugData & debug_data, boost::optional<int> & first_stop_path_point_index)
+  const lanelet::ConstLineString3d & stop_line,
+  const double & margin,
+  const double & velocity,
+  const PlannerData & planner_data,
+  autoware_auto_planning_msgs::msg::PathWithLaneId & output,
+  DebugData & debug_data,
+  boost::optional<int> & first_stop_path_point_index)
 {
   using lanelet::utils::to2D;
   using lanelet::utils::toHybrid;
@@ -228,7 +241,9 @@ bool insertTargetVelocityPoint(
 
     bg::intersection(stop_line_boost, line, collision_points);
 
-    if (collision_points.empty()) {continue;}
+    if (collision_points.empty()) {
+      continue;
+    }
     // -- debug code --
     for (const auto & cp : collision_points) {
       Eigen::Vector3d point3d(cp.x(), cp.y(), planner_data.current_pose.pose.position.z);
@@ -316,7 +331,7 @@ bool insertTargetVelocityPoint(
 
     // insert target point
     output.points.insert(
-      output.points.begin() + static_cast<long>(insert_target_point_idx),
+      output.points.begin() + static_cast<int64_t>(insert_target_point_idx),
       target_point_with_lane_id);
 
     // insert 0 velocity after target point
