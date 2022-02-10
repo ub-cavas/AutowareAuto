@@ -44,6 +44,18 @@ using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware::common::types::float32_t;
 using autoware::common::types::PI;
 
+struct AxisAlignedBoundingBox
+{
+  geometry_msgs::msg::Point32 lower_bound;
+  geometry_msgs::msg::Point32 upper_bound;
+};
+
+struct BoundingBoxInfo
+{
+  BoundingBox bbox;
+  AxisAlignedBoundingBox axis_bbox;
+};
+
 typedef struct
 {
   // configuration related to the vehicle dimensions
@@ -99,7 +111,7 @@ public:
 
 private:
   ObjectCollisionEstimatorConfig m_config;
-  BoundingBoxArray m_obstacles{};
+  std::vector<BoundingBoxInfo> m_obstacles{};
   BoundingBoxArray m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;
 };

@@ -71,7 +71,7 @@ void object_collision_estimator_test(
   // produce fake trajectory and obstacles
   const std::chrono::milliseconds dt(100);
   auto trajectory = constant_velocity_trajectory(
-    0, 0, 1, 10,
+    0, 0, 0, 10,
     std::chrono::duration_cast<std::chrono::nanoseconds>(dt));
   trajectory.points.resize(trajectory_length);
 

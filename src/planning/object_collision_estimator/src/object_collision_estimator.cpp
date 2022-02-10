@@ -15,6 +15,7 @@
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
 #include <algorithm>
+#include <limits>
 #include <list>
 #include <vector>
 
@@ -102,31 +103,45 @@ BoundingBox waypointToBox(
   return minimum_perimeter_bounding_box(vehicle_corners);
 }
 
-/// \brief Determine if a obstacle is too far away from a way point given a distance threshold
-/// \param way_point a trajectory way point
-/// \param obstacle_bbox a bounding box with 4 corners representing the obstacle
-/// \param distance_threshold the minimum distance for a obstacle to be determined too far away
-/// \return bool8_t Return true if the bounding box of the obstacle is at least distance_threshold
-///         away from the way point.
-bool8_t isTooFarAway(
-  const TrajectoryPoint & way_point, const BoundingBox & obstacle_bbox,
-  const float32_t distance_threshold)
+/// \brief Converts a bounding box into axis aligned bounding box that covers given box.
+///        The goal is to use axis aligned bounding box
+///        for optimization as a first step in collision detection.
+/// \param bbox A bounding box to convert
+/// \return AxisAlignedBoundingBox The axis aligned bounding box
+AxisAlignedBoundingBox calculateAxisAlignedBoundingBox(const BoundingBox & bbox)
 {
-  bool is_too_far_away{true};
-  auto distance_threshold_squared = distance_threshold * distance_threshold;
+  auto min_x = std::numeric_limits<float>::max();
+  auto min_y = std::numeric_limits<float>::max();
+  auto max_x = std::numeric_limits<float>::lowest();
+  auto max_y = std::numeric_limits<float>::lowest();
 
-  for (const auto & corner : obstacle_bbox.corners) {
-    auto dx = corner.x - static_cast<float32_t>(way_point.pose.position.x);
-    auto dy = corner.y - static_cast<float32_t>(way_point.pose.position.y);
-    auto distance_squared = (dx * dx) + (dy * dy);
-
-    if (distance_threshold_squared > distance_squared) {
-      is_too_far_away = false;
-      break;
-    }
+  for (auto corner : bbox.corners) {
+    min_x = std::min(min_x, corner.x);
+    min_y = std::min(min_y, corner.y);
+    max_x = std::max(max_x, corner.x);
+    max_y = std::max(max_y, corner.y);
   }
 
-  return is_too_far_away;
+  AxisAlignedBoundingBox result;
+  result.lower_bound.x = min_x;
+  result.lower_bound.y = min_y;
+  result.upper_bound.x = max_x;
+  result.upper_bound.y = max_y;
+
+  return result;
+}
+
+/// \brief Determine if an obstacle is too far away from a vehicle to collide
+/// \param vehicle_bbox a bounding box representing the vehicle
+/// \param obstacle_bbox a bounding box representing the obstacle
+/// \return bool8_t Return true if an obstacle is too far away from a vehicle to collide.
+bool8_t isTooFarAway(
+  const AxisAlignedBoundingBox & vehicle_bbox, const AxisAlignedBoundingBox & obstacle_bbox)
+{
+  return vehicle_bbox.lower_bound.x > obstacle_bbox.upper_bound.x ||
+         vehicle_bbox.lower_bound.y > obstacle_bbox.upper_bound.y ||
+         vehicle_bbox.upper_bound.x < obstacle_bbox.lower_bound.x ||
+         vehicle_bbox.upper_bound.y < obstacle_bbox.lower_bound.y;
 }
 
 /// \brief Detect possible collision between a trajectory and a list of obstacle bounding boxes.
@@ -141,22 +156,11 @@ bool8_t isTooFarAway(
 ///         collision is detected, -1 is returned.
 int32_t detectCollision(
   const Trajectory & trajectory,
-  const BoundingBoxArray & obstacles,
+  const std::vector<BoundingBoxInfo> & obstacles,
   const VehicleConfig & vehicle_param,
   const float32_t safety_factor,
   BoundingBoxArray & waypoint_bboxes)
 {
-  // find the dimension of the ego vehicle.
-  const auto vehicle_length =
-    vehicle_param.front_overhang() + vehicle_param.length_cg_front_axel() +
-    vehicle_param.length_cg_rear_axel() + vehicle_param.rear_overhang();
-  const auto vehicle_width = vehicle_param.width();
-  const auto vehicle_diagonal = sqrtf(
-    (vehicle_width * vehicle_width) + (vehicle_length * vehicle_length));
-
-  // define a distance threshold to filter obstacles that are too far away to cause any collision.
-  const float32_t distance_threshold{vehicle_diagonal * safety_factor};
-
   int32_t collision_index = -1;
 
   waypoint_bboxes.boxes.clear();
@@ -168,13 +172,13 @@ int32_t detectCollision(
     // calculate a bounding box given a trajectory point
     const auto & waypoint_bbox = waypoint_bboxes.boxes.at(i);
 
+    auto axis_aligned_bbox = calculateAxisAlignedBoundingBox(waypoint_bbox);
     // Check for collisions with all perceived obstacles
-    for (const auto & obstacle_bbox : obstacles.boxes) {
-      if (!isTooFarAway(
-          trajectory.points[i], obstacle_bbox,
-          distance_threshold) && autoware::common::geometry::intersect(
+    for (const auto & obstacle_bbox : obstacles) {
+      if (!isTooFarAway(axis_aligned_bbox, obstacle_bbox.axis_bbox) &&
+        autoware::common::geometry::intersect(
           waypoint_bbox.corners.begin(), waypoint_bbox.corners.end(),
-          obstacle_bbox.corners.begin(), obstacle_bbox.corners.end()))
+          obstacle_bbox.bbox.corners.begin(), obstacle_bbox.bbox.corners.end()))
       {
         // Collision detected, set end index (non-inclusive), this will end outer loop immediately
         collision_index = static_cast<decltype(collision_index)>(i);
@@ -260,10 +264,10 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
 std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
   const BoundingBoxArray & bounding_boxes) noexcept
 {
-  m_obstacles = bounding_boxes;
+  auto boxes = bounding_boxes;
 
   std::vector<BoundingBox> modified_obstacles;
-  for (auto & box : m_obstacles.boxes) {
+  for (auto & box : boxes.boxes) {
     if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
       Point32 heading;
       heading.x = box.orientation.w;
@@ -290,6 +294,11 @@ std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
 
       modified_obstacles.push_back(box);
     }
+  }
+
+  m_obstacles.clear();
+  for (auto & box : boxes.boxes) {
+    m_obstacles.push_back({box, calculateAxisAlignedBoundingBox(box)});
   }
 
   return modified_obstacles;
