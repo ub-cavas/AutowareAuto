@@ -17,6 +17,7 @@
 #include <common/types.hpp>
 #include <gtest/gtest.h>
 #include <chrono>
+#include <algorithm>
 
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
@@ -42,7 +43,8 @@ const auto make_point(const float32_t x, const float32_t y)
 void object_collision_estimator_test(
   std::size_t trajectory_length,
   std::size_t obstacle_bbox_idx,
-  float32_t generated_obstacle_size = 0.5)
+  float32_t generated_obstacle_length = 0.5,
+  float32_t generated_obstacle_width = 0.5)
 {
   // define dummy vehicle dimensions
   ObjectCollisionEstimatorConfig config{
@@ -84,7 +86,7 @@ void object_collision_estimator_test(
     const auto obstacle_point_y =
       static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.y);
     obstacle_bbox.centroid = make_point(obstacle_point_x, obstacle_point_y);
-    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    obstacle_bbox.size = make_point(generated_obstacle_length, generated_obstacle_width);
     obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
     obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
     obstacle_bbox.corners = {
@@ -107,6 +109,8 @@ void object_collision_estimator_test(
 
   // call the estimator API
   const auto modified_boxes = estimator.updateObstacles(bbox_array);
+  const auto generated_obstacle_size =
+    std::min(generated_obstacle_length, generated_obstacle_width);
   if (generated_obstacle_size < config.min_obstacle_dimension_m) {
     // Check that the obstacle was modified
     EXPECT_EQ(modified_boxes.size(), 1U);
@@ -163,4 +167,8 @@ TEST(ObjectCollisionEstimator, NoObstacle) {
 
 TEST(ObjectCollisionEstimator, SmallObstacle) {
   object_collision_estimator_test(100, 40, 0.0003);
+}
+
+TEST(ObjectCollisionEstimator, WideObstacle) {
+  object_collision_estimator_test(100, 40, 0.5, 100.0);
 }
