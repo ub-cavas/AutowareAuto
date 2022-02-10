@@ -17,6 +17,8 @@ rclcpp_components_register_node(${RECORDREPLAY_PLANNER_NODE_LIB}
   EXECUTABLE ${NODE_NAME}
 )
 
+target_compile_options(${RECORDREPLAY_PLANNER_NODE_LIB} PRIVATE -Wno-error=old-style-cast)
+
 ### Test
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
