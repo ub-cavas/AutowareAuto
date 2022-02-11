@@ -54,7 +54,8 @@ VelodyneCloudNode<T>::VelodyneCloudNode(
   m_point_cloud_idx(0),
   m_frame_id(this->declare_parameter("frame_id").template get<std::string>().c_str()),
   m_cloud_size(static_cast<std::uint32_t>(
-      this->declare_parameter("cloud_size").template get<std::uint32_t>()))
+      this->declare_parameter("cloud_size").template get<std::uint32_t>())),
+  m_ring_information(this->declare_parameter("ring_information").template get<bool8_t>())
 {
   m_point_block.reserve(VelodyneTranslatorT::POINT_BLOCK_CAPACITY);
   // If your preallocated cloud size is too small, the node really won't operate well at all
@@ -102,9 +103,15 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
-  using autoware::common::lidar_utils::CloudModifierRing;
-  CloudModifierRing{
-    output, m_frame_id}.reserve(m_cloud_size);
+  if (m_ring_information) {
+    using autoware::common::lidar_utils::CloudModifierRing;
+    CloudModifierRing{
+      output, m_frame_id}.reserve(m_cloud_size);
+  } else {
+    using autoware::common::lidar_utils::CloudModifier;
+    CloudModifier{
+      output, m_frame_id}.reserve(m_cloud_size);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -113,47 +120,13 @@ bool8_t VelodyneCloudNode<T>::convert(
   const Packet & pkt,
   sensor_msgs::msg::PointCloud2 & output)
 {
-  // This handles the case when the below loop exited due to containing extra points
-  using autoware::common::types::PointXYZIF;
+  using autoware::common::lidar_utils::CloudModifier;
   using autoware::common::lidar_utils::CloudModifierRing;
-  CloudModifierRing modifier{output};
-  if (m_published_cloud) {
-    // reset the pointcloud
-    modifier.clear();
-    modifier.reserve(m_cloud_size);
-    m_point_cloud_idx = 0;
-
-    // deserialize remainder into pointcloud
-    m_published_cloud = false;
-    for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
-      const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-      modifier.push_back(pt);
-      m_point_cloud_idx++;
-    }
+  if (m_ring_information) {
+    return convert_impl<CloudModifierRing>(pkt, output);
+  } else {
+    return convert_impl<CloudModifier>(pkt, output);
   }
-  m_translator.convert(pkt, m_point_block);
-  for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
-    const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
-    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
-      modifier.push_back(pt);
-      m_point_cloud_idx++;
-      if (modifier.size() >= m_cloud_size) {
-        m_published_cloud = true;
-        m_remainder_start_idx = idx;
-      }
-    } else {
-      m_published_cloud = true;
-      m_remainder_start_idx = idx;
-      break;
-    }
-  }
-  if (m_published_cloud) {
-    // resize pointcloud down to its actual size
-    modifier.resize(m_point_cloud_idx);
-    output.header.stamp = this->now();
-  }
-
-  return m_published_cloud;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

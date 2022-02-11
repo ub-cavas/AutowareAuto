@@ -43,6 +43,32 @@ namespace drivers
 namespace velodyne_nodes
 {
 
+template<typename CloudModifierT>
+struct add_point_to_cloud_modifier;
+
+template<>
+struct add_point_to_cloud_modifier<autoware::common::lidar_utils::CloudModifier>
+{
+  add_point_to_cloud_modifier(
+    autoware::common::lidar_utils::CloudModifier & modifier,
+    const autoware::common::types::PointXYZIF & pt)
+  {
+    using autoware::common::types::PointXYZI;
+    modifier.push_back(PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
+  }
+};
+
+template<>
+struct add_point_to_cloud_modifier<autoware::common::lidar_utils::CloudModifierRing>
+{
+  add_point_to_cloud_modifier(
+    autoware::common::lidar_utils::CloudModifierRing & modifier,
+    const autoware::common::types::PointXYZIF & pt)
+  {
+    modifier.push_back(pt);
+  }
+};
+
 /// Template class for the velodyne driver node that receives veldyne `packet`s via
 /// UDP, converts the packet into a PointCloud2 message and publishes this cloud.
 /// \tparam SensorData SensorData implementation for the specific velodyne sensor model.
@@ -65,6 +91,54 @@ protected:
   bool8_t convert(
     const Packet & pkt,
     sensor_msgs::msg::PointCloud2 & output);
+
+  template<typename CloudModifierT>
+  bool8_t convert_impl(
+    const Packet & pkt,
+    sensor_msgs::msg::PointCloud2 & output)
+  {
+    // This handles the case when the below loop exited due to containing extra points
+    using autoware::common::types::PointXYZIF;
+    CloudModifierT modifier{output};
+    if (m_published_cloud) {
+      // reset the pointcloud
+      modifier.clear();
+      modifier.reserve(m_cloud_size);
+      m_point_cloud_idx = 0;
+
+      // deserialize remainder into pointcloud
+      m_published_cloud = false;
+      for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
+        const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
+        add_point_to_cloud_modifier<CloudModifierT>(modifier, pt);
+        m_point_cloud_idx++;
+      }
+    }
+    m_translator.convert(pkt, m_point_block);
+    for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
+      const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
+      if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
+        add_point_to_cloud_modifier<CloudModifierT>(modifier, pt);
+        m_point_cloud_idx++;
+        if (modifier.size() >= m_cloud_size) {
+          m_published_cloud = true;
+          m_remainder_start_idx = idx;
+        }
+      } else {
+        m_published_cloud = true;
+        m_remainder_start_idx = idx;
+        break;
+      }
+    }
+    if (m_published_cloud) {
+      // resize pointcloud down to its actual size
+      modifier.resize(m_point_cloud_idx);
+      output.header.stamp = this->now();
+    }
+
+    return m_published_cloud;
+  }
+
   bool8_t get_output_remainder(sensor_msgs::msg::PointCloud2 & output);
 
 private:
@@ -87,6 +161,7 @@ private:
   uint32_t m_point_cloud_idx;
   const std::string m_frame_id;
   const std::uint32_t m_cloud_size;
+  bool8_t m_ring_information;
 };  // class VelodyneCloudNode
 
 class VELODYNE_NODES_PUBLIC VelodyneCloudWrapperNode : public rclcpp::Node
