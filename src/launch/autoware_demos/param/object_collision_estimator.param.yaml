@@ -14,10 +14,11 @@
 
 /**:
   ros__parameters:
-    safety_factor: 2.0
+    safety_factor: 0.75
     stop_margin: 20.0  # distance between control point (e.g. CoG/base_link) and obstacle
     min_obstacle_dimension_m: 0.0004  # small object limit
     trajectory_smoother:
       kernel_std: 5.0
       kernel_size: 25
+    staleness_threshold_ms: 1000
     target_frame_id: "map"

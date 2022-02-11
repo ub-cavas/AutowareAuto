@@ -25,6 +25,8 @@
 #include "object_collision_estimator_nodes/visualize.hpp"
 #include "object_collision_estimator/object_collision_estimator.hpp"
 
+#include "motion_common/motion_common.hpp"
+
 namespace motion
 {
 namespace planning
@@ -37,6 +39,8 @@ using motion::planning::object_collision_estimator::ObjectCollisionEstimatorConf
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
 using motion::planning::trajectory_smoother::TrajectorySmootherConfig;
 using motion::planning::trajectory_smoother::TrajectorySmoother;
+using autoware_auto_planning_msgs::msg::Trajectory;
+using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using motion::motion_common::VehicleConfig;
 using motion::motion_common::Real;
 using autoware::common::types::float64_t;
@@ -140,6 +144,7 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   m_tf_listener = std::make_shared<tf2_ros::TransformListener>(
     *m_tf_buffer,
     std::shared_ptr<rclcpp::Node>(this, [](auto) {}), false);
+  m_tf_buffer->setUsingDedicatedThread(true);
 }
 
 void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbox_array)
@@ -212,7 +217,8 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
   std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response)
 {
-  rclcpp::Time request_time{request->original_trajectory.header.stamp,
+  rclcpp::Time request_time{
+    request->original_trajectory.header.stamp,
     m_last_obstacle_msg_time.get_clock_type()};
   auto elapsed_time = request_time - m_last_obstacle_msg_time;
   if (m_last_obstacle_msg_time.seconds() == 0) {
@@ -227,14 +233,54 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   }
 
   // copy the input trajectory into the output variable
-  response->modified_trajectory = request->original_trajectory;
+  Trajectory trajectory = request->original_trajectory;
+
+  const tf2::TimePoint trajectory_time_point = tf2::TimePoint(
+    std::chrono::seconds(request->original_trajectory.header.stamp.sec) +
+    std::chrono::nanoseconds(request->original_trajectory.header.stamp.nanosec));
+
+  // transform coming trajectory odom to target frame
+  if (response->modified_trajectory.header.frame_id != m_target_frame_id) {
+    geometry_msgs::msg::TransformStamped tf;
+    try {
+      tf = this->m_tf_buffer->lookupTransform(
+        m_target_frame_id,
+        trajectory.header.frame_id,
+        trajectory_time_point);
+    } catch (const tf2::ExtrapolationException &) {
+      // do validation in the future
+      // sometimes trajectory comes from future.
+      tf = this->m_tf_buffer->lookupTransform(
+        m_target_frame_id,
+        trajectory.header.frame_id,
+        tf2::TimePointZero);
+    }
+
+    for (auto & trajectory_point : trajectory.points) {
+      ::motion::motion_common::doTransform(
+        trajectory_point, trajectory_point, tf);
+    }
+    trajectory.header.frame_id = m_target_frame_id;
+  }
 
   // m_estimator performs the collision estimation and the trajectory will get updated inside
-  m_estimator->updatePlan(response->modified_trajectory);
+  m_estimator->updatePlan(trajectory);
+  // Update response in target frame
+  Trajectory modified_trajectory;
+  modified_trajectory.header = request->original_trajectory.header;
+
+  for (std::size_t i = 0; i < trajectory.points.size(); i++) {
+    TrajectoryPoint trajectory_point;
+    trajectory_point = trajectory.points.at(i);
+    trajectory_point.pose = request->original_trajectory.points.at(i).pose;
+    modified_trajectory.points.push_back(trajectory_point);
+  }
+
+  response->modified_trajectory = modified_trajectory;
 
   // publish trajectory bounding box for visualization
   auto trajectory_bbox = m_estimator->getTrajectoryBoundingBox();
-  trajectory_bbox.header = response->modified_trajectory.header;
+  trajectory_bbox.header = trajectory.header;
   auto marker = toVisualizationMarkerArray(
     trajectory_bbox, response->modified_trajectory.points.size());
   m_trajectory_bbox_pub->publish(marker);

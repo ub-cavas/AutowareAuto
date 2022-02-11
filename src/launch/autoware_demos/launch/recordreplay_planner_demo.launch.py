@@ -112,7 +112,7 @@ def generate_launch_description():
     )
     with_obstacle_detection_param = DeclareLaunchArgument(
         'with_obstacle_detection',
-        default_value='False',
+        default_value='True',
         description='Use obstacle detection to stop for obstacles'
     )
     ndt_localizer_param = DeclareLaunchArgument(
@@ -298,6 +298,7 @@ def generate_launch_description():
         name='object_collision_estimator_node',
         namespace='planning',
         executable='object_collision_estimator_node_exe',
+        output='screen',
         parameters=[
             LaunchConfiguration('object_collision_estimator_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
