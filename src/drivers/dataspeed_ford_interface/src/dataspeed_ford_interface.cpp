@@ -81,24 +81,17 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_throttle_cmd.ignore = false;
   m_throttle_cmd.clear = false;
 
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_brake_cmd.decel_limit = m_deceleration_limit;
-  m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
+  m_brake_cmd.pedal_cmd_type = BrakeCmd::CMD_PERCENT;
+  m_brake_cmd.ignore = false;
+  m_brake_cmd.clear = false;
 
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
   m_steer_cmd.ignore = false;
 
-  m_gear_cmd.cmd.gear = GearReport::NONE;
+  m_gear_cmd.cmd = Gear::NONE
+  m_gear_cmd.clear = false;
 
-  m_misc_cmd.door_request_right_rear.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.door_request_left_rear.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.door_request_lift_gate.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.rear_wiper_cmd.status = WiperRear::OFF;
-  m_misc_cmd.ignition_cmd.status = Ignition::NO_REQUEST;
-  m_misc_cmd.cmd.value = TurnSignal::NONE;
-  m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-  m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-  m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
+  m_misc_cmd.cmd = TurnSignal::NONE;
 
   m_timer =
     node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
@@ -119,7 +112,6 @@ void DataspeedFordInterface::cmdCallback()
   if (is_dbw_enabled) {
     m_throttle_cmd.enable = true;
     m_brake_cmd.enable = true;
-    m_gear_cmd.enable = true;
     m_gl_en_cmd.global_enable = true;
     m_misc_cmd.block_standard_cruise_buttons = true;
     m_misc_cmd.block_adaptive_cruise_buttons = true;
@@ -128,7 +120,6 @@ void DataspeedFordInterface::cmdCallback()
   } else {
     m_throttle_cmd.enable = false;
     m_brake_cmd.enable = false;
-    m_gear_cmd.enable = false;
     m_gl_en_cmd.global_enable = false;
     m_misc_cmd.block_standard_cruise_buttons = false;
     m_misc_cmd.block_adaptive_cruise_buttons = false;
