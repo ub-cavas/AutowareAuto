@@ -85,15 +85,16 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_brake_cmd.ignore = false;
   m_brake_cmd.clear = false;
 
-  m_steer_cmd.cmd_type = SteeringCmd::COMMAND_ANGLE;  // angular position
+  m_steer_cmd.cmd_type = SteeringCmd::CMD_ANGLE;  // angular position
   m_steer_cmd.ignore = false;
   m_steer_cmd.clear = false;
-  m_steer_cmd.quite = false;
+  m_steer_cmd.quiet = false;
   m_steer_cmd.alert = true;
-  m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS ? SteeringCmd::ANGLE_MAX : m_max_steer_angle * DEGREES_TO_RADIANS;
+  m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS
+                        ? SteeringCmd::ANGLE_MAX
+                        : m_max_steer_angle * DEGREES_TO_RADIANS;
 
-  m_gear_cmd.cmd = Gear::NONE
-  m_gear_cmd.clear = false;
+  m_gear_cmd.cmd = Gear::NONE m_gear_cmd.clear = false;
 
   m_misc_cmd.cmd = TurnSignal::NONE;
 
@@ -222,55 +223,13 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
  */
 bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlCommand & msg)
 {
-  bool8_t ret{true};
-  float32_t velocity_checked{0.0F};
-
-  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // High level control command uses vehicle velocity and curvature as an input.
-  // Need to calculate steering angle from curvature.
-  // Apply Kinematic bicycle model analysis --> steering angle = wheelbase / R,
-  //  where R is the radius of curvature.
-  float32_t wheelbase = m_front_axle_to_cog + m_rear_axle_to_cog;
-  float32_t steering_angle_radian = std::atan2(wheelbase, 1.0 / msg.curvature);
-  // clip to [-angle_max, angle_max]
-  steering_angle_radian =
-    std::min(std::max(steering_angle_radian, -SteeringCmd::ANGLE_MAX), SteeringCmd::ANGLE_MAX);
-
-  // Dataspeed requires acceleration input instead of target speed. Hence, we set a constant
-  // acceleration here if target speed is higher than current speed.
-  float32_t throttle_percent = 0.3;  // use percent, fix to 30%
-  float32_t brake_percent = 0.5;     // use percent, fix to 50%
-
-  // using angle for steering, percent for throttle, percent for brake
-  m_steer_cmd.cmd_type = SteeringCmd::CMD_ANGLE;
-  m_throttle_cmd.pedal_cmd_type = ThrottleCmd::CMD_PERCENT;
-  m_brake_cmd.pedal_cmd_type = BrakeCmd::CMD_PERCENT;
-
-  // Check for invalid changes in direction
-  if (
-    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.velocity_mps < 0.0F)) ||
-    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) && (msg.velocity_mps > 0.0F))) {
-    velocity_checked = 0.0F;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid speed request value: speed direction does not match current gear.");
-    ret = false;
-  } else {
-    velocity_checked = std::fabs(msg.velocity_mps);
-  }
-
-  // Set commands
-  m_steer_cmd.steering_wheel_angle_cmd = steering_angle_radian;
-  m_steer_cmd.steering_wheel_angle_velocity = 0;  // default
-  m_throttle_cmd.pedal_cmd = (odometry().velocity_mps < msg.velocity_mps) ? throttle_percent : 0.0;
-  m_brake_cmd.pedal_cmd = (odometry().velocity_mps > msg.velocity_mps) ? brake_percent : 0.0;
-
-  return ret;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending high level controls directly.");
+  return false;
 }
 
 /* Apparently RawControlCommand will be obsolete soon.
@@ -283,7 +242,7 @@ bool8_t DataspeedFordInterface::send_control_command(const RawControlCommand & m
     m_logger,
     m_clock,
     CLOCK_1_SEC,
-    "NE Raptor does not support sending raw pedal controls directly.");
+    "Dataspeed Ford interface does not support sending raw pedal controls directly.");
   return false;
 }
 
@@ -297,25 +256,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
-  // Using steering wheel angle for control
-  m_throttle_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-
-  // Set limits
-  m_steer_cmd.angle_velocity = m_max_steer_angle;
-
-  if (msg.long_accel_mps2 > 0.0F && msg.long_accel_mps2 < m_acceleration_limit) {
-    m_throttle_cmd.accel_limit = msg.long_accel_mps2;
-  } else {
-    m_throttle_cmd.accel_limit = m_acceleration_limit;
-  }
-
-  if (msg.long_accel_mps2 < 0.0F && msg.long_accel_mps2 > (-1.0F * m_deceleration_limit)) {
-    m_brake_cmd.decel_limit = std::fabs(msg.long_accel_mps2);
-  } else {
-    m_brake_cmd.decel_limit = m_deceleration_limit;
-  }
+  // TODO (Zhihao Ruan) Set limits
 
   // Check for invalid changes in direction
   if (
@@ -332,9 +273,10 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     velocity_checked = std::fabs(msg.velocity_mps);
   }
 
+  // 1. Set Steering Angle
   // Limit steering angle to valid range
   /* Steering -> tire angle conversion is linear except for extreme angles */
-  angle_checked = (msg.front_wheel_angle_rad * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
+  angle_checked = msg.front_wheel_angle_rad * m_steer_to_tire_ratio;
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
@@ -353,90 +295,43 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
+  m_steer_cmd.steering_wheel_angle_cmd = angle_checked;
+  m_steer_cmd.steering_wheel_angle_velocity = 0;  // default
 
-  // Set commands
-  m_throttle_cmd.speed_cmd = velocity_checked;
-  m_steer_cmd.angle_cmd = angle_checked;
+  // 2. Set Throttle Commands
+  //  FIXME (Zhihao Ruan) Currently only use percentage values from msg.long_accel_mps2 /
+  //  m_acceleration_limit as percentage of full throttle
+  float32_t throttle_percent = 0, brake_percent = 0;
+  if (msg.long_accel_mps2 > 0) {
+    throttle_percent = msg.long_accel_mps2 / m_acceleration_limit;
+    if (throttle_percent > 1.0F) {
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received acceleration greater than m_acceleration_limit");
+      throttle_percent = 1.0F;
+    }
+  } else {
+    brake_percent = std::fabs(msg.long_accel_mps2) / m_deceleration_limit;
+    if (brake_percent > 1.0F) {
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_acceleration_limit");
+    }
+    brake_percent = 1.0F;
+  }
+  m_throttle_cmd.pedal_cmd = throttle_percent;
+  m_brake_cmd.pedal_cmd = brake_percent;
 
   return ret;
 }
 
 bool8_t DataspeedFordInterface::send_control_command(const AckermannControlCommand & msg)
 {
-  bool8_t ret{true};
-  float32_t velocity_checked{0.0F};
-  float32_t angle_checked{0.0F};
-
-  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // Using steering wheel angle for control
-  m_throttle_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;    // angular position
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;     // vehicle speed
-
-  // Set limits
-  m_steer_cmd.angle_velocity = m_max_steer_angle;
-
-  if (
-    msg.longitudinal.acceleration > 0.0F && msg.longitudinal.acceleration < m_acceleration_limit) {
-    m_throttle_cmd.accel_limit = msg.longitudinal.acceleration;
-  } else {
-    m_throttle_cmd.accel_limit = m_acceleration_limit;
-  }
-
-  if (
-    msg.longitudinal.acceleration < 0.0F &&
-    msg.longitudinal.acceleration > (-1.0F * m_deceleration_limit)) {
-    m_brake_cmd.decel_limit = std::fabs(msg.longitudinal.acceleration);
-  } else {
-    m_brake_cmd.decel_limit = m_deceleration_limit;
-  }
-
-  // Check for invalid changes in direction
-  if (
-    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.longitudinal.speed < 0.0F)) ||
-    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
-     (msg.longitudinal.speed > 0.0F))) {
-    velocity_checked = 0.0F;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid speed request value: speed direction does not match current gear.");
-    ret = false;
-  } else {
-    velocity_checked = std::fabs(msg.longitudinal.speed);
-  }
-
-  // Limit steering angle to valid range
-  /* Steering -> tire angle conversion is linear except for extreme angles */
-  angle_checked = (msg.lateral.steering_tire_angle * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
-  if (angle_checked > m_max_steer_angle) {
-    angle_checked = m_max_steer_angle;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid steering angle value: request exceeds max angle.");
-    ret = false;
-  }
-  if (angle_checked < (-1.0F * m_max_steer_angle)) {
-    angle_checked = -1.0F * m_max_steer_angle;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid steering angle value: request exceeds max angle.");
-    ret = false;
-  }
-
-  // Set commands
-  m_throttle_cmd.speed_cmd = velocity_checked;
-  m_steer_cmd.angle_cmd = angle_checked;
-
-  return ret;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending Ackermann controls directly.");
+  return false;
 }
 
 bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
