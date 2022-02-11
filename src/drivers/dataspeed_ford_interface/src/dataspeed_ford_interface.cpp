@@ -85,8 +85,12 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_brake_cmd.ignore = false;
   m_brake_cmd.clear = false;
 
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
+  m_steer_cmd.cmd_type = SteeringCmd::COMMAND_ANGLE;  // angular position
   m_steer_cmd.ignore = false;
+  m_steer_cmd.clear = false;
+  m_steer_cmd.quite = false;
+  m_steer_cmd.alert = true;
+  m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS ? SteeringCmd::ANGLE_MAX : m_max_steer_angle * DEGREES_TO_RADIANS;
 
   m_gear_cmd.cmd = Gear::NONE
   m_gear_cmd.clear = false;
