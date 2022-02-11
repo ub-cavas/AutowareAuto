@@ -15,3 +15,7 @@ repositories:
     type: git
     url: https://github.com/f1tenth/vesc
     version: ros2
+  src/external/dbw_ros:
+    type: git
+    url: https://bitbucket.org/DataspeedInc/dbw_ros.git
+    version: ros2
