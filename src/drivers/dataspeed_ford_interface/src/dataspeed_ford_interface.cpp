@@ -1,11 +1,11 @@
 #include "dataspeed_ford_interface/dataspeed_ford_interface.hpp"
 
+#include <cmath>
+#include <iostream>
+#include <stdexcept>
+
 #include <rclcpp/logging.hpp>
 #include <time_utils/time_utils.hpp>
-
-#include <cmath>
-#include <stdexcept>
-#include <iostream>
 
 namespace autoware
 {
@@ -23,8 +23,7 @@ DataspeedFordInterface::DataspeedFordInterface(
   float32_t deceleration_limit,
   float32_t acceleration_positive_jerk_limit,
   float32_t deceleration_negative_jerk_limit,
-  uint32_t pub_period
-)
+  uint32_t pub_period)
 : m_logger{node.get_logger()},
   m_ecu_build_num{ecu_build_num},
   m_front_axle_to_cog{front_axle_to_cog},
@@ -51,46 +50,39 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_dbw_disable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("disable", 10);
 
   // Publishers (to Autoware)
-  m_vehicle_kin_state_pub = node.create_publisher<VehicleKinematicState>(
-    "vehicle_kinematic_state",
-    10);
+  m_vehicle_kin_state_pub =
+    node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
 
   // Subscribers (from Raptor DBW)
-  m_brake_rpt_sub =
-    node.create_subscription<BrakeReport>(
-    "brake_report", rclcpp::QoS{20},
-    [this](BrakeReport::SharedPtr msg) {on_brake_report(msg);});
-  m_gear_rpt_sub =
-    node.create_subscription<GearReport>(
-    "gear_report", rclcpp::QoS{20},
-    [this](GearReport::SharedPtr msg) {on_gear_report(msg);});
-  m_misc_rpt_sub =
-    node.create_subscription<MiscReport>(
-    "misc_report", rclcpp::QoS{2},
-    [this](MiscReport::SharedPtr msg) {on_misc_report(msg);});
-  m_other_acts_rpt_sub =
-    node.create_subscription<OtherActuatorsReport>(
-    "other_actuators_report", rclcpp::QoS{20},
-    [this](OtherActuatorsReport::SharedPtr msg) {on_other_actuators_report(msg);});
-  m_steering_rpt_sub =
-    node.create_subscription<SteeringReport>(
-    "steering_report", rclcpp::QoS{20},
-    [this](SteeringReport::SharedPtr msg) {on_steering_report(msg);});
-  m_wheel_spd_rpt_sub =
-    node.create_subscription<WheelSpeedReport>(
-    "wheel_speed_report", rclcpp::QoS{20},
-    [this](WheelSpeedReport::SharedPtr msg) {on_wheel_spd_report(msg);});
+  m_brake_rpt_sub = node.create_subscription<BrakeReport>(
+    "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
+  m_gear_rpt_sub = node.create_subscription<GearReport>(
+    "gear_report", rclcpp::QoS{20}, [this](GearReport::SharedPtr msg) { on_gear_report(msg); });
+  m_misc_rpt_sub = node.create_subscription<MiscReport>(
+    "misc_report", rclcpp::QoS{2}, [this](MiscReport::SharedPtr msg) { on_misc_report(msg); });
+  m_other_acts_rpt_sub = node.create_subscription<OtherActuatorsReport>(
+    "other_actuators_report", rclcpp::QoS{20}, [this](OtherActuatorsReport::SharedPtr msg) {
+      on_other_actuators_report(msg);
+    });
+  m_steering_rpt_sub = node.create_subscription<SteeringReport>(
+    "steering_report", rclcpp::QoS{20}, [this](SteeringReport::SharedPtr msg) {
+      on_steering_report(msg);
+    });
+  m_wheel_spd_rpt_sub = node.create_subscription<WheelSpeedReport>(
+    "wheel_speed_report", rclcpp::QoS{20}, [this](WheelSpeedReport::SharedPtr msg) {
+      on_wheel_spd_report(msg);
+    });
 
   // Initialize command values
   m_gl_en_cmd.ecu_build_number = m_ecu_build_num;
   m_gl_en_cmd.enable_joystick_limits = false;
 
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
   m_accel_cmd.ignore = false;
   m_accel_cmd.accel_limit = m_acceleration_limit;
   m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
 
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
   m_brake_cmd.decel_limit = m_deceleration_limit;
   m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
 
@@ -109,10 +101,11 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
   m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
 
-  m_timer = node.create_wall_timer(m_pub_period, std::bind(&NERaptorInterface::cmdCallback, this));
+  m_timer =
+    node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
 }
 
-void NERaptorInterface::cmdCallback()
+void DataspeedFordInterface::cmdCallback()
 {
   // Increment rolling counter
   m_rolling_counter++;
@@ -170,13 +163,13 @@ void NERaptorInterface::cmdCallback()
   m_dbw_state_machine->state_cmd_sent();
 }
 
-bool8_t NERaptorInterface::update(std::chrono::nanoseconds timeout)
+bool8_t DataspeedFordInterface::update(std::chrono::nanoseconds timeout)
 {
   (void)timeout;
   return true;
 }
 
-bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
+bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & msg)
 {
   bool8_t ret{true};
 
@@ -207,8 +200,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     default:  // error
       m_gear_cmd.cmd.gear = GearReport::NONE;
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received command for invalid gear state.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid gear state.");
       ret = false;
       break;
   }
@@ -232,15 +224,13 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
     default:
       m_misc_cmd.cmd.value = TurnSignal::SNA;
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received command for invalid turn signal state.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid turn signal state.");
       ret = false;
       break;
   }
 
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  m_brake_cmd.park_brake_cmd.status =
-    (msg.hand_brake) ? ParkingBrake::ON : ParkingBrake::OFF;
+  m_brake_cmd.park_brake_cmd.status = (msg.hand_brake) ? ParkingBrake::ON : ParkingBrake::OFF;
 
   m_seen_vehicle_state_cmd = true;
 
@@ -249,7 +239,7 @@ bool8_t NERaptorInterface::send_state_command(const VehicleStateCommand & msg)
 
 /* Apparently HighLevelControlCommand will be obsolete soon.
  */
-bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & msg)
+bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlCommand & msg)
 {
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
@@ -267,14 +257,14 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
   m_steer_cmd.angle_velocity = m_max_steer_angle;
 
   // Check for invalid changes in direction
-  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
-    (msg.velocity_mps < 0.0F) ) ||
-    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
-    (msg.velocity_mps > 0.0F) ) )
-  {
+  if (
+    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.velocity_mps < 0.0F)) ||
+    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) && (msg.velocity_mps > 0.0F))) {
     velocity_checked = 0.0F;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid speed request value: speed direction does not match current gear.");
     ret = false;
   } else {
@@ -291,16 +281,18 @@ bool8_t NERaptorInterface::send_control_command(const HighLevelControlCommand & 
 /* Apparently RawControlCommand will be obsolete soon.
  * Function not supported - AutoWare RawControlCommand message units are undefined.
  */
-bool8_t NERaptorInterface::send_control_command(const RawControlCommand & msg)
+bool8_t DataspeedFordInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger, m_clock, CLOCK_1_SEC,
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
     "NE Raptor does not support sending raw pedal controls directly.");
   return false;
 }
 
-bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & msg)
+bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand & msg)
 {
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
@@ -331,14 +323,14 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   }
 
   // Check for invalid changes in direction
-  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
-    (msg.velocity_mps < 0.0F) ) ||
-    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
-    (msg.velocity_mps > 0.0F) ) )
-  {
+  if (
+    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.velocity_mps < 0.0F)) ||
+    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) && (msg.velocity_mps > 0.0F))) {
     velocity_checked = 0.0F;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid speed request value: speed direction does not match current gear.");
     ret = false;
   } else {
@@ -351,14 +343,18 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
   if (angle_checked < (-1.0F * m_max_steer_angle)) {
     angle_checked = -1.0F * m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
@@ -370,7 +366,7 @@ bool8_t NERaptorInterface::send_control_command(const VehicleControlCommand & ms
   return ret;
 }
 
-bool8_t NERaptorInterface::send_control_command(const AckermannControlCommand & msg)
+bool8_t DataspeedFordInterface::send_control_command(const AckermannControlCommand & msg)
 {
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
@@ -388,31 +384,31 @@ bool8_t NERaptorInterface::send_control_command(const AckermannControlCommand & 
   // Set limits
   m_steer_cmd.angle_velocity = m_max_steer_angle;
 
-  if (msg.longitudinal.acceleration > 0.0F &&
-    msg.longitudinal.acceleration < m_acceleration_limit)
-  {
+  if (
+    msg.longitudinal.acceleration > 0.0F && msg.longitudinal.acceleration < m_acceleration_limit) {
     m_accel_cmd.accel_limit = msg.longitudinal.acceleration;
   } else {
     m_accel_cmd.accel_limit = m_acceleration_limit;
   }
 
-  if (msg.longitudinal.acceleration < 0.0F &&
-    msg.longitudinal.acceleration > (-1.0F * m_deceleration_limit))
-  {
+  if (
+    msg.longitudinal.acceleration < 0.0F &&
+    msg.longitudinal.acceleration > (-1.0F * m_deceleration_limit)) {
     m_brake_cmd.decel_limit = std::fabs(msg.longitudinal.acceleration);
   } else {
     m_brake_cmd.decel_limit = m_deceleration_limit;
   }
 
   // Check for invalid changes in direction
-  if ( ( (state_report().gear == VehicleStateReport::GEAR_DRIVE) &&
-    (msg.longitudinal.speed < 0.0F) ) ||
-    ( (state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
-    (msg.longitudinal.speed > 0.0F) ) )
-  {
+  if (
+    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.longitudinal.speed < 0.0F)) ||
+    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
+     (msg.longitudinal.speed > 0.0F))) {
     velocity_checked = 0.0F;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid speed request value: speed direction does not match current gear.");
     ret = false;
   } else {
@@ -425,14 +421,18 @@ bool8_t NERaptorInterface::send_control_command(const AckermannControlCommand & 
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
   if (angle_checked < (-1.0F * m_max_steer_angle)) {
     angle_checked = -1.0F * m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
@@ -444,7 +444,7 @@ bool8_t NERaptorInterface::send_control_command(const AckermannControlCommand & 
   return ret;
 }
 
-bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
+bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   bool8_t ret{true};
   std_msgs::msg::Empty send_req{};
@@ -456,14 +456,13 @@ bool8_t NERaptorInterface::handle_mode_change_request(ModeChangeRequest::SharedP
     m_dbw_enable_cmd_pub->publish(send_req);
   } else {
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
-      "Got invalid autonomy mode request value.");
+      m_logger, m_clock, CLOCK_1_SEC, "Got invalid autonomy mode request value.");
     ret = false;
   }
   return ret;
 }
 
-void NERaptorInterface::send_headlights_command(const HeadlightsCommand & msg)
+void DataspeedFordInterface::send_headlights_command(const HeadlightsCommand & msg)
 {
   switch (msg.command) {
     case HeadlightsCommand::NO_COMMAND:
@@ -484,19 +483,18 @@ void NERaptorInterface::send_headlights_command(const HeadlightsCommand & msg)
     default:
       // Keep previous
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received command for invalid headlight state.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid headlight state.");
       break;
   }
 }
 
-void NERaptorInterface::send_horn_command(const HornCommand & msg)
+void DataspeedFordInterface::send_horn_command(const HornCommand & msg)
 {
   // Set misc command values
   m_misc_cmd.horn_cmd = msg.active;
 }
 
-void NERaptorInterface::send_wipers_command(const WipersCommand & msg)
+void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
 {
   switch (msg.command) {
     case WipersCommand::NO_COMMAND:
@@ -521,13 +519,12 @@ void NERaptorInterface::send_wipers_command(const WipersCommand & msg)
     default:
       // Keep previous
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received command for invalid wiper state.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid wiper state.");
       break;
   }
 }
 
-void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
+void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
 {
   switch (msg->parking_brake.status) {
     case ParkingBrake::OFF:
@@ -541,14 +538,13 @@ void NERaptorInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
     default:
       state_report().hand_brake = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid parking brake value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid parking brake value from NE Raptor DBW.");
       break;
   }
   m_seen_brake_rpt = true;
 }
 
-void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
+void DataspeedFordInterface::on_gear_report(const GearReport::SharedPtr & msg)
 {
   switch (msg->report) {
     case GearReport::PARK:
@@ -570,14 +566,13 @@ void NERaptorInterface::on_gear_report(const GearReport::SharedPtr & msg)
     default:
       state_report().gear = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid gear value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from NE Raptor DBW.");
       break;
   }
   m_seen_gear_rpt = true;
 }
 
-void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
+void DataspeedFordInterface::on_misc_report(const MiscReport::SharedPtr & msg)
 {
   const float32_t speed_mps = msg->vehicle_speed * KPH_TO_MPS_RATIO * m_travel_direction;
   const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
@@ -606,14 +601,12 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
    * at the front axle, where it is tan(δ)*v_lon.
    */
   delta = m_vehicle_kin_state.state.front_wheel_angle_rad;
-  if (m_seen_misc_rpt &&
-    m_seen_wheel_spd_rpt)
-  {
+  if (m_seen_misc_rpt && m_seen_wheel_spd_rpt) {
     prev_speed_mps = m_vehicle_kin_state.state.longitudinal_velocity_mps;
   }
   m_vehicle_kin_state.state.longitudinal_velocity_mps = speed_mps;
-  m_vehicle_kin_state.state.lateral_velocity_mps = (m_rear_axle_to_cog / wheelbase) * speed_mps *
-    std::tan(delta);
+  m_vehicle_kin_state.state.lateral_velocity_mps =
+    (m_rear_axle_to_cog / wheelbase) * speed_mps * std::tan(delta);
 
   m_vehicle_kin_state.header.frame_id = "odom";
 
@@ -624,8 +617,7 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     // Position = (0,0) at time = 0
     m_vehicle_kin_state.state.pose.position.x = 0.0;
     m_vehicle_kin_state.state.pose.position.y = 0.0;
-    m_vehicle_kin_state.state.pose.orientation =
-      motion::motion_common::from_angle(0.0);
+    m_vehicle_kin_state.state.pose.orientation = motion::motion_common::from_angle(0.0);
     return;
   }
 
@@ -636,17 +628,13 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
     1000000000.0F;
 
   if (dT < 0.0F) {
-    RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
-      "Received inconsistent timestamps.");
+    RCLCPP_ERROR_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent timestamps.");
     return;
   }
 
   m_vehicle_kin_state.header.stamp = msg->header.stamp;
 
-  if (m_seen_steering_rpt &&
-    m_seen_wheel_spd_rpt)
-  {
+  if (m_seen_steering_rpt && m_seen_wheel_spd_rpt) {
     m_vehicle_kin_state.state.acceleration_mps2 = (speed_mps - prev_speed_mps) / dT;  // m/s^2
 
     beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
@@ -659,7 +647,7 @@ void NERaptorInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   }
 }
 
-void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg)
+void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg)
 {
   switch (msg->horn_state.status) {
     case HornState::OFF:
@@ -672,8 +660,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
     default:
       state_report().horn = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid horn value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid horn value from NE Raptor DBW.");
       break;
   }
 
@@ -694,8 +681,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
     default:
       state_report().blinker = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid turn signal value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid turn signal value from NE Raptor DBW.");
       break;
   }
 
@@ -711,8 +697,7 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
     default:
       state_report().headlight = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid headlight value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid headlight value from NE Raptor DBW.");
       break;
   }
 
@@ -733,19 +718,18 @@ void NERaptorInterface::on_other_actuators_report(const OtherActuatorsReport::Sh
     default:
       state_report().wiper = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received invalid wiper value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid wiper value from NE Raptor DBW.");
       break;
   }
 
   state_report().stamp = msg->header.stamp;
 }
 
-void NERaptorInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
+void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
 {
   /* Steering -> tire angle conversion is linear except for extreme angles */
-  const float32_t f_wheel_angle_rad = (msg->steering_wheel_angle * DEGREES_TO_RADIANS) /
-    m_steer_to_tire_ratio;
+  const float32_t f_wheel_angle_rad =
+    (msg->steering_wheel_angle * DEGREES_TO_RADIANS) / m_steer_to_tire_ratio;
 
   odometry().front_wheel_angle_rad = f_wheel_angle_rad;
   odometry().rear_wheel_angle_rad = 0.0F;
@@ -758,7 +742,7 @@ void NERaptorInterface::on_steering_report(const SteeringReport::SharedPtr & msg
   odometry().stamp = msg->header.stamp;
 }
 
-void NERaptorInterface::on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg)
+void DataspeedFordInterface::on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg)
 {
   // Detect direction of travel
   float32_t fr = msg->front_right;
@@ -778,17 +762,14 @@ void NERaptorInterface::on_wheel_spd_report(const WheelSpeedReport::SharedPtr & 
   } else {
     // Wheels are moving different directions. This is probably bad.
     m_travel_direction = 0.0F;
-    RCLCPP_WARN_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
-      "Received inconsistent wheel speeds.");
+    RCLCPP_WARN_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent wheel speeds.");
   }
 
   m_seen_wheel_spd_rpt = true;
 }
 
 // Update x, y, heading, and heading_rate
-void NERaptorInterface::kinematic_bicycle_model(
-  float32_t dt, VehicleKinematicState * vks)
+void DataspeedFordInterface::kinematic_bicycle_model(float32_t dt, VehicleKinematicState * vks)
 {
   const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
 
@@ -826,8 +807,7 @@ void NERaptorInterface::kinematic_bicycle_model(
   const float32_t course = yaw + beta;
 
   // How much the yaw changes per meter traveled (at the reference point)
-  const float32_t yaw_change =
-    std::cos(beta) * std::tan(delta) / wheelbase;
+  const float32_t yaw_change = std::cos(beta) * std::tan(delta) / wheelbase;
 
   // How much the yaw rate
   const float32_t yaw_rate = yaw_change * v0;
