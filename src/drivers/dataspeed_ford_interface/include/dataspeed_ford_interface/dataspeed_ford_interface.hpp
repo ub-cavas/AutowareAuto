@@ -224,7 +224,7 @@ private:
   void cmdCallback();
 
   // Publishers (to Raptor DBW)
-  rclcpp::Publisher<AcceleratorPedalCmd>::SharedPtr m_accel_cmd_pub;
+  rclcpp::Publisher<ThrottleCmd>::SharedPtr m_throttle_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
   rclcpp::Publisher<GlobalEnableCmd>::SharedPtr m_gl_en_cmd_pub;
@@ -252,7 +252,6 @@ private:
   float32_t m_deceleration_negative_jerk_limit;
   std::chrono::milliseconds m_pub_period;
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
-  uint8_t m_rolling_counter;
   rclcpp::Clock m_clock;
   rclcpp::TimerBase::SharedPtr m_timer;
 
@@ -264,7 +263,7 @@ private:
    */
   VehicleKinematicState m_vehicle_kin_state{};
 
-  AcceleratorPedalCmd m_accel_cmd{};
+  ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};
   GearCmd m_gear_cmd{};
   GlobalEnableCmd m_gl_en_cmd{};
@@ -281,7 +280,7 @@ private:
 
   // In case multiple signals arrive at the same time
   std::mutex m_vehicle_kin_state_mutex;
-  std::mutex m_accel_cmd_mutex;
+  std::mutex m_throttle_cmd_mutex;
   std::mutex m_brake_cmd_mutex;
   std::mutex m_gear_cmd_mutex;
   std::mutex m_gl_en_cmd_mutex;
