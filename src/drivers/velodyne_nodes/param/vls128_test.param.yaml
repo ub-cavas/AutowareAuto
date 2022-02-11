@@ -9,3 +9,4 @@
     timeout_ms: 10
     rpm:        600
     model: "vls128"
+    ring_information: false

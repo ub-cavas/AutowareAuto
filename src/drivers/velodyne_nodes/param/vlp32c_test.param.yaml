@@ -9,3 +9,4 @@
     timeout_ms: 10
     rpm:        600
     model: "vlp32c"
+    ring_information: false

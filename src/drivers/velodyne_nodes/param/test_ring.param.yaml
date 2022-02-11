@@ -7,4 +7,4 @@
     frame_id: "lidar_front"
     timeout_ms: 10
     rpm:        600
-    ring_information: false
+    ring_information: true
