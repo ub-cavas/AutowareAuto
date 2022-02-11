@@ -36,11 +36,10 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_deceleration_negative_jerk_limit{deceleration_negative_jerk_limit},
   m_pub_period{std::chrono::milliseconds(pub_period)},
   m_dbw_state_machine(new DbwStateMachine{3}),
-  m_rolling_counter{0},
   m_clock{RCL_SYSTEM_TIME}
 {
   // Publishers (to Raptor DBW)
-  m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 1);
+  m_throttle_cmd_pub = node.create_publisher<ThrottleCmd>("throttle_cmd", 1);
   m_brake_cmd_pub = node.create_publisher<BrakeCmd>("brake_cmd", 1);
   m_gear_cmd_pub = node.create_publisher<GearCmd>("gear_cmd", 1);
   m_gl_en_cmd_pub = node.create_publisher<GlobalEnableCmd>("global_enable_cmd", 1);
@@ -54,6 +53,7 @@ DataspeedFordInterface::DataspeedFordInterface(
     node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
 
   // Subscribers (from Raptor DBW)
+  // TODO: decide whether throttle report is needed.
   m_brake_rpt_sub = node.create_subscription<BrakeReport>(
     "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
   m_gear_rpt_sub = node.create_subscription<GearReport>(
@@ -77,10 +77,9 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_gl_en_cmd.ecu_build_number = m_ecu_build_num;
   m_gl_en_cmd.enable_joystick_limits = false;
 
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_accel_cmd.ignore = false;
-  m_accel_cmd.accel_limit = m_acceleration_limit;
-  m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
+  m_throttle_cmd.pedal_cmd_type = ThrottleCmd::CMD_PERCENT;
+  m_throttle_cmd.ignore = false;
+  m_throttle_cmd.clear = false;
 
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
   m_brake_cmd.decel_limit = m_deceleration_limit;
@@ -107,31 +106,18 @@ DataspeedFordInterface::DataspeedFordInterface(
 
 void DataspeedFordInterface::cmdCallback()
 {
-  // Increment rolling counter
-  m_rolling_counter++;
-  if (m_rolling_counter > 15) {
-    m_rolling_counter = 0;
-  }
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_tc(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
   std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
   std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
-  // Set rolling counters
-  m_accel_cmd.rolling_counter = m_rolling_counter;
-  m_brake_cmd.rolling_counter = m_rolling_counter;
-  m_gear_cmd.rolling_counter = m_rolling_counter;
-  m_gl_en_cmd.rolling_counter = m_rolling_counter;
-  m_misc_cmd.rolling_counter = m_rolling_counter;
-  m_steer_cmd.rolling_counter = m_rolling_counter;
-
   const auto is_dbw_enabled = m_dbw_state_machine->get_state() != DbwState::DISABLED;
 
   // Set enables based on current DBW mode
   if (is_dbw_enabled) {
-    m_accel_cmd.enable = true;
+    m_throttle_cmd.enable = true;
     m_brake_cmd.enable = true;
     m_gear_cmd.enable = true;
     m_gl_en_cmd.global_enable = true;
@@ -140,7 +126,7 @@ void DataspeedFordInterface::cmdCallback()
     m_misc_cmd.block_turn_signal_stalk = true;
     m_steer_cmd.enable = true;
   } else {
-    m_accel_cmd.enable = false;
+    m_throttle_cmd.enable = false;
     m_brake_cmd.enable = false;
     m_gear_cmd.enable = false;
     m_gl_en_cmd.global_enable = false;
@@ -151,7 +137,7 @@ void DataspeedFordInterface::cmdCallback()
   }
 
   // Publish commands to NE Raptor DBW
-  m_accel_cmd_pub->publish(m_accel_cmd);
+  m_throttle_cmd_pub->publish(m_throttle_cmd);
   m_brake_cmd_pub->publish(m_brake_cmd);
   m_gear_cmd_pub->publish(m_gear_cmd);
   m_gl_en_cmd_pub->publish(m_gl_en_cmd);
@@ -244,12 +230,12 @@ bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlComma
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
 
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Using curvature for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
+  m_throttle_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle curvature
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
 
@@ -272,7 +258,7 @@ bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlComma
   }
 
   // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
+  m_throttle_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.vehicle_curvature_cmd = msg.curvature;
 
   return ret;
@@ -298,12 +284,12 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
 
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Using steering wheel angle for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_throttle_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
 
@@ -311,9 +297,9 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   m_steer_cmd.angle_velocity = m_max_steer_angle;
 
   if (msg.long_accel_mps2 > 0.0F && msg.long_accel_mps2 < m_acceleration_limit) {
-    m_accel_cmd.accel_limit = msg.long_accel_mps2;
+    m_throttle_cmd.accel_limit = msg.long_accel_mps2;
   } else {
-    m_accel_cmd.accel_limit = m_acceleration_limit;
+    m_throttle_cmd.accel_limit = m_acceleration_limit;
   }
 
   if (msg.long_accel_mps2 < 0.0F && msg.long_accel_mps2 > (-1.0F * m_deceleration_limit)) {
@@ -360,7 +346,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   }
 
   // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
+  m_throttle_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.angle_cmd = angle_checked;
 
   return ret;
@@ -372,12 +358,12 @@ bool8_t DataspeedFordInterface::send_control_command(const AckermannControlComma
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
 
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Using steering wheel angle for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
+  m_throttle_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
   m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
   m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
 
@@ -386,9 +372,9 @@ bool8_t DataspeedFordInterface::send_control_command(const AckermannControlComma
 
   if (
     msg.longitudinal.acceleration > 0.0F && msg.longitudinal.acceleration < m_acceleration_limit) {
-    m_accel_cmd.accel_limit = msg.longitudinal.acceleration;
+    m_throttle_cmd.accel_limit = msg.longitudinal.acceleration;
   } else {
-    m_accel_cmd.accel_limit = m_acceleration_limit;
+    m_throttle_cmd.accel_limit = m_acceleration_limit;
   }
 
   if (
@@ -438,7 +424,7 @@ bool8_t DataspeedFordInterface::send_control_command(const AckermannControlComma
   }
 
   // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
+  m_throttle_cmd.speed_cmd = velocity_checked;
   m_steer_cmd.angle_cmd = angle_checked;
 
   return ret;
