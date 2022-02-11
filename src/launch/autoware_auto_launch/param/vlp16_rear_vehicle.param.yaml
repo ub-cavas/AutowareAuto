@@ -8,3 +8,4 @@
     timeout_ms: 10
     rpm:        600
     model: "vlp16"
+    ring_information: false
