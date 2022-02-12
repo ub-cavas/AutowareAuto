@@ -94,7 +94,8 @@ DataspeedFordInterface::DataspeedFordInterface(
                         ? SteeringCmd::ANGLE_MAX
                         : m_max_steer_angle * DEGREES_TO_RADIANS;
 
-  m_gear_cmd.cmd = Gear::NONE m_gear_cmd.clear = false;
+  m_gear_cmd.cmd = Gear::NONE;
+  m_gear_cmd.clear = false;
 
   m_misc_cmd.cmd = TurnSignal::NONE;
 
@@ -107,7 +108,6 @@ void DataspeedFordInterface::cmdCallback()
   std::lock_guard<std::mutex> guard_tc(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
   std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
@@ -156,31 +156,30 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
   bool8_t ret{true};
 
   std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
   std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
 
   // Set gear values
   switch (msg.gear) {
     case VehicleStateCommand::GEAR_NO_COMMAND:
-      m_gear_cmd.cmd.gear = GearReport::NONE;
+      m_gear_cmd.cmd = Gear::NONE;
       break;
     case VehicleStateCommand::GEAR_DRIVE:
-      m_gear_cmd.cmd.gear = GearReport::DRIVE_1;
+      m_gear_cmd.cmd = Gear::DRIVE;
       break;
     case VehicleStateCommand::GEAR_REVERSE:
-      m_gear_cmd.cmd.gear = GearReport::REVERSE;
+      m_gear_cmd.cmd = Gear::REVERSE;
       break;
     case VehicleStateCommand::GEAR_PARK:
-      m_gear_cmd.cmd.gear = GearReport::PARK;
+      m_gear_cmd.cmd = Gear::PARK;
       break;
     case VehicleStateCommand::GEAR_LOW:
-      m_gear_cmd.cmd.gear = GearReport::LOW;
+      m_gear_cmd.cmd = Gear::LOW;
       break;
     case VehicleStateCommand::GEAR_NEUTRAL:
-      m_gear_cmd.cmd.gear = GearReport::NEUTRAL;
+      m_gear_cmd.cmd = Gear::NEUTRAL;
       break;
     default:  // error
-      m_gear_cmd.cmd.gear = GearReport::NONE;
+      m_gear_cmd.cmd = Gear::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid gear state.");
       ret = false;
@@ -192,28 +191,24 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       // Keep previous
       break;
     case VehicleStateCommand::BLINKER_OFF:
-      m_misc_cmd.cmd.value = TurnSignal::NONE;
+      m_misc_cmd.cmd = TurnSignal::NONE;
       break;
     case VehicleStateCommand::BLINKER_LEFT:
-      m_misc_cmd.cmd.value = TurnSignal::LEFT;
+      m_misc_cmd.cmd = TurnSignal::LEFT;
       break;
     case VehicleStateCommand::BLINKER_RIGHT:
-      m_misc_cmd.cmd.value = TurnSignal::RIGHT;
+      m_misc_cmd.cmd = TurnSignal::RIGHT;
       break;
     case VehicleStateCommand::BLINKER_HAZARD:
-      m_misc_cmd.cmd.value = TurnSignal::HAZARDS;
+      m_misc_cmd.cmd = TurnSignal::HAZARD;
       break;
     default:
-      m_misc_cmd.cmd.value = TurnSignal::SNA;
+      m_misc_cmd.cmd = TurnSignal::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid turn signal state.");
       ret = false;
       break;
   }
-
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  m_brake_cmd.park_brake_cmd.status = (msg.hand_brake) ? ParkingBrake::ON : ParkingBrake::OFF;
-
   m_seen_vehicle_state_cmd = true;
 
   return ret;
