@@ -41,7 +41,7 @@ ament_auto_add_library(${PROJECT_NAME} SHARED
   ${DATASPEED_FORD_INTERFACE_LIB_SRC}
   ${DATASPEED_FORD_INTERFACE_LIB_HEADERS}
 )
-autoware_set_compile_options(${PROJECT_NAME})
+target_compile_options(${PROJECT_NAME} PRIVATE -Wno-old-style-cast)
 
 set(DATASPEED_FORD_INTERFACE_NODE_SRC
   src/dataspeed_ford_interface_node.cpp
