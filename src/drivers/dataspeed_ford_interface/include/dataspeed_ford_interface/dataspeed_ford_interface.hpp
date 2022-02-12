@@ -227,7 +227,6 @@ private:
   rclcpp::Publisher<ThrottleCmd>::SharedPtr m_throttle_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
-  rclcpp::Publisher<GlobalEnableCmd>::SharedPtr m_gl_en_cmd_pub;
   rclcpp::Publisher<MiscCmd>::SharedPtr m_misc_cmd_pub;
   rclcpp::Publisher<SteeringCmd>::SharedPtr m_steer_cmd_pub;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_enable_cmd_pub;
@@ -266,7 +265,6 @@ private:
   ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};
   GearCmd m_gear_cmd{};
-  GlobalEnableCmd m_gl_en_cmd{};
   MiscCmd m_misc_cmd{};
   SteeringCmd m_steer_cmd{};
 
