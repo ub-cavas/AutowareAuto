@@ -73,7 +73,6 @@ using dbw_ford_msgs::msg::BrakeInfoReport;
 using dbw_ford_msgs::msg::BrakeReport;
 using dbw_ford_msgs::msg::DriverAssistReport;
 using dbw_ford_msgs::msg::FuelLevelReport;
-using dbw_ford_msgs::msg::GearReport;
 using dbw_ford_msgs::msg::Misc1Report;
 using dbw_ford_msgs::msg::SteeringReport;
 using dbw_ford_msgs::msg::SurroundReport;
@@ -82,6 +81,13 @@ using dbw_ford_msgs::msg::ThrottleReport;
 using dbw_ford_msgs::msg::TirePressureReport;
 using dbw_ford_msgs::msg::WheelPositionReport;
 using dbw_ford_msgs::msg::WheelSpeedReport;
+
+// Need to distinguish between dbw_ford_msgs::msg::GearReport and
+// autoware_auto_vehicle_msg::msg::GearReport
+namespace dbw_ford
+{
+using dbw_ford_msgs::msg::GearReport;
+}  // namespace dbw_ford
 
 using dbw_ford_msgs::msg::AmbientLight;
 using dbw_ford_msgs::msg::Gear;
@@ -297,7 +303,7 @@ private:
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_gear_report(const GearReport::SharedPtr & msg);
+  void on_gear_report(const dbw_ford::GearReport::SharedPtr & msg);
 
   /** \brief Receives the miscellaneous state report from the vehicle platform.
    * Gets vehicle speed for VehicleOdometry and VehicleKinematicState.
