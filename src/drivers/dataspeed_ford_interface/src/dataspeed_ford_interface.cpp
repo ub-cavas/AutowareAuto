@@ -193,25 +193,6 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       ret = false;
       break;
   }
-
-  // set driving mode
-  // FIXME (Zhihao Ruan): Should we use user_request() to handle driving mode change here?
-  switch (msg.mode) {
-    case VehicleStateCommand::MODE_NO_COMMAND:
-      // keep previous
-      break;
-    case VehicleStateCommand::MODE_AUTONOMOUS:
-      m_dbw_state_machine->user_request(true);
-      break;
-    case VehicleStateCommand::MODE_MANUAL:
-      m_dbw_state_machine->user_request(false);
-      break;
-    default:
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid driving mode change");
-      ret = false;
-      break;
-  }
   m_seen_vehicle_state_cmd = true;
 
   return ret;
