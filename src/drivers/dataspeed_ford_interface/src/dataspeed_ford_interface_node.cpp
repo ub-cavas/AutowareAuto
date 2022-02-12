@@ -24,12 +24,6 @@ namespace dataspeed_ford_interface
 DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions & options)
 : Node("dataspeed_ford_interface", options), verbose(true)
 {
-  print_hello();
-}
-
-int32_t DataspeedFordInterfaceNode::print_hello() const
-{
-  return dataspeed_ford_interface::print_hello();
 }
 
 }  // namespace dataspeed_ford_interface
