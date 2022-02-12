@@ -361,128 +361,128 @@ void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
 
 void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
 {
-  // switch (msg->parking_brake.status) {
-  //   case ParkingBrake::OFF:
-  //     state_report().hand_brake = false;
-  //     break;
-  //   case ParkingBrake::ON:
-  //     state_report().hand_brake = true;
-  //     break;
-  //   case ParkingBrake::NO_REQUEST:
-  //   case ParkingBrake::FAULT:
-  //   default:
-  //     state_report().hand_brake = false;
-  //     RCLCPP_WARN_THROTTLE(
-  //       m_logger,
-  //       m_clock,
-  //       CLOCK_1_SEC,
-  //       "Received invalid parking brake value from Dataspeed Ford DBW.");
-  //     break;
-  // }
-  // m_seen_brake_rpt = true;
+  switch (msg->parking_brake.status) {
+    case ParkingBrake::OFF:
+      state_report().hand_brake = false;
+      break;
+    case ParkingBrake::ON:
+      state_report().hand_brake = true;
+      break;
+    case ParkingBrake::NO_REQUEST:
+    case ParkingBrake::FAULT:
+    default:
+      state_report().hand_brake = false;
+      RCLCPP_WARN_THROTTLE(
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid parking brake value from Dataspeed Ford DBW.");
+      break;
+  }
+  m_seen_brake_rpt = true;
 }
 
 void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPtr & msg)
 {
-  // switch (msg->report) {
-  //   case GearReport::PARK:
-  //     state_report().gear = VehicleStateReport::GEAR_PARK;
-  //     break;
-  //   case GearReport::REVERSE:
-  //     state_report().gear = VehicleStateReport::GEAR_REVERSE;
-  //     break;
-  //   case GearReport::NEUTRAL:
-  //     state_report().gear = VehicleStateReport::GEAR_NEUTRAL;
-  //     break;
-  //   case GearReport::DRIVE_1:
-  //     state_report().gear = VehicleStateReport::GEAR_DRIVE;
-  //     break;
-  //   case GearReport::LOW:
-  //     state_report().gear = VehicleStateReport::GEAR_LOW;
-  //     break;
-  //   case GearReport::NONE:
-  //   default:
-  //     state_report().gear = 0;
-  //     RCLCPP_WARN_THROTTLE(
-  //       m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
-  //     break;
-  // }
-  // m_seen_gear_rpt = true;
+  switch (msg->report) {
+    case GearReport::PARK:
+      state_report().gear = VehicleStateReport::GEAR_PARK;
+      break;
+    case GearReport::REVERSE:
+      state_report().gear = VehicleStateReport::GEAR_REVERSE;
+      break;
+    case GearReport::NEUTRAL:
+      state_report().gear = VehicleStateReport::GEAR_NEUTRAL;
+      break;
+    case GearReport::DRIVE_1:
+      state_report().gear = VehicleStateReport::GEAR_DRIVE;
+      break;
+    case GearReport::LOW:
+      state_report().gear = VehicleStateReport::GEAR_LOW;
+      break;
+    case GearReport::NONE:
+    default:
+      state_report().gear = 0;
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
+      break;
+  }
+  m_seen_gear_rpt = true;
 }
 
 void DataspeedFordInterface::on_misc_report(const Misc1Report::SharedPtr & msg)
 {
-  // const float32_t speed_mps = msg->vehicle_speed * KPH_TO_MPS_RATIO * m_travel_direction;
-  // const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
-  // float32_t delta{0.0F};
-  // float32_t beta{0.0F};
-  // float32_t prev_speed_mps{0.0F};
-  // float32_t dT{0.0F};
+  const float32_t speed_mps = msg->vehicle_speed * KPH_TO_MPS_RATIO * m_travel_direction;
+  const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
+  float32_t delta{0.0F};
+  float32_t beta{0.0F};
+  float32_t prev_speed_mps{0.0F};
+  float32_t dT{0.0F};
 
-  // odometry().velocity_mps = speed_mps;
+  odometry().velocity_mps = speed_mps;
 
-  // state_report().fuel = static_cast<uint8_t>(msg->fuel_level);
+  state_report().fuel = static_cast<uint8_t>(msg->fuel_level);
 
-  // if (msg->drive_by_wire_enabled) {
-  //   state_report().mode = VehicleStateReport::MODE_AUTONOMOUS;
-  // } else {
-  //   state_report().mode = VehicleStateReport::MODE_MANUAL;
-  // }
-  // m_dbw_state_machine->dbw_feedback(msg->by_wire_ready && !msg->general_driver_activity);
+  if (msg->drive_by_wire_enabled) {
+    state_report().mode = VehicleStateReport::MODE_AUTONOMOUS;
+  } else {
+    state_report().mode = VehicleStateReport::MODE_MANUAL;
+  }
+  m_dbw_state_machine->dbw_feedback(msg->by_wire_ready && !msg->general_driver_activity);
 
-  // std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
+  std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
 
-  // /**
-  //  * Input velocity is (assumed to be) measured at the rear axle, but we're
-  //  * producing a velocity at the center of gravity.
-  //  * Lateral velocity increases linearly from 0 at the rear axle to the maximum
-  //  * at the front axle, where it is tan(δ)*v_lon.
-  //  */
-  // delta = m_vehicle_kin_state.state.front_wheel_angle_rad;
-  // if (m_seen_misc_rpt && m_seen_wheel_spd_rpt) {
-  //   prev_speed_mps = m_vehicle_kin_state.state.longitudinal_velocity_mps;
-  // }
-  // m_vehicle_kin_state.state.longitudinal_velocity_mps = speed_mps;
-  // m_vehicle_kin_state.state.lateral_velocity_mps =
-  //   (m_rear_axle_to_cog / wheelbase) * speed_mps * std::tan(delta);
+  /**
+   * Input velocity is (assumed to be) measured at the rear axle, but we're
+   * producing a velocity at the center of gravity.
+   * Lateral velocity increases linearly from 0 at the rear axle to the maximum
+   * at the front axle, where it is tan(δ)*v_lon.
+   */
+  delta = m_vehicle_kin_state.state.front_wheel_angle_rad;
+  if (m_seen_misc_rpt && m_seen_wheel_spd_rpt) {
+    prev_speed_mps = m_vehicle_kin_state.state.longitudinal_velocity_mps;
+  }
+  m_vehicle_kin_state.state.longitudinal_velocity_mps = speed_mps;
+  m_vehicle_kin_state.state.lateral_velocity_mps =
+    (m_rear_axle_to_cog / wheelbase) * speed_mps * std::tan(delta);
 
-  // m_vehicle_kin_state.header.frame_id = "odom";
+  m_vehicle_kin_state.header.frame_id = "odom";
 
-  // // need >1 message in to calculate dT
-  // if (!m_seen_misc_rpt) {
-  //   m_seen_misc_rpt = true;
-  //   m_vehicle_kin_state.header.stamp = msg->header.stamp;
-  //   // Position = (0,0) at time = 0
-  //   m_vehicle_kin_state.state.pose.position.x = 0.0;
-  //   m_vehicle_kin_state.state.pose.position.y = 0.0;
-  //   m_vehicle_kin_state.state.pose.orientation = motion::motion_common::from_angle(0.0);
-  //   return;
-  // }
+  // need >1 message in to calculate dT
+  if (!m_seen_misc_rpt) {
+    m_seen_misc_rpt = true;
+    m_vehicle_kin_state.header.stamp = msg->header.stamp;
+    // Position = (0,0) at time = 0
+    m_vehicle_kin_state.state.pose.position.x = 0.0;
+    m_vehicle_kin_state.state.pose.position.y = 0.0;
+    m_vehicle_kin_state.state.pose.orientation = motion::motion_common::from_angle(0.0);
+    return;
+  }
 
-  // // Calculate dT (seconds)
-  // dT = static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kin_state.header.stamp.sec);
-  // dT +=
-  //   static_cast<float32_t>(msg->header.stamp.nanosec - m_vehicle_kin_state.header.stamp.nanosec)
-  //   / 1000000000.0F;
+  // Calculate dT (seconds)
+  dT = static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kin_state.header.stamp.sec);
+  dT +=
+    static_cast<float32_t>(msg->header.stamp.nanosec - m_vehicle_kin_state.header.stamp.nanosec)
+    / 1000000000.0F;
 
-  // if (dT < 0.0F) {
-  //   RCLCPP_ERROR_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent timestamps.");
-  //   return;
-  // }
+  if (dT < 0.0F) {
+    RCLCPP_ERROR_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent timestamps.");
+    return;
+  }
 
-  // m_vehicle_kin_state.header.stamp = msg->header.stamp;
+  m_vehicle_kin_state.header.stamp = msg->header.stamp;
 
-  // if (m_seen_steering_rpt && m_seen_wheel_spd_rpt) {
-  //   m_vehicle_kin_state.state.acceleration_mps2 = (speed_mps - prev_speed_mps) / dT;  // m/s^2
+  if (m_seen_steering_rpt && m_seen_wheel_spd_rpt) {
+    m_vehicle_kin_state.state.acceleration_mps2 = (speed_mps - prev_speed_mps) / dT;  // m/s^2
 
-  //   beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
-  //   m_vehicle_kin_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;
+    beta = std::atan2(m_rear_axle_to_cog * std::tan(delta), wheelbase);
+    m_vehicle_kin_state.state.heading_rate_rps = std::cos(beta) * std::tan(delta) / wheelbase;
 
-  //   // Update position (x, y), yaw
-  //   kinematic_bicycle_model(dT, &m_vehicle_kin_state);
+    // Update position (x, y), yaw
+    kinematic_bicycle_model(dT, &m_vehicle_kin_state);
 
-  //   m_vehicle_kin_state_pub->publish(m_vehicle_kin_state);
-  // }
+    m_vehicle_kin_state_pub->publish(m_vehicle_kin_state);
+  }
 }
 
 void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
