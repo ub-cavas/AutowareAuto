@@ -38,11 +38,10 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_dbw_state_machine(new DbwStateMachine{3}),
   m_clock{RCL_SYSTEM_TIME}
 {
-  // Publishers (to Raptor DBW)
+  // Publishers (to Dataspeed Fords DBW)
   m_throttle_cmd_pub = node.create_publisher<ThrottleCmd>("throttle_cmd", 1);
   m_brake_cmd_pub = node.create_publisher<BrakeCmd>("brake_cmd", 1);
   m_gear_cmd_pub = node.create_publisher<GearCmd>("gear_cmd", 1);
-  m_gl_en_cmd_pub = node.create_publisher<GlobalEnableCmd>("global_enable_cmd", 1);
   m_misc_cmd_pub = node.create_publisher<MiscCmd>("misc_cmd", 1);
   m_steer_cmd_pub = node.create_publisher<SteeringCmd>("steering_cmd", 1);
   m_dbw_enable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("enable", 10);
@@ -52,8 +51,7 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_vehicle_kin_state_pub =
     node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
 
-  // Subscribers (from Raptor DBW)
-  // TODO: decide whether throttle report is needed.
+  // Subscribers (from Dataspeed Fords DBW)
   m_brake_rpt_sub = node.create_subscription<BrakeReport>(
     "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
   m_gear_rpt_sub = node.create_subscription<GearReport>(
@@ -74,9 +72,6 @@ DataspeedFordInterface::DataspeedFordInterface(
     });
 
   // Initialize command values
-  m_gl_en_cmd.ecu_build_number = m_ecu_build_num;
-  m_gl_en_cmd.enable_joystick_limits = false;
-
   m_throttle_cmd.pedal_cmd_type = ThrottleCmd::CMD_PERCENT;
   m_throttle_cmd.ignore = false;
   m_throttle_cmd.clear = false;
@@ -117,26 +112,17 @@ void DataspeedFordInterface::cmdCallback()
   if (is_dbw_enabled) {
     m_throttle_cmd.enable = true;
     m_brake_cmd.enable = true;
-    m_gl_en_cmd.global_enable = true;
-    m_misc_cmd.block_standard_cruise_buttons = true;
-    m_misc_cmd.block_adaptive_cruise_buttons = true;
-    m_misc_cmd.block_turn_signal_stalk = true;
     m_steer_cmd.enable = true;
   } else {
     m_throttle_cmd.enable = false;
     m_brake_cmd.enable = false;
-    m_gl_en_cmd.global_enable = false;
-    m_misc_cmd.block_standard_cruise_buttons = false;
-    m_misc_cmd.block_adaptive_cruise_buttons = false;
-    m_misc_cmd.block_turn_signal_stalk = false;
     m_steer_cmd.enable = false;
   }
 
-  // Publish commands to NE Raptor DBW
+  // Publish commands to Dataspeed Ford DBW
   m_throttle_cmd_pub->publish(m_throttle_cmd);
   m_brake_cmd_pub->publish(m_brake_cmd);
   m_gear_cmd_pub->publish(m_gear_cmd);
-  m_gl_en_cmd_pub->publish(m_gl_en_cmd);
   m_misc_cmd_pub->publish(m_misc_cmd);
   m_steer_cmd_pub->publish(m_steer_cmd);
 
@@ -269,8 +255,6 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // TODO (Zhihao Ruan) Set limits
 
   // Check for invalid changes in direction
   if (
@@ -410,7 +394,10 @@ void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
     default:
       state_report().hand_brake = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid parking brake value from NE Raptor DBW.");
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid parking brake value from Dataspeed Ford DBW.");
       break;
   }
   m_seen_brake_rpt = true;
@@ -438,7 +425,7 @@ void DataspeedFordInterface::on_gear_report(const GearReport::SharedPtr & msg)
     default:
       state_report().gear = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
       break;
   }
   m_seen_gear_rpt = true;
@@ -532,7 +519,7 @@ void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsRepor
     default:
       state_report().horn = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid horn value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid horn value from Dataspeed Ford DBW.");
       break;
   }
 
@@ -553,7 +540,10 @@ void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsRepor
     default:
       state_report().blinker = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid turn signal value from NE Raptor DBW.");
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid turn signal value from Dataspeed Ford DBW.");
       break;
   }
 
@@ -569,7 +559,10 @@ void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsRepor
     default:
       state_report().headlight = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid headlight value from NE Raptor DBW.");
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid headlight value from Dataspeed Ford DBW.");
       break;
   }
 
@@ -590,7 +583,7 @@ void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsRepor
     default:
       state_report().wiper = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid wiper value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid wiper value from Dataspeed Ford DBW.");
       break;
   }
 
