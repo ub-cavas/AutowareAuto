@@ -349,64 +349,32 @@ bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::Sh
 
 void DataspeedFordInterface::send_headlights_command(const HeadlightsCommand & msg)
 {
-  switch (msg.command) {
-    case HeadlightsCommand::NO_COMMAND:
-      // Keep previous
-      break;
-    case HeadlightsCommand::DISABLE:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-      break;
-    case HeadlightsCommand::ENABLE_LOW:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::ON;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-      break;
-    case HeadlightsCommand::ENABLE_HIGH:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::ON;
-      break;
-    default:
-      // Keep previous
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid headlight state.");
-      break;
-  }
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending headlights command.");
 }
 
 void DataspeedFordInterface::send_horn_command(const HornCommand & msg)
 {
-  // Set misc command values
-  m_misc_cmd.horn_cmd = msg.active;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending horn command.");
 }
 
 void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
 {
-  switch (msg.command) {
-    case WipersCommand::NO_COMMAND:
-      // Keep previous
-      break;
-    case WipersCommand::DISABLE:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::OFF;
-      break;
-    case WipersCommand::ENABLE_LOW:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_LOW;
-      break;
-    case WipersCommand::ENABLE_HIGH:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_HIGH;
-      break;
-    case WipersCommand::ENABLE_CLEAN:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::WASH_BRIEF;
-      break;
-    default:
-      // Keep previous
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid wiper state.");
-      break;
-  }
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending wipers command.");
 }
 
 void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
