@@ -237,7 +237,7 @@ private:
 
   // Subscribers (from Raptor DBW)
   rclcpp::SubscriptionBase::SharedPtr m_brake_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
-    m_other_acts_rpt_sub, m_steering_rpt_sub, m_wheel_spd_rpt_sub;
+    m_steering_rpt_sub, m_wheel_spd_rpt_sub;
 
   rclcpp::Logger m_logger;
   uint16_t m_ecu_build_num;
@@ -307,15 +307,7 @@ private:
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_misc_report(const MiscReport::SharedPtr & msg);
-
-  /** \brief Receives the actuators state report from the vehicle platform.
-   * Gets status of turn signal, high beams, and front wipers for VehicleStateReport.
-   * Publishes VehicleStateReport.
-   *
-   * \param[in] msg The report received from the vehicle
-   */
-  void on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg);
+  void on_misc_report(const Misc1Report::SharedPtr & msg);
 
   /** \brief Receives the steering state report from the vehicle platform.
    * Converts steering angle to tire angle for VehicleOdometry and VehicleStateReport.
