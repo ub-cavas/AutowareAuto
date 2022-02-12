@@ -94,10 +94,10 @@ DataspeedFordInterface::DataspeedFordInterface(
                         ? SteeringCmd::ANGLE_MAX
                         : m_max_steer_angle * DEGREES_TO_RADIANS;
 
-  m_gear_cmd.cmd = Gear::NONE;
+  m_gear_cmd.cmd.gear = Gear::NONE;
   m_gear_cmd.clear = false;
 
-  m_misc_cmd.cmd = TurnSignal::NONE;
+  m_misc_cmd.cmd.value = TurnSignal::NONE;
 
   m_timer =
     node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
@@ -161,25 +161,25 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
   // Set gear values
   switch (msg.gear) {
     case VehicleStateCommand::GEAR_NO_COMMAND:
-      m_gear_cmd.cmd = Gear::NONE;
+      m_gear_cmd.cmd.gear = Gear::NONE;
       break;
     case VehicleStateCommand::GEAR_DRIVE:
-      m_gear_cmd.cmd = Gear::DRIVE;
+      m_gear_cmd.cmd.gear = Gear::DRIVE;
       break;
     case VehicleStateCommand::GEAR_REVERSE:
-      m_gear_cmd.cmd = Gear::REVERSE;
+      m_gear_cmd.cmd.gear = Gear::REVERSE;
       break;
     case VehicleStateCommand::GEAR_PARK:
-      m_gear_cmd.cmd = Gear::PARK;
+      m_gear_cmd.cmd.gear = Gear::PARK;
       break;
     case VehicleStateCommand::GEAR_LOW:
-      m_gear_cmd.cmd = Gear::LOW;
+      m_gear_cmd.cmd.gear = Gear::LOW;
       break;
     case VehicleStateCommand::GEAR_NEUTRAL:
-      m_gear_cmd.cmd = Gear::NEUTRAL;
+      m_gear_cmd.cmd.gear = Gear::NEUTRAL;
       break;
     default:  // error
-      m_gear_cmd.cmd = Gear::NONE;
+      m_gear_cmd.cmd.gear = Gear::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid gear state.");
       ret = false;
@@ -191,19 +191,19 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       // Keep previous
       break;
     case VehicleStateCommand::BLINKER_OFF:
-      m_misc_cmd.cmd = TurnSignal::NONE;
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
       break;
     case VehicleStateCommand::BLINKER_LEFT:
-      m_misc_cmd.cmd = TurnSignal::LEFT;
+      m_misc_cmd.cmd.value = TurnSignal::LEFT;
       break;
     case VehicleStateCommand::BLINKER_RIGHT:
-      m_misc_cmd.cmd = TurnSignal::RIGHT;
+      m_misc_cmd.cmd.value = TurnSignal::RIGHT;
       break;
     case VehicleStateCommand::BLINKER_HAZARD:
-      m_misc_cmd.cmd = TurnSignal::HAZARD;
+      m_misc_cmd.cmd.value = TurnSignal::HAZARD;
       break;
     default:
-      m_misc_cmd.cmd = TurnSignal::NONE;
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid turn signal state.");
       ret = false;
