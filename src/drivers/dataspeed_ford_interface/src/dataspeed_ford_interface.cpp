@@ -54,8 +54,10 @@ DataspeedFordInterface::DataspeedFordInterface(
   // Subscribers (from Dataspeed Fords DBW)
   m_brake_rpt_sub = node.create_subscription<BrakeReport>(
     "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
-  m_gear_rpt_sub = node.create_subscription<GearReport>(
-    "gear_report", rclcpp::QoS{20}, [this](GearReport::SharedPtr msg) { on_gear_report(msg); });
+  m_gear_rpt_sub = node.create_subscription<dbw_ford::GearReport>(
+    "gear_report", rclcpp::QoS{20}, [this](dbw_ford::GearReport::SharedPtr msg) {
+      on_gear_report(msg);
+    });
   m_misc_rpt_sub = node.create_subscription<Misc1Report>(
     "misc_report", rclcpp::QoS{2}, [this](Misc1Report::SharedPtr msg) { on_misc_report(msg); });
   m_steering_rpt_sub = node.create_subscription<SteeringReport>(
@@ -399,7 +401,7 @@ void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
   // m_seen_brake_rpt = true;
 }
 
-void DataspeedFordInterface::on_gear_report(const GearReport::SharedPtr & msg)
+void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPtr & msg)
 {
   // switch (msg->report) {
   //   case GearReport::PARK:
