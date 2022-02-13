@@ -201,6 +201,7 @@ TEST_F(PointCloudFilterTransformIntegration, CloudBasicTest)
   velodyne_params.emplace_back("cloud_size", static_cast<int64_t>(m_cloud_size));
   velodyne_params.emplace_back("rpm", static_cast<int>(m_vlp_config.get_rpm()));
   velodyne_params.emplace_back("topic", topic_name);
+  velodyne_params.emplace_back("ring_information", false);
   rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments(
     {"-r __node:=velodyne_cloud_node"});
   velodyne_options.parameter_overrides(velodyne_params);

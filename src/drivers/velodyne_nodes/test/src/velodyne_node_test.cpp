@@ -41,6 +41,7 @@ TEST(VelodyneNode, Constructor)
   velodyne_params.emplace_back("cloud_size", 10000);
   velodyne_params.emplace_back("rpm", 600);
   velodyne_params.emplace_back("topic", "blah");
+  velodyne_params.emplace_back("ring_information", false);
   // TODO(esteve): replace this with std::format once we migrate to Galactic
   rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"-r __node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
@@ -96,6 +97,7 @@ TEST_P(VelodyneNodeIntegration, Test)
   velodyne_params.emplace_back("cloud_size", static_cast<int64_t>(param.reserved_size));
   velodyne_params.emplace_back("rpm", static_cast<int>(config.get_rpm()));
   velodyne_params.emplace_back("topic", topic);
+  velodyne_params.emplace_back("ring_information", false);
   // TODO(esteve): replace this with std::format once we migrate to Galactic
   rclcpp::NodeOptions velodyne_options = rclcpp::NodeOptions().arguments({"-r __node:=" + name});
   velodyne_options.parameter_overrides(velodyne_params);
