@@ -390,30 +390,30 @@ void DataspeedFordInterface::on_brake_info_report(const BrakeInfoReport::SharedP
 
 void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPtr & msg)
 {
-  // switch (msg->report) {
-  //   case GearReport::PARK:
-  //     state_report().gear = VehicleStateReport::GEAR_PARK;
-  //     break;
-  //   case GearReport::REVERSE:
-  //     state_report().gear = VehicleStateReport::GEAR_REVERSE;
-  //     break;
-  //   case GearReport::NEUTRAL:
-  //     state_report().gear = VehicleStateReport::GEAR_NEUTRAL;
-  //     break;
-  //   case GearReport::DRIVE_1:
-  //     state_report().gear = VehicleStateReport::GEAR_DRIVE;
-  //     break;
-  //   case GearReport::LOW:
-  //     state_report().gear = VehicleStateReport::GEAR_LOW;
-  //     break;
-  //   case GearReport::NONE:
-  //   default:
-  //     state_report().gear = 0;
-  //     RCLCPP_WARN_THROTTLE(
-  //       m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
-  //     break;
-  // }
-  // m_seen_gear_rpt = true;
+  switch (msg->state.gear) {
+    case Gear::PARK:
+      state_report().gear = VehicleStateReport::GEAR_PARK;
+      break;
+    case Gear::REVERSE:
+      state_report().gear = VehicleStateReport::GEAR_REVERSE;
+      break;
+    case Gear::NEUTRAL:
+      state_report().gear = VehicleStateReport::GEAR_NEUTRAL;
+      break;
+    case Gear::DRIVE:
+      state_report().gear = VehicleStateReport::GEAR_DRIVE;
+      break;
+    case Gear::LOW:
+      state_report().gear = VehicleStateReport::GEAR_LOW;
+      break;
+    case Gear::NONE:
+    default:
+      state_report().gear = 0;
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
+      break;
+  }
+  m_seen_gear_rpt = true;
 }
 
 void DataspeedFordInterface::on_misc_report(const Misc1Report::SharedPtr & msg)
