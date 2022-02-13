@@ -224,12 +224,6 @@ public:
   /// \param[in] msg The wipers command to send to the vehicle
   void send_wipers_command(const WipersCommand & msg) override;
 
-  /// \brief Update vehicle's position & heading relative from time = 0
-  ///        based on time difference, current speed, & current tire angle.
-  /// \param[in] dt delta-T - how much time since this was last called
-  /// \param[in,out] vks the current vehicle kinematic state (contains current motion data)
-  void kinematic_bicycle_model(float32_t dt, VehicleKinematicState * vks);
-
 private:
   /// \brief Send out command packets periodically
   void cmdCallback();
@@ -334,6 +328,7 @@ private:
    * \param[in] msg The report received from the vehicle
    */
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
+
 };  // class DataspeedFordInterface
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware
