@@ -73,7 +73,6 @@ using dbw_ford_msgs::msg::BrakeInfoReport;
 using dbw_ford_msgs::msg::BrakeReport;
 using dbw_ford_msgs::msg::DriverAssistReport;
 using dbw_ford_msgs::msg::FuelLevelReport;
-using dbw_ford_msgs::msg::GearReport;
 using dbw_ford_msgs::msg::Misc1Report;
 using dbw_ford_msgs::msg::SteeringReport;
 using dbw_ford_msgs::msg::SurroundReport;
@@ -82,6 +81,13 @@ using dbw_ford_msgs::msg::ThrottleReport;
 using dbw_ford_msgs::msg::TirePressureReport;
 using dbw_ford_msgs::msg::WheelPositionReport;
 using dbw_ford_msgs::msg::WheelSpeedReport;
+
+// Need to distinguish between dbw_ford_msgs::msg::GearReport and
+// autoware_auto_vehicle_msg::msg::GearReport
+namespace dbw_ford
+{
+using dbw_ford_msgs::msg::GearReport;
+}  // namespace dbw_ford
 
 using dbw_ford_msgs::msg::AmbientLight;
 using dbw_ford_msgs::msg::Gear;
@@ -224,10 +230,9 @@ private:
   void cmdCallback();
 
   // Publishers (to Raptor DBW)
-  rclcpp::Publisher<AcceleratorPedalCmd>::SharedPtr m_accel_cmd_pub;
+  rclcpp::Publisher<ThrottleCmd>::SharedPtr m_throttle_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
-  rclcpp::Publisher<GlobalEnableCmd>::SharedPtr m_gl_en_cmd_pub;
   rclcpp::Publisher<MiscCmd>::SharedPtr m_misc_cmd_pub;
   rclcpp::Publisher<SteeringCmd>::SharedPtr m_steer_cmd_pub;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_enable_cmd_pub;
@@ -238,7 +243,7 @@ private:
 
   // Subscribers (from Raptor DBW)
   rclcpp::SubscriptionBase::SharedPtr m_brake_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
-    m_other_acts_rpt_sub, m_steering_rpt_sub, m_wheel_spd_rpt_sub;
+    m_steering_rpt_sub, m_wheel_spd_rpt_sub;
 
   rclcpp::Logger m_logger;
   uint16_t m_ecu_build_num;
@@ -252,7 +257,6 @@ private:
   float32_t m_deceleration_negative_jerk_limit;
   std::chrono::milliseconds m_pub_period;
   std::unique_ptr<DbwStateMachine> m_dbw_state_machine;
-  uint8_t m_rolling_counter;
   rclcpp::Clock m_clock;
   rclcpp::TimerBase::SharedPtr m_timer;
 
@@ -264,10 +268,9 @@ private:
    */
   VehicleKinematicState m_vehicle_kin_state{};
 
-  AcceleratorPedalCmd m_accel_cmd{};
+  ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};
   GearCmd m_gear_cmd{};
-  GlobalEnableCmd m_gl_en_cmd{};
   MiscCmd m_misc_cmd{};
   SteeringCmd m_steer_cmd{};
 
@@ -281,7 +284,7 @@ private:
 
   // In case multiple signals arrive at the same time
   std::mutex m_vehicle_kin_state_mutex;
-  std::mutex m_accel_cmd_mutex;
+  std::mutex m_throttle_cmd_mutex;
   std::mutex m_brake_cmd_mutex;
   std::mutex m_gear_cmd_mutex;
   std::mutex m_gl_en_cmd_mutex;
@@ -300,7 +303,7 @@ private:
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_gear_report(const GearReport::SharedPtr & msg);
+  void on_gear_report(const dbw_ford::GearReport::SharedPtr & msg);
 
   /** \brief Receives the miscellaneous state report from the vehicle platform.
    * Gets vehicle speed for VehicleOdometry and VehicleKinematicState.
@@ -310,15 +313,7 @@ private:
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_misc_report(const MiscReport::SharedPtr & msg);
-
-  /** \brief Receives the actuators state report from the vehicle platform.
-   * Gets status of turn signal, high beams, and front wipers for VehicleStateReport.
-   * Publishes VehicleStateReport.
-   *
-   * \param[in] msg The report received from the vehicle
-   */
-  void on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg);
+  void on_misc_report(const Misc1Report::SharedPtr & msg);
 
   /** \brief Receives the steering state report from the vehicle platform.
    * Converts steering angle to tire angle for VehicleOdometry and VehicleStateReport.

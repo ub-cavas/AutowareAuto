@@ -36,14 +36,12 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_deceleration_negative_jerk_limit{deceleration_negative_jerk_limit},
   m_pub_period{std::chrono::milliseconds(pub_period)},
   m_dbw_state_machine(new DbwStateMachine{3}),
-  m_rolling_counter{0},
   m_clock{RCL_SYSTEM_TIME}
 {
-  // Publishers (to Raptor DBW)
-  m_accel_cmd_pub = node.create_publisher<AcceleratorPedalCmd>("accelerator_pedal_cmd", 1);
+  // Publishers (to Dataspeed Fords DBW)
+  m_throttle_cmd_pub = node.create_publisher<ThrottleCmd>("throttle_cmd", 1);
   m_brake_cmd_pub = node.create_publisher<BrakeCmd>("brake_cmd", 1);
   m_gear_cmd_pub = node.create_publisher<GearCmd>("gear_cmd", 1);
-  m_gl_en_cmd_pub = node.create_publisher<GlobalEnableCmd>("global_enable_cmd", 1);
   m_misc_cmd_pub = node.create_publisher<MiscCmd>("misc_cmd", 1);
   m_steer_cmd_pub = node.create_publisher<SteeringCmd>("steering_cmd", 1);
   m_dbw_enable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("enable", 10);
@@ -53,17 +51,15 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_vehicle_kin_state_pub =
     node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
 
-  // Subscribers (from Raptor DBW)
+  // Subscribers (from Dataspeed Fords DBW)
   m_brake_rpt_sub = node.create_subscription<BrakeReport>(
     "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
-  m_gear_rpt_sub = node.create_subscription<GearReport>(
-    "gear_report", rclcpp::QoS{20}, [this](GearReport::SharedPtr msg) { on_gear_report(msg); });
-  m_misc_rpt_sub = node.create_subscription<MiscReport>(
-    "misc_report", rclcpp::QoS{2}, [this](MiscReport::SharedPtr msg) { on_misc_report(msg); });
-  m_other_acts_rpt_sub = node.create_subscription<OtherActuatorsReport>(
-    "other_actuators_report", rclcpp::QoS{20}, [this](OtherActuatorsReport::SharedPtr msg) {
-      on_other_actuators_report(msg);
+  m_gear_rpt_sub = node.create_subscription<dbw_ford::GearReport>(
+    "gear_report", rclcpp::QoS{20}, [this](dbw_ford::GearReport::SharedPtr msg) {
+      on_gear_report(msg);
     });
+  m_misc_rpt_sub = node.create_subscription<Misc1Report>(
+    "misc_report", rclcpp::QoS{2}, [this](Misc1Report::SharedPtr msg) { on_misc_report(msg); });
   m_steering_rpt_sub = node.create_subscription<SteeringReport>(
     "steering_report", rclcpp::QoS{20}, [this](SteeringReport::SharedPtr msg) {
       on_steering_report(msg);
@@ -74,32 +70,27 @@ DataspeedFordInterface::DataspeedFordInterface(
     });
 
   // Initialize command values
-  m_gl_en_cmd.ecu_build_number = m_ecu_build_num;
-  m_gl_en_cmd.enable_joystick_limits = false;
+  m_throttle_cmd.pedal_cmd_type = ThrottleCmd::CMD_PERCENT;
+  m_throttle_cmd.ignore = false;
+  m_throttle_cmd.clear = false;
 
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_accel_cmd.ignore = false;
-  m_accel_cmd.accel_limit = m_acceleration_limit;
-  m_accel_cmd.accel_positive_jerk_limit = m_acceleration_positive_jerk_limit;
+  m_brake_cmd.pedal_cmd_type = BrakeCmd::CMD_PERCENT;
+  m_brake_cmd.ignore = false;
+  m_brake_cmd.clear = false;
 
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_brake_cmd.decel_limit = m_deceleration_limit;
-  m_brake_cmd.decel_negative_jerk_limit = m_deceleration_negative_jerk_limit;
-
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
+  m_steer_cmd.cmd_type = SteeringCmd::CMD_ANGLE;  // angular position
   m_steer_cmd.ignore = false;
+  m_steer_cmd.clear = false;
+  m_steer_cmd.quiet = false;
+  m_steer_cmd.alert = true;
+  m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS
+                        ? SteeringCmd::ANGLE_MAX
+                        : m_max_steer_angle * DEGREES_TO_RADIANS;
 
-  m_gear_cmd.cmd.gear = GearReport::NONE;
+  m_gear_cmd.cmd.gear = Gear::NONE;
+  m_gear_cmd.clear = false;
 
-  m_misc_cmd.door_request_right_rear.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.door_request_left_rear.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.door_request_lift_gate.value = DoorRequest::NO_REQUEST;
-  m_misc_cmd.rear_wiper_cmd.status = WiperRear::OFF;
-  m_misc_cmd.ignition_cmd.status = Ignition::NO_REQUEST;
   m_misc_cmd.cmd.value = TurnSignal::NONE;
-  m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-  m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-  m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
 
   m_timer =
     node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
@@ -107,54 +98,29 @@ DataspeedFordInterface::DataspeedFordInterface(
 
 void DataspeedFordInterface::cmdCallback()
 {
-  // Increment rolling counter
-  m_rolling_counter++;
-  if (m_rolling_counter > 15) {
-    m_rolling_counter = 0;
-  }
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_tc(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
   std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // Set rolling counters
-  m_accel_cmd.rolling_counter = m_rolling_counter;
-  m_brake_cmd.rolling_counter = m_rolling_counter;
-  m_gear_cmd.rolling_counter = m_rolling_counter;
-  m_gl_en_cmd.rolling_counter = m_rolling_counter;
-  m_misc_cmd.rolling_counter = m_rolling_counter;
-  m_steer_cmd.rolling_counter = m_rolling_counter;
 
   const auto is_dbw_enabled = m_dbw_state_machine->get_state() != DbwState::DISABLED;
 
   // Set enables based on current DBW mode
   if (is_dbw_enabled) {
-    m_accel_cmd.enable = true;
+    m_throttle_cmd.enable = true;
     m_brake_cmd.enable = true;
-    m_gear_cmd.enable = true;
-    m_gl_en_cmd.global_enable = true;
-    m_misc_cmd.block_standard_cruise_buttons = true;
-    m_misc_cmd.block_adaptive_cruise_buttons = true;
-    m_misc_cmd.block_turn_signal_stalk = true;
     m_steer_cmd.enable = true;
   } else {
-    m_accel_cmd.enable = false;
+    m_throttle_cmd.enable = false;
     m_brake_cmd.enable = false;
-    m_gear_cmd.enable = false;
-    m_gl_en_cmd.global_enable = false;
-    m_misc_cmd.block_standard_cruise_buttons = false;
-    m_misc_cmd.block_adaptive_cruise_buttons = false;
-    m_misc_cmd.block_turn_signal_stalk = false;
     m_steer_cmd.enable = false;
   }
 
-  // Publish commands to NE Raptor DBW
-  m_accel_cmd_pub->publish(m_accel_cmd);
+  // Publish commands to Dataspeed Ford DBW
+  m_throttle_cmd_pub->publish(m_throttle_cmd);
   m_brake_cmd_pub->publish(m_brake_cmd);
   m_gear_cmd_pub->publish(m_gear_cmd);
-  m_gl_en_cmd_pub->publish(m_gl_en_cmd);
   m_misc_cmd_pub->publish(m_misc_cmd);
   m_steer_cmd_pub->publish(m_steer_cmd);
 
@@ -174,31 +140,30 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
   bool8_t ret{true};
 
   std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_ec(m_gl_en_cmd_mutex);
   std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
 
   // Set gear values
   switch (msg.gear) {
     case VehicleStateCommand::GEAR_NO_COMMAND:
-      m_gear_cmd.cmd.gear = GearReport::NONE;
+      m_gear_cmd.cmd.gear = Gear::NONE;
       break;
     case VehicleStateCommand::GEAR_DRIVE:
-      m_gear_cmd.cmd.gear = GearReport::DRIVE_1;
+      m_gear_cmd.cmd.gear = Gear::DRIVE;
       break;
     case VehicleStateCommand::GEAR_REVERSE:
-      m_gear_cmd.cmd.gear = GearReport::REVERSE;
+      m_gear_cmd.cmd.gear = Gear::REVERSE;
       break;
     case VehicleStateCommand::GEAR_PARK:
-      m_gear_cmd.cmd.gear = GearReport::PARK;
+      m_gear_cmd.cmd.gear = Gear::PARK;
       break;
     case VehicleStateCommand::GEAR_LOW:
-      m_gear_cmd.cmd.gear = GearReport::LOW;
+      m_gear_cmd.cmd.gear = Gear::LOW;
       break;
     case VehicleStateCommand::GEAR_NEUTRAL:
-      m_gear_cmd.cmd.gear = GearReport::NEUTRAL;
+      m_gear_cmd.cmd.gear = Gear::NEUTRAL;
       break;
     default:  // error
-      m_gear_cmd.cmd.gear = GearReport::NONE;
+      m_gear_cmd.cmd.gear = Gear::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid gear state.");
       ret = false;
@@ -219,19 +184,15 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       m_misc_cmd.cmd.value = TurnSignal::RIGHT;
       break;
     case VehicleStateCommand::BLINKER_HAZARD:
-      m_misc_cmd.cmd.value = TurnSignal::HAZARDS;
+      m_misc_cmd.cmd.value = TurnSignal::HAZARD;
       break;
     default:
-      m_misc_cmd.cmd.value = TurnSignal::SNA;
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid turn signal state.");
       ret = false;
       break;
   }
-
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  m_brake_cmd.park_brake_cmd.status = (msg.hand_brake) ? ParkingBrake::ON : ParkingBrake::OFF;
-
   m_seen_vehicle_state_cmd = true;
 
   return ret;
@@ -241,41 +202,13 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
  */
 bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlCommand & msg)
 {
-  bool8_t ret{true};
-  float32_t velocity_checked{0.0F};
-
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // Using curvature for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle curvature
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;  // vehicle speed
-
-  // Set limits
-  m_steer_cmd.angle_velocity = m_max_steer_angle;
-
-  // Check for invalid changes in direction
-  if (
-    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.velocity_mps < 0.0F)) ||
-    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) && (msg.velocity_mps > 0.0F))) {
-    velocity_checked = 0.0F;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid speed request value: speed direction does not match current gear.");
-    ret = false;
-  } else {
-    velocity_checked = std::fabs(msg.velocity_mps);
-  }
-
-  // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
-  m_steer_cmd.vehicle_curvature_cmd = msg.curvature;
-
-  return ret;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending high level controls directly.");
+  return false;
 }
 
 /* Apparently RawControlCommand will be obsolete soon.
@@ -288,7 +221,7 @@ bool8_t DataspeedFordInterface::send_control_command(const RawControlCommand & m
     m_logger,
     m_clock,
     CLOCK_1_SEC,
-    "NE Raptor does not support sending raw pedal controls directly.");
+    "Dataspeed Ford interface does not support sending raw pedal controls directly.");
   return false;
 }
 
@@ -298,29 +231,9 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
 
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
+  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
   std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
   std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // Using steering wheel angle for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-
-  // Set limits
-  m_steer_cmd.angle_velocity = m_max_steer_angle;
-
-  if (msg.long_accel_mps2 > 0.0F && msg.long_accel_mps2 < m_acceleration_limit) {
-    m_accel_cmd.accel_limit = msg.long_accel_mps2;
-  } else {
-    m_accel_cmd.accel_limit = m_acceleration_limit;
-  }
-
-  if (msg.long_accel_mps2 < 0.0F && msg.long_accel_mps2 > (-1.0F * m_deceleration_limit)) {
-    m_brake_cmd.decel_limit = std::fabs(msg.long_accel_mps2);
-  } else {
-    m_brake_cmd.decel_limit = m_deceleration_limit;
-  }
 
   // Check for invalid changes in direction
   if (
@@ -337,9 +250,10 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     velocity_checked = std::fabs(msg.velocity_mps);
   }
 
+  // 1. Set Steering Angle
   // Limit steering angle to valid range
   /* Steering -> tire angle conversion is linear except for extreme angles */
-  angle_checked = (msg.front_wheel_angle_rad * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
+  angle_checked = msg.front_wheel_angle_rad * m_steer_to_tire_ratio;
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
@@ -358,90 +272,43 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
+  m_steer_cmd.steering_wheel_angle_cmd = angle_checked;
+  m_steer_cmd.steering_wheel_angle_velocity = 0;  // default
 
-  // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
-  m_steer_cmd.angle_cmd = angle_checked;
+  // 2. Set Throttle Commands
+  //  FIXME (Zhihao Ruan) Currently only use percentage values from msg.long_accel_mps2 /
+  //  m_acceleration_limit as percentage of full throttle
+  float32_t throttle_percent = 0, brake_percent = 0;
+  if (msg.long_accel_mps2 > 0) {
+    throttle_percent = msg.long_accel_mps2 / m_acceleration_limit;
+    if (throttle_percent > 1.0F) {
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received acceleration greater than m_acceleration_limit");
+      throttle_percent = 1.0F;
+    }
+  } else {
+    brake_percent = std::fabs(msg.long_accel_mps2) / m_deceleration_limit;
+    if (brake_percent > 1.0F) {
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_acceleration_limit");
+    }
+    brake_percent = 1.0F;
+  }
+  m_throttle_cmd.pedal_cmd = throttle_percent;
+  m_brake_cmd.pedal_cmd = brake_percent;
 
   return ret;
 }
 
 bool8_t DataspeedFordInterface::send_control_command(const AckermannControlCommand & msg)
 {
-  bool8_t ret{true};
-  float32_t velocity_checked{0.0F};
-  float32_t angle_checked{0.0F};
-
-  std::lock_guard<std::mutex> guard_ac(m_accel_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
-  // Using steering wheel angle for control
-  m_accel_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-  m_steer_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_ACTUATOR;  // angular position
-  m_brake_cmd.control_type.value = ActuatorControlMode::CLOSED_LOOP_VEHICLE;   // vehicle speed
-
-  // Set limits
-  m_steer_cmd.angle_velocity = m_max_steer_angle;
-
-  if (
-    msg.longitudinal.acceleration > 0.0F && msg.longitudinal.acceleration < m_acceleration_limit) {
-    m_accel_cmd.accel_limit = msg.longitudinal.acceleration;
-  } else {
-    m_accel_cmd.accel_limit = m_acceleration_limit;
-  }
-
-  if (
-    msg.longitudinal.acceleration < 0.0F &&
-    msg.longitudinal.acceleration > (-1.0F * m_deceleration_limit)) {
-    m_brake_cmd.decel_limit = std::fabs(msg.longitudinal.acceleration);
-  } else {
-    m_brake_cmd.decel_limit = m_deceleration_limit;
-  }
-
-  // Check for invalid changes in direction
-  if (
-    ((state_report().gear == VehicleStateReport::GEAR_DRIVE) && (msg.longitudinal.speed < 0.0F)) ||
-    ((state_report().gear == VehicleStateReport::GEAR_REVERSE) &&
-     (msg.longitudinal.speed > 0.0F))) {
-    velocity_checked = 0.0F;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid speed request value: speed direction does not match current gear.");
-    ret = false;
-  } else {
-    velocity_checked = std::fabs(msg.longitudinal.speed);
-  }
-
-  // Limit steering angle to valid range
-  /* Steering -> tire angle conversion is linear except for extreme angles */
-  angle_checked = (msg.lateral.steering_tire_angle * m_steer_to_tire_ratio) / DEGREES_TO_RADIANS;
-  if (angle_checked > m_max_steer_angle) {
-    angle_checked = m_max_steer_angle;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid steering angle value: request exceeds max angle.");
-    ret = false;
-  }
-  if (angle_checked < (-1.0F * m_max_steer_angle)) {
-    angle_checked = -1.0F * m_max_steer_angle;
-    RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Got invalid steering angle value: request exceeds max angle.");
-    ret = false;
-  }
-
-  // Set commands
-  m_accel_cmd.speed_cmd = velocity_checked;
-  m_steer_cmd.angle_cmd = angle_checked;
-
-  return ret;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending Ackermann controls directly.");
+  return false;
 }
 
 bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
@@ -464,64 +331,32 @@ bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::Sh
 
 void DataspeedFordInterface::send_headlights_command(const HeadlightsCommand & msg)
 {
-  switch (msg.command) {
-    case HeadlightsCommand::NO_COMMAND:
-      // Keep previous
-      break;
-    case HeadlightsCommand::DISABLE:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-      break;
-    case HeadlightsCommand::ENABLE_LOW:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::ON;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
-      break;
-    case HeadlightsCommand::ENABLE_HIGH:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::OFF;
-      m_misc_cmd.high_beam_cmd.status = HighBeam::ON;
-      break;
-    default:
-      // Keep previous
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid headlight state.");
-      break;
-  }
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending headlights command.");
 }
 
 void DataspeedFordInterface::send_horn_command(const HornCommand & msg)
 {
-  // Set misc command values
-  m_misc_cmd.horn_cmd = msg.active;
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending horn command.");
 }
 
 void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
 {
-  switch (msg.command) {
-    case WipersCommand::NO_COMMAND:
-      // Keep previous
-      break;
-    case WipersCommand::DISABLE:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::OFF;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::OFF;
-      break;
-    case WipersCommand::ENABLE_LOW:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_LOW;
-      break;
-    case WipersCommand::ENABLE_HIGH:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::CONSTANT_HIGH;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::CONSTANT_HIGH;
-      break;
-    case WipersCommand::ENABLE_CLEAN:
-      m_misc_cmd.front_wiper_cmd.status = WiperFront::WASH_BRIEF;
-      m_misc_cmd.rear_wiper_cmd.status = WiperRear::WASH_BRIEF;
-      break;
-    default:
-      // Keep previous
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid wiper state.");
-      break;
-  }
+  (void)msg;
+  RCLCPP_ERROR_THROTTLE(
+    m_logger,
+    m_clock,
+    CLOCK_1_SEC,
+    "Dataspeed Ford interface does not support sending wipers command.");
 }
 
 void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
@@ -538,13 +373,16 @@ void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
     default:
       state_report().hand_brake = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid parking brake value from NE Raptor DBW.");
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid parking brake value from Dataspeed Ford DBW.");
       break;
   }
   m_seen_brake_rpt = true;
 }
 
-void DataspeedFordInterface::on_gear_report(const GearReport::SharedPtr & msg)
+void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPtr & msg)
 {
   switch (msg->report) {
     case GearReport::PARK:
@@ -566,13 +404,13 @@ void DataspeedFordInterface::on_gear_report(const GearReport::SharedPtr & msg)
     default:
       state_report().gear = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from NE Raptor DBW.");
+        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
       break;
   }
   m_seen_gear_rpt = true;
 }
 
-void DataspeedFordInterface::on_misc_report(const MiscReport::SharedPtr & msg)
+void DataspeedFordInterface::on_misc_report(const Misc1Report::SharedPtr & msg)
 {
   const float32_t speed_mps = msg->vehicle_speed * KPH_TO_MPS_RATIO * m_travel_direction;
   const float32_t wheelbase = m_rear_axle_to_cog + m_front_axle_to_cog;
@@ -624,8 +462,8 @@ void DataspeedFordInterface::on_misc_report(const MiscReport::SharedPtr & msg)
   // Calculate dT (seconds)
   dT = static_cast<float32_t>(msg->header.stamp.sec - m_vehicle_kin_state.header.stamp.sec);
   dT +=
-    static_cast<float32_t>(msg->header.stamp.nanosec - m_vehicle_kin_state.header.stamp.nanosec) /
-    1000000000.0F;
+    static_cast<float32_t>(msg->header.stamp.nanosec - m_vehicle_kin_state.header.stamp.nanosec)
+    / 1000000000.0F;
 
   if (dT < 0.0F) {
     RCLCPP_ERROR_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent timestamps.");
@@ -645,84 +483,6 @@ void DataspeedFordInterface::on_misc_report(const MiscReport::SharedPtr & msg)
 
     m_vehicle_kin_state_pub->publish(m_vehicle_kin_state);
   }
-}
-
-void DataspeedFordInterface::on_other_actuators_report(const OtherActuatorsReport::SharedPtr & msg)
-{
-  switch (msg->horn_state.status) {
-    case HornState::OFF:
-      state_report().horn = false;
-      break;
-    case HornState::ON:
-      state_report().horn = true;
-      break;
-    case HornState::SNA:
-    default:
-      state_report().horn = false;
-      RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid horn value from NE Raptor DBW.");
-      break;
-  }
-
-  switch (msg->turn_signal_state.value) {
-    case TurnSignal::NONE:
-      state_report().blinker = VehicleStateReport::BLINKER_OFF;
-      break;
-    case TurnSignal::LEFT:
-      state_report().blinker = VehicleStateReport::BLINKER_LEFT;
-      break;
-    case TurnSignal::RIGHT:
-      state_report().blinker = VehicleStateReport::BLINKER_RIGHT;
-      break;
-    case TurnSignal::HAZARDS:
-      state_report().blinker = VehicleStateReport::BLINKER_HAZARD;
-      break;
-    case TurnSignal::SNA:
-    default:
-      state_report().blinker = 0;
-      RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid turn signal value from NE Raptor DBW.");
-      break;
-  }
-
-  switch (msg->high_beam_state.value) {
-    case HighBeamState::OFF:
-      state_report().headlight = VehicleStateReport::HEADLIGHT_OFF;
-      break;
-    case HighBeamState::ON:
-      state_report().headlight = VehicleStateReport::HEADLIGHT_HIGH;
-      break;
-    case HighBeamState::RESERVED:
-    case HighBeamState::SNA:
-    default:
-      state_report().headlight = 0;
-      RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid headlight value from NE Raptor DBW.");
-      break;
-  }
-
-  switch (msg->front_wiper_state.status) {
-    case WiperFront::OFF:
-      state_report().wiper = VehicleStateReport::WIPER_OFF;
-      break;
-    case WiperFront::CONSTANT_LOW:
-      state_report().wiper = VehicleStateReport::WIPER_LOW;
-      break;
-    case WiperFront::CONSTANT_HIGH:
-      state_report().wiper = VehicleStateReport::WIPER_HIGH;
-      break;
-    case WiperFront::WASH_BRIEF:
-      state_report().wiper = VehicleStateReport::WIPER_CLEAN;
-      break;
-    case WiperFront::SNA:
-    default:
-      state_report().wiper = 0;
-      RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid wiper value from NE Raptor DBW.");
-      break;
-  }
-
-  state_report().stamp = msg->header.stamp;
 }
 
 void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr & msg)
