@@ -1,18 +1,44 @@
 #ifndef DATASPEED_FORD_INTERFACE__DATASPEED_FORD_INTERFACE_HPP_
 #define DATASPEED_FORD_INTERFACE__DATASPEED_FORD_INTERFACE_HPP_
 
-#include <chrono>
-#include <iostream>
-#include <memory>
-#include <mutex>
+#include <dataspeed_ford_interface/visibility_control.hpp>
 
 #include <common/types.hpp>
-#include <dataspeed_ford_interface/visibility_control.hpp>
-#include <motion_common/motion_common.hpp>
-#include <rclcpp/clock.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <vehicle_interface/dbw_state_machine.hpp>
 #include <vehicle_interface/platform_interface.hpp>
+
+#include <dbw_ford_msgs/msg/brake_cmd.hpp>
+#include <dbw_ford_msgs/msg/gear_cmd.hpp>
+#include <dbw_ford_msgs/msg/misc_cmd.hpp>
+#include <dbw_ford_msgs/msg/steering_cmd.hpp>
+#include <dbw_ford_msgs/msg/throttle_cmd.hpp>
+#include <dbw_ford_msgs/msg/twist_cmd.hpp>
+
+#include <dbw_ford_msgs/msg/brake_info_report.hpp>
+#include <dbw_ford_msgs/msg/brake_report.hpp>
+#include <dbw_ford_msgs/msg/driver_assist_report.hpp>
+#include <dbw_ford_msgs/msg/fuel_level_report.hpp>
+#include <dbw_ford_msgs/msg/gear_report.hpp>
+#include <dbw_ford_msgs/msg/misc1_report.hpp>
+#include <dbw_ford_msgs/msg/steering_report.hpp>
+#include <dbw_ford_msgs/msg/surround_report.hpp>
+#include <dbw_ford_msgs/msg/throttle_info_report.hpp>
+#include <dbw_ford_msgs/msg/throttle_report.hpp>
+#include <dbw_ford_msgs/msg/tire_pressure_report.hpp>
+#include <dbw_ford_msgs/msg/wheel_position_report.hpp>
+#include <dbw_ford_msgs/msg/wheel_speed_report.hpp>
+
+#include <dbw_ford_msgs/msg/ambient_light.hpp>
+#include <dbw_ford_msgs/msg/gear.hpp>
+#include <dbw_ford_msgs/msg/gear_num.hpp>
+#include <dbw_ford_msgs/msg/gear_reject.hpp>
+#include <dbw_ford_msgs/msg/hill_start_assist.hpp>
+#include <dbw_ford_msgs/msg/ignition.hpp>
+#include <dbw_ford_msgs/msg/parking_brake.hpp>
+#include <dbw_ford_msgs/msg/quality_factor.hpp>
+#include <dbw_ford_msgs/msg/turn_signal.hpp>
+#include <dbw_ford_msgs/msg/watchdog_counter.hpp>
+#include <dbw_ford_msgs/msg/wiper.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
@@ -24,37 +50,16 @@
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
-#include <dbw_ford_msgs/msg/ambient_light.hpp>
-#include <dbw_ford_msgs/msg/brake_cmd.hpp>
-#include <dbw_ford_msgs/msg/brake_info_report.hpp>
-#include <dbw_ford_msgs/msg/brake_report.hpp>
-#include <dbw_ford_msgs/msg/driver_assist_report.hpp>
-#include <dbw_ford_msgs/msg/fuel_level_report.hpp>
-#include <dbw_ford_msgs/msg/gear.hpp>
-#include <dbw_ford_msgs/msg/gear_cmd.hpp>
-#include <dbw_ford_msgs/msg/gear_num.hpp>
-#include <dbw_ford_msgs/msg/gear_reject.hpp>
-#include <dbw_ford_msgs/msg/gear_report.hpp>
-#include <dbw_ford_msgs/msg/hill_start_assist.hpp>
-#include <dbw_ford_msgs/msg/ignition.hpp>
-#include <dbw_ford_msgs/msg/misc1_report.hpp>
-#include <dbw_ford_msgs/msg/misc_cmd.hpp>
-#include <dbw_ford_msgs/msg/parking_brake.hpp>
-#include <dbw_ford_msgs/msg/quality_factor.hpp>
-#include <dbw_ford_msgs/msg/steering_cmd.hpp>
-#include <dbw_ford_msgs/msg/steering_report.hpp>
-#include <dbw_ford_msgs/msg/surround_report.hpp>
-#include <dbw_ford_msgs/msg/throttle_cmd.hpp>
-#include <dbw_ford_msgs/msg/throttle_info_report.hpp>
-#include <dbw_ford_msgs/msg/throttle_report.hpp>
-#include <dbw_ford_msgs/msg/tire_pressure_report.hpp>
-#include <dbw_ford_msgs/msg/turn_signal.hpp>
-#include <dbw_ford_msgs/msg/twist_cmd.hpp>
-#include <dbw_ford_msgs/msg/watchdog_counter.hpp>
-#include <dbw_ford_msgs/msg/wheel_position_report.hpp>
-#include <dbw_ford_msgs/msg/wheel_speed_report.hpp>
-#include <dbw_ford_msgs/msg/wiper.hpp>
+
 #include <std_msgs/msg/bool.hpp>
+#include <motion_common/motion_common.hpp>
+#include <rclcpp/clock.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <mutex>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
