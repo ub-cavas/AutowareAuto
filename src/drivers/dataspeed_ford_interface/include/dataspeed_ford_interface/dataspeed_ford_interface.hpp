@@ -228,7 +228,7 @@ private:
   /// \brief Send out command packets periodically
   void cmdCallback();
 
-  // Publishers (to Raptor DBW)
+  // Publishers (to Dataspeed Ford DBW)
   rclcpp::Publisher<ThrottleCmd>::SharedPtr m_throttle_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
@@ -240,8 +240,8 @@ private:
   // Publishers (to Autoware)
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr m_vehicle_kin_state_pub;
 
-  // Subscribers (from Raptor DBW)
-  rclcpp::SubscriptionBase::SharedPtr m_brake_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
+  // Subscribers (from Dataspeed Ford DBW)
+  rclcpp::SubscriptionBase::SharedPtr m_brake_info_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
     m_steering_rpt_sub, m_wheel_spd_rpt_sub;
 
   rclcpp::Logger m_logger;
@@ -273,7 +273,7 @@ private:
   MiscCmd m_misc_cmd{};
   SteeringCmd m_steer_cmd{};
 
-  bool8_t m_seen_brake_rpt{false};
+  bool8_t m_seen_brake_info_rpt{false};
   bool8_t m_seen_gear_rpt{false};
   bool8_t m_seen_misc_rpt{false};
   bool8_t m_seen_steering_rpt{false};
@@ -290,12 +290,12 @@ private:
   std::mutex m_misc_cmd_mutex;
   std::mutex m_steer_cmd_mutex;
 
-  /** \brief Receives the brake state report from the vehicle platform.
+  /** \brief Receives the brake info report from the vehicle platform.
    * Gets parking brake status for VehicleStateReport.
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_brake_report(const BrakeReport::SharedPtr & msg);
+  void on_brake_info_report(const BrakeInfoReport::SharedPtr & msg);
 
   /** \brief Receives the gear state report from the vehicle platform.
    * Gets PRNDL status for VehicleStateReport.
