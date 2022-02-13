@@ -52,8 +52,8 @@ DataspeedFordInterface::DataspeedFordInterface(
     node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
 
   // Subscribers (from Dataspeed Fords DBW)
-  m_brake_rpt_sub = node.create_subscription<BrakeReport>(
-    "brake_report", rclcpp::QoS{20}, [this](BrakeReport::SharedPtr msg) { on_brake_report(msg); });
+  m_brake_info_rpt_sub = node.create_subscription<BrakeInfoReport>(
+    "brake_info_report", rclcpp::QoS{20}, [this](BrakeInfoReport::SharedPtr msg) { on_brake_info_report(msg); });
   m_gear_rpt_sub = node.create_subscription<dbw_ford::GearReport>(
     "gear_report", rclcpp::QoS{20}, [this](dbw_ford::GearReport::SharedPtr msg) {
       on_gear_report(msg);
@@ -359,27 +359,33 @@ void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
     "Dataspeed Ford interface does not support sending wipers command.");
 }
 
-void DataspeedFordInterface::on_brake_report(const BrakeReport::SharedPtr & msg)
+void DataspeedFordInterface::on_brake_info_report(const BrakeInfoReport::SharedPtr & msg)
 {
-  // switch (msg->parking_brake.status) {
-  //   case ParkingBrake::OFF:
-  //     state_report().hand_brake = false;
-  //     break;
-  //   case ParkingBrake::ON:
-  //     state_report().hand_brake = true;
-  //     break;
-  //   case ParkingBrake::NO_REQUEST:
-  //   case ParkingBrake::FAULT:
-  //   default:
-  //     state_report().hand_brake = false;
-  //     RCLCPP_WARN_THROTTLE(
-  //       m_logger,
-  //       m_clock,
-  //       CLOCK_1_SEC,
-  //       "Received invalid parking brake value from Dataspeed Ford DBW.");
-  //     break;
-  // }
-  // m_seen_brake_rpt = true;
+  switch (msg->parking_brake.status) {
+    case ParkingBrake::OFF:
+      state_report().hand_brake = false;
+      break;
+    case ParkingBrake::ON:
+      state_report().hand_brake = true;
+      break;
+    case ParkingBrake::TRANS:
+    RCLCPP_WARN_THROTTLE(
+      m_logger,
+      m_clock,
+      CLOCK_1_SEC,
+      "Received parking brake transition value from Dataspeed Ford DBW.");
+      break;
+    case ParkingBrake::FAULT:
+    default:
+      state_report().hand_brake = false;
+      RCLCPP_WARN_THROTTLE(
+        m_logger,
+        m_clock,
+        CLOCK_1_SEC,
+        "Received invalid parking brake value from Dataspeed Ford DBW.");
+      break;
+  }
+  m_seen_brake_info_rpt = true;
 }
 
 void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPtr & msg)
