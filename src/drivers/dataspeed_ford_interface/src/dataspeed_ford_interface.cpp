@@ -92,8 +92,7 @@ DataspeedFordInterface::DataspeedFordInterface(
 
   m_misc_cmd.cmd.value = TurnSignal::NONE;
 
-  m_timer =
-    node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
+  m_timer = node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
 }
 
 void DataspeedFordInterface::cmdCallback()
@@ -165,7 +164,8 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
     default:  // error
       m_gear_cmd.cmd.gear = Gear::NONE;
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid gear state.");
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid gear state.");
       ret = false;
       break;
   }
@@ -189,7 +189,8 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
     default:
       m_misc_cmd.cmd.value = TurnSignal::NONE;
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received command for invalid turn signal state.");
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid turn signal state.");
       ret = false;
       break;
   }
@@ -204,9 +205,7 @@ bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlComma
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending high level controls directly.");
   return false;
 }
@@ -218,9 +217,7 @@ bool8_t DataspeedFordInterface::send_control_command(const RawControlCommand & m
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending raw pedal controls directly.");
   return false;
 }
@@ -241,9 +238,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     ((state_report().gear == VehicleStateReport::GEAR_REVERSE) && (msg.velocity_mps > 0.0F))) {
     velocity_checked = 0.0F;
     RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
+      m_logger, m_clock, CLOCK_1_SEC,
       "Got invalid speed request value: speed direction does not match current gear.");
     ret = false;
   } else {
@@ -257,18 +252,14 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   if (angle_checked > m_max_steer_angle) {
     angle_checked = m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
+      m_logger, m_clock, CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
   if (angle_checked < (-1.0F * m_max_steer_angle)) {
     angle_checked = -1.0F * m_max_steer_angle;
     RCLCPP_ERROR_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
+      m_logger, m_clock, CLOCK_1_SEC,
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
@@ -283,14 +274,16 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     throttle_percent = msg.long_accel_mps2 / m_acceleration_limit;
     if (throttle_percent > 1.0F) {
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received acceleration greater than m_acceleration_limit");
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received acceleration greater than m_acceleration_limit");
       throttle_percent = 1.0F;
     }
   } else {
     brake_percent = std::fabs(msg.long_accel_mps2) / m_deceleration_limit;
     if (brake_percent > 1.0F) {
       RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_acceleration_limit");
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received deceleration greater than m_acceleration_limit");
     }
     brake_percent = 1.0F;
   }
@@ -304,9 +297,7 @@ bool8_t DataspeedFordInterface::send_control_command(const AckermannControlComma
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending Ackermann controls directly.");
   return false;
 }
@@ -323,7 +314,8 @@ bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::Sh
     m_dbw_enable_cmd_pub->publish(send_req);
   } else {
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC, "Got invalid autonomy mode request value.");
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Got invalid autonomy mode request value.");
     ret = false;
   }
   return ret;
@@ -333,9 +325,7 @@ void DataspeedFordInterface::send_headlights_command(const HeadlightsCommand & m
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending headlights command.");
 }
 
@@ -343,9 +333,7 @@ void DataspeedFordInterface::send_horn_command(const HornCommand & msg)
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending horn command.");
 }
 
@@ -353,9 +341,7 @@ void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
 {
   (void)msg;
   RCLCPP_ERROR_THROTTLE(
-    m_logger,
-    m_clock,
-    CLOCK_1_SEC,
+    m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending wipers command.");
 }
 
@@ -369,19 +355,15 @@ void DataspeedFordInterface::on_brake_info_report(const BrakeInfoReport::SharedP
       state_report().hand_brake = true;
       break;
     case ParkingBrake::TRANS:
-    RCLCPP_WARN_THROTTLE(
-      m_logger,
-      m_clock,
-      CLOCK_1_SEC,
-      "Received parking brake transition value from Dataspeed Ford DBW.");
+      RCLCPP_WARN_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received parking brake transition value from Dataspeed Ford DBW.");
       break;
     case ParkingBrake::FAULT:
     default:
       state_report().hand_brake = false;
       RCLCPP_WARN_THROTTLE(
-        m_logger,
-        m_clock,
-        CLOCK_1_SEC,
+        m_logger, m_clock, CLOCK_1_SEC,
         "Received invalid parking brake value from Dataspeed Ford DBW.");
       break;
   }
@@ -410,7 +392,8 @@ void DataspeedFordInterface::on_gear_report(const dbw_ford::GearReport::SharedPt
     default:
       state_report().gear = 0;
       RCLCPP_WARN_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC, "Received invalid gear value from Dataspeed Ford DBW.");
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received invalid gear value from Dataspeed Ford DBW.");
       break;
   }
   m_seen_gear_rpt = true;
@@ -528,9 +511,10 @@ void DataspeedFordInterface::on_wheel_spd_report(const WheelSpeedReport::SharedP
   } else {
     // Wheels are moving different directions. This is probably bad.
     m_travel_direction = 0.0F;
-    RCLCPP_WARN_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "Received inconsistent wheel speeds.");
+    RCLCPP_WARN_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Received inconsistent wheel speeds.");
   }
-
   m_seen_wheel_spd_rpt = true;
 }
 
