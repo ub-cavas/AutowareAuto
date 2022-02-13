@@ -78,6 +78,12 @@ using dbw_ford_msgs::msg::BrakeInfoReport;
 using dbw_ford_msgs::msg::BrakeReport;
 using dbw_ford_msgs::msg::DriverAssistReport;
 using dbw_ford_msgs::msg::FuelLevelReport;
+// Need to distinguish between dbw_ford_msgs::msg::GearReport and
+// autoware_auto_vehicle_msg::msg::GearReport
+namespace dbw_ford
+{
+using dbw_ford_msgs::msg::GearReport;
+}  // namespace dbw_ford
 using dbw_ford_msgs::msg::Misc1Report;
 using dbw_ford_msgs::msg::SteeringReport;
 using dbw_ford_msgs::msg::SurroundReport;
@@ -86,13 +92,6 @@ using dbw_ford_msgs::msg::ThrottleReport;
 using dbw_ford_msgs::msg::TirePressureReport;
 using dbw_ford_msgs::msg::WheelPositionReport;
 using dbw_ford_msgs::msg::WheelSpeedReport;
-
-// Need to distinguish between dbw_ford_msgs::msg::GearReport and
-// autoware_auto_vehicle_msg::msg::GearReport
-namespace dbw_ford
-{
-using dbw_ford_msgs::msg::GearReport;
-}  // namespace dbw_ford
 
 using dbw_ford_msgs::msg::AmbientLight;
 using dbw_ford_msgs::msg::Gear;
