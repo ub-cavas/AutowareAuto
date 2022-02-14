@@ -33,7 +33,7 @@ def generate_launch_description():
 
     euclidean_cluster_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/euclidean_cluster.param.yaml')
-    lgsvl_param_file = os.path.join(
+    pure_pursuit_lgsvl_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/lgsvl_interface.param.yaml')
     map_publisher_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/map_publisher.param.yaml')
@@ -46,8 +46,14 @@ def generate_launch_description():
     ndt_localizer_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/ndt_localizer.param.yaml')
 
-    mpc_param_file = os.path.join(
-        demos_pkg_prefix, 'param/mpc_controller.param.yaml')
+    trajectory_follower_lgsvl_param_file = os.path.join(
+        demos_pkg_prefix, 'param/avp/lgsvl_interface.param.yaml')
+    lat_control_param_file = os.path.join(
+        demos_pkg_prefix, 'param/avp/lateral_controller.param.yaml')
+    lon_control_param_file = os.path.join(
+        demos_pkg_prefix, 'param/avp/longitudinal_controller.param.yaml')
+    latlon_muxer_param_file = os.path.join(
+        demos_pkg_prefix, 'param/avp/latlon_muxer.param.yaml')
     pure_pursuit_param_file = os.path.join(
         demos_pkg_prefix, 'param/pure_pursuit.param.yaml')
     object_collision_estimator_param_file = os.path.join(
@@ -80,10 +86,17 @@ def generate_launch_description():
         default_value=euclidean_cluster_param_file,
         description='Path to config file for Euclidean Clustering'
     )
-    lgsvl_interface_param = DeclareLaunchArgument(
+    pure_pursuit_lgsvl_interface_param = DeclareLaunchArgument(
         'lgsvl_interface_param_file',
-        default_value=lgsvl_param_file,
-        description='Path to config file for LGSVL Interface'
+        default_value=pure_pursuit_lgsvl_param_file,
+        description='Path to config file for LGSVL Interface',
+        condition=IfCondition(LaunchConfiguration('run_pure_pursuit')),
+    )
+    trajectory_follower_lgsvl_interface_param = DeclareLaunchArgument(
+        'lgsvl_interface_param_file',
+        default_value=trajectory_follower_lgsvl_param_file,
+        description='Path to config file for LGSVL Interface',
+        condition=UnlessCondition(LaunchConfiguration('run_pure_pursuit')),
     )
     map_publisher_param = DeclareLaunchArgument(
         'map_publisher_param_file',
@@ -125,10 +138,20 @@ def generate_launch_description():
         default_value=scan_downsampler_param_file,
         description='Path to config file for lidar scan downsampler'
     )
-    mpc_param = DeclareLaunchArgument(
-        'mpc_param_file',
-        default_value=mpc_param_file,
-        description='Path to config file for MPC'
+    lat_control_param = DeclareLaunchArgument(
+        'lat_control_param_file',
+        default_value=lat_control_param_file,
+        description='Path to config file for lateral controller'
+    )
+    lon_control_param = DeclareLaunchArgument(
+        'lon_control_param_file',
+        default_value=lon_control_param_file,
+        description='Path to config file for longitudinal controller'
+    )
+    latlon_muxer_param = DeclareLaunchArgument(
+        'latlon_muxer_param_file',
+        default_value=latlon_muxer_param_file,
+        description='Path to config file for lateral and longitudinal control commands muxer'
     )
     pure_pursuit_param = DeclareLaunchArgument(
         'pure_pursuit_param_file',
@@ -148,7 +171,7 @@ def generate_launch_description():
     run_pure_pursuit_arg = DeclareLaunchArgument(
         'run_pure_pursuit',
         default_value='False',
-        description='Set this to true to run pure pursuit controller instead of MPC'
+        description='run pure pursuit controller instead of the trajectory follower'
     )
     launch_description_point_type_adapter = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -252,14 +275,52 @@ def generate_launch_description():
             ("points_in", "/lidars/points_fused_downsampled")
         ]
     )
-    mpc = Node(
-        package='mpc_controller_nodes',
-        executable='mpc_controller_node_exe',
-        name='mpc_controller',
+    lat_control = Node(
+        package='trajectory_follower_nodes',
+        executable='lateral_controller_node_exe',
+        name='lateral_controller_node',
         namespace='control',
         parameters=[
-            LaunchConfiguration('mpc_param_file'),
+            LaunchConfiguration('lat_control_param_file'),
             LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+           ("input/reference_trajectory", "/planning/trajectory"),
+           ("input/current_kinematic_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
+        ],
+        condition=UnlessCondition(LaunchConfiguration('run_pure_pursuit'))
+    )
+    lon_control = Node(
+        package='trajectory_follower_nodes',
+        executable='longitudinal_controller_node_exe',
+        name='longitudinal_controller_node',
+        namespace='control',
+        parameters=[
+            LaunchConfiguration('lon_control_param_file'),
+            LaunchConfiguration('vehicle_characteristics_param_file'),
+        ],
+        remappings=[
+           ("input/current_trajectory", "/planning/trajectory"),
+           ("input/current_state", "/vehicle/vehicle_kinematic_state"),
+           ("input/tf", "/tf"),
+           ("input/tf_static", "/tf_static"),
+        ],
+        condition=UnlessCondition(LaunchConfiguration('run_pure_pursuit'))
+    )
+    latlon_muxer = Node(
+        package='trajectory_follower_nodes',
+        executable='latlon_muxer_node_exe',
+        name='latlon_muxer_node',
+        namespace='control',
+        parameters=[
+            LaunchConfiguration('latlon_muxer_param_file'),
+        ],
+        remappings=[
+           ("input/lateral/control_cmd", "output/lateral/control_cmd"),
+           ("input/longitudinal/control_cmd", "output/longitudinal/control_cmd"),
+           ("output/control_cmd", "/vehicle/ackermann_vehicle_command"),
         ],
         condition=UnlessCondition(LaunchConfiguration('run_pure_pursuit'))
     )
@@ -309,9 +370,11 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
+        run_pure_pursuit_arg,
         launch_description_point_type_adapter,
         euclidean_cluster_param,
-        lgsvl_interface_param,
+        pure_pursuit_lgsvl_interface_param,
+        trajectory_follower_lgsvl_interface_param,
         map_publisher_param,
         object_collision_estimator_param,
         pc_filter_transform_param,
@@ -320,11 +383,12 @@ def generate_launch_description():
         ndt_localizer_param,
         with_rviz_param,
         with_obstacle_detection_param,
+        lat_control_param,
+        lon_control_param,
+        latlon_muxer_param,
         pure_pursuit_param,
-        mpc_param,
         recordreplay_planner_param,
         vehicle_characteristics_param,
-        run_pure_pursuit_arg,
         urdf_publisher,
         euclidean_clustering,
         filter_transform_vlp16_front,
@@ -335,7 +399,9 @@ def generate_launch_description():
         ray_ground_classifier,
         scan_downsampler,
         ndt_localizer,
-        mpc,
+        lat_control,
+        lon_control,
+        latlon_muxer,
         pure_pursuit,
         recordreplay_planner,
         object_collision_estimator,
