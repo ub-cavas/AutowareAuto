@@ -134,6 +134,9 @@ void object_collision_estimator_node_test(
     std::chrono::duration_cast<std::chrono::nanoseconds>(dt));
   trajectory.points.resize(trajectory_length);
 
+  trajectory.header.frame_id = "map";
+  trajectory.header.stamp = rclcpp::Clock().now();
+
   // insert an obstacle that blocks the trajectory
   BoundingBoxArray bbox_array{};
 
