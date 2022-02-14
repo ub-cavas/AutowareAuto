@@ -13,23 +13,23 @@
 // limitations under the License.
 
 
-#include <tf2/LinearMath/Quaternion.h>
+#include "simple_planning_simulator/simple_planning_simulator_core.hpp"
 
+#include <algorithm>
+#include <chrono>
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
 #include <utility>
-#include <chrono>
-#include <algorithm>
 
-#include "simple_planning_simulator/simple_planning_simulator_core.hpp"
-
-#include "common/types.hpp"
+#include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
 #include "autoware_auto_tf2/tf2_autoware_auto_msgs.hpp"
-#include "simple_planning_simulator/vehicle_model/sim_model.hpp"
+#include "common/types.hpp"
 #include "motion_common/motion_common.hpp"
-
 #include "rclcpp_components/register_node_macro.hpp"
+#include "simple_planning_simulator/vehicle_model/sim_model.hpp"
+#include "tf2/LinearMath/Quaternion.h"
 
 using namespace std::chrono_literals;
 
@@ -100,6 +100,7 @@ SimplePlanningSimulator::SimplePlanningSimulator(const rclcpp::NodeOptions & opt
     std::bind(&SimplePlanningSimulator::on_state_cmd, this, _1));
 
   pub_state_report_ = create_publisher<VehicleStateReport>("output/vehicle_state_report", QoS{1});
+  pub_gear_report_ = create_publisher<GearReport>("output/gear_report", QoS{1});
   pub_current_pose_ = create_publisher<geometry_msgs::msg::PoseStamped>("/current_pose", QoS{1});
   pub_kinematic_state_ = create_publisher<VehicleKinematicState>("output/kinematic_state", QoS{1});
   pub_tf_ = create_publisher<tf2_msgs::msg::TFMessage>("/tf", QoS{1});
@@ -359,12 +360,29 @@ void SimplePlanningSimulator::publish_kinematic_state(
 void SimplePlanningSimulator::publish_state_report()
 {
   VehicleStateReport msg;
+  GearReport gear_msg;
   msg.stamp = get_clock()->now();
+  gear_msg.stamp = get_clock()->now();
   msg.mode = VehicleStateReport::MODE_AUTONOMOUS;
   if (current_vehicle_state_cmd_ptr_) {
-    msg.gear = current_vehicle_state_cmd_ptr_->gear;
+    // TODO(Maxime CLEMENT): conversion of the gear values. Remove once messages are harmonized.
+    using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
+    static const std::unordered_map<decltype(msg.gear), decltype(msg.gear)> vsc_gear_to_gear_report{
+      {VehicleStateCommand::GEAR_NO_COMMAND, GearReport::NONE},
+      {VehicleStateCommand::GEAR_DRIVE, GearReport::DRIVE_1},
+      {VehicleStateCommand::GEAR_REVERSE, GearReport::REVERSE},
+      {VehicleStateCommand::GEAR_PARK, GearReport::PARK},
+      {VehicleStateCommand::GEAR_LOW, GearReport::LOW},
+      {VehicleStateCommand::GEAR_NEUTRAL, GearReport::NEUTRAL},
+    };
+    auto const it = vsc_gear_to_gear_report.find(current_vehicle_state_cmd_ptr_->gear);
+    if (it != vsc_gear_to_gear_report.end()) {
+      msg.gear = it->second;
+      gear_msg.report = it->second;
+    }
   }
   pub_state_report_->publish(msg);
+  pub_gear_report_->publish(gear_msg);
 }
 
 void SimplePlanningSimulator::publish_tf(const VehicleKinematicState & state)
