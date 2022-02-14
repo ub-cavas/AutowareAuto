@@ -1,18 +1,44 @@
 #ifndef DATASPEED_FORD_INTERFACE__DATASPEED_FORD_INTERFACE_HPP_
 #define DATASPEED_FORD_INTERFACE__DATASPEED_FORD_INTERFACE_HPP_
 
-#include <chrono>
-#include <iostream>
-#include <memory>
-#include <mutex>
+#include <dataspeed_ford_interface/visibility_control.hpp>
 
 #include <common/types.hpp>
-#include <dataspeed_ford_interface/visibility_control.hpp>
-#include <motion_common/motion_common.hpp>
-#include <rclcpp/clock.hpp>
-#include <rclcpp/rclcpp.hpp>
 #include <vehicle_interface/dbw_state_machine.hpp>
 #include <vehicle_interface/platform_interface.hpp>
+
+#include <dbw_ford_msgs/msg/brake_cmd.hpp>
+#include <dbw_ford_msgs/msg/gear_cmd.hpp>
+#include <dbw_ford_msgs/msg/misc_cmd.hpp>
+#include <dbw_ford_msgs/msg/steering_cmd.hpp>
+#include <dbw_ford_msgs/msg/throttle_cmd.hpp>
+#include <dbw_ford_msgs/msg/twist_cmd.hpp>
+
+#include <dbw_ford_msgs/msg/brake_info_report.hpp>
+#include <dbw_ford_msgs/msg/brake_report.hpp>
+#include <dbw_ford_msgs/msg/driver_assist_report.hpp>
+#include <dbw_ford_msgs/msg/fuel_level_report.hpp>
+#include <dbw_ford_msgs/msg/gear_report.hpp>
+#include <dbw_ford_msgs/msg/misc1_report.hpp>
+#include <dbw_ford_msgs/msg/steering_report.hpp>
+#include <dbw_ford_msgs/msg/surround_report.hpp>
+#include <dbw_ford_msgs/msg/throttle_info_report.hpp>
+#include <dbw_ford_msgs/msg/throttle_report.hpp>
+#include <dbw_ford_msgs/msg/tire_pressure_report.hpp>
+#include <dbw_ford_msgs/msg/wheel_position_report.hpp>
+#include <dbw_ford_msgs/msg/wheel_speed_report.hpp>
+
+#include <dbw_ford_msgs/msg/ambient_light.hpp>
+#include <dbw_ford_msgs/msg/gear.hpp>
+#include <dbw_ford_msgs/msg/gear_num.hpp>
+#include <dbw_ford_msgs/msg/gear_reject.hpp>
+#include <dbw_ford_msgs/msg/hill_start_assist.hpp>
+#include <dbw_ford_msgs/msg/ignition.hpp>
+#include <dbw_ford_msgs/msg/parking_brake.hpp>
+#include <dbw_ford_msgs/msg/quality_factor.hpp>
+#include <dbw_ford_msgs/msg/turn_signal.hpp>
+#include <dbw_ford_msgs/msg/watchdog_counter.hpp>
+#include <dbw_ford_msgs/msg/wiper.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
 #include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
@@ -24,37 +50,16 @@
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
-#include <dbw_ford_msgs/msg/ambient_light.hpp>
-#include <dbw_ford_msgs/msg/brake_cmd.hpp>
-#include <dbw_ford_msgs/msg/brake_info_report.hpp>
-#include <dbw_ford_msgs/msg/brake_report.hpp>
-#include <dbw_ford_msgs/msg/driver_assist_report.hpp>
-#include <dbw_ford_msgs/msg/fuel_level_report.hpp>
-#include <dbw_ford_msgs/msg/gear.hpp>
-#include <dbw_ford_msgs/msg/gear_cmd.hpp>
-#include <dbw_ford_msgs/msg/gear_num.hpp>
-#include <dbw_ford_msgs/msg/gear_reject.hpp>
-#include <dbw_ford_msgs/msg/gear_report.hpp>
-#include <dbw_ford_msgs/msg/hill_start_assist.hpp>
-#include <dbw_ford_msgs/msg/ignition.hpp>
-#include <dbw_ford_msgs/msg/misc1_report.hpp>
-#include <dbw_ford_msgs/msg/misc_cmd.hpp>
-#include <dbw_ford_msgs/msg/parking_brake.hpp>
-#include <dbw_ford_msgs/msg/quality_factor.hpp>
-#include <dbw_ford_msgs/msg/steering_cmd.hpp>
-#include <dbw_ford_msgs/msg/steering_report.hpp>
-#include <dbw_ford_msgs/msg/surround_report.hpp>
-#include <dbw_ford_msgs/msg/throttle_cmd.hpp>
-#include <dbw_ford_msgs/msg/throttle_info_report.hpp>
-#include <dbw_ford_msgs/msg/throttle_report.hpp>
-#include <dbw_ford_msgs/msg/tire_pressure_report.hpp>
-#include <dbw_ford_msgs/msg/turn_signal.hpp>
-#include <dbw_ford_msgs/msg/twist_cmd.hpp>
-#include <dbw_ford_msgs/msg/watchdog_counter.hpp>
-#include <dbw_ford_msgs/msg/wheel_position_report.hpp>
-#include <dbw_ford_msgs/msg/wheel_speed_report.hpp>
-#include <dbw_ford_msgs/msg/wiper.hpp>
+
 #include <std_msgs/msg/bool.hpp>
+#include <motion_common/motion_common.hpp>
+#include <rclcpp/clock.hpp>
+#include <rclcpp/rclcpp.hpp>
+
+#include <chrono>
+#include <iostream>
+#include <memory>
+#include <mutex>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -73,6 +78,12 @@ using dbw_ford_msgs::msg::BrakeInfoReport;
 using dbw_ford_msgs::msg::BrakeReport;
 using dbw_ford_msgs::msg::DriverAssistReport;
 using dbw_ford_msgs::msg::FuelLevelReport;
+// Need to distinguish between dbw_ford_msgs::msg::GearReport and
+// autoware_auto_vehicle_msg::msg::GearReport
+namespace dbw_ford
+{
+using dbw_ford_msgs::msg::GearReport;
+}  // namespace dbw_ford
 using dbw_ford_msgs::msg::Misc1Report;
 using dbw_ford_msgs::msg::SteeringReport;
 using dbw_ford_msgs::msg::SurroundReport;
@@ -81,13 +92,6 @@ using dbw_ford_msgs::msg::ThrottleReport;
 using dbw_ford_msgs::msg::TirePressureReport;
 using dbw_ford_msgs::msg::WheelPositionReport;
 using dbw_ford_msgs::msg::WheelSpeedReport;
-
-// Need to distinguish between dbw_ford_msgs::msg::GearReport and
-// autoware_auto_vehicle_msg::msg::GearReport
-namespace dbw_ford
-{
-using dbw_ford_msgs::msg::GearReport;
-}  // namespace dbw_ford
 
 using dbw_ford_msgs::msg::AmbientLight;
 using dbw_ford_msgs::msg::Gear;
@@ -219,17 +223,11 @@ public:
   /// \param[in] msg The wipers command to send to the vehicle
   void send_wipers_command(const WipersCommand & msg) override;
 
-  /// \brief Update vehicle's position & heading relative from time = 0
-  ///        based on time difference, current speed, & current tire angle.
-  /// \param[in] dt delta-T - how much time since this was last called
-  /// \param[in,out] vks the current vehicle kinematic state (contains current motion data)
-  void kinematic_bicycle_model(float32_t dt, VehicleKinematicState * vks);
-
 private:
   /// \brief Send out command packets periodically
   void cmdCallback();
 
-  // Publishers (to Raptor DBW)
+  // Publishers (to Dataspeed Ford DBW)
   rclcpp::Publisher<ThrottleCmd>::SharedPtr m_throttle_cmd_pub;
   rclcpp::Publisher<BrakeCmd>::SharedPtr m_brake_cmd_pub;
   rclcpp::Publisher<GearCmd>::SharedPtr m_gear_cmd_pub;
@@ -241,8 +239,8 @@ private:
   // Publishers (to Autoware)
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr m_vehicle_kin_state_pub;
 
-  // Subscribers (from Raptor DBW)
-  rclcpp::SubscriptionBase::SharedPtr m_brake_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
+  // Subscribers (from Dataspeed Ford DBW)
+  rclcpp::SubscriptionBase::SharedPtr m_brake_info_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
     m_steering_rpt_sub, m_wheel_spd_rpt_sub;
 
   rclcpp::Logger m_logger;
@@ -274,7 +272,7 @@ private:
   MiscCmd m_misc_cmd{};
   SteeringCmd m_steer_cmd{};
 
-  bool8_t m_seen_brake_rpt{false};
+  bool8_t m_seen_brake_info_rpt{false};
   bool8_t m_seen_gear_rpt{false};
   bool8_t m_seen_misc_rpt{false};
   bool8_t m_seen_steering_rpt{false};
@@ -291,12 +289,12 @@ private:
   std::mutex m_misc_cmd_mutex;
   std::mutex m_steer_cmd_mutex;
 
-  /** \brief Receives the brake state report from the vehicle platform.
+  /** \brief Receives the brake info report from the vehicle platform.
    * Gets parking brake status for VehicleStateReport.
    *
    * \param[in] msg The report received from the vehicle
    */
-  void on_brake_report(const BrakeReport::SharedPtr & msg);
+  void on_brake_info_report(const BrakeInfoReport::SharedPtr & msg);
 
   /** \brief Receives the gear state report from the vehicle platform.
    * Gets PRNDL status for VehicleStateReport.
@@ -329,6 +327,7 @@ private:
    * \param[in] msg The report received from the vehicle
    */
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
+
 };  // class DataspeedFordInterface
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware
