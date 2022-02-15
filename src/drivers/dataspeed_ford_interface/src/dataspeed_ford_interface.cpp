@@ -289,9 +289,11 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   //    implement a PID conroller for this
   // calculate current acceleration
   auto tick = m_clock.now();
-  float64_t dt = (tick - m_prev_tick).seconds();
+  float32_t dt = (tick - m_prev_tick).seconds();
   float32_t speed = odometry().velocity_mps;
   float32_t current_accel = (speed - m_prev_speed) / dt;
+  m_prev_tick = tick;
+  m_prev_speed = speed;
 
   // obtain & clamp target acceleration
   float32_t target_accel = msg.long_accel_mps2;
@@ -301,7 +303,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     target_accel = m_acceleration_limit;
   } else if (std::fabs(target_accel) > m_deceleration_limit) {
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_acceleration_limit");
+      m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_deceleration_limit");
     target_accel = -1 * m_deceleration_limit;
   }
 
