@@ -1,13 +1,6 @@
 #ifndef DATASPEED_FORD_INTERFACE__PID_CONTROLLER_HPP_
 #define DATASPEED_FORD_INTERFACE__PID_CONTROLLER_HPP_
 
-/**
- * @file pid_controller.hpp
- * @author Zhihao Ruan (ruanzh@seas.upenn.edu)
- * @brief Simple but general implementation of a PID controller
- * @date 2022-02-14
- */
-
 #include <algorithm>
 
 #include <common/types.hpp>

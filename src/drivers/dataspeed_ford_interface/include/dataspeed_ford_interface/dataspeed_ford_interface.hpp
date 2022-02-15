@@ -59,8 +59,6 @@
 
 #include <chrono>
 #include <iostream>
-#include <memory>
-#include <mutex>
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float32_t;
@@ -276,16 +274,6 @@ private:
   float32_t m_accel_control_deadzone_min;
   float32_t m_accel_control_deadzone_max;
 
-  // TODO COMMENT THIS OUT -- It is not needed
-  /* Vehicle Kinematic State is stored
-   * because it needs data from multiple reports.
-   *
-   * All commands are stored because they need
-   * to be sent periodically, whether or not the data changes.
-   */
-  VehicleKinematicState m_vehicle_kin_state{};
-  //////////////////////////////
-
   ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};
   GearCmd m_gear_cmd{};
@@ -299,15 +287,6 @@ private:
   bool8_t m_seen_wheel_spd_rpt{false};
   bool8_t m_seen_vehicle_state_cmd{false};
   float32_t m_travel_direction{0.0F};
-
-  // In case multiple signals arrive at the same time
-  std::mutex m_vehicle_kin_state_mutex;
-  std::mutex m_throttle_cmd_mutex;
-  std::mutex m_brake_cmd_mutex;
-  std::mutex m_gear_cmd_mutex;
-  std::mutex m_gl_en_cmd_mutex;
-  std::mutex m_misc_cmd_mutex;
-  std::mutex m_steer_cmd_mutex;
 
   /** \brief Receives the brake info report from the vehicle platform.
    * Gets parking brake status for VehicleStateReport.
