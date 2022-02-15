@@ -34,6 +34,7 @@ set(DATASPEED_FORD_INTERFACE_LIB_SRC
 set(DATASPEED_FORD_INTERFACE_LIB_HEADERS
   include/dataspeed_ford_interface/dataspeed_ford_interface.hpp
   include/dataspeed_ford_interface/visibility_control.hpp
+  include/dataspeed_ford_interface/pid_controller.hpp
 )
 
 # generate library
