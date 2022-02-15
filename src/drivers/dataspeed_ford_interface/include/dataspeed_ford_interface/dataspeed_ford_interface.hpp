@@ -2,6 +2,7 @@
 #define DATASPEED_FORD_INTERFACE__DATASPEED_FORD_INTERFACE_HPP_
 
 #include <dataspeed_ford_interface/visibility_control.hpp>
+#include <dataspeed_ford_interface/pid_controller.hpp>
 
 #include <common/types.hpp>
 #include <vehicle_interface/dbw_state_machine.hpp>
@@ -151,6 +152,11 @@ public:
   /// \param[in] acceleration_positive_jerk_limit m/s^3
   /// \param[in] deceleration_negative_jerk_limit m/s^3
   /// \param[in] pub_period message publishing period, in milliseconds
+  /// \param[in] accel_control_kp P-gain of the throttle/brake PID controller
+  /// \param[in] accel_control_ki I-gain of the throttle/brake PID controller
+  /// \param[in] accel_control_kd D-gain of the throttle/brake PID controller
+  /// \param[in] accel_control_deadzone_min lower bound of the deadzone of throttle/brake controller
+  /// \param[in] accel_control_deadzone_max upper bound of the deadzone of throttle/brake controller
   explicit DataspeedFordInterface(
     rclcpp::Node & node,
     uint16_t ecu_build_num,
@@ -162,7 +168,12 @@ public:
     float32_t deceleration_limit,
     float32_t acceleration_positive_jerk_limit,
     float32_t deceleration_negative_jerk_limit,
-    uint32_t pub_period);
+    uint32_t pub_period,
+    float32_t accel_control_kp,
+    float32_t accel_control_ki,
+    float32_t accel_control_kd,
+    float32_t accel_control_deadzone_min,
+    float32_t accel_control_deadzone_max);
 
   /// \brief Default destructor
   ~DataspeedFordInterface() noexcept override = default;
@@ -258,6 +269,14 @@ private:
   rclcpp::Clock m_clock;
   rclcpp::TimerBase::SharedPtr m_timer;
 
+  // for throttle/brake control
+  rclcpp::Time m_prev_tick;
+  float32_t m_prev_speed;
+  PIDController m_throttle_pid_controller;
+  float32_t m_accel_control_deadzone_min;
+  float32_t m_accel_control_deadzone_max;
+
+  // TODO COMMENT THIS OUT -- It is not needed
   /* Vehicle Kinematic State is stored
    * because it needs data from multiple reports.
    *
@@ -265,6 +284,7 @@ private:
    * to be sent periodically, whether or not the data changes.
    */
   VehicleKinematicState m_vehicle_kin_state{};
+  //////////////////////////////
 
   ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};
