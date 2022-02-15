@@ -42,20 +42,23 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
       options
 }
 {
-  set_interface(
-    std::make_unique<DataspeedFordInterface>(
-      *this,
-      declare_parameter("dataspeed_ford.ecu_build_num").get<uint16_t>(),
-      declare_parameter("dataspeed_ford.front_axle_to_cog").get<float32_t>(),
-      declare_parameter("dataspeed_ford.rear_axle_to_cog").get<float32_t>(),
-      declare_parameter("dataspeed_ford.steer_to_tire_ratio").get<float32_t>(),
-      declare_parameter("dataspeed_ford.max_steer_angle").get<float32_t>(),
-      get_state_machine().get_config().accel_limits().max(),
-      get_state_machine().get_config().accel_limits().min(),
-      declare_parameter("dataspeed_ford.acceleration_positive_jerk_limit").get<float32_t>(),
-      declare_parameter("dataspeed_ford.deceleration_negative_jerk_limit").get<float32_t>(),
-      declare_parameter("dataspeed_ford.pub_period").get<uint32_t>()
-  ));
+  set_interface(std::make_unique<DataspeedFordInterface>(
+    *this,
+    declare_parameter("dataspeed_ford.ecu_build_num").get<uint16_t>(),
+    declare_parameter("dataspeed_ford.front_axle_to_cog").get<float32_t>(),
+    declare_parameter("dataspeed_ford.rear_axle_to_cog").get<float32_t>(),
+    declare_parameter("dataspeed_ford.steer_to_tire_ratio").get<float32_t>(),
+    declare_parameter("dataspeed_ford.max_steer_angle").get<float32_t>(),
+    get_state_machine().get_config().accel_limits().max(),
+    get_state_machine().get_config().accel_limits().min(),
+    declare_parameter("dataspeed_ford.acceleration_positive_jerk_limit").get<float32_t>(),
+    declare_parameter("dataspeed_ford.deceleration_negative_jerk_limit").get<float32_t>(),
+    declare_parameter("dataspeed_ford.pub_period").get<uint32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.kp").get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.ki").get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.kd").get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.deadzone_min").get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>()));
 }
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware
