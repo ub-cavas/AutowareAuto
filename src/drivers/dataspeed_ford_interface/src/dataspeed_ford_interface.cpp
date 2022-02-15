@@ -56,10 +56,6 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_dbw_enable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("enable", 10);
   m_dbw_disable_cmd_pub = node.create_publisher<std_msgs::msg::Empty>("disable", 10);
 
-  // Publishers (to Autoware)
-  m_vehicle_kin_state_pub =
-    node.create_publisher<VehicleKinematicState>("vehicle_kinematic_state", 10);
-
   // Subscribers (from Dataspeed Fords DBW)
   m_brake_info_rpt_sub = node.create_subscription<BrakeInfoReport>(
     "brake_info_report", rclcpp::QoS{20}, [this](BrakeInfoReport::SharedPtr msg) {
@@ -92,8 +88,8 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_steer_cmd.cmd_type = SteeringCmd::CMD_ANGLE;  // angular position
   m_steer_cmd.ignore = false;  // NEVER SET THIS TO TRUE. This would ignore user-override all the time!
   m_steer_cmd.clear = false;
-  m_steer_cmd.quiet = false; // still has the sound but turn it off 
-  m_steer_cmd.alert = true;  // FIXME: set this to false. This would trigger a sound that goes in the cabin 
+  m_steer_cmd.quiet = false; // still has the sound but turn it off
+  m_steer_cmd.alert = true;  // FIXME: set this to false. This would trigger a sound that goes in the cabin
   m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS
                         ? SteeringCmd::ANGLE_MAX
                         : m_max_steer_angle * DEGREES_TO_RADIANS;
@@ -108,12 +104,6 @@ DataspeedFordInterface::DataspeedFordInterface(
 
 void DataspeedFordInterface::cmdCallback()
 {
-  std::lock_guard<std::mutex> guard_tc(m_throttle_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
-
   const auto is_dbw_enabled = m_dbw_state_machine->get_state() != DbwState::DISABLED;
 
   // Set enables based on current DBW mode
@@ -150,11 +140,6 @@ bool8_t DataspeedFordInterface::update(std::chrono::nanoseconds timeout)
 bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & msg)
 {
   bool8_t ret{true};
-
-  // FIXME
-  // remove these locks since this would not be run in MultithreadedExecutors
-  std::lock_guard<std::mutex> guard_gc(m_gear_cmd_mutex);
-  std::lock_guard<std::mutex> guard_mc(m_misc_cmd_mutex);
 
   // Set gear values
   switch (msg.gear) {
@@ -246,10 +231,6 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   bool8_t ret{true};
   float32_t velocity_checked{0.0F};
   float32_t angle_checked{0.0F};
-
-  std::lock_guard<std::mutex> guard_ac(m_throttle_cmd_mutex);
-  std::lock_guard<std::mutex> guard_bc(m_brake_cmd_mutex);
-  std::lock_guard<std::mutex> guard_sc(m_steer_cmd_mutex);
 
   // Check for invalid changes in direction
   if (
@@ -518,12 +499,6 @@ void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr 
 
   odometry().front_wheel_angle_rad = f_wheel_angle_rad;
   odometry().rear_wheel_angle_rad = 0.0F;
-
-  // TODO comment these out
-  std::lock_guard<std::mutex> guard_vks(m_vehicle_kin_state_mutex);
-  m_vehicle_kin_state.state.front_wheel_angle_rad = f_wheel_angle_rad;
-  m_vehicle_kin_state.state.rear_wheel_angle_rad = 0.0F;
-  /////////
 
   m_seen_steering_rpt = true;
   odometry().stamp = msg->header.stamp;
