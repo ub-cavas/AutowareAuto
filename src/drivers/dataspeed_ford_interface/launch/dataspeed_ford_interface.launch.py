@@ -44,4 +44,4 @@ def generate_launch_description():
         )
     ])
 
-    return launch.LaunchDescription([container])
+generate_launch_description()
