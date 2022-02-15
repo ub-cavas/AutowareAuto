@@ -43,5 +43,3 @@ def generate_launch_description():
             parameters=[dataspeed_ford_interface_params_file],
         )
     ])
-
-generate_launch_description()
