@@ -21,7 +21,7 @@ namespace dataspeed_ford_interface
 {
 
 /**
- * @brief Referenced from
+ * @brief Adapted from
  *  https://bitbucket.org/DataspeedInc/dbw_mkz_ros/src/master/dbw_mkz_twist_controller/src/PidControl.h
  *
  */
