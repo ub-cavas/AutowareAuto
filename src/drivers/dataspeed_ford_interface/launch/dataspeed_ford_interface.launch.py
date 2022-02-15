@@ -13,7 +13,6 @@
 # limitations under the License.
 #
 # Co-developed by Tier IV, Inc. and Apex.AI, Inc.
-
 """
 Example launch file for a new package.
 
@@ -21,24 +20,28 @@ Note: Does not work in ROS2 dashing!
 """
 
 import launch
-from launch_ros.actions import ComposableNodeContainer
-from launch_ros.descriptions import ComposableNode
+from launch.substitutions import LaunchConfiguration
+from launch_ros.actions import Node
+from ament_index_python import get_package_share_directory
 
 
 def generate_launch_description():
     """Generate launch description with a single component."""
-    container = ComposableNodeContainer(
-            name='dataspeed_ford_interface_container',
-            namespace='',
-            package='rclcpp_components',
-            executable='component_container',
-            composable_node_descriptions=[
-                ComposableNode(
-                    package='dataspeed_ford_interface',
-                    plugin='autoware::dataspeed_ford_interface::DataspeedFordInterfaceNode',
-                    name='dataspeed_ford_interface_node'),
-            ],
+    dataspeed_ford_interface_params_file = LaunchConfiguration(
+        "dataspeed_ford_interface_params",
+        default=[
+            get_package_share_directory('dataspeed_ford_interface'),
+            '/param/defaults.param.yaml'
+        ])
+
+    return launch.LaunchDescription([
+        Node(
+            package='dataspeed_ford_interface',
+            executable='dataspeed_ford_interface_node_exe',
             output='screen',
-    )
+            namespace='vehicle',
+            parameters=[dataspeed_ford_interface_params_file],
+        )
+    ])
 
     return launch.LaunchDescription([container])
