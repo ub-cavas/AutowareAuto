@@ -82,14 +82,14 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_throttle_cmd.clear = false;
 
   m_brake_cmd.pedal_cmd_type = BrakeCmd::CMD_PERCENT;
-  m_brake_cmd.ignore = false;  // NEVER SET THIS TO TRUE. This would ignore user-override all the time!
+  m_brake_cmd.ignore = false;
   m_brake_cmd.clear = false;
 
   m_steer_cmd.cmd_type = SteeringCmd::CMD_ANGLE;  // angular position
-  m_steer_cmd.ignore = false;  // NEVER SET THIS TO TRUE. This would ignore user-override all the time!
+  m_steer_cmd.ignore = false;
   m_steer_cmd.clear = false;
-  m_steer_cmd.quiet = false; // still has the sound but turn it off
-  m_steer_cmd.alert = true;  // FIXME: set this to false. This would trigger a sound that goes in the cabin
+  m_steer_cmd.quiet = false;
+  m_steer_cmd.alert = false;
   m_max_steer_angle = SteeringCmd::ANGLE_MAX < m_max_steer_angle * DEGREES_TO_RADIANS
                         ? SteeringCmd::ANGLE_MAX
                         : m_max_steer_angle * DEGREES_TO_RADIANS;
@@ -203,8 +203,7 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
   return ret;
 }
 
-/* Apparently HighLevelControlCommand will be obsolete soon.
- */
+// Apparently HighLevelControlCommand will be obsolete soon.
 bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlCommand & msg)
 {
   (void)msg;
@@ -214,9 +213,7 @@ bool8_t DataspeedFordInterface::send_control_command(const HighLevelControlComma
   return false;
 }
 
-/* Apparently RawControlCommand will be obsolete soon.
- * Function not supported - AutoWare RawControlCommand message units are undefined.
- */
+// Apparently RawControlCommand will be obsolete soon.
 bool8_t DataspeedFordInterface::send_control_command(const RawControlCommand & msg)
 {
   (void)msg;

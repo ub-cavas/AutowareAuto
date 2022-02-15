@@ -245,9 +245,6 @@ private:
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_enable_cmd_pub;
   rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr m_dbw_disable_cmd_pub;
 
-  // Publishers (to Autoware)
-  rclcpp::Publisher<VehicleKinematicState>::SharedPtr m_vehicle_kin_state_pub;
-
   // Subscribers (from Dataspeed Ford DBW)
   rclcpp::SubscriptionBase::SharedPtr m_brake_info_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
     m_steering_rpt_sub, m_wheel_spd_rpt_sub;
