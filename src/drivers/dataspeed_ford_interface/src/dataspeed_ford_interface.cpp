@@ -75,6 +75,10 @@ DataspeedFordInterface::DataspeedFordInterface(
     "wheel_speed_report", rclcpp::QoS{20}, [this](WheelSpeedReport::SharedPtr msg) {
       on_wheel_spd_report(msg);
     });
+  m_dbw_enable_sub = node.create_subscription<std_msgs::msg::Bool>(
+  "/vehicle/dbw_enabled", rclcpp::QoS{2}, [this](std_msgs::msg::Bool::SharedPtr msg) {
+  on_dbw_enable(msg);
+  });
 
   // Initialize command values
   m_throttle_cmd.pedal_cmd_type = ThrottleCmd::CMD_PERCENT;
@@ -312,24 +316,32 @@ bool8_t DataspeedFordInterface::send_control_command(const AckermannControlComma
 bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::SharedPtr request)
 {
   // FIXME
-  // only send enable request when m_dbw_state_machine->enabled() is true
-  //
-
-  // FIXME
   // Investigate user-override clearing
 
   bool8_t ret{true};
   std_msgs::msg::Empty send_req{};
+
+  // Request AUTONOMOUS -> MANUAL
   if (request->mode == ModeChangeRequest::MODE_MANUAL) {
     m_dbw_state_machine->user_request(false);
     m_dbw_disable_cmd_pub->publish(send_req);
-  } else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
+  }
+  // Request MANUAL -> AUTONOMOUS
+  else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
-    m_dbw_enable_cmd_pub->publish(send_req);
+    if (m_dbw_state_machine->enabled()) {
+      m_dbw_enable_cmd_pub->publish(send_req);
+    } else {
+      m_dbw_disable_cmd_pub->publish(send_req);
+      RCLCPP_ERROR_THROTTLE(
+      m_logger, m_clock, CLOCK_1_SEC,
+      "Mode change request failed: state machine is not enabled.");
+      ret = false;
+    }
   } else {
     RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC,
-      "Got invalid autonomy mode request value.");
+    m_logger, m_clock, CLOCK_1_SEC,
+    "Got invalid autonomy mode request value.");
     ret = false;
   }
   return ret;
@@ -526,6 +538,12 @@ void DataspeedFordInterface::on_wheel_spd_report(const WheelSpeedReport::SharedP
       "Received inconsistent wheel speeds.");
   }
   m_seen_wheel_spd_rpt = true;
+}
+
+void DataspeedFordInterface::on_dbw_enable(const std_msgs::msg::Bool::SharedPtr & msg)
+{
+  // Update state machine
+  m_dbw_state_machine->dbw_feedback(msg->data);
 }
 
 }  // namespace dataspeed_ford_interface
