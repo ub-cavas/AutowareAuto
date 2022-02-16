@@ -79,8 +79,7 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
   check_set(axis_offset_map, Axes::VELOCITY, "axis_offset.velocity");
   // button map
   ButtonMap button_map{};
-  check_set(button_map, Buttons::AUTONOMOUS_ON, "buttons.autonomous_on");
-  check_set(button_map, Buttons::AUTONOMOUS_OFF, "buttons.autonomous_off");
+  check_set(button_map, Buttons::AUTONOMOUS_TOGGLE, "buttons.autonomous");
   check_set(button_map, Buttons::HEADLIGHTS_TOGGLE, "buttons.headlights");
   check_set(button_map, Buttons::WIPER_TOGGLE, "buttons.wiper");
   check_set(button_map, Buttons::GEAR_DRIVE, "buttons.gear_drive");
@@ -157,10 +156,6 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
     m_state_cmd_pub->publish(state_command);
   }
   // Command publish
-  if(!m_core->is_autonomous_mode_on())
-  {
-    return;
-  }
   const auto compute_publish_command = [this, &msg](auto && pub) -> void {
       using MessageT =
         typename std::decay_t<decltype(pub)>::element_type::MessageUniquePtr::element_type;
