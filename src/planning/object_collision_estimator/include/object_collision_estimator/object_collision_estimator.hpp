@@ -19,6 +19,8 @@
 #include <autoware_auto_planning_msgs/msg/trajectory_point.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_object.hpp>
 #include <motion_common/config.hpp>
 #include <trajectory_smoother/trajectory_smoother.hpp>
 #include <common/types.hpp>
@@ -41,6 +43,8 @@ using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_perception_msgs::msg::BoundingBox;
 using autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_perception_msgs::msg::PredictedObject;
 using autoware::common::types::float32_t;
 using autoware::common::types::PI;
 
@@ -85,6 +89,22 @@ public:
   std::vector<BoundingBox> updateObstacles(
     const BoundingBoxArray & bounding_boxes) noexcept;
 
+  /// \brief Update the list of obstacles
+  /// \details The collision estimator stores a list of obstacle. Coordinates should be in the same
+  ///          frame as the the trajectories. When this function is called, the old list is replaced
+  ///          with the new list passed as the parameter.
+  ///          Modify bounding boxes with edges smaller than min_obstacle_dimension_m by computing
+  ///          new corners from their centroid and orientation values. The orientation and centroid
+  ///          of the modified bounding boxes are left unchanged.
+  ///          Assumptions:
+  ///           * the points are in counterclockwise order
+  ///           * box.size.x and box.size.y map to the length of the first and second edges
+  ///             respectively
+  /// \param[in] bounding_boxes A array of bounding boxes representing a list of obstacles
+  /// \returns A vector of obstacles modified for being smaller than min_obstacle_dimension_m
+  void updatePredictedObjects(
+    const PredictedObjects & predicted_objects) noexcept;
+
   /// \brief Perform collision detection given an trajectory
   /// \details the list of obstacles should be passed to the estimator with a prior call to
   ///          updateObstacles. When a collision is detected, the trajectory is modified in place
@@ -100,6 +120,7 @@ public:
 private:
   ObjectCollisionEstimatorConfig m_config;
   BoundingBoxArray m_obstacles{};
+  PredictedObjects m_predicted_objects{};
   BoundingBoxArray m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;
 };

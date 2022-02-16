@@ -136,6 +136,10 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
     OBSTACLE_TOPIC, QoS{10},
     [this](const BoundingBoxArray::SharedPtr msg) {this->on_bounding_box(msg);});
 
+  m_predicted_objects_sub = Node::create_subscription<PredictedObjects>(
+    "predicted_objects", QoS{10},
+    [this](const PredictedObjects::SharedPtr msg) {this->on_predicted_object(msg);});
+
   m_trajectory_bbox_pub =
     create_publisher<MarkerArray>("debug/trajectory_bounding_boxes", QoS{10});
 
@@ -158,6 +162,13 @@ void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbo
       static_cast<float64_t>(modified_obstacle.size.y));
   }
 }
+
+void ObjectCollisionEstimatorNode::update_predicted_objects(
+  const PredictedObjects & predicted_objects)
+{
+  m_estimator->updatePredictedObjects(predicted_objects);
+}
+
 
 void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
 {
@@ -213,6 +224,17 @@ void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::Share
   }
 }
 
+void ObjectCollisionEstimatorNode::on_predicted_object(const PredictedObjects::SharedPtr & msg)
+{
+  if (msg->header.frame_id != m_target_frame_id) {
+    RCLCPP_ERROR(
+      this->get_logger(),
+      "Target frame should be same with Tracking/Prediction frame");
+  }
+  m_last_obstacle_msg_time = msg->header.stamp;
+  m_estimator->updatePredictedObjects(*msg);
+}
+
 void ObjectCollisionEstimatorNode::estimate_collision(
   const std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Request> request,
   std::shared_ptr<autoware_auto_planning_msgs::srv::ModifyTrajectory::Response> response)
@@ -229,12 +251,12 @@ void ObjectCollisionEstimatorNode::estimate_collision(
     RCLCPP_WARN(
       this->get_logger(),
       "Outdated obstacle information."
-      " Collision estimation will be based on old obstacle positions");
+      "Collision estimation will be based on old obstacle positions");
   }
-
   // copy the input trajectory into the output variable
   Trajectory trajectory = request->original_trajectory;
-
+  std::cout<<"request->original_trajectory size" <<
+  request->original_trajectory.points.size()<<std::endl;
   const tf2::TimePoint trajectory_time_point = tf2::TimePoint(
     std::chrono::seconds(request->original_trajectory.header.stamp.sec) +
     std::chrono::nanoseconds(request->original_trajectory.header.stamp.nanosec));
@@ -284,6 +306,8 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   auto marker = toVisualizationMarkerArray(
     trajectory_bbox, response->modified_trajectory.points.size());
   m_trajectory_bbox_pub->publish(marker);
+  std::cout<<"response->original_trajectory size" <<
+           response->modified_trajectory.points.size()<<std::endl;
 }
 
 }  // namespace object_collision_estimator_nodes

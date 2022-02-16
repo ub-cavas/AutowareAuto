@@ -14,6 +14,7 @@
 
 #include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
+#include <autoware_auto_perception_msgs/msg/predicted_objects.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 #include <visualization_msgs/msg/marker.hpp>
 #include <tf2_ros/transform_listener.h>
@@ -37,6 +38,7 @@ namespace object_collision_estimator_nodes
 
 using motion::planning::object_collision_estimator::ObjectCollisionEstimator;
 using autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::PredictedObjects;
 using visualization_msgs::msg::MarkerArray;
 using visualization_msgs::msg::Marker;
 
@@ -65,6 +67,9 @@ private:
   /// \brief Pointer to the subscriber listening for a list of obstacles
   rclcpp::Subscription<BoundingBoxArray>::SharedPtr m_obstacles_sub{nullptr};
 
+  /// \brief Pointer to the subscriber listening for a list of predicted_objects
+  rclcpp::Subscription<PredictedObjects>::SharedPtr m_predicted_objects_sub{nullptr};
+
   /// \brief Pointer to the publisher for bounding boxes of the target trajectory
   rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_bbox_pub{nullptr};
 
@@ -72,10 +77,20 @@ private:
   /// \param[in] bbox_array An array of bounding boxes representing a list of obstacles
   void update_obstacles(const BoundingBoxArray & bbox_array);
 
+  /// \brief Helper function to handle modified bpredicted objects when updating the obstacles.
+  /// \param[in] predicted_objects An array of predicted object representing a list of obstacles
+  void update_predicted_objects(const PredictedObjects & predicted_objects);
+
   /// \brief Callback function for the obstacles topic
   /// \param[in] msg ROS2 message from the obstacle topic containing an array of bounding boxes
   ///                representing obstacles found by the perception pipeline.
   void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
+
+
+  /// \brief Callback function for the predicted object topic
+  /// \param[in] msg ROS2 message from the predicted objects topic containing an array of predicted
+  ///  obstacles found by the perception pipeline.
+  void on_predicted_object(const PredictedObjects::SharedPtr & msg);
 
   /// \brief Pointer to an instance of object collision estimator. It performs the main task of
   ///        estimating collisions and modifying the trajectory.

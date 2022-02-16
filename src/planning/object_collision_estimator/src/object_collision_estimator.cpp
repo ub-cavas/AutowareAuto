@@ -109,13 +109,14 @@ BoundingBox waypointToBox(
 /// \return bool8_t Return true if the bounding box of the obstacle is at least distance_threshold
 ///         away from the way point.
 bool8_t isTooFarAway(
-  const TrajectoryPoint & way_point, const BoundingBox & obstacle_bbox,
+  const TrajectoryPoint & way_point,
+  const std::vector<geometry_msgs::msg::Point32> & obstacle_bbox,
   const float32_t distance_threshold)
 {
   bool is_too_far_away{true};
   auto distance_threshold_squared = distance_threshold * distance_threshold;
 
-  for (const auto & corner : obstacle_bbox.corners) {
+  for (const auto & corner : obstacle_bbox) {
     auto dx = corner.x - static_cast<float32_t>(way_point.pose.position.x);
     auto dy = corner.y - static_cast<float32_t>(way_point.pose.position.y);
     auto distance_squared = (dx * dx) + (dy * dy);
@@ -141,7 +142,7 @@ bool8_t isTooFarAway(
 ///         collision is detected, -1 is returned.
 int32_t detectCollision(
   const Trajectory & trajectory,
-  const BoundingBoxArray & obstacles,
+  const PredictedObjects & predicted_objects,
   const VehicleConfig & vehicle_param,
   const float32_t safety_factor,
   BoundingBoxArray & waypoint_bboxes)
@@ -167,14 +168,28 @@ int32_t detectCollision(
   for (std::size_t i = 0; (i < trajectory.points.size()) && (collision_index == -1); ++i) {
     // calculate a bounding box given a trajectory point
     const auto & waypoint_bbox = waypoint_bboxes.boxes.at(i);
+    const std::vector<geometry_msgs::msg::Point32> waypoint_bbox_corners{
+      waypoint_bbox.corners.begin(), waypoint_bbox.corners.end()};
+
+    // TODO:(@kcolak) For now, object prediction modules only works for stationary object. After
+    //  adding the dynamic object prediction, this part needs to be updated.
 
     // Check for collisions with all perceived obstacles
-    for (const auto & obstacle_bbox : obstacles.boxes) {
+    for (const auto & predicted_object : predicted_objects.objects) {
+
+      geometry_msgs::msg::Quaternion unit_quaternion;
+      const auto predicted_object_corners =
+        autoware::common::geometry::bounding_box::details::get_transformed_corners(
+        predicted_object.shape[0],
+        predicted_object.kinematics.initial_pose.pose.position,
+        unit_quaternion
+        );
+
       if (!isTooFarAway(
-          trajectory.points[i], obstacle_bbox,
+          trajectory.points[i], predicted_object_corners,
           distance_threshold) && autoware::common::geometry::intersect(
-          waypoint_bbox.corners.begin(), waypoint_bbox.corners.end(),
-          obstacle_bbox.corners.begin(), obstacle_bbox.corners.end()))
+          waypoint_bbox_corners.begin(), waypoint_bbox_corners.end(),
+          predicted_object_corners.begin(), predicted_object_corners.end()))
       {
         // Collision detected, set end index (non-inclusive), this will end outer loop immediately
         collision_index = static_cast<decltype(collision_index)>(i);
@@ -233,8 +248,9 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
 {
   // Collision detection
   auto collision_index = detectCollision(
-    trajectory, m_obstacles, m_config.vehicle_config,
+    trajectory, m_predicted_objects, m_config.vehicle_config,
     m_config.safety_factor, m_trajectory_bboxes);
+  std::cout << "collision_index: " << collision_index << std::endl;
 
   auto trajectory_end_idx = getStopIndex(trajectory, collision_index, m_config.stop_margin);
 
@@ -263,7 +279,9 @@ std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
   m_obstacles = bounding_boxes;
 
   std::vector<BoundingBox> modified_obstacles;
+
   for (auto & box : m_obstacles.boxes) {
+
     if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
       Point32 heading;
       heading.x = box.orientation.w;
@@ -293,6 +311,12 @@ std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
   }
 
   return modified_obstacles;
+}
+
+void ObjectCollisionEstimator::updatePredictedObjects(
+  const PredictedObjects & predicted_objects) noexcept
+{
+  m_predicted_objects = predicted_objects;
 }
 
 }  // namespace object_collision_estimator
