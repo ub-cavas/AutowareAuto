@@ -37,6 +37,44 @@ namespace drivers
 namespace velodyne_nodes
 {
 
+template<typename CloudModifierT>
+void CloudModifierWrapper<CloudModifierT>::clear()
+{
+  return modifier_.clear();
+}
+
+template<typename CloudModifierT>
+void CloudModifierWrapper<CloudModifierT>::reserve(const std::size_t cloud_size)
+{
+  return modifier_.reserve(cloud_size);
+}
+
+template<typename CloudModifierT>
+void CloudModifierWrapper<CloudModifierT>::resize(const uint32_t cloud_size)
+{
+  return modifier_.resize(cloud_size);
+}
+
+template<typename CloudModifierT>
+std::size_t CloudModifierWrapper<CloudModifierT>::size() const
+{
+  return modifier_.size();
+}
+
+template<>
+void CloudModifierWrapper<autoware::common::lidar_utils::CloudModifierRing>::push_back(
+  const autoware::common::types::PointXYZIF & pt)
+{
+  return modifier_.push_back(pt);
+}
+
+template<>
+void CloudModifierWrapper<autoware::common::lidar_utils::CloudModifier>::push_back(
+  const autoware::common::types::PointXYZIF & pt)
+{
+  return modifier_.push_back(autoware::common::types::PointXYZI{pt.x, pt.y, pt.z, pt.intensity});
+}
+
 template<typename T>
 VelodyneCloudNode<T>::VelodyneCloudNode(
   const std::string & node_name,
@@ -103,15 +141,16 @@ void VelodyneCloudNode<T>::receiver_callback(const std::vector<uint8_t> & buffer
 template<typename T>
 void VelodyneCloudNode<T>::init_output(sensor_msgs::msg::PointCloud2 & output)
 {
+  using autoware::common::lidar_utils::CloudModifierRing;
+  using autoware::common::lidar_utils::CloudModifier;
+
+  std::shared_ptr<CloudModifierWrapperBase> modifier = nullptr;
   if (m_ring_information) {
-    using autoware::common::lidar_utils::CloudModifierRing;
-    CloudModifierRing{
-      output, m_frame_id}.reserve(m_cloud_size);
+    modifier = std::make_shared<CloudModifierWrapper<CloudModifierRing>>(output, m_frame_id);
   } else {
-    using autoware::common::lidar_utils::CloudModifier;
-    CloudModifier{
-      output, m_frame_id}.reserve(m_cloud_size);
+    modifier = std::make_shared<CloudModifierWrapper<CloudModifier>>(output, m_frame_id);
   }
+  modifier->reserve(m_cloud_size);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -120,13 +159,58 @@ bool8_t VelodyneCloudNode<T>::convert(
   const Packet & pkt,
   sensor_msgs::msg::PointCloud2 & output)
 {
-  using autoware::common::lidar_utils::CloudModifier;
   using autoware::common::lidar_utils::CloudModifierRing;
+  using autoware::common::lidar_utils::CloudModifier;
+
+  // This handles the case when the below loop exited due to containing extra points
+  using autoware::common::types::PointXYZIF;
+
+  std::shared_ptr<CloudModifierWrapperBase> modifier = nullptr;
+  (void)output;
+  (void)pkt;
   if (m_ring_information) {
-    return convert_impl<CloudModifierRing>(pkt, output);
+    modifier = std::make_shared<CloudModifierWrapper<CloudModifierRing>>(output);
   } else {
-    return convert_impl<CloudModifier>(pkt, output);
+    modifier = std::make_shared<CloudModifierWrapper<CloudModifier>>(output);
   }
+
+  if (m_published_cloud) {
+    // reset the pointcloud
+    modifier->clear();
+    modifier->reserve(m_cloud_size);
+    m_point_cloud_idx = 0;
+
+    // deserialize remainder into pointcloud
+    m_published_cloud = false;
+    for (uint32_t idx = m_remainder_start_idx; idx < m_point_block.size(); ++idx) {
+      const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
+      modifier->push_back(pt);
+      m_point_cloud_idx++;
+    }
+  }
+  m_translator.convert(pkt, m_point_block);
+  for (uint32_t idx = 0U; idx < m_point_block.size(); ++idx) {
+    const autoware::common::types::PointXYZIF & pt = m_point_block[idx];
+    if (static_cast<uint16_t>(autoware::common::types::PointXYZIF::END_OF_SCAN_ID) != pt.id) {
+      modifier->push_back(pt);
+      m_point_cloud_idx++;
+      if (modifier->size() >= m_cloud_size) {
+        m_published_cloud = true;
+        m_remainder_start_idx = idx;
+      }
+    } else {
+      m_published_cloud = true;
+      m_remainder_start_idx = idx;
+      break;
+    }
+  }
+  if (m_published_cloud) {
+    // resize pointcloud down to its actual size
+    modifier->resize(m_point_cloud_idx);
+    output.header.stamp = this->now();
+  }
+
+  return m_published_cloud;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
