@@ -247,7 +247,7 @@ private:
 
   // Subscribers (from Dataspeed Ford DBW)
   rclcpp::SubscriptionBase::SharedPtr m_brake_info_rpt_sub, m_gear_rpt_sub, m_misc_rpt_sub,
-    m_steering_rpt_sub, m_wheel_spd_rpt_sub;
+    m_steering_rpt_sub, m_wheel_spd_rpt_sub, m_dbw_enable_sub;
 
   rclcpp::Logger m_logger;
   uint16_t m_ecu_build_num;
@@ -323,6 +323,13 @@ private:
    * \param[in] msg The report received from the vehicle
    */
   void on_wheel_spd_report(const WheelSpeedReport::SharedPtr & msg);
+
+  /** \brief Receives the enable message from the vehicle platform.
+  * Update state machine by calling dbw_feedback()
+  * 
+  * \param[in] msg The enable message received from the vehicle
+  */
+  void on_dbw_enable(const std_msgs::msg::Bool::SharedPtr & msg);
 
 };  // class DataspeedFordInterface
 }  // namespace dataspeed_ford_interface
