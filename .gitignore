@@ -54,7 +54,6 @@ vgcore.*
 ## Vizdep
 *.dot
 *.pickle
-*.svg
 
 ## X-Compile Artifacts
 target_fs/
