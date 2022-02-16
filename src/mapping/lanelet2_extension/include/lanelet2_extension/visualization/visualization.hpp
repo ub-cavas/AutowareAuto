@@ -114,18 +114,20 @@ void pushTrafficLightTriangleMarker(
   const double scale = 1.0);
 
 /**
- * [laneletsBoundaryAsMarkerArray create marker array to visualize shape of
+ * @brief [laneletsBoundaryAsMarkerArray create marker array to visualize shape of
  * boundaries of lanelets]
- * @param  lanelets       [input lanelets]
- * @param  c              [color of the boundary]
- * @param  viz_centerline [flag to visualize centerline or not]
- * @return                [created marker array]
+ * @param lanelets              [input lanelets]
+ * @param c                     [color of the boundary]
+ * @param viz_centerline        [flag to visualize centerline or not]
+ * @param additional_namespace  [prefix for marker array namespace]
+ * @return                      [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletsBoundaryAsMarkerArray(
   const lanelet::ConstLanelets & lanelets,
   const std_msgs::msg::ColorRGBA c,
   const bool viz_centerline,
   const std::string & additional_namespace = "");
+
 /**
  * [laneletsAsTriangleMarkerArray create marker array to visualize shape of the
  * lanelet]
@@ -138,10 +140,11 @@ visualization_msgs::msg::MarkerArray laneletsAsTriangleMarkerArray(
   const std::string ns, const lanelet::ConstLanelets & lanelets, const std_msgs::msg::ColorRGBA c);
 
 /**
- * [laneletDirectionAsMarkerArray create marker array to visualize direction of
+ * @brief [laneletDirectionAsMarkerArray create marker array to visualize direction of
  * the lanelet]
- * @param  lanelets [input lanelets]
- * @return          [created marker array]
+ * @param lanelets              [input lanelets]
+ * @param additional_namespace  [prefix for marker array namespace]
+ * @return                      [created marker array]
  */
 visualization_msgs::msg::MarkerArray laneletDirectionAsMarkerArray(
   const lanelet::ConstLanelets lanelets, const std::string & additional_namespace = "");
@@ -162,12 +165,13 @@ visualization_msgs::msg::MarkerArray lineStringsAsMarkerArray(
   const double lss);
 
 /**
- * [autowareTrafficLightsAsMarkerArray creates marker array to visualize traffic
+ * @brief [autowareTrafficLightsAsMarkerArray creates marker array to visualize traffic
  * lights]
- * @param  tl_reg_elems [traffic light regulatory elements]
- * @param  c            [color of the marker]
- * @param  duration     [lifetime of the marker]
- * @return              [created marker array]
+ * @param tl_reg_elems  [traffic light regulatory elements]
+ * @param c             [color of the marker]
+ * @param duration      [lifetime of the marker]
+ * @param scale         [scale of the marker]
+ * @return
  */
 visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
   const std::vector<lanelet::AutowareTrafficLightConstPtr> tl_reg_elems,
@@ -176,11 +180,12 @@ visualization_msgs::msg::MarkerArray autowareTrafficLightsAsMarkerArray(
   const double scale = 1.0);
 
 /**
- * [generateTrafficLightIdMaker creates marker array to visualize traffic id
+ * @brief [generateTrafficLightIdMaker creates marker array to visualize traffic id
  * lights]
- * @param  tl_reg_elems [traffic light regulatory elements]
- * @param  c            [color of the marker]
- * @param  duration     [lifetime of the marker]
+ * @param tl_reg_elems  [traffic light regulatory elements]
+ * @param c             [color of the marker]
+ * @param duration      [lifetime of the marker]
+ * @param scale         [scale]
  * @return              [created marker array]
  */
 visualization_msgs::msg::MarkerArray generateTrafficLightIdMaker(

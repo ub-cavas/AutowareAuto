@@ -102,7 +102,7 @@ RegulatoryElementDataPtr constructNoStoppingAreaData(
 }
 }  // namespace
 
-NoStoppingArea::NoStoppingArea(const RegulatoryElementDataPtr & data)
+NoStoppingArea::NoStoppingArea(const lanelet::RegulatoryElementDataPtr & data)
 : RegulatoryElement(data)
 {
   if (getConstPoly(data->parameters, RoleName::Refers).empty()) {

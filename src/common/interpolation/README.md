@@ -35,30 +35,39 @@ Assuming that the size of `base_keys` ($x_i$) and `base_values` ($y_i$) are $N +
 calculate spline interpolation with the following equation to interpolate between $y_i$ and $y_
 {i+1}$.
 
-$$ Y_i(x) = a_i (x - x_i)^3 + b_i (x - x_i)^2 + c_i (x - x_i) + d_i \ \ \ (i = 0, \dots, N-1)
-$$
+[comment]: <> ($$ Y_i&#40;x&#41; = a_i &#40;x - x_i&#41;^3 + b_i &#40;x - x_i&#41;^2 + c_i &#40;x - x_i&#41; + d_i \ \ \ &#40;i = 0, \dots, N-1&#41;)
+
+[comment]: <> ($$)
 
 Constraints on spline interpolation are as follows. The number of constraints is $4N$, which is
 equal to the number of variables of spline interpolation.
 
-$$ \begin{align} Y_i (x_i) & = y_i \ \ \ (i = 0, \dots, N-1) \\ Y_i (x_{i+1}) & = y_{i+1} \ \ \ (i =
-0, \dots, N-1) \\ Y'_i (x_{i+1}) & = Y'_{i+1} (x_{i+1}) \ \ \ (i = 0, \dots, N-2) \\ Y''_i (x_{i+1})
-& = Y''_{i+1} (x_{i+1}) \ \ \ (i = 0, \dots, N-2) \\ Y''_0 (x_0) & = 0 \\ Y''_{N-1} (x_N) & = 0
-\end{align} $$
+[comment]: <> ($$ \begin{align} Y_i &#40;x_i&#41; & = y_i \ \ \ &#40;i = 0, \dots, N-1&#41; \\ Y_i &#40;x_{i+1}&#41; & = y_{i+1} \ \ \ &#40;i =)
+
+[comment]: <> (0, \dots, N-1&#41; \\ Y'_i &#40;x_{i+1}&#41; & = Y'_{i+1} &#40;x_{i+1}&#41; \ \ \ &#40;i = 0, \dots, N-2&#41; \\ Y''_i &#40;x_{i+1}&#41;)
+
+[comment]: <> (& = Y''_{i+1} &#40;x_{i+1}&#41; \ \ \ &#40;i = 0, \dots, N-2&#41; \\ Y''_0 &#40;x_0&#41; & = 0 \\ Y''_{N-1} &#40;x_N&#41; & = 0)
+
+[comment]: <> (\end{align} $$)
 
 According to [this article](https://www.mk-mode.com/rails/docs/INTERPOLATION_SPLINE.pdf), spline
 interpolation is formulated as the following linear equation.
 
-$$ \begin{align} \begin{pmatrix} 2(h_0 + h_1) & h_1 \\ h_0 & 2 (h_1 + h_2) & h_2 & & O \\ & & &
-\ddots \\ O & & & & h_{N-2} & 2 (h_{N-2} + h_{N-1})
-\end{pmatrix} \begin{pmatrix} v_1 \\ v_2 \\ v_3 \\ \vdots \\ v_{N-1} \end{pmatrix}= \begin{pmatrix}
-w_1 \\ w_2 \\ w_3 \\ \vdots \\ w_{N-1} \end{pmatrix} \end{align} $$
+[comment]: <> ($$ \begin{align} \begin{pmatrix} 2&#40;h_0 + h_1&#41; & h_1 \\ h_0 & 2 &#40;h_1 + h_2&#41; & h_2 & & O \\ & & &)
+
+[comment]: <> (\ddots \\ O & & & & h_{N-2} & 2 &#40;h_{N-2} + h_{N-1}&#41;)
+
+[comment]: <> (\end{pmatrix} \begin{pmatrix} v_1 \\ v_2 \\ v_3 \\ \vdots \\ v_{N-1} \end{pmatrix}= \begin{pmatrix})
+
+[comment]: <> (w_1 \\ w_2 \\ w_3 \\ \vdots \\ w_{N-1} \end{pmatrix} \end{align} $$)
 
 where
 
-$$ \begin{align} h_i & = x_{i+1} - x_i \ \ \ (i = 0, \dots, N-1) \\ w_i & = 6 \left(\frac{y_{i+1} -
-y_{i+1}}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\right) \ \ \ (i = 1, \dots, N-1)
-\end{align} $$
+[comment]: <> ($$ \begin{align} h_i & = x_{i+1} - x_i \ \ \ &#40;i = 0, \dots, N-1&#41; \\ w_i & = 6 \left&#40;\frac{y_{i+1} -)
+
+[comment]: <> (y_{i+1}}{h_i} - \frac{y_i - y_{i-1}}{h_{i-1}}\right&#41; \ \ \ &#40;i = 1, \dots, N-1&#41;)
+
+[comment]: <> (\end{align} $$)
 
 The coefficient matrix of this linear equation is tridiagonal matrix. Therefore, it can be solve
 with tridiagonal matrix algorithm, which can solve linear equations without gradient descent
@@ -67,11 +76,15 @@ methods.
 Solving this linear equation with tridiagonal matrix algorithm, we can calculate coefficients of
 spline interpolation as follows.
 
-$$ \begin{align} a_i & = \frac{v_{i+1} - v_i}{6 (x_{i+1} - x_i)} \ \ \ (i = 0, \dots, N-1) \\ b_i &
-= \frac{v_i}{2} \ \ \ (i = 0, \dots, N-1) \\ c_i & = \frac{y_{i+1} - y_i}{x_{i+1} - x_i} -
-\frac{1}{6}(x_{i+1} - x_i)(2 v_i + v_{i+1}) \ \ \ (i = 0, \dots, N-1) \\ d_i & = y_i \ \ \ (i = 0,
-\dots, N-1)
-\end{align} $$
+[comment]: <> ($$ \begin{align} a_i & = \frac{v_{i+1} - v_i}{6 &#40;x_{i+1} - x_i&#41;} \ \ \ &#40;i = 0, \dots, N-1&#41; \\ b_i &)
+
+[comment]: <> (= \frac{v_i}{2} \ \ \ &#40;i = 0, \dots, N-1&#41; \\ c_i & = \frac{y_{i+1} - y_i}{x_{i+1} - x_i} -)
+
+[comment]: <> (\frac{1}{6}&#40;x_{i+1} - x_i&#41;&#40;2 v_i + v_{i+1}&#41; \ \ \ &#40;i = 0, \dots, N-1&#41; \\ d_i & = y_i \ \ \ &#40;i = 0,)
+
+[comment]: <> (\dots, N-1&#41;)
+
+[comment]: <> (\end{align} $$)
 
 ### Tridiagonal Matrix Algorithm
 
@@ -79,6 +92,8 @@ We solve tridiagonal linear equation according
 to [this article](https://mathlang.hatenablog.com/entry/2018/10/14/232741) where variables of linear
 equation are expressed as follows in the implementation.
 
-$$ \begin{align} \begin{pmatrix} b_0 & c_0 & & \\ a_0 & b_1 & c_2 & O \\ & & \ddots \\ O & & a_{N-2}
-& b_{N-1} \end{pmatrix} x = \begin{pmatrix} d_0 \\ d_2 \\ d_3 \\ \vdots \\ d_{N-1} \end{pmatrix}
-\end{align} $$
+[comment]: <> ($$ \begin{align} \begin{pmatrix} b_0 & c_0 & & \\ a_0 & b_1 & c_2 & O \\ & & \ddots \\ O & & a_{N-2})
+
+[comment]: <> (& b_{N-1} \end{pmatrix} x = \begin{pmatrix} d_0 \\ d_2 \\ d_3 \\ \vdots \\ d_{N-1} \end{pmatrix})
+
+[comment]: <> (\end{align} $$)

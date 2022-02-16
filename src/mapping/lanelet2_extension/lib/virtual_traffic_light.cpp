@@ -42,7 +42,7 @@ RegulatoryElementDataPtr constructVirtualTrafficLightData(
 }
 }  // namespace
 
-VirtualTrafficLight::VirtualTrafficLight(const RegulatoryElementDataPtr & data)
+VirtualTrafficLight::VirtualTrafficLight(const lanelet::RegulatoryElementDataPtr & data)
 : RegulatoryElement(data)
 {
   if (getParameters<ConstLineString3d>("start_line").size() != 1) {
