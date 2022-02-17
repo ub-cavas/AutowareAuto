@@ -108,6 +108,19 @@ def generate_launch_description():
         parameters=[hokuyo_param_file]
     )
 
+    ldlidar_node = Node(
+        package='ldlidar',
+        executable='ldlidar',
+        namespace='lidar',
+        output='screen',
+        parameters=[
+            {'serial_port': '/dev/sensors/ldlidar'},
+            {'topic_name': 'scan'},
+            {'lidar_frame': 'lidar'},
+            {'range_threshold': 0.005}
+        ]
+    )
+
     scan_to_cloud_node = Node(
         package='pointcloud_to_laserscan',
         executable='laserscan_to_pointcloud_node',
@@ -135,7 +148,8 @@ def generate_launch_description():
         joy,
         joy_translator,
         vesc_interface_node,
-        hokuyo_node,
+        #hokuyo_node,
+        ldlidar_node
         scan_to_cloud_node,
         robot_publisher,
     ])

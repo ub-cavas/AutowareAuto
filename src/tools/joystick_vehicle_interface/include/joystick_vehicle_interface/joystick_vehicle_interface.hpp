@@ -53,7 +53,8 @@ enum class Buttons
 {
   VELOCITY_UP,  ///< For high level control
   VELOCITY_DOWN,   ///< For high level control
-  AUTONOMOUS_TOGGLE,
+  AUTONOMOUS_ON,
+  AUTONOMOUS_OFF,
   HEADLIGHTS_TOGGLE,
   HAND_BRAKE_TOGGLE,
   HORN_TOGGLE,
@@ -113,6 +114,8 @@ public:
   const std_msgs::msg::UInt8 & get_recordreplay_command();
   void update_headlights_state(
     const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd);
+
+  bool8_t is_autonomous_mode_on();
 
 private:
   /// Given an active button, update the state command

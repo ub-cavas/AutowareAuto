@@ -14,7 +14,7 @@
 //
 // Co-developed by Tier IV, Inc. and Apex.AI, Inc.
 #include "joystick_vehicle_interface/joystick_vehicle_interface.hpp"
-
+#include <iostream>
 namespace joystick_vehicle_interface
 {
 JoystickVehicleInterface::JoystickVehicleInterface(
@@ -113,6 +113,11 @@ bool8_t JoystickVehicleInterface::update_state_command(const sensor_msgs::msg::J
   return ret;
 }
 
+bool8_t JoystickVehicleInterface::is_autonomous_mode_on()
+{
+    return m_autonomous;
+}
+
 bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
 {
   auto ret = true;
@@ -126,9 +131,13 @@ bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
       ret = false;
       m_velocity -= VELOCITY_INCREMENT;
       break;
-    case Buttons::AUTONOMOUS_TOGGLE:
-      m_state_command.mode = m_autonomous ? VSC::MODE_MANUAL : VSC::MODE_AUTONOMOUS;
-      m_autonomous = !m_autonomous;
+    case Buttons::AUTONOMOUS_ON:
+      m_state_command.mode =VSC::MODE_AUTONOMOUS;
+      m_autonomous = true;
+      break;
+    case Buttons::AUTONOMOUS_OFF:
+      m_state_command.mode = VSC::MODE_MANUAL;
+      m_autonomous = false;
       break;
     case Buttons::HEADLIGHTS_TOGGLE:
       m_state_command.headlight =
