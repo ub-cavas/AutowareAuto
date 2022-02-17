@@ -104,6 +104,7 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_misc_cmd.cmd.value = TurnSignal::NONE;
 
   m_timer = node.create_wall_timer(m_pub_period, std::bind(&DataspeedFordInterface::cmdCallback, this));
+  m_prev_tick = m_clock.now();
 }
 
 void DataspeedFordInterface::cmdCallback()
