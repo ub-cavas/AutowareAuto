@@ -67,7 +67,7 @@ public:
   CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc, const std::string & frame_id)
   : modifier_(CloudModifierT(pc, frame_id)) {}
 
-  CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc)
+  explicit CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc)
   : modifier_(CloudModifierT(pc)) {}
 
   void clear() override;
