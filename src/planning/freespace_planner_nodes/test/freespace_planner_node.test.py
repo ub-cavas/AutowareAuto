@@ -128,10 +128,10 @@ class PlanTrajectoryClientMock(rclpy.node.Node):
 
 def generate_test_description():
     freespace_planner_node = launch_ros.actions.Node(
-        package='freespace_planner',
+        package='freespace_planner_nodes',
         executable='freespace_planner_node_exe',
         parameters=[os.path.join(
-            get_package_share_directory('freespace_planner'),
+            get_package_share_directory('freespace_planner_nodes'),
             'param/test.param.yaml'
         )]
     )
@@ -175,7 +175,7 @@ class TestBasicUsage(unittest.TestCase):
 
         planned_goal = result.trajectory.points[-1].pose.position
         requested_goal = goal.sub_route.goal_pose.position
-        GOAL_MARGIN = 1.25  # arbitrary margin based on current params
+        GOAL_MARGIN = 2.0  # arbitrary margin based on current params
         self.assertTrue(are_positions_close(planned_goal, requested_goal, GOAL_MARGIN))
 
     def test_basic_case_works(self, freespace_planner_node):

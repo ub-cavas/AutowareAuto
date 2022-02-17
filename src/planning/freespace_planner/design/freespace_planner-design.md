@@ -5,95 +5,63 @@ This is the design document for the `freespace_planner` package.
 
 # Purpose / Use cases
 
+Freespace planner provides implementations of different searching algorithms.
+Package implements base class from which each implementation inherits.
+Each implementation generates smooth paths from start pose to goal pose respecting kinematic constrains of the vehicle.
 
-This package is a 2D trajectory planner node, which handles static and dynamic obstacles.
-This node is based on Hybrid A\* search algorithm implemented in `astar_search` package and uses
-custom costmap provider.
+Currently implemented algorithms:
+
+* Hybrid A*
 
 # Design
 
-Main purpose of this package is to wrap Hybrid A\* algorithm from `astar_search` and communicate it
-with costmap provider and high-level planner, which decides when to request planning.
-This package is designed to properly initialize ROS2 communication, initialize trajectory planner and make them cooperate
-on action service basis. Operation of the node can be described by the following steps:
+Planner needs a representation of an environment in order to plan a trajectory.
+It is provided in form of [nav_msgs::msg::OccupancyGrid](http://docs.ros.org/en/noetic/api/nav_msgs/html/msg/OccupancyGrid.html) costmap.
+Algorithm outputs custom `PlannerWaypoints` object which definition can be found in code docs.
 
-1. Freespace planner receives lanelet2 route as request for planner to obtain trajectory in parking space
-   and checks it's current state.
-   * If currently any planning is taking place, then request is rejected.
-   * In other case request is accepted and planner's state changes from `idle` to `planning`.
-3. In next step a request for costmap is created and is sent to action server.
-   * If costmap request gets rejected then planning is aborted and planner's state is changed into `idle`.
-4. Planner checks if returned costmap isn't empty.
-   * If costmap is empty then planning ends and planner's state is changed into `idle`.
-5. After receiving costmap, planner starts planning with use of `astar_search` package.
-   * If costmap response returns failure then planner returns failure and it's state changes to `idle`.
-6. Trajectory is published for debug and visualisation purposes.
-7. Finally trajectory is sent back with result flag set to successful. Planner's state changes into `idle`.
+Having the costmap algorithms can create smooth and kinematically feasible trajectories that avoid obstacles.
 
+Additionally the algorithm has implemented the Reeds-Shepp cost estimation algorithm, which makes the found paths smooth and optimal.
 
-## Inputs / Outputs / API
+Planning returns a boolean that indicates if planning succeeded and one of the following statuses for better verbosity:
+* `SUCCESS` - planning succeeded
+* `FAILURE_COLLISION_AT_START` - planning failed because of an obstacle inside vehicle's footprint at the starting
+  position
+* `FAILURE_COLLISION_AT_GOAL` - planning failed because of an obstacle inside vehicle's footprint at the goal position
+* `FAILURE_TIMEOUT_EXCEEDED` - planning failed because timeout has been exceeded
+* `FAILURE_NO_PATH_FOUND` - planning failed because no smooth and kinematically feasible trajectory could be found
 
-### Input
-
-### Output topics
-
-| Name                             | Type                                  | Description                                                 |
-| -------------------------------- | ------------------------------------- | ----------------------------------------------------------- |
-| `~/output/trajectory`            | autoware_auto_msgs::msg::Trajectory   | whole trajectory for debug purposes                         |
-| `~/output/trajectory_pose_array` | geometry_msgs::msg::PoseArray         | trajectory converted into more visualisation-friendly format|
-
-### Action Client
-
-| Name                      | Type                                       | Description                                                 |
-| ------------------------- | ------------------------------------------ | ----------------------------------------------------------- |
-| `generate_costmap`        | autoware_auto_msgs::action::PlannerCostmap | action client for requesting costmap for requested route    |
-
-### Action Server
-
-| Name                      | Type                                       | Description                                                            |
-| ------------------------- | ------------------------------------------ | ---------------------------------------------------------------------- |
-| `plan_parking_trajectory` | autoware_auto_msgs::action::PlanTrajectory | action server for calculating trajectory based on obstacles in costmap |
+Planning does not return the planned trajectory, but it can be accessed by the appropriate getter.
 
 ## Configuration
 
-### Node specific parameters
+### Common planner parameters
 
-The following parameters are taken from `yaml` parameter file.
+| Parameter                     | Type   | Unit | Description                                                                                    |
+| ----------------------------- | ------ | ---- | ---------------------------------------------------------------------------------------------- |
+| `time_limit`                  | double | ms   | time limit of planning                                                                         |
+| `robot_length`                | double | m    | robot length                                                                                   |
+| `robot_width`                 | double | m    | robot width                                                                                    |
+| `minimum_turning_radius`      | double | m    | minimum turning radius of robot                                                                |
+| `theta_size`                  | double | -    | the number of angle's discretization                                                           |
+| `goal_lateral_tolerance`      | double | m    | lateral tolerance of goal pose                                                                 |
+| `goal_longitudinal_tolerance` | double | m    | longitudinal tolerance of goal pose                                                            |
+| `goal_angular_tolerance`      | double | rad  | angular tolerance of goal pose                                                                 |
+| `curve_weight`                | double | -    | additional cost factor for curve actions                                                       |
+| `reverse_weight`              | double | -    | additional cost factor increasing trajectory cost when changing <br> move direction to reverse |
+| `obstacle_threshold`          | double | -    | threshold for regarding a certain grid cell as obstacle                                        |
+
+### Hybrid A* parameters
 
 | Parameter                     | Type   | Unit | Description                                             |
 | ----------------------------- | ------ | ---- | ------------------------------------------------------- |
 | `use_back`                    | bool   | -    | whether using backward trajectory                       |
+| `use_reeds_shepp`             | bool   | -    | whether using Reeds-Shepp cost estimation algorithm     |
 | `only_behind_solutions`       | bool   | -    | whether restricting the solutions to be behind the goal |
-| `time_limit`                  | double | ms   | time limit of planning                                  |
-| `maximum_turning_radius`      | double | m    | maximum turning radius of robot                         |
-| `turning_radius_size`         | double | -    | the number of possible turning radiuses discretization  |
-| `theta_size`                  | double | -    | the number of angle's discretization                    |
-| `goal_lateral_tolerance`      | double | m    | lateral tolerance of goal pose                          |
-| `goal_longitudinal_tolerance` | double | m    | longitudinal tolerance of goal pose                     |
-| `goal_angular_tolerance`      | double | rad  | angular tolerance of goal pose                          |
-| `curve_weight`                | double | -    | additional cost factor for curve actions                |
-| `reverse_weight`              | double | -    | additional cost factor for reverse actions              |
-| `obstacle_threshold`          | double | -    | threshold for regarding a certain grid as obstacle      |
 | `distance_heuristic_weight`   | double | -    | heuristic weight for estimating node's cost             |
 
-### Vehicle specific parameters
+# References / External Links
 
-The following parameters are obtained with use of `vehicle_constants_manager` node.
+[Hybrid A* paper](https://ai.stanford.edu/~ddolgov/papers/dolgov_gpp_stair08.pdf)
 
-| Parameter                   | Type   | Unit | Description                                             |
-| --------------------------- | ------ | ---- | ------------------------------------------------------- |
-| `robot_length`              | double | m    | robot length                                            |
-| `robot_width`               | double | m    | robot width                                             |
-| `cg2back`                   | double | m    | distance between center of gravity and back of the car  |
-| `minimum_turning_radius`    | double | m    | minimum turning radius of robot                         |
-
-# Future extensions / Unimplemented parts
-
-* For now, due to difference in required HAD map provider, planner doesn't
-  inherit from `TrajectoryPlannerNodeBase` class, since it's interface is insufficient.
-  Further development should start from reconsidering interfacing with higher level planners.
-* At this point planning as an action doesn't return any feedback to action client,
-  because `behavior_planner` doesn't make any use of it.
-* Additionally all services should be called sequentially. However rclcpp API doesn't allow making
-  sequential service calls, since they might cause deadlock, when calling server inside another service callback.
-  This is the main reason why `freespace_planner` and `costmap_generator` communicate with action server.
+[Reeds-Shepp paper](https://projecteuclid.org/journals/pacific-journal-of-mathematics/volume-145/issue-2/Optimal-paths-for-a-car-that-goes-both-forwards-and/pjm/1102645450.full?tab=ArticleLink)

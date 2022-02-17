@@ -23,10 +23,10 @@ generation process.
   - @subpage object-collision-estimator
   - @subpage object-collision-estimator-nodes
 - Parking planner
-  - @subpage astar-search
   - @subpage costmap-generator
   - @subpage costmap-generator-nodes
   - @subpage freespace-planner
+  - @subpage freespace-planner-nodes
 - RecordReplay planner
   - @subpage recordreplay-planner
   - @subpage recordreplay-planner-nodes

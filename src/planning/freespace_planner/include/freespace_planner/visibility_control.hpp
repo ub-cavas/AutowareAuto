@@ -14,12 +14,12 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
+
 #ifndef FREESPACE_PLANNER__VISIBILITY_CONTROL_HPP_
 #define FREESPACE_PLANNER__VISIBILITY_CONTROL_HPP_
 
 #if defined(__WIN32)
-  #if defined(FREESPACE_PLANNER_BUILDING_DLL) || \
-  defined(FREESPACE_PLANNER_EXPORTS)
+  #if defined(FREESPACE_PLANNER_BUILDING_DLL) || defined(FREESPACE_PLANNER_EXPORTS)
     #define FREESPACE_PLANNER_PUBLIC __declspec(dllexport)
     #define FREESPACE_PLANNER_LOCAL
   #else

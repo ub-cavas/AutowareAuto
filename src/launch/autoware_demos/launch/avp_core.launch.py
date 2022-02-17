@@ -219,7 +219,7 @@ def generate_launch_description():
         ]
     )
     freespace_planner = Node(
-        package='freespace_planner',
+        package='freespace_planner_nodes',
         executable='freespace_planner_node_exe',
         name='freespace_planner',
         namespace='planning',

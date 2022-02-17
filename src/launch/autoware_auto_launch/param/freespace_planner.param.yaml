@@ -1,12 +1,11 @@
 /**:
   ros__parameters:
     # -- Node Configurations --
+    planning_algorithm: "astar"
     waypoints_velocity: 5.0
 
     # -- A* search Configurations --
     # base configs
-    use_back: true
-    only_behind_solutions: false
     time_limit: 30000.0
     # robot configs
     maximum_turning_radius: 20.0
@@ -15,9 +14,15 @@
     # search configs
     theta_size: 48
     goal_angular_tolerance: 0.05236
+    curve_weight: 1.2
     reverse_weight: 2.0
     goal_lateral_tolerance: 0.25
     goal_longitudinal_tolerance: 1.0
     # costmap configs
     obstacle_threshold: 100
-    distance_heuristic_weight: 1.0
+
+    astar:
+      use_back: true
+      use_reeds_shepp: true
+      only_behind_solutions: false
+      distance_heuristic_weight: 1.0

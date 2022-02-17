@@ -14,34 +14,31 @@
 //
 // Co-developed by Tier IV, Inc. and Robotec.AI sp. z o.o.
 
-#ifndef FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
-#define FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
+#ifndef FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
+#define FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
 
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_listener.h>
-#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
+#include <freespace_planner/astar_search.hpp>
+#include <freespace_planner_nodes/visibility_control.hpp>
+#include <motion_common/motion_common.hpp>
 #include <rclcpp/rclcpp.hpp>
 #include <rclcpp_action/rclcpp_action.hpp>
-
-#include <motion_common/motion_common.hpp>
-#include <astar_search/astar_search.hpp>
 #include <vehicle_constants_manager/vehicle_constants_manager.hpp>
 
-#include <nav_msgs/msg/occupancy_grid.hpp>
-#include <geometry_msgs/msg/pose_stamped.hpp>
-#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
-#include <autoware_auto_planning_msgs/action/planner_costmap.hpp>
 #include <autoware_auto_planning_msgs/action/plan_trajectory.hpp>
+#include <autoware_auto_planning_msgs/action/planner_costmap.hpp>
+#include <autoware_auto_planning_msgs/msg/trajectory.hpp>
 #include <geometry_msgs/msg/pose_array.hpp>
-
-#include <freespace_planner/visibility_control.hpp>
+#include <geometry_msgs/msg/pose_stamped.hpp>
+#include <nav_msgs/msg/occupancy_grid.hpp>
 
 #include <deque>
 #include <memory>
 #include <string>
 #include <vector>
-
 
 namespace autoware
 {
@@ -49,16 +46,12 @@ namespace planning
 {
 namespace freespace_planner
 {
-
-enum class FreespacePlannerState
-{
-  IDLE,
-  PLANNING
-};
+enum class FreespacePlannerState { IDLE, PLANNING };
 
 
 struct NodeParam
 {
+  std::string planning_algorithm;
   double waypoints_velocity;  // constant velocity on planned waypoints [km/h]
 };
 
@@ -88,11 +81,11 @@ private:
 
   // params
   NodeParam node_param_;
-  astar_search::AstarParam astar_param_;
+  PlannerCommonParam planner_common_param_;
   FreespacePlannerState state_;
 
   // variables
-  std::unique_ptr<astar_search::AstarSearch> astar_;
+  std::unique_ptr<BasePlanningAlgorithm> algo_;
   std::shared_ptr<GoalHandle> planning_goal_handle_{nullptr};
   geometry_msgs::msg::PoseStamped start_pose_;
   geometry_msgs::msg::PoseStamped goal_pose_;
@@ -101,16 +94,16 @@ private:
 
   // callbacks
   rclcpp_action::GoalResponse handleGoal(
-    const rclcpp_action::GoalUUID &,
-    const std::shared_ptr<const PlanTrajectoryAction::Goal>);
-  rclcpp_action::CancelResponse handleCancel(
-    const std::shared_ptr<GoalHandle> goal_handle);
+    const rclcpp_action::GoalUUID &, const std::shared_ptr<const PlanTrajectoryAction::Goal>);
+  rclcpp_action::CancelResponse handleCancel(const std::shared_ptr<GoalHandle> goal_handle);
   void handleAccepted(const std::shared_ptr<GoalHandle> goal_handle);
 
   void goalResponseCallback(std::shared_future<PlannerCostmapGoalHandle::SharedPtr> future);
   void feedbackCallback(
     PlannerCostmapGoalHandle::SharedPtr,
-    const std::shared_ptr<const PlannerCostmapAction::Feedback>) {}
+    const std::shared_ptr<const PlannerCostmapAction::Feedback>)
+  {
+  }
   void resultCallback(const PlannerCostmapGoalHandle::WrappedResult & result);
 
   // functions
@@ -123,10 +116,12 @@ private:
     const std::string & from, const std::string & to);
 
   void visualizeTrajectory();
+  void initializePlanningAlgorithm();
+  AstarParam getAstarParam();
 };
 
 }  // namespace freespace_planner
 }  // namespace planning
 }  // namespace autoware
 
-#endif  // FREESPACE_PLANNER__FREESPACE_PLANNER_HPP_
+#endif  // FREESPACE_PLANNER_NODES__FREESPACE_PLANNER_NODE_HPP_
