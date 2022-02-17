@@ -17,7 +17,7 @@
     axis_scale:
       # brake: -50.0
       # throttle: -50.0
-      front_steer: 0.3
+      front_steer: 0.48
       # rear_steer: 100.0
       # curvature:
       acceleration: 2.0

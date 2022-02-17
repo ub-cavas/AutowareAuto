@@ -13,9 +13,9 @@
         max: 3.0
         threshold: 1.0
       front_steer_limits:
-        min: -0.331
-        max: 0.331
-        threshold: 0.3
+        min: -0.48
+        max: 0.48
+        threshold: 0.45
       time_step_ms: 100
       timeout_acceleration_mps2: 3.0
       state_transition_timeout_ms: 3000
@@ -24,7 +24,7 @@
     vesc:
       speed_to_erpm_gain: 4615.0
       speed_to_erpm_offset: 0.0
-      max_erpm_positive_delta: 200.0 # limits the sudden acceleration in rpm
-      max_erpm_negative_delta: 500.0 # limits the sudden deceleration in rpm
-      steering_angle_to_servo_gain: -1.2135
-      steering_angle_to_servo_offset: 0.5304
+      max_erpm_positive_delta: 500.0 # limits the sudden acceleration in rpm
+      max_erpm_negative_delta: 1000.0 # limits the sudden deceleration in rpm
+      steering_angle_to_servo_gain: -0.7583
+      steering_angle_to_servo_offset: 0.5
