@@ -132,7 +132,13 @@ void DataspeedFordInterface::cmdCallback()
   m_dbw_state_machine->control_cmd_sent();
   m_dbw_state_machine->state_cmd_sent();
 
-  // TODO pass the feedback from vehicle to the DBW state machine
+  // Publish enable/disable message to the vehicle.
+  std_msgs::msg::Empty send_req{};
+  if (m_dbw_state_machine->enabled()) {
+    m_dbw_enable_cmd_pub->publish(send_req);
+  } else {
+    m_dbw_disable_cmd_pub->publish(send_req);
+  }
 }
 
 bool8_t DataspeedFordInterface::update(std::chrono::nanoseconds timeout)
