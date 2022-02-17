@@ -146,12 +146,6 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   m_tf_buffer->setUsingDedicatedThread(true);
 }
 
-void ObjectCollisionEstimatorNode::update_predicted_objects(
-  const PredictedObjects & predicted_objects)
-{
-  m_estimator->updatePredictedObjects(predicted_objects);
-}
-
 void ObjectCollisionEstimatorNode::on_predicted_object(const PredictedObjects::SharedPtr & msg)
 {
   if (msg->header.frame_id != m_target_frame_id) {

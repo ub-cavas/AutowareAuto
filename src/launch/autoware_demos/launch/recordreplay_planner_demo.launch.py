@@ -184,9 +184,7 @@ def generate_launch_description():
         description='Path to config file for prediction'
     )
 
-
     # Nodes
-
     euclidean_clustering = Node(
         package='euclidean_cluster_nodes',
         executable='euclidean_cluster_node_exe',
@@ -329,7 +327,8 @@ def generate_launch_description():
         executable='object_collision_estimator_node_exe',
         output='screen',
         parameters=[
-            LaunchConfiguration('object_collision_estimator_param_file'),{
+            LaunchConfiguration('object_collision_estimator_param_file'),
+            {
                 'target_frame_id': "map"
             },
             LaunchConfiguration('vehicle_characteristics_param_file'),
@@ -346,9 +345,10 @@ def generate_launch_description():
         name='multi_object_tracker',
         namespace='perception',
         package='tracking_nodes',
-        output='screen', 
+        output='screen',
         parameters=[
-            LaunchConfiguration('multi_object_tracker_param_file'),{
+            LaunchConfiguration('multi_object_tracker_param_file'),
+            {
                 'use_ndt': True,
                 'track_frame_id': "map",
                 'use_vision': False,
@@ -398,8 +398,8 @@ def generate_launch_description():
         output="screen",
         package='prediction_nodes',
         parameters=[LaunchConfiguration('prediction_param_file')],
-        remappings= [
-            ("tracked_objects","/perception/tracked_objects")
+        remappings=[
+            ("tracked_objects", "/perception/tracked_objects")
         ],
         condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )

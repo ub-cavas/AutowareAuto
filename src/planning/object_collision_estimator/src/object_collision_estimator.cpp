@@ -133,7 +133,7 @@ bool8_t isTooFarAway(
 /// \brief Detect possible collision between a trajectory and a list of obstacle bounding boxes.
 ///        Return the index in the trajectory where the first collision happens.
 /// \param trajectory Planned trajectory of ego vehicle.
-/// \param obstacles Array of bounding boxes of detected obstacles.
+/// \param predicted_objects Array of predicted object.
 /// \param vehicle_param Configuration regarding the dimensions of the ego vehicle
 /// \param safety_factor A factor to inflate the size of the vehicle so to avoid getting too close
 ///                      to obstacles.

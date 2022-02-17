@@ -84,24 +84,7 @@ public:
   ///           * the points are in counterclockwise order
   ///           * box.size.x and box.size.y map to the length of the first and second edges
   ///             respectively
-  /// \param[in] bounding_boxes A array of bounding boxes representing a list of obstacles
-  /// \returns A vector of obstacles modified for being smaller than min_obstacle_dimension_m
-  std::vector<BoundingBox> updateObstacles(
-    const BoundingBoxArray & bounding_boxes) noexcept;
-
-  /// \brief Update the list of obstacles
-  /// \details The collision estimator stores a list of obstacle. Coordinates should be in the same
-  ///          frame as the the trajectories. When this function is called, the old list is replaced
-  ///          with the new list passed as the parameter.
-  ///          Modify bounding boxes with edges smaller than min_obstacle_dimension_m by computing
-  ///          new corners from their centroid and orientation values. The orientation and centroid
-  ///          of the modified bounding boxes are left unchanged.
-  ///          Assumptions:
-  ///           * the points are in counterclockwise order
-  ///           * box.size.x and box.size.y map to the length of the first and second edges
-  ///             respectively
-  /// \param[in] bounding_boxes A array of bounding boxes representing a list of obstacles
-  /// \returns A vector of obstacles modified for being smaller than min_obstacle_dimension_m
+  /// \param[in] predicted_objects A array of predicted object representing a list of obstacles
   void updatePredictedObjects(
     const PredictedObjects & predicted_objects) noexcept;
 
