@@ -25,11 +25,14 @@ using motion::planning::object_collision_estimator::ObjectCollisionEstimatorConf
 using motion::planning::trajectory_smoother::TrajectorySmoother;
 using motion::motion_testing::constant_velocity_trajectory;
 using autoware::common::types::float32_t;
+using autoware::common::types::float64_t;
 using motion::motion_common::VehicleConfig;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware_auto_planning_msgs::msg::TrajectoryPoint;
 using autoware_auto_perception_msgs::msg::BoundingBox;
 using autoware_auto_perception_msgs::msg::BoundingBoxArray;
+using autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_perception_msgs::msg::PredictedObject;
 
 const auto make_point(const float32_t x, const float32_t y)
 {
@@ -62,7 +65,6 @@ void object_collision_estimator_test(
     0.0004,  // min_obstacle_dimension_m
   };
   TrajectorySmoother smoother{{5, 25}};
-
   // initialise the estimator
   ObjectCollisionEstimator estimator{config, smoother};
 
@@ -74,45 +76,44 @@ void object_collision_estimator_test(
   trajectory.points.resize(trajectory_length);
 
   // insert an obstacle that blocks the trajectory
-  BoundingBoxArray bbox_array{};
-
+  PredictedObjects predicted_objects{};
   if (obstacle_bbox_idx < trajectory_length) {
-    BoundingBox obstacle_bbox{};
+    PredictedObject predicted_object{};
 
     const auto obstacle_point_x =
       static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.x);
     const auto obstacle_point_y =
       static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.y);
-    obstacle_bbox.centroid = make_point(obstacle_point_x, obstacle_point_y);
-    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
-    obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.corners = {
-      make_point(
-        obstacle_point_x - obstacle_bbox.size.x / 2,
-        obstacle_point_y - obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point_x + obstacle_bbox.size.x / 2,
-        obstacle_point_y - obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point_x + obstacle_bbox.size.x / 2,
-        obstacle_point_y + obstacle_bbox.size.y / 2),
-      make_point(
-        obstacle_point_x - obstacle_bbox.size.x / 2,
-        obstacle_point_y + obstacle_bbox.size.y / 2)
-    };
 
-    bbox_array.boxes.push_back(obstacle_bbox);
+    predicted_object.kinematics.initial_pose.pose.position.x =
+      static_cast<float64_t>(obstacle_point_x);
+    predicted_object.kinematics.initial_pose.pose.position.y =
+      static_cast<float64_t>(obstacle_point_y);
+//    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    predicted_object.kinematics.initial_pose.pose.orientation.w = 1.0F / sqrtf(2.0F);
+    predicted_object.kinematics.initial_pose.pose.orientation.z = 1.0F / sqrtf(2.0F);
+
+    autoware_auto_perception_msgs::msg::Shape shape;
+    shape.polygon.points = {
+      make_point(
+        -generated_obstacle_size / 2,
+        -generated_obstacle_size / 2),
+      make_point(
+        generated_obstacle_size / 2,
+        -generated_obstacle_size / 2),
+      make_point(
+        generated_obstacle_size / 2,
+        generated_obstacle_size / 2),
+      make_point(
+        -generated_obstacle_size / 2,
+        generated_obstacle_size / 2)
+    };
+    predicted_object.shape.push_back(shape);
+    predicted_objects.objects.push_back(predicted_object);
   }
 
   // call the estimator API
-  const auto modified_boxes = estimator.updateObstacles(bbox_array);
-  if (generated_obstacle_size < config.min_obstacle_dimension_m) {
-    // Check that the obstacle was modified
-    EXPECT_EQ(modified_boxes.size(), 1U);
-  } else {
-    EXPECT_TRUE(modified_boxes.empty());
-  }
+  estimator.updatePredictedObjects(predicted_objects);
   estimator.updatePlan(trajectory);
 
   if (obstacle_bbox_idx < trajectory_length) {

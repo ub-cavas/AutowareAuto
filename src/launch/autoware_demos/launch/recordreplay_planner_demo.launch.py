@@ -373,7 +373,8 @@ def generate_launch_description():
         ],
         remappings=[
             ("filtered_state", "/localization/odometry"),
-        ]
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
     covariance_insertion = Node(
         executable='covariance_insertion_node_exe',
@@ -387,7 +388,8 @@ def generate_launch_description():
         remappings=[
             ("messages", "/localization/ndt_pose"),
             ("messages_with_overriden_covariance", "ndt_pose_with_covariance")
-        ]
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
     prediction = Node(
         executable='prediction_nodes_node_exe',
@@ -398,7 +400,8 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('prediction_param_file')],
         remappings= [
             ("tracked_objects","/perception/tracked_objects")
-        ]
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
 
     return LaunchDescription([

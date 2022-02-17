@@ -119,7 +119,6 @@ public:
 
 private:
   ObjectCollisionEstimatorConfig m_config;
-  BoundingBoxArray m_obstacles{};
   PredictedObjects m_predicted_objects{};
   BoundingBoxArray m_trajectory_bboxes{};
   TrajectorySmoother m_smoother;

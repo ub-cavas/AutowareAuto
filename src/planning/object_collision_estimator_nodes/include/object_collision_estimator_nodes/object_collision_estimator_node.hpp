@@ -73,19 +73,9 @@ private:
   /// \brief Pointer to the publisher for bounding boxes of the target trajectory
   rclcpp::Publisher<MarkerArray>::SharedPtr m_trajectory_bbox_pub{nullptr};
 
-  /// \brief Helper function to handle modified bounding boxes when updating the obstacles.
-  /// \param[in] bbox_array An array of bounding boxes representing a list of obstacles
-  void update_obstacles(const BoundingBoxArray & bbox_array);
-
   /// \brief Helper function to handle modified bpredicted objects when updating the obstacles.
   /// \param[in] predicted_objects An array of predicted object representing a list of obstacles
   void update_predicted_objects(const PredictedObjects & predicted_objects);
-
-  /// \brief Callback function for the obstacles topic
-  /// \param[in] msg ROS2 message from the obstacle topic containing an array of bounding boxes
-  ///                representing obstacles found by the perception pipeline.
-  void on_bounding_box(const BoundingBoxArray::SharedPtr & msg);
-
 
   /// \brief Callback function for the predicted object topic
   /// \param[in] msg ROS2 message from the predicted objects topic containing an array of predicted

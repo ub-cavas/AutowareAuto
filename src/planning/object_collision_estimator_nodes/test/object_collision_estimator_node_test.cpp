@@ -30,6 +30,8 @@ using motion::planning::object_collision_estimator_nodes::ObjectCollisionEstimat
 using motion::motion_testing::constant_velocity_trajectory;
 using autoware_auto_perception_msgs::msg::BoundingBoxArray;
 using autoware_auto_perception_msgs::msg::BoundingBox;
+using autoware_auto_perception_msgs::msg::PredictedObjects;
+using autoware_auto_perception_msgs::msg::PredictedObject;
 using motion::motion_common::VehicleConfig;
 using autoware_auto_planning_msgs::msg::Trajectory;
 using autoware::common::types::float32_t;
@@ -110,8 +112,8 @@ void object_collision_estimator_node_test(
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;
   const auto dummy_obstacle_publisher = std::make_shared<rclcpp::Node>(
     "object_collision_estimator_node_test_publisher");
-  const auto pub = dummy_obstacle_publisher->create_publisher<BoundingBoxArray>(
-    "obstacle_topic", rclcpp::QoS{10}.transient_local(), PubAllocT{});
+  const auto pub = dummy_obstacle_publisher->create_publisher<PredictedObjects>(
+    "predicted_objects", rclcpp::QoS{10}.transient_local(), PubAllocT{});
 
   // create a client node to call the service interface of the collision estimator node
   std::shared_ptr<rclcpp::Node> estimate_collision_client_node = rclcpp::Node::make_shared(
@@ -138,40 +140,47 @@ void object_collision_estimator_node_test(
   trajectory.header.stamp = rclcpp::Clock().now();
 
   // insert an obstacle that blocks the trajectory
-  BoundingBoxArray bbox_array{};
-
+  // insert an obstacle that blocks the trajectory
+  PredictedObjects predicted_objects{};
   if (obstacle_bbox_idx < trajectory_length) {
-    BoundingBox obstacle_bbox{};
+    PredictedObject predicted_object{};
 
-    auto obstacle_point = trajectory.points[obstacle_bbox_idx];
-    obstacle_bbox.centroid = make_point(
-      obstacle_point.pose.position.x,
-      obstacle_point.pose.position.y);
-    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
-    obstacle_bbox.orientation.w = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.orientation.z = 1.0F / sqrtf(2.0F);
-    obstacle_bbox.corners = {
+    const auto obstacle_point_x =
+      static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.x);
+    const auto obstacle_point_y =
+      static_cast<float32_t>(trajectory.points[obstacle_bbox_idx].pose.position.y);
+
+    predicted_object.kinematics.initial_pose.pose.position.x =
+      static_cast<float64_t>(obstacle_point_x);
+    predicted_object.kinematics.initial_pose.pose.position.y =
+      static_cast<float64_t>(obstacle_point_y);
+//    obstacle_bbox.size = make_point(generated_obstacle_size, generated_obstacle_size);
+    predicted_object.kinematics.initial_pose.pose.orientation.w = 1.0F / sqrtf(2.0F);
+    predicted_object.kinematics.initial_pose.pose.orientation.z = 1.0F / sqrtf(2.0F);
+
+    autoware_auto_perception_msgs::msg::Shape shape;
+    shape.polygon.points = {
       make_point(
-        static_cast<float32_t>(obstacle_point.pose.position.x) - obstacle_bbox.size.x / 2,
-        static_cast<float32_t>(obstacle_point.pose.position.y) - obstacle_bbox.size.y / 2),
+        -generated_obstacle_size / 2,
+        -generated_obstacle_size / 2),
       make_point(
-        static_cast<float32_t>(obstacle_point.pose.position.x) + obstacle_bbox.size.x / 2,
-        static_cast<float32_t>(obstacle_point.pose.position.y) - obstacle_bbox.size.y / 2),
+        generated_obstacle_size / 2,
+        -generated_obstacle_size / 2),
       make_point(
-        static_cast<float32_t>(obstacle_point.pose.position.x) + obstacle_bbox.size.x / 2,
-        static_cast<float32_t>(obstacle_point.pose.position.y) + obstacle_bbox.size.y / 2),
+        generated_obstacle_size / 2,
+        generated_obstacle_size / 2),
       make_point(
-        static_cast<float32_t>(obstacle_point.pose.position.x) - obstacle_bbox.size.x / 2,
-        static_cast<float32_t>(obstacle_point.pose.position.y) + obstacle_bbox.size.y / 2)
+        -generated_obstacle_size / 2,
+        generated_obstacle_size / 2)
     };
-
-    bbox_array.boxes.push_back(obstacle_bbox);
+    predicted_object.shape.push_back(shape);
+    predicted_objects.objects.push_back(predicted_object);
   }
-  bbox_array.header.frame_id = "map";
-  bbox_array.header.stamp = rclcpp::Clock().now();
+  predicted_objects.header.frame_id = "map";
+  predicted_objects.header.stamp = rclcpp::Clock().now();
 
   // publish the list of obstacles to the obstacles topic
-  pub->publish(bbox_array);
+  pub->publish(predicted_objects);
 
   exec.spin_some();
 

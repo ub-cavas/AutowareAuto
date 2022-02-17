@@ -14,7 +14,7 @@
 
 /**:
   ros__parameters:
-    safety_factor: 0.25
+    safety_factor: 0.75
     stop_margin: 20.0  # distance between control point (e.g. CoG/base_link) and obstacle
     min_obstacle_dimension_m: 0.0004  # small object limit
     trajectory_smoother:

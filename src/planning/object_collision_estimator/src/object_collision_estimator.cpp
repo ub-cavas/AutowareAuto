@@ -171,19 +171,15 @@ int32_t detectCollision(
     const std::vector<geometry_msgs::msg::Point32> waypoint_bbox_corners{
       waypoint_bbox.corners.begin(), waypoint_bbox.corners.end()};
 
-    // TODO:(@kcolak) For now, object prediction modules only works for stationary object. After
-    //  adding the dynamic object prediction, this part needs to be updated.
-
     // Check for collisions with all perceived obstacles
     for (const auto & predicted_object : predicted_objects.objects) {
-
-      geometry_msgs::msg::Quaternion unit_quaternion;
+      // TODO(@kcolak): For now, object prediction modules only works for stationary object. After
+      //  adding the dynamic obstacle prediction, this part needs to be updated.
       const auto predicted_object_corners =
         autoware::common::geometry::bounding_box::details::get_transformed_corners(
         predicted_object.shape[0],
         predicted_object.kinematics.initial_pose.pose.position,
-        unit_quaternion
-        );
+        predicted_object.kinematics.initial_pose.pose.orientation);
 
       if (!isTooFarAway(
           trajectory.points[i], predicted_object_corners,
@@ -273,50 +269,35 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
   }
 }
 
-std::vector<BoundingBox> ObjectCollisionEstimator::updateObstacles(
-  const BoundingBoxArray & bounding_boxes) noexcept
-{
-  m_obstacles = bounding_boxes;
-
-  std::vector<BoundingBox> modified_obstacles;
-
-  for (auto & box : m_obstacles.boxes) {
-
-    if (std::min(box.size.x, box.size.y) < m_config.min_obstacle_dimension_m) {
-      Point32 heading;
-      heading.x = box.orientation.w;
-      heading.y = box.orientation.z;
-      // Double the quaternion's angle to get the heading, which is a unit vector colinear to the
-      // y-axis.
-      rotate_2d(heading, heading.x, heading.y);
-
-      // Compute base vectors of the new bounding box. Those vectors have the new desired length so
-      // that the corners are scaled at an equal distance on each side.
-      box.size.x = std::max(box.size.x, m_config.min_obstacle_dimension_m);
-      box.size.y = std::max(box.size.y, m_config.min_obstacle_dimension_m);
-      auto vect_x = times_2d(minus_2d(get_normal(heading)), box.size.x / 2);
-      auto vect_y = times_2d(heading, box.size.y / 2);
-
-      // Bottom left corner: -x-y
-      box.corners[0] = plus_2d(box.centroid, minus_2d(plus_2d(vect_x, vect_y)));
-      // Bottom right corner: x-y
-      box.corners[1] = plus_2d(box.centroid, minus_2d(vect_x, vect_y));
-      // Top right corner: x+y
-      box.corners[2] = plus_2d(box.centroid, plus_2d(vect_x, vect_y));
-      // Top left corner: -x+y
-      box.corners[3] = plus_2d(box.centroid, minus_2d(vect_y, vect_x));
-
-      modified_obstacles.push_back(box);
-    }
-  }
-
-  return modified_obstacles;
-}
 
 void ObjectCollisionEstimator::updatePredictedObjects(
   const PredictedObjects & predicted_objects) noexcept
 {
   m_predicted_objects = predicted_objects;
+
+  // Update obstacles corner under minimum obstacle dimension threshold
+  auto check_dimension = [&](
+    PredictedObject & predicted_object,
+    float32_t min_obstacle_dimension
+    ) {
+      for (auto & corner_point : predicted_object.shape[0].polygon.points) {
+        // Shape corners object centric
+        if (abs(corner_point.x) < min_obstacle_dimension / 2) {
+          const auto scale_factor = (min_obstacle_dimension / 2) / corner_point.x;
+          corner_point.x = corner_point.x * scale_factor;
+          corner_point.y = corner_point.y * scale_factor;
+        } else if (abs(corner_point.x) < min_obstacle_dimension / 2) {
+          const auto scale_factor = (min_obstacle_dimension / 2) / corner_point.y;
+          corner_point.x = corner_point.x * scale_factor;
+          corner_point.y = corner_point.y * scale_factor;
+        }
+      }
+    };
+
+  // Check predicted object for minimum obstackle dimension
+  for (auto & predicted_object : m_predicted_objects.objects) {
+    check_dimension(predicted_object, m_config.min_obstacle_dimension_m);
+  }
 }
 
 }  // namespace object_collision_estimator

@@ -131,11 +131,6 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
       estimate_collision(request, response);
     });
 
-  // Create subscriber and subscribe to the obstacles topic
-  m_obstacles_sub = Node::create_subscription<BoundingBoxArray>(
-    OBSTACLE_TOPIC, QoS{10},
-    [this](const BoundingBoxArray::SharedPtr msg) {this->on_bounding_box(msg);});
-
   m_predicted_objects_sub = Node::create_subscription<PredictedObjects>(
     "predicted_objects", QoS{10},
     [this](const PredictedObjects::SharedPtr msg) {this->on_predicted_object(msg);});
@@ -151,77 +146,10 @@ ObjectCollisionEstimatorNode::ObjectCollisionEstimatorNode(const rclcpp::NodeOpt
   m_tf_buffer->setUsingDedicatedThread(true);
 }
 
-void ObjectCollisionEstimatorNode::update_obstacles(const BoundingBoxArray & bbox_array)
-{
-  const auto modified_obstacles = m_estimator->updateObstacles(bbox_array);
-
-  for (const auto & modified_obstacle : modified_obstacles) {
-    RCLCPP_WARN(
-      this->get_logger(), "Obstacle was too small, increased to: %f x %fm.",
-      static_cast<float64_t>(modified_obstacle.size.x),
-      static_cast<float64_t>(modified_obstacle.size.y));
-  }
-}
-
 void ObjectCollisionEstimatorNode::update_predicted_objects(
   const PredictedObjects & predicted_objects)
 {
   m_estimator->updatePredictedObjects(predicted_objects);
-}
-
-
-void ObjectCollisionEstimatorNode::on_bounding_box(const BoundingBoxArray::SharedPtr & msg)
-{
-  // Update most recent bounding boxes internally
-  if (msg->header.frame_id == m_target_frame_id) {
-    // No transform needed, update bounding boxes directly
-    update_obstacles(*msg);
-
-    // keep track of the timestamp of the lastest successful obstacle message
-    m_last_obstacle_msg_time = msg->header.stamp;
-  } else {
-    // clean up any existing timer
-    if (m_wall_timer != nullptr) {
-      m_wall_timer->cancel();
-      m_wall_timer = nullptr;
-
-      RCLCPP_WARN(
-        this->get_logger(),
-        "Unable to get a valid transform before a new obstacle message arrived");
-    }
-
-    // create a new timer with timeout to check periodically if a valid transform for that timestamp
-    // is available.
-    const auto start_time = this->now();
-    m_wall_timer = create_wall_timer(
-      0.02s, [this, msg, start_time]() {
-        auto elapsed_time = this->now() - start_time;
-        const auto timeout = 0.1s;
-
-        if (elapsed_time < timeout) {
-          if (this->m_tf_buffer->canTransform(
-            m_target_frame_id, msg->header.frame_id,
-            tf2_ros::fromMsg(msg->header.stamp)))
-          {
-            // a valid transform is aviable, perform transform
-            this->m_wall_timer->cancel();
-            this->m_wall_timer = nullptr;
-            auto msg_transformed = this->m_tf_buffer->transform(*msg, m_target_frame_id);
-            update_obstacles(msg_transformed);
-
-            // keep track of the timestamp of the lastest successful obstacle message
-            this->m_last_obstacle_msg_time = msg_transformed.header.stamp;
-          }
-        } else {
-          // timeout occurred, clean up timer
-          this->m_wall_timer->cancel();
-          this->m_wall_timer = nullptr;
-          RCLCPP_WARN(
-            this->get_logger(), "on_bounding_box cannot transform %s to %s.",
-            msg->header.frame_id.c_str(), m_target_frame_id.c_str());
-        }
-      });
-  }
 }
 
 void ObjectCollisionEstimatorNode::on_predicted_object(const PredictedObjects::SharedPtr & msg)
@@ -255,8 +183,6 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   }
   // copy the input trajectory into the output variable
   Trajectory trajectory = request->original_trajectory;
-  std::cout<<"request->original_trajectory size" <<
-  request->original_trajectory.points.size()<<std::endl;
   const tf2::TimePoint trajectory_time_point = tf2::TimePoint(
     std::chrono::seconds(request->original_trajectory.header.stamp.sec) +
     std::chrono::nanoseconds(request->original_trajectory.header.stamp.nanosec));
@@ -306,8 +232,6 @@ void ObjectCollisionEstimatorNode::estimate_collision(
   auto marker = toVisualizationMarkerArray(
     trajectory_bbox, response->modified_trajectory.points.size());
   m_trajectory_bbox_pub->publish(marker);
-  std::cout<<"response->original_trajectory size" <<
-           response->modified_trajectory.points.size()<<std::endl;
 }
 
 }  // namespace object_collision_estimator_nodes
