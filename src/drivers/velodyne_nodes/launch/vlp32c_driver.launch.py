@@ -42,7 +42,7 @@ def generate_launch_description():
         namespace="lidar_front",
         executable='velodyne_cloud_node_exe',
         parameters=[LaunchConfiguration('vlp32c_node_param_file')],
-        remappings=[("topic", "points_xyzif")])
+        remappings=[("topic", "points_xyzi")])
 
     return launch.LaunchDescription([
         vlp32c_node_param,

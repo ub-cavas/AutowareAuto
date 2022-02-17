@@ -86,7 +86,7 @@ TEST_P(VelodyneNodeIntegration, Test)
   const auto ip = "127.0.0.1";
   const auto port = 3555U;
   const auto frame_id = "base_link";
-  const auto topic = "points_xyzif";
+  const auto topic = "points_xyzi";
   const auto runtime = std::chrono::seconds(10);
   using autoware::drivers::velodyne_driver::Vlp16Translator;
   const auto config = Vlp16Translator::Config{600.0F};

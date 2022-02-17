@@ -103,7 +103,6 @@ protected:
   bool8_t convert(
     const Packet & pkt,
     sensor_msgs::msg::PointCloud2 & output);
-
   bool8_t get_output_remainder(sensor_msgs::msg::PointCloud2 & output);
 
 private:

@@ -164,7 +164,7 @@ TEST(TestPolygonRemoverNodes, TestRemoveRectangle) {
   bool test_completed = false;
 
   auto pub_ptr_cloud_raw = node_polygon_remover->create_publisher<sensor_msgs::msg::PointCloud2>(
-    "points_xyzif",
+    "points_xyzi",
     rclcpp::QoS(10));
 
   auto callback_cloud_polygon_removed =

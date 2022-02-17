@@ -45,7 +45,7 @@ Explained in detail here:
     - How do you use the package / API? -->
 
 Subscribers:
-- `points_xyzif` `(sensor_msgs::msg::PointCloud2)`
+- `points_xyzi` `(sensor_msgs::msg::PointCloud2)`
 
 Publishers:
 - `cloud_polygon_removed` `(sensor_msgs::msg::PointCloud2)`
@@ -68,7 +68,7 @@ ros2 run polygon_remover_nodes polygon_remover_node_exe --ros-args --params-file
 # or provide parameters
 ros2 run polygon_remover_nodes polygon_remover_node_exe \
 --ros-args \
--r "points_xyzif":="/lidar_front/points_xyzif" \
+-r "points_xyzi":="/lidar_front/points_xyzi" \
 -p working_mode:="Static" \
 -p polygon_vertices:=[-8.0,-8.0,\
 -8.0,8.0,\

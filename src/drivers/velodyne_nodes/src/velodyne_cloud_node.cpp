@@ -166,8 +166,6 @@ bool8_t VelodyneCloudNode<T>::convert(
   using autoware::common::types::PointXYZIF;
 
   std::shared_ptr<CloudModifierWrapperBase> modifier = nullptr;
-  (void)output;
-  (void)pkt;
   if (m_ring_information) {
     modifier = std::make_shared<CloudModifierWrapper<CloudModifierRing>>(output);
   } else {
