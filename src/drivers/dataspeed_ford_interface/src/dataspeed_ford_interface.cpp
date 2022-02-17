@@ -335,7 +335,10 @@ bool8_t DataspeedFordInterface::handle_mode_change_request(ModeChangeRequest::Sh
   // Request MANUAL -> AUTONOMOUS
   else if (request->mode == ModeChangeRequest::MODE_AUTONOMOUS) {
     m_dbw_state_machine->user_request(true);
-    if (!m_dbw_state_machine->enabled()) {
+    if (m_dbw_state_machine->enabled()) {
+      m_dbw_enable_cmd_pub->publish(send_req);
+    } else {
+      m_dbw_disable_cmd_pub->publish(send_req);
       RCLCPP_ERROR_THROTTLE(
         m_logger, m_clock, CLOCK_1_SEC,
         "Mode change request failed: state machine is not enabled.");
