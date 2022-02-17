@@ -1,0 +1,13 @@
+/pure_pursuit_node:
+  ros__parameters:
+    controller:
+      dist_front_rear_wheels: 0.3
+      emergency_stop_distance: 0.1
+      is_delay_compensation: false
+      is_interpolate_lookahead_point: true
+      maximum_acceleration: 3.0
+      maximum_lookahead_distance: 2.0
+      minimum_lookahead_distance: 1.0
+      speed_thres_traveling_direction: 0.3
+      speed_to_lookahead_ratio: 1.0
+    use_sim_time: false

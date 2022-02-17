@@ -3,7 +3,7 @@ export ADE_DOCKER_RUN_ARGS="--cap-add=SYS_PTRACE --net=host --runtime nvidia
   -e Xauthority=${HOME}/.Xauthority
   -v ${HOME}/.Xauthority:${HOME}/.Xauthority:ro
   --device /dev/sensors/vesc
-  --device /dev/sensors/ldlidar
+  --device /dev/sensors/ld06
   --device /dev/input/js0"
 export ADE_GITLAB=gitlab.com
 export ADE_REGISTRY=registry.gitlab.com

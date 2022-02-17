@@ -3,7 +3,7 @@
 
 /**:
   ros__parameters:
-    timeout_ms:                  20
+    timeout_ms:                  200
     controller:
       minimum_lookahead_distance:      1.0
       maximum_lookahead_distance:      2.0

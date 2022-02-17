@@ -22,7 +22,7 @@
       gear_shift_accel_deadzone_mps2: 0.5
     # -------x without this, VESCInterfaceNode cannot be launched --
     vesc:
-      speed_to_erpm_gain: 4615.0
+      speed_to_erpm_gain: 4200.0
       speed_to_erpm_offset: 0.0
       max_erpm_positive_delta: 500.0 # limits the sudden acceleration in rpm
       max_erpm_negative_delta: 1000.0 # limits the sudden deceleration in rpm

@@ -114,23 +114,23 @@ def generate_launch_description():
         namespace='lidar',
         output='screen',
         parameters=[
-            {'serial_port': '/dev/sensors/ldlidar'},
+            {'serial_port': '/dev/sensors/ld06'},
             {'topic_name': 'scan'},
             {'lidar_frame': 'lidar'},
             {'range_threshold': 0.005}
         ]
     )
 
-    scan_to_cloud_node = Node(
-        package='pointcloud_to_laserscan',
-        executable='laserscan_to_pointcloud_node',
-        namespace='lidar',
-        parameters=[{'target_frame': 'lidar'}],
-        remappings=[
-            ("scan_in", "scan"),
-            ("cloud", "points_raw")
-        ]
-    )
+    # scan_to_cloud_node = Node(
+    #     package='pointcloud_to_laserscan',
+    #     executable='laserscan_to_pointcloud_node',
+    #     namespace='lidar',
+    #     parameters=[{'target_frame': 'lidar'}],
+    #     remappings=[
+    #         ("scan_in", "scan"),
+    #         ("cloud", "points_raw")
+    #     ]
+    # )
 
     robot_publisher = Node(
         package='robot_state_publisher',
@@ -149,7 +149,7 @@ def generate_launch_description():
         joy_translator,
         vesc_interface_node,
         #hokuyo_node,
-        ldlidar_node
-        scan_to_cloud_node,
+        ldlidar_node,
+        #scan_to_cloud_node,
         robot_publisher,
     ])
