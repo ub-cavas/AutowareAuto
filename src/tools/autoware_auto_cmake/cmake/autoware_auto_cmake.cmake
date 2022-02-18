@@ -36,6 +36,7 @@ set(DOWNLOAD_ARTIFACTS OFF CACHE BOOL "enable artifact download")
 # compiler warnings.
 include_directories(SYSTEM /opt/ros/foxy/include)
 include_directories(SYSTEM /usr/include/eigen3)
+include_directories(SYSTEM /usr/include/opencv4)
 
 # Clang tidy
 if(TIDY_WITH_CLANG)
