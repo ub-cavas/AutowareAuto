@@ -45,7 +45,7 @@ using autoware::common::types::bool8_t;
 class OSQP_INTERFACE_PUBLIC OSQPInterface
 {
 private:
-  OSQPWorkspace * m_work = nullptr;
+  std::unique_ptr<OSQPWorkspace, std::function<void(OSQPWorkspace *)>> m_work;
   std::unique_ptr<OSQPSettings> m_settings;
   std::unique_ptr<OSQPData> m_data;
   // store last work info since work is cleaned up at every execution to prevent memory leak.
@@ -58,7 +58,9 @@ private:
   int64_t m_exitflag;
 
   // Runs the solver on the stored problem.
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> solve();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t, int64_t> solve();
+
+  static void OSQPWorkspaceDeleter(OSQPWorkspace * ptr) noexcept;
 
 public:
   /// \brief Constructor without problem formulation
@@ -74,12 +76,14 @@ public:
   OSQPInterface(
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u, const c_float eps_abs);
-  ~OSQPInterface();
+  OSQPInterface(
+    const CSC_Matrix & P, const CSC_Matrix & A, const std::vector<float64_t> & q,
+    const std::vector<float64_t> & l, const std::vector<float64_t> & u, const c_float eps_abs);
 
   /****************
    * OPTIMIZATION
    ****************/
-  /// \brief Solves the stored convec quadratic program (QP) problem using the OSQP solver.
+  /// \brief Solves the stored convex quadratic program (QP) problem using the OSQP solver.
   //
   /// \return The function returns a tuple containing the solution as two float vectors.
   /// \return The first element of the tuple contains the 'primal' solution.
@@ -97,7 +101,7 @@ public:
   /// \details        std::vector<float> param = std::get<0>(result);
   /// \details        float64_t x_0 = param[0];
   /// \details        float64_t x_1 = param[1];
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> optimize();
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t, int64_t> optimize();
 
   /// \brief Solves convex quadratic programs (QPs) using the OSQP solver.
   /// \return The function returns a tuple containing the solution as two float vectors.
@@ -115,7 +119,7 @@ public:
   /// \details        std::vector<float> param = std::get<0>(result);
   /// \details        float64_t x_0 = param[0];
   /// \details        float64_t x_1 = param[1];
-  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t> optimize(
+  std::tuple<std::vector<float64_t>, std::vector<float64_t>, int64_t, int64_t, int64_t> optimize(
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u);
 
@@ -128,6 +132,33 @@ public:
   int64_t initializeProblem(
     const Eigen::MatrixXd & P, const Eigen::MatrixXd & A, const std::vector<float64_t> & q,
     const std::vector<float64_t> & l, const std::vector<float64_t> & u);
+  int64_t initializeProblem(
+    CSC_Matrix P, CSC_Matrix A, const std::vector<float64_t> & q,
+    const std::vector<float64_t> & l, const std::vector<float64_t> & u);
+
+  // Updates problem parameters while keeping solution in memory.
+  //
+  // Args:
+  //   P_new: (n,n) matrix defining relations between parameters.
+  //   A_new: (m,n) matrix defining parameter constraints relative to the lower and upper bound.
+  //   q_new: (n) vector defining the linear cost of the problem.
+  //   l_new: (m) vector defining the lower bound problem constraint.
+  //   u_new: (m) vector defining the upper bound problem constraint.
+  void updateP(const Eigen::MatrixXd & P_new);
+  void updateCscP(const CSC_Matrix & P_csc);
+  void updateA(const Eigen::MatrixXd & A_new);
+  void updateCscA(const CSC_Matrix & A_csc);
+  void updateQ(const std::vector<double> & q_new);
+  void updateL(const std::vector<double> & l_new);
+  void updateU(const std::vector<double> & u_new);
+  void updateBounds(const std::vector<double> & l_new, const std::vector<double> & u_new);
+  void updateEpsAbs(const double eps_abs);
+  void updateEpsRel(const double eps_rel);
+  void updateMaxIter(const int iter);
+  void updateVerbose(const bool verbose);
+  void updateRhoInterval(const int rho_interval);
+  void updateRho(const double rho);
+  void updateAlpha(const double alpha);
 
   /// \brief Get the number of iteration taken to solve the problem
   inline int64_t getTakenIter() const {return static_cast<int64_t>(m_latest_work_info.iter);}
