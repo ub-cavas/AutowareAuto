@@ -32,12 +32,18 @@ def generate_launch_description():
     """
     autoware_auto_launch_pkg_prefix = get_package_share_directory(
         'autoware_auto_launch')
+    demos_pkg_prefix = get_package_share_directory('autoware_demos')
+
     euclidean_cluster_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/euclidean_cluster.param.yaml')
     off_map_obstacles_filter_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
     ray_ground_classifier_param_file = os.path.join(
         autoware_auto_launch_pkg_prefix, 'param/ray_ground_classifier.param.yaml')
+    multi_object_tracker_param_file = os.path.join(
+        demos_pkg_prefix, 'param/multi_object_tracker.param.yaml')
+    prediction_param_file = os.path.join(
+        demos_pkg_prefix, 'param/prediction.param.yaml')
 
     # Arguments
     with_obstacles_param = DeclareLaunchArgument(
@@ -59,6 +65,16 @@ def generate_launch_description():
         'ray_ground_classifier_param_file',
         default_value=ray_ground_classifier_param_file,
         description='Path to config file for Ray Ground Classifier'
+    )
+    multi_object_tracker_param = DeclareLaunchArgument(
+        'multi_object_tracker_param_file',
+        default_value=multi_object_tracker_param_file,
+        description='Path to config file for multiple object tracker'
+    )
+    prediction_param = DeclareLaunchArgument(
+        'prediction_param_file',
+        default_value=prediction_param_file,
+        description='Path to config file for prediction'
     )
 
     # Nodes
@@ -94,6 +110,40 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('ray_ground_classifier_param_file')],
         remappings=[("points_in", "/lidars/points_fused")]
     )
+    multi_object_tracker = Node(
+        executable='multi_object_tracker_node_exe',
+        name='multi_object_tracker',
+        namespace='perception',
+        package='tracking_nodes',
+        output='screen',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[
+            LaunchConfiguration('multi_object_tracker_param_file'),
+            {
+                'use_ndt': False,
+                'track_frame_id': "odom",
+                'use_vision': False,
+                'visualize_track_creation': False
+            },
+        ],
+        remappings=[
+            ("detected_objects", "/lidars/lidar_detected_objects"),
+            ("ego_state", "/vehicle/odom_pose"),
+            ("clusters", "/perception/points_clustered")
+        ]
+    )
+    prediction = Node(
+        executable='prediction_nodes_node_exe',
+        name='prediction',
+        namespace='prediction',
+        output="screen",
+        package='prediction_nodes',
+        condition=IfCondition(LaunchConfiguration('with_obstacles')),
+        parameters=[LaunchConfiguration('prediction_param_file')],
+        remappings=[
+            ("tracked_objects", "/perception/tracked_objects")
+        ]
+    )
 
     return LaunchDescription([
         euclidean_cluster_param,
@@ -103,4 +153,8 @@ def generate_launch_description():
         euclidean_clustering,
         ray_ground_classifier,
         off_map_obstacles_filter,
+        multi_object_tracker_param,
+        multi_object_tracker,
+        prediction_param,
+        prediction
     ])

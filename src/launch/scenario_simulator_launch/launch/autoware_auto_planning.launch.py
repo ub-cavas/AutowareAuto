@@ -134,10 +134,13 @@ def generate_launch_description():
         condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[
             LaunchConfiguration('object_collision_estimator_param_file'),
+            {
+                'target_frame_id': "odom"
+            },
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
         remappings=[
-            ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
+            ('predicted_objects', '/prediction/predicted_objects'),
         ]
     )
 

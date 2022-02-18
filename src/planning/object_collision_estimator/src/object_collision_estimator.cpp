@@ -246,7 +246,6 @@ void ObjectCollisionEstimator::updatePlan(Trajectory & trajectory) noexcept
   auto collision_index = detectCollision(
     trajectory, m_predicted_objects, m_config.vehicle_config,
     m_config.safety_factor, m_trajectory_bboxes);
-  std::cout << "collision_index: " << collision_index << std::endl;
 
   auto trajectory_end_idx = getStopIndex(trajectory, collision_index, m_config.stop_margin);
 

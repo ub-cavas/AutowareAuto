@@ -149,6 +149,7 @@ def generate_launch_description():
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
     )
+    # TODO(@kcolak): Update with new object collision estimator
     object_collision_estimator = Node(
         package='object_collision_estimator_nodes',
         name='object_collision_estimator_node',

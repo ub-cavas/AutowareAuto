@@ -120,7 +120,7 @@ def generate_launch_description():
     )
     with_obstacle_detection_param = DeclareLaunchArgument(
         'with_obstacle_detection',
-        default_value='True',
+        default_value='False',
         description='Use obstacle detection to stop for obstacles'
     )
     ndt_localizer_param = DeclareLaunchArgument(
@@ -334,9 +334,7 @@ def generate_launch_description():
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
         remappings=[
-            ('obstacle_topic', '/perception/lidar_bounding_boxes'),
             ('predicted_objects', '/prediction/predicted_objects'),
-
         ],
         condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )

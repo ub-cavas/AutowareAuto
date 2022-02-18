@@ -59,6 +59,14 @@ def generate_launch_description():
     off_map_obstacles_filter_param_file = os.path.join(
         autoware_launch_pkg_prefix, 'param/off_map_obstacles_filter.param.yaml')
 
+    multi_object_tracker_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/multi_object_tracker.param.yaml')
+    covariance_insertion_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/ndt_smoothing/ndt_covariance_override.param.yaml')
+    state_estimation_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/ndt_smoothing/tracking.param.yaml')
+    prediction_param_file = os.path.join(
+        avp_demo_pkg_prefix, 'param/prediction.param.yaml')
     vehicle_characteristics_param_file = os.path.join(
         avp_demo_pkg_prefix, 'param/vehicle_characteristics.param.yaml')
     vehicle_constants_manager_param_file = os.path.join(
@@ -133,6 +141,26 @@ def generate_launch_description():
         'vehicle_constants_manager_param_file',
         default_value=vehicle_constants_manager_param_file,
         description='Path to parameter file for vehicle_constants_manager'
+    )
+    multi_object_tracker_param = DeclareLaunchArgument(
+        'multi_object_tracker_param_file',
+        default_value=multi_object_tracker_param_file,
+        description='Path to config file for multiple object tracker'
+    )
+    state_estimation_param = DeclareLaunchArgument(
+        'state_estimation_param_file',
+        default_value=state_estimation_param_file,
+        description='Path to config file for state estimator'
+    )
+    covariance_insertion_param = DeclareLaunchArgument(
+        'covariance_insertion_param_file',
+        default_value=covariance_insertion_param_file,
+        description='Path to config file for covariance insertion'
+    )
+    prediction_param = DeclareLaunchArgument(
+        'prediction_param_file',
+        default_value=prediction_param_file,
+        description='Path to config file for prediction'
     )
 
     # Nodes
@@ -234,14 +262,18 @@ def generate_launch_description():
         name='object_collision_estimator_node',
         namespace='planning',
         executable='object_collision_estimator_node_exe',
-        condition=IfCondition(LaunchConfiguration('with_obstacles')),
         parameters=[
             LaunchConfiguration('object_collision_estimator_param_file'),
+            {
+                'target_frame_id': "map"
+            },
             LaunchConfiguration('vehicle_characteristics_param_file'),
         ],
         remappings=[
-            ('obstacle_topic', '/perception/lidar_bounding_boxes_filtered'),
-        ]
+            ('predicted_objects', '/prediction/predicted_objects'),
+
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
     )
     behavior_planner = Node(
         package='behavior_planner_nodes',
@@ -276,6 +308,70 @@ def generate_launch_description():
         ]
     )
 
+    multi_object_tracker = Node(
+        executable='multi_object_tracker_node_exe',
+        name='multi_object_tracker',
+        namespace='perception',
+        package='tracking_nodes',
+        output='screen',
+        parameters=[
+            LaunchConfiguration('multi_object_tracker_param_file'),
+            {
+                'use_ndt': True,
+                'track_frame_id': "map",
+                'use_vision': False,
+                'visualize_track_creation': False
+            },
+        ],
+        remappings=[
+            ("detected_objects", "/lidars/lidar_detected_objects"),
+            ("ego_state", "/localization/odometry"),
+            ("clusters", "/perception/points_clustered")
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+    )
+    state_estimation = Node(
+        executable='state_estimation_node_exe',
+        name='state_estimation',
+        namespace='localization',
+        output="screen",
+        package='state_estimation_nodes',
+        parameters=[
+            LaunchConfiguration('state_estimation_param_file'),
+        ],
+        remappings=[
+            ("filtered_state", "/localization/odometry"),
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+    )
+    covariance_insertion = Node(
+        executable='covariance_insertion_node_exe',
+        name='covariance_insertion',
+        namespace='localization',
+        output="screen",
+        package='covariance_insertion_nodes',
+        parameters=[
+            LaunchConfiguration('covariance_insertion_param_file'),
+        ],
+        remappings=[
+            ("messages", "/localization/ndt_pose"),
+            ("messages_with_overriden_covariance", "ndt_pose_with_covariance")
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+    )
+    prediction = Node(
+        executable='prediction_nodes_node_exe',
+        name='prediction',
+        namespace='prediction',
+        output="screen",
+        package='prediction_nodes',
+        parameters=[LaunchConfiguration('prediction_param_file')],
+        remappings=[
+            ("tracked_objects", "/perception/tracked_objects")
+        ],
+        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+    )
+
     return LaunchDescription([
         euclidean_cluster_param,
         ray_ground_classifier_param,
@@ -303,4 +399,12 @@ def generate_launch_description():
         object_collision_estimator,
         behavior_planner,
         off_map_obstacles_filter,
+        multi_object_tracker_param,
+        multi_object_tracker,
+        state_estimation_param,
+        state_estimation,
+        covariance_insertion_param,
+        covariance_insertion,
+        prediction_param,
+        prediction
     ])
