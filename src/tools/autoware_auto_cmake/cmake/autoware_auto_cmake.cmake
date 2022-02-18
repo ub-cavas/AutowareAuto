@@ -32,6 +32,11 @@ endif()
 # Get user-provided variables
 set(DOWNLOAD_ARTIFACTS OFF CACHE BOOL "enable artifact download")
 
+# Mark certain library directories as SYSTEM so that they are exempt from
+# compiler warnings.
+include_directories(SYSTEM /opt/ros/foxy/include)
+include_directories(SYSTEM /usr/include/eigen3)
+
 # Clang tidy
 if(TIDY_WITH_CLANG)
   string(CONCAT CMAKE_CXX_CLANG_TIDY
