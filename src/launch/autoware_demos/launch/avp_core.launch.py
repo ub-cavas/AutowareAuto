@@ -273,7 +273,7 @@ def generate_launch_description():
             ('predicted_objects', '/prediction/predicted_objects'),
 
         ],
-        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+        condition=IfCondition(LaunchConfiguration('with_obstacles'))
     )
     behavior_planner = Node(
         package='behavior_planner_nodes',
@@ -328,7 +328,7 @@ def generate_launch_description():
             ("ego_state", "/localization/odometry"),
             ("clusters", "/perception/points_clustered")
         ],
-        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+        condition=IfCondition(LaunchConfiguration('with_obstacles'))
     )
     state_estimation = Node(
         executable='state_estimation_node_exe',
@@ -342,7 +342,7 @@ def generate_launch_description():
         remappings=[
             ("filtered_state", "/localization/odometry"),
         ],
-        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+        condition=IfCondition(LaunchConfiguration('with_obstacles'))
     )
     covariance_insertion = Node(
         executable='covariance_insertion_node_exe',
@@ -357,7 +357,7 @@ def generate_launch_description():
             ("messages", "/localization/ndt_pose"),
             ("messages_with_overriden_covariance", "ndt_pose_with_covariance")
         ],
-        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+        condition=IfCondition(LaunchConfiguration('with_obstacles'))
     )
     prediction = Node(
         executable='prediction_nodes_node_exe',
@@ -369,7 +369,7 @@ def generate_launch_description():
         remappings=[
             ("tracked_objects", "/perception/tracked_objects")
         ],
-        condition=IfCondition(LaunchConfiguration('with_obstacle_detection'))
+        condition=IfCondition(LaunchConfiguration('with_obstacles'))
     )
 
     return LaunchDescription([
