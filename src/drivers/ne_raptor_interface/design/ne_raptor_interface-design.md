@@ -98,3 +98,4 @@ Current version of New Eagle's Raptor DBW Node is intended for R&D only!
 - [#822](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/822)
 - [#991](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/991)
 - [#1025](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1025)
+- [#1455](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/issues/1455)

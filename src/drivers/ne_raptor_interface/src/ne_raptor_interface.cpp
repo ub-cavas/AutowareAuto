@@ -488,7 +488,7 @@ void NERaptorInterface::send_headlights_command(const HeadlightsCommand & msg)
       m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
       break;
     case HeadlightsCommand::ENABLE_LOW:
-      m_misc_cmd.low_beam_cmd.status = LowBeam::ON;
+      m_misc_cmd.low_beam_cmd.status = LowBeam::FORCE_ON;
       m_misc_cmd.high_beam_cmd.status = HighBeam::OFF;
       break;
     case HeadlightsCommand::ENABLE_HIGH:

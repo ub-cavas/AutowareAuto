@@ -102,7 +102,7 @@ ADD "https://gitlab.com/nvidia/container-images/opengl/raw/ubuntu20.04/glvnd/run
 RUN chmod 644 /etc/glvnd/egl_vendor.d/10_nvidia.json
 
 # ===================== END OF CLEAN UP ZONE ===================== #
-
+#
 # Do full package upgrade as last step
 # to avoid disrupting layer caching
 RUN apt-get update && \

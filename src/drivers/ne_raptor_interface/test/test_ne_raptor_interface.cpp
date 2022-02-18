@@ -786,7 +786,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   myTests[3].exp_gc.cmd.gear = GearReport::LOW;
   myTests[3].exp_mc.cmd.value = TurnSignal::LEFT;
   myTests[3].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
-  myTests[3].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[3].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[3].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   /* Test valid:
@@ -817,12 +817,12 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleState)
   // Regular headlights ON
   myTests[kTestValid_VSC + 3].exp_success = true;
   myTests[kTestValid_VSC + 3].in_vsc.headlight = HeadlightsCommand::ENABLE_LOW;
-  myTests[kTestValid_VSC + 3].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[kTestValid_VSC + 3].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[kTestValid_VSC + 3].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: headlight (keep previous: on)
   myTests[kTestValid_VSC + 4].in_vsc.headlight = 0xFF;
-  myTests[kTestValid_VSC + 4].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[kTestValid_VSC + 4].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[kTestValid_VSC + 4].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Headlights OFF
@@ -1151,7 +1151,7 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   myTests[3].exp_gc.cmd.gear = GearReport::LOW;
   myTests[3].exp_mc.cmd.value = TurnSignal::LEFT;
   myTests[3].exp_mc.front_wiper_cmd.status = WiperFront::CONSTANT_LOW;
-  myTests[3].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[3].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[3].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   /* Test valid:
@@ -1182,12 +1182,12 @@ TEST_F(NERaptorInterfaceTest, DISABLED_TestCmdVehicleStateNoMsgCheck)
   // Regular headlights ON
   myTests[kTestValid_VSC + 3].exp_success = true;
   myTests[kTestValid_VSC + 3].in_vsc.headlight = VehicleStateCommand::HEADLIGHT_ON;
-  myTests[kTestValid_VSC + 3].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[kTestValid_VSC + 3].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[kTestValid_VSC + 3].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Test invalid: headlight (keep previous: on)
   myTests[kTestValid_VSC + 4].in_vsc.headlight = 0xFF;
-  myTests[kTestValid_VSC + 4].exp_mc.low_beam_cmd.status = LowBeam::ON;
+  myTests[kTestValid_VSC + 4].exp_mc.low_beam_cmd.status = LowBeam::FORCE_ON;
   myTests[kTestValid_VSC + 4].exp_mc.high_beam_cmd.status = HighBeam::OFF;
 
   // Headlights OFF
