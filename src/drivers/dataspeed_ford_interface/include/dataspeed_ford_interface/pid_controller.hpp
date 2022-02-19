@@ -48,6 +48,18 @@ public:
     m_kd = kd;
   }
 
+  void setKp(float64_t kp) {
+    m_kp = kp;
+  }
+
+  void setKi(float64_t ki) {
+    m_ki = ki;
+  }
+
+  void setKd(float64_t kd) {
+    m_kd = kd;
+  }
+
   void setRange(float64_t min_val, float64_t max_val)
   {
     m_min = std::min(min_val, max_val);

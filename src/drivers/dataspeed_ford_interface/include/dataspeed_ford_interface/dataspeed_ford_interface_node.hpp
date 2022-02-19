@@ -6,6 +6,7 @@
 #include <vehicle_interface/vehicle_interface_node.hpp>
 
 #include <rclcpp/rclcpp.hpp>
+#include <rcl_interfaces/msg/set_parameters_result.hpp>
 
 #include <string>
 
@@ -25,6 +26,11 @@ public:
   /// \throw runtime error if failed to start threads or configure driver
   explicit DataspeedFordInterfaceNode(const rclcpp::NodeOptions & options);
 
+  rcl_interfaces::msg::SetParametersResult on_parameter_set(
+    const std::vector<rclcpp::Parameter> & parameters);
+
+private:
+  OnSetParametersCallbackHandle::SharedPtr m_param_callback_handle;
 };
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware
