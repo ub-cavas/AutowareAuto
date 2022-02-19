@@ -155,6 +155,8 @@ public:
   /// \param[in] accel_control_kd D-gain of the throttle/brake PID controller
   /// \param[in] accel_control_deadzone_min lower bound of the deadzone of throttle/brake controller
   /// \param[in] accel_control_deadzone_max upper bound of the deadzone of throttle/brake controller
+  /// \param[in] autobrake_threshold velocity threshold for autobrake
+  /// \param[in] autobrake_brake_pedal_stress pedal stress for the brake for autobrake
   explicit DataspeedFordInterface(
     rclcpp::Node & node,
     uint16_t ecu_build_num,
@@ -171,7 +173,9 @@ public:
     float32_t accel_control_ki,
     float32_t accel_control_kd,
     float32_t accel_control_deadzone_min,
-    float32_t accel_control_deadzone_max);
+    float32_t accel_control_deadzone_max,
+    float32_t autobrake_threshold,
+    float32_t autobrake_brake_pedal_stress);
 
   /// \brief Default destructor
   ~DataspeedFordInterface() noexcept override = default;
@@ -283,6 +287,9 @@ private:
   PIDController m_throttle_pid_controller;
   float32_t m_accel_control_deadzone_min;
   float32_t m_accel_control_deadzone_max;
+  float32_t m_target_speed;
+  float32_t m_autobrake_velocity_threshold;  // using mps
+  float32_t m_autobrake_brake_stress;        // using percent
 
   ThrottleCmd m_throttle_cmd{};
   BrakeCmd m_brake_cmd{};

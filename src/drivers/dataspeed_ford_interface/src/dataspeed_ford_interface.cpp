@@ -28,7 +28,9 @@ DataspeedFordInterface::DataspeedFordInterface(
   float32_t accel_control_ki,
   float32_t accel_control_kd,
   float32_t accel_control_deadzone_min,
-  float32_t accel_control_deadzone_max)
+  float32_t accel_control_deadzone_max,
+  float32_t autobrake_threshold,
+  float32_t autobrake_brake_pedal_stress)
 : m_logger{node.get_logger()},
   m_ecu_build_num{ecu_build_num},
   m_front_axle_to_cog{front_axle_to_cog},
@@ -45,7 +47,10 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_prev_speed{0.0F},
   m_throttle_pid_controller{accel_control_kp, accel_control_ki, accel_control_kd, -1.0F, 1.0F},
   m_accel_control_deadzone_min{accel_control_deadzone_min},
-  m_accel_control_deadzone_max{accel_control_deadzone_max}
+  m_accel_control_deadzone_max{accel_control_deadzone_max},
+  m_target_speed{0.0F},
+  m_autobrake_velocity_threshold{autobrake_threshold},
+  m_autobrake_brake_stress{autobrake_brake_pedal_stress}
 {
   // Publishers (to Dataspeed Fords DBW)
   m_throttle_cmd_pub = node.create_publisher<ThrottleCmd>("throttle_cmd", 1);
@@ -120,6 +125,15 @@ void DataspeedFordInterface::cmdCallback()
     m_throttle_cmd.enable = false;
     m_brake_cmd.enable = false;
     m_steer_cmd.enable = false;
+  }
+
+  // autobrake
+  //  if target velocity == 0 && current speed < threshold,
+  //  apply some brake to stop the vehicle
+  if (
+    std::abs(m_target_speed) <= std::numeric_limits<float32_t>::epsilon() &&
+    odometry().velocity_mps < m_autobrake_velocity_threshold) {
+    m_brake_cmd.pedal_cmd = m_autobrake_brake_stress;
   }
 
   // Publish commands to Dataspeed Ford DBW
@@ -280,6 +294,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   // 2. Set Throttle Commands
   //    implement a PID conroller for this
   // calculate current acceleration
+  m_target_speed = msg.velocity_mps;
   auto tick = m_clock.now();
   float32_t dt = (tick - m_prev_tick).seconds();
   float32_t speed = odometry().velocity_mps;

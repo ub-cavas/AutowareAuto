@@ -20,6 +20,9 @@
         kd: 0.0
         deadzone_min: -0.05
         deadzone_max: 0.05
+      auto_brake:
+        velocity_mps: 0.1
+        pedal_stress: 0.35
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5
       acceleration_limits:

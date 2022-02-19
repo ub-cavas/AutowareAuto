@@ -105,7 +105,9 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
     declare_parameter("dataspeed_ford.acceleration_control.kd", pid_initial_value, d_descriptor)
       .get<float32_t>(),
     declare_parameter("dataspeed_ford.acceleration_control.deadzone_min").get<float32_t>(),
-    declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>());
+    declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>(),
+    declare_parameter("dataspeed_ford.auto_brake.velocity_mps").get<float32_t>(),
+    declare_parameter("dataspeed_ford.auto_brake.pedal_stress").get<float32_t>());
   set_interface(std::move(interface));
 
   m_param_callback_handle = this->add_on_set_parameters_callback(
