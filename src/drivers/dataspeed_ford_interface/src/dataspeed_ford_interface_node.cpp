@@ -70,7 +70,7 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
   p_range.step = 0.01;
   p_descriptor.floating_point_range.push_back(p_range);
 
-  // initiate sliders for P gain -- throttle controller
+  // initiate sliders for I gain -- throttle controller
   rcl_interfaces::msg::ParameterDescriptor i_descriptor;
   rcl_interfaces::msg::FloatingPointRange i_range;
   i_range.from_value = 0;
@@ -78,7 +78,7 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
   i_range.step = 0.01;
   i_descriptor.floating_point_range.push_back(i_range);
 
-  // initiate sliders for P gain -- throttle controller
+  // initiate sliders for D gain -- throttle controller
   rcl_interfaces::msg::ParameterDescriptor d_descriptor;
   rcl_interfaces::msg::FloatingPointRange d_range;
   d_range.from_value = 0;
