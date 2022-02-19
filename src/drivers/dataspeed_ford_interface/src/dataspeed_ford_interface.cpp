@@ -180,6 +180,7 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       ret = false;
       break;
   }
+  m_gear_cmd.header.stamp = msg.stamp;
 
   // TODO everything else should go in their own callbacks
   // deprecated in this function
@@ -209,6 +210,7 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
       ret = false;
       break;
   }
+  m_misc_cmd.header.stamp = msg.stamp;
   m_seen_vehicle_state_cmd = true;
 
   return ret;
@@ -271,6 +273,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
       "Got invalid steering angle value: request exceeds max angle.");
     ret = false;
   }
+  m_steer_cmd.header.stamp = msg.stamp;
   m_steer_cmd.steering_wheel_angle_cmd = angle_checked;
   m_steer_cmd.steering_wheel_angle_velocity = 0;  // default
 
@@ -305,7 +308,10 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
     throttle_percent = std::min(accel_percent, 1.0F);
   }
 
+  m_throttle_cmd.header.stamp = msg.stamp;
   m_throttle_cmd.pedal_cmd = throttle_percent;
+
+  m_brake_cmd.header.stamp = msg.stamp;
   m_brake_cmd.pedal_cmd = brake_percent;
 
   return ret;
