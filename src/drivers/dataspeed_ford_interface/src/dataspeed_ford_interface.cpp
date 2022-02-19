@@ -133,6 +133,7 @@ void DataspeedFordInterface::cmdCallback()
   if (
     std::abs(m_target_speed) <= std::numeric_limits<float32_t>::epsilon() &&
     odometry().velocity_mps < m_autobrake_velocity_threshold) {
+    m_throttle_cmd.pedal_cmd = 0.F;
     m_brake_cmd.pedal_cmd = m_autobrake_brake_stress;
   }
 
