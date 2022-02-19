@@ -237,7 +237,7 @@ public:
 
   /// \brief Send turn indicators command to the vehicle platform.
   /// \param[in] msg The turn indicators command to send to the vehicle
-  void send_turn_indicators_command(const TurnIndicatorsCommand & msg) override;
+  void send_turn_indicators_command(const TurnIndicatorsCommand & msg);
 
   /// \brief Send hazard lights command to the vehicle platform.
   /// \param[in] msg The hazard lights command to send to the vehicle
