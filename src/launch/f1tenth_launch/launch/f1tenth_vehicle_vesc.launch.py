@@ -21,6 +21,7 @@ from ament_index_python import get_package_share_directory
 
 import os
 
+
 def generate_launch_description():
     f1tenth_launch_pkg_prefix = get_package_share_directory('f1tenth_launch')
 
@@ -36,7 +37,7 @@ def generate_launch_description():
     hokuyo_param_file = os.path.join(
         f1tenth_launch_pkg_prefix, 'param/urg_node_serial.param.yaml')
     f1tenth_urdf = os.path.join(
-       f1tenth_launch_pkg_prefix, 'urdf/f1tenth_vesc.urdf')
+        f1tenth_launch_pkg_prefix, 'urdf/f1tenth_vesc.urdf')
 
     with open(f1tenth_urdf, 'r') as infp:
         urdf_file = infp.read()
@@ -108,18 +109,35 @@ def generate_launch_description():
         parameters=[hokuyo_param_file]
     )
 
-    ldlidar_node = Node(
-        package='ldlidar',
-        executable='ldlidar',
+    sick_node = Node(
+        package='sick_scan2',
+        name='sick_scan2',
+        executable='sick_generic_caller',
         namespace='lidar',
         output='screen',
         parameters=[
-            {'serial_port': '/dev/sensors/ld06'},
-            {'topic_name': 'scan'},
-            {'lidar_frame': 'lidar'},
-            {'range_threshold': 0.005}
+            {'hostname': "192.168.1.101"},
+            {'frame_id': "lidar"},
+            {'scanner_name': "sick_tim_5xx"},
+            {'port': 2112},
+            {'min_ang': 0.0},
+            {'max_ang': 3.141},
+            {'max_range': 10.0}
         ]
     )
+
+    # ldlidar_node = Node(
+    #     package='ldlidar',
+    #     executable='ldlidar',
+    #     namespace='lidar',
+    #     output='screen',
+    #     parameters=[
+    #         {'serial_port': '/dev/sensors/ld06'},
+    #         {'topic_name': 'scan'},
+    #         {'lidar_frame': 'lidar'},
+    #         {'range_threshold': 0.005}
+    #     ]
+    # )
 
     # scan_to_cloud_node = Node(
     #     package='pointcloud_to_laserscan',
@@ -148,8 +166,9 @@ def generate_launch_description():
         joy,
         joy_translator,
         vesc_interface_node,
-        #hokuyo_node,
-        ldlidar_node,
-        #scan_to_cloud_node,
+        # hokuyo_node,
+        # ldlidar_node,
+        sick_node,
+        # scan_to_cloud_node,
         robot_publisher,
     ])

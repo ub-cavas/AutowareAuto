@@ -23,7 +23,7 @@
     # -------x without this, VESCInterfaceNode cannot be launched --
     vesc:
       speed_to_erpm_gain: 4200.0
-      speed_to_erpm_offset: 0.0
+      speed_to_erpm_offset: -584.0
       max_erpm_positive_delta: 500.0 # limits the sudden acceleration in rpm
       max_erpm_negative_delta: 1000.0 # limits the sudden deceleration in rpm
       steering_angle_to_servo_gain: -0.7583
