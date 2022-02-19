@@ -232,6 +232,19 @@ public:
   /// \param[in] msg The wipers command to send to the vehicle
   void send_wipers_command(const WipersCommand & msg) override;
 
+  /// \brief Set acceleration PID control kp value.
+  /// \param[in] kp
+  void set_acceleration_control_kp(const float32_t kp);
+
+  /// \brief Set acceleration PID control ki value.
+  /// \param[in] ki
+  void set_acceleration_control_ki(const float32_t ki);
+
+  /// \brief Set acceleration PID control kd value.
+  /// \param[in] kd
+  void set_acceleration_control_kd(const float32_t kd);
+
+
 private:
   /// \brief Send out command packets periodically
   void cmdCallback();
