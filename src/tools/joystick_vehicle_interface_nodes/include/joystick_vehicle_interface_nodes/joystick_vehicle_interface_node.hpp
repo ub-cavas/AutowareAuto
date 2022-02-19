@@ -26,6 +26,7 @@
 #include <string>
 
 #include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
 
 using autoware::common::types::bool8_t;
 
@@ -74,6 +75,8 @@ private:
   {};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>::SharedPtr
     m_headlights_cmd_pub{};
+  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>::SharedPtr
+    m_turn_indicators_cmd_pub{};
   rclcpp::Publisher<std_msgs::msg::UInt8>::SharedPtr m_recordreplay_cmd_pub{};
   rclcpp::Subscription<sensor_msgs::msg::Joy>::SharedPtr m_joy_sub{nullptr};
 };  // class JoystickVehicleInterfaceNode
