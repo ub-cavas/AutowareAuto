@@ -239,6 +239,10 @@ public:
   /// \param[in] msg The turn indicators command to send to the vehicle
   void send_turn_indicators_command(const TurnIndicatorsCommand & msg) override;
 
+  /// \brief Send hazard lights command to the vehicle platform.
+  /// \param[in] msg The hazard lights command to send to the vehicle
+  void send_hazard_lights_command(const HazardLightsCommand & msg) override;
+
   /// \brief Send a wipers command to the vehicle platform.
   /// \param[in] msg The wipers command to send to the vehicle
   void send_wipers_command(const WipersCommand & msg) override;
