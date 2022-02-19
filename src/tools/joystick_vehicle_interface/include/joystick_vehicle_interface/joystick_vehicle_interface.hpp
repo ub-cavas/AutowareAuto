@@ -114,7 +114,7 @@ public:
   const VehicleStateCommand & get_previous_state_command();
   const std_msgs::msg::UInt8 & get_recordreplay_command();
   void update_hazard_lights_state(
-    const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard_lights_command_cmd);
+    const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard_lights_cmd);
   void update_headlights_state(
     const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd);
   void update_turn_indicators_state(
