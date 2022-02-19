@@ -375,6 +375,7 @@ void DataspeedFordInterface::send_turn_indicators_command(const TurnIndicatorsCo
         "Received command for invalid turn indicators state.");
       ret = false;
       break;
+  }
 }
 
 void DataspeedFordInterface::send_hazard_lights_command(const HazardLightsCommand & msg)
@@ -396,6 +397,7 @@ void DataspeedFordInterface::send_hazard_lights_command(const HazardLightsComman
         "Received command for invalid hazard lights state.");
       ret = false;
       break;
+  }
 }
 
 void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
