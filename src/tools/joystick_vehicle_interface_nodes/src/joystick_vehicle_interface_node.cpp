@@ -22,6 +22,7 @@
 #include <type_traits>
 
 #include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
@@ -126,6 +127,12 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
     "headlights_command",
     rclcpp::QoS{10U}.reliable().durability_volatile());
 
+  // Turn Indicators commands
+  m_turn_indicators_cmd_pub =
+    create_publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>(
+    "turn_indicators_command",
+    rclcpp::QoS{10U}.reliable().durability_volatile());
+
   // Recordreplay command
   if (recordreplay_command_enabled) {
     m_recordreplay_cmd_pub = create_publisher<std_msgs::msg::UInt8>("recordreplay_cmd", 10);
@@ -150,9 +157,17 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   // State command: modify state first
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
-    autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
-    headlights_cmd.command = state_command.headlight;
-    m_headlights_cmd_pub->publish(headlights_cmd);
+    //TODO: How to check type correctly??
+    if (state_command::element_type == autoware_auto_vehicle_msgs::msg::HeadlightsCommand) {
+      autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
+      headlights_cmd.command = state_command.headlight;
+      m_headlights_cmd_pub->publish(headlights_cmd);
+    //TODO: How to check type correctly??
+    } else if (state_command::element_type == autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand) {
+      autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicators_cmd;
+      turn_indicators_cmd.command = state_command.turn_indicators;
+      m_turn_indicators_cmd_pub->publish(turn_indicators_cmd);
+    }
     m_state_cmd_pub->publish(state_command);
   }
   // Command publish
