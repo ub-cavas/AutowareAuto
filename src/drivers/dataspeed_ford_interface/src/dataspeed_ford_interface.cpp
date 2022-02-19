@@ -367,16 +367,22 @@ void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
     "Dataspeed Ford interface does not support sending wipers command.");
 }
 
-void DataspeedFordInterface::set_acceleration_control_kp(const float32_t kp) {
+void DataspeedFordInterface::set_acceleration_control_kp(const float32_t kp)
+{
   m_throttle_pid_controller.setKp(kp);
+  RCLCPP_INFO_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "P gain of throttle has set to %f", kp);
 }
 
-void DataspeedFordInterface::set_acceleration_control_ki(const float32_t ki) {
+void DataspeedFordInterface::set_acceleration_control_ki(const float32_t ki)
+{
   m_throttle_pid_controller.setKi(ki);
+  RCLCPP_INFO_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "I gain of throttle has set to %f", ki);
 }
 
-void DataspeedFordInterface::set_acceleration_control_kd(const float32_t kd) {
+void DataspeedFordInterface::set_acceleration_control_kd(const float32_t kd)
+{
   m_throttle_pid_controller.setKd(kd);
+  RCLCPP_INFO_THROTTLE(m_logger, m_clock, CLOCK_1_SEC, "D gain of throttle has set to %f", kd);
 }
 
 void DataspeedFordInterface::on_brake_info_report(const BrakeInfoReport::SharedPtr & msg)
