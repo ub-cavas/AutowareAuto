@@ -161,10 +161,10 @@ bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
       m_state_command.gear = VSC::GEAR_LOW;
       break;
     case Buttons::BLINKER_LEFT:
-      m_state_command.blinker = VSC::BLINKER_LEFT;
+      m_state_command.blinker = TurnIndicatorsCommand::ENABLE_LEFT;
       break;
     case Buttons::BLINKER_RIGHT:
-      m_state_command.blinker = VSC::BLINKER_RIGHT;
+      m_state_command.blinker = TurnIndicatorsCommand::ENABLE_RIGHT;
       break;
     case Buttons::BLINKER_HAZARD:
       m_state_command.blinker = VSC::BLINKER_HAZARD;
