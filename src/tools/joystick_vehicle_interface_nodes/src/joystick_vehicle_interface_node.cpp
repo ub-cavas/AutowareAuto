@@ -154,17 +154,14 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   // State command: modify state first
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
-    //TODO: How to check type correctly??
-    if (decltype(state_command) == autoware_auto_vehicle_msgs::msg::HeadlightsCommand) {
-      autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
-      headlights_cmd.command = state_command.headlight;
-      m_headlights_cmd_pub->publish(headlights_cmd);
-    //TODO: How to check type correctly??
-    } else if (decltype(state_command) == autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand) {
-      autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicators_cmd;
-      turn_indicators_cmd.command = state_command.turn_indicators;
-      m_turn_indicators_cmd_pub->publish(turn_indicators_cmd);
-    }
+    autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
+    headlights_cmd.command = state_command.headlight;
+    m_headlights_cmd_pub->publish(headlights_cmd);
+
+    autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicators_cmd;
+    turn_indicators_cmd.command = state_command.turn_indicators;
+    m_turn_indicators_cmd_pub->publish(turn_indicators_cmd);
+
     m_state_cmd_pub->publish(state_command);
   }
   // Command publish
