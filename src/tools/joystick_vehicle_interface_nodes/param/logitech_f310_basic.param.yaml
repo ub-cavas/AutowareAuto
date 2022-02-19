@@ -17,7 +17,7 @@
     axis_scale:
       # brake: -50.0
       # throttle: -50.0
-      front_steer: 100.0
+      front_steer: 0.649
       # rear_steer: 100.0
       # curvature:
       # acceleration:
@@ -34,18 +34,18 @@
     # Index for which button is which
     buttons:
       # autonomous:
-      headlights: 2  # X
+      # headlights:
       # wiper:
       gear_drive: 0  # A
-      gear_reverse: 3  # Y
-      gear_park: 1  # B
-      # gear_neutral:
+      gear_reverse: 1  # Y
+      gear_park: 3  # B
+      gear_neutral: 2
       # gear_low:
-      # blinker_left:
-      # blinker_right:
+      blinker_left: 4
+      blinker_right: 5
       # blinker_hazard:
       # velocity_up:
       # velocity_down:
-      recordreplay_start_record : 7 # start button
-      recordreplay_start_replay : 8 # logo button
-      recordreplay_stop : 6 # back button
+      # recordreplay_start_record : 7 # start button
+      # recordreplay_start_replay : 8 # logo button
+      # recordreplay_stop : 6 # back button
