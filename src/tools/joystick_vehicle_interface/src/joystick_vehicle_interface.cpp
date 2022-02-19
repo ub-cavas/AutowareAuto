@@ -209,6 +209,12 @@ void JoystickVehicleInterface::update_headlights_state(
   m_state_command.headlight = headlights_cmd.command;
 }
 
+void JoystickVehicleInterface::update_turn_indicators_state(
+  const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand & turn_indicators_cmd)
+{
+  m_state_command.turn_indicators = turn_indicators_cmd.command;
+}
+
 const std_msgs::msg::UInt8 & JoystickVehicleInterface::get_recordreplay_command()
 {
   return m_recordreplay_command;

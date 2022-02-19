@@ -21,9 +21,6 @@
 #include <string>
 #include <type_traits>
 
-#include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
-#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
-
 using autoware::common::types::bool8_t;
 using autoware::common::types::float64_t;
 
@@ -158,12 +155,12 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
     //TODO: How to check type correctly??
-    if (state_command::element_type == autoware_auto_vehicle_msgs::msg::HeadlightsCommand) {
+    if (decltype(state_command) == autoware_auto_vehicle_msgs::msg::HeadlightsCommand) {
       autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
       headlights_cmd.command = state_command.headlight;
       m_headlights_cmd_pub->publish(headlights_cmd);
     //TODO: How to check type correctly??
-    } else if (state_command::element_type == autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand) {
+    } else if (decltype(state_command) == autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand) {
       autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicators_cmd;
       turn_indicators_cmd.command = state_command.turn_indicators;
       m_turn_indicators_cmd_pub->publish(turn_indicators_cmd);

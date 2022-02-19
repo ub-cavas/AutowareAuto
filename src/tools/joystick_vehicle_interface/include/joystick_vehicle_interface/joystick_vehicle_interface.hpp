@@ -19,6 +19,7 @@
 #define JOYSTICK_VEHICLE_INTERFACE__JOYSTICK_VEHICLE_INTERFACE_HPP_
 
 #include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
 #include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
@@ -113,6 +114,8 @@ public:
   const std_msgs::msg::UInt8 & get_recordreplay_command();
   void update_headlights_state(
     const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd);
+  void update_turn_indicators_state(
+    const autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand & turn_indicators_cmd);
 
 private:
   /// Given an active button, update the state command

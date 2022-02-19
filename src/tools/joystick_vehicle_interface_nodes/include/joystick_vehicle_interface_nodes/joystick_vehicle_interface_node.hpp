@@ -16,6 +16,8 @@
 #ifndef JOYSTICK_VEHICLE_INTERFACE_NODES__JOYSTICK_VEHICLE_INTERFACE_NODE_HPP_
 #define JOYSTICK_VEHICLE_INTERFACE_NODES__JOYSTICK_VEHICLE_INTERFACE_NODE_HPP_
 
+#include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 #include <joystick_vehicle_interface/joystick_vehicle_interface.hpp>
 #include <joystick_vehicle_interface_nodes/visibility_control.hpp>
 
@@ -24,9 +26,6 @@
 
 #include <memory>
 #include <string>
-
-#include "autoware_auto_vehicle_msgs/msg/headlights_command.hpp"
-#include "autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp"
 
 using autoware::common::types::bool8_t;
 
