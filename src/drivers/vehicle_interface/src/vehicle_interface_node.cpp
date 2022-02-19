@@ -147,6 +147,11 @@ void VehicleInterfaceNode::set_interface(std::unique_ptr<PlatformInterface> && i
   m_interface = std::forward<std::unique_ptr<PlatformInterface>&&>(interface);
 }
 
+const std::unique_ptr<PlatformInterface> & VehicleInterfaceNode::get_interface() const noexcept
+{
+  return m_interface;
+}
+
 rclcpp::Logger VehicleInterfaceNode::logger() const noexcept {return get_logger();}
 
 const SafetyStateMachine VehicleInterfaceNode::get_state_machine() const noexcept

@@ -114,6 +114,8 @@ protected:
   void set_reference_tracker(ControllerBasePtr && controller) noexcept;
   /// Set the vehicle-specific PlatformInterface
   void set_interface(std::unique_ptr<PlatformInterface> && interface) noexcept;
+  /// Get the vehicle-specific PlatformInterface as a const unique_ptr
+  const std::unique_ptr<PlatformInterface> & get_interface() const noexcept;
   /// Get access to logger
   rclcpp::Logger logger() const noexcept;
   /// Get access to Safety State Machine
