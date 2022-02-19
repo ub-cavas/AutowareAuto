@@ -373,6 +373,18 @@ void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)
     "Dataspeed Ford interface does not support sending wipers command.");
 }
 
+void DataspeedFordInterface::set_acceleration_control_kp(const float32_t kp) {
+  m_throttle_pid_controller.setKp(kp);
+}
+
+void DataspeedFordInterface::set_acceleration_control_ki(const float32_t ki) {
+  m_throttle_pid_controller.setKi(ki);
+}
+
+void DataspeedFordInterface::set_acceleration_control_kd(const float32_t kd) {
+  m_throttle_pid_controller.setKd(kd);
+}
+
 void DataspeedFordInterface::on_brake_info_report(const BrakeInfoReport::SharedPtr & msg)
 {
   switch (msg->parking_brake.status) {
