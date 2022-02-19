@@ -73,8 +73,9 @@ private:
   ControlPub m_cmd_pub{};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>::SharedPtr
     m_state_cmd_pub{};
-  rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
-    m_hazard_lights_cmd_pub{};
+    //TODO: Enable Hazard Lights
+  // rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>::SharedPtr
+  //   m_hazard_lights_cmd_pub{};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::HeadlightsCommand>::SharedPtr
     m_headlights_cmd_pub{};
   rclcpp::Publisher<autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand>::SharedPtr

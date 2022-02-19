@@ -167,7 +167,8 @@ bool8_t JoystickVehicleInterface::handle_active_button(Buttons button)
       m_state_command.blinker = TurnIndicatorsCommand::ENABLE_RIGHT;
       break;
     case Buttons::BLINKER_HAZARD:
-      m_state_command.blinker = HazardLightsCommand::ENABLE;
+      //TODO: Enable Hazard Lights
+      // m_state_command.blinker = HazardLightsCommand::ENABLE;
       break;
     case Buttons::RECORDREPLAY_START_RECORD:
       m_recordreplay_command.data =
@@ -203,11 +204,12 @@ const VehicleStateCommand & JoystickVehicleInterface::get_previous_state_command
   return m_previous_state_command;
 }
 
-void JoystickVehicleInterface::update_hazard_lights_state(
-  const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard_lights_cmd)
-{
-  m_state_command.blinker = hazard_lights_cmd.command;
-}
+//TODO: Enable Hazard Lights
+// void JoystickVehicleInterface::update_hazard_lights_state(
+//   const autoware_auto_vehicle_msgs::msg::HazardLightsCommand & hazard_lights_cmd)
+// {
+//   m_state_command.blinker = hazard_lights_cmd.command;
+// }
 
 void JoystickVehicleInterface::update_headlights_state(
   const autoware_auto_vehicle_msgs::msg::HeadlightsCommand & headlights_cmd)

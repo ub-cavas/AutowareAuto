@@ -118,11 +118,12 @@ JoystickVehicleInterfaceNode::JoystickVehicleInterfaceNode(
     "state_command",
     rclcpp::QoS{10U}.reliable().durability_volatile());
 
-  // Hazard Lights command
-  m_headlights_cmd_pub =
-    create_publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>(
-    "hazard_lights_command",
-    rclcpp::QoS{10U}.reliable().durability_volatile());
+  // //TODO: Enable Hazard Lights
+  // // Hazard Lights command
+  // m_headlights_cmd_pub =
+  //   create_publisher<autoware_auto_vehicle_msgs::msg::HazardLightsCommand>(
+  //   "hazard_lights_command",
+  //   rclcpp::QoS{10U}.reliable().durability_volatile());
 
   // Headlights command
   m_headlights_cmd_pub =
@@ -161,19 +162,17 @@ void JoystickVehicleInterfaceNode::on_joy(const sensor_msgs::msg::Joy::SharedPtr
   if (m_core->update_state_command(*msg)) {
     auto & state_command = m_core->get_state_command();
 
-    autoware_auto_vehicle_msgs::msg::HazardLightsCommand hazard_lights_cmd;
-    //TODO: state_command.blinker can be incorrect because there is no VSC hazard
-    //blinker and hazard are currently sharing
-    hazard_lights_cmd.command = state_command.blinker;
-    m_hazard_lights_cmd_pub->publish(hazard_lights_cmd);
+    // //TODO: state_command.blinker can be incorrect because there is no VSC hazard
+    // //blinker and hazard are currently sharing
+    // autoware_auto_vehicle_msgs::msg::HazardLightsCommand hazard_lights_cmd;
+    // hazard_lights_cmd.command = state_command.blinker;
+    // m_hazard_lights_cmd_pub->publish(hazard_lights_cmd);
 
     autoware_auto_vehicle_msgs::msg::HeadlightsCommand headlights_cmd;
     headlights_cmd.command = state_command.headlight;
     m_headlights_cmd_pub->publish(headlights_cmd);
 
     autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand turn_indicators_cmd;
-    //TODO: state_command.blinker can be incorrect because there is no VSC hazard
-    //blinker and hazard are currently sharing
     turn_indicators_cmd.command = state_command.blinker;
     m_turn_indicators_cmd_pub->publish(turn_indicators_cmd);
 
