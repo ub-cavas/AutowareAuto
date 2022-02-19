@@ -14,6 +14,39 @@ namespace dataspeed_ford_interface
 using autoware::common::types::float32_t;
 using autoware::drivers::vehicle_interface::ViFeature;
 
+rcl_interfaces::msg::SetParametersResult DataspeedFordInterfaceNode::on_parameter_set(
+  const std::vector<rclcpp::Parameter> & parameters)
+{
+  rcl_interfaces::msg::SetParametersResult result{};
+
+  DataspeedFordInterface * interface =
+    dynamic_cast<DataspeedFordInterface *>(this->get_interface().get());
+
+  if (!interface) {
+    result.successful = false;
+    result.reason = "Cannot cast type to DataspeedFordInterface *";
+    return result;
+  }
+
+  // update class attributes
+  for (const auto & param : parameters) {
+    if (param.get_name() == "dataspeed_ford.acceleration_control.kp") {
+      // set_kp()
+      interface->set_acceleration_control_kp(static_cast<float32_t>(param.as_double()));
+    } else if (param.get_name() == "dataspeed_ford.acceleration_control.ki") {
+      // set_ki()
+      interface->set_acceleration_control_ki(static_cast<float32_t>(param.as_double()));
+    } else if (param.get_name() == "dataspeed_ford.acceleration_control.kd") {
+      // set_kd()
+      interface->set_acceleration_control_kd(static_cast<float32_t>(param.as_double()));
+    }
+  }
+
+  result.successful = true;
+  result.reason = "success";
+  return result;
+}
+
 DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions & options)
 : VehicleInterfaceNode {
     "dataspeed_ford_interface",
@@ -43,6 +76,9 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
     declare_parameter("dataspeed_ford.acceleration_control.kd").get<float32_t>(),
     declare_parameter("dataspeed_ford.acceleration_control.deadzone_min").get<float32_t>(),
     declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>()));
+
+  m_param_callback_handle = this->add_on_set_parameters_callback(
+    std::bind(&DataspeedFordInterfaceNode::on_parameter_set, this, std::placeholders::_1));
 }
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware
