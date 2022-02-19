@@ -59,7 +59,34 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
       options
 }
 {
-  set_interface(std::make_unique<DataspeedFordInterface>(
+  // initial values 
+  rclcpp::ParameterValue pid_initial_value{0.0};
+
+  // initiate sliders for P gain -- throttle controller
+  rcl_interfaces::msg::ParameterDescriptor p_descriptor;
+  rcl_interfaces::msg::FloatingPointRange p_range;
+  p_range.from_value = 0;
+  p_range.to_value = 10;
+  p_range.step = 0.01;
+  p_descriptor.floating_point_range.push_back(p_range);
+
+  // initiate sliders for I gain -- throttle controller
+  rcl_interfaces::msg::ParameterDescriptor i_descriptor;
+  rcl_interfaces::msg::FloatingPointRange i_range;
+  i_range.from_value = 0;
+  i_range.to_value = 10;
+  i_range.step = 0.01;
+  i_descriptor.floating_point_range.push_back(i_range);
+
+  // initiate sliders for D gain -- throttle controller
+  rcl_interfaces::msg::ParameterDescriptor d_descriptor;
+  rcl_interfaces::msg::FloatingPointRange d_range;
+  d_range.from_value = 0;
+  d_range.to_value = 10;
+  d_range.step = 0.01;
+  d_descriptor.floating_point_range.push_back(d_range);
+
+  auto interface = std::make_unique<DataspeedFordInterface>(
     *this,
     declare_parameter("dataspeed_ford.ecu_build_num").get<uint16_t>(),
     declare_parameter("dataspeed_ford.front_axle_to_cog").get<float32_t>(),
@@ -71,11 +98,15 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
     declare_parameter("dataspeed_ford.acceleration_positive_jerk_limit").get<float32_t>(),
     declare_parameter("dataspeed_ford.deceleration_negative_jerk_limit").get<float32_t>(),
     declare_parameter("dataspeed_ford.pub_period").get<uint32_t>(),
-    declare_parameter("dataspeed_ford.acceleration_control.kp").get<float32_t>(),
-    declare_parameter("dataspeed_ford.acceleration_control.ki").get<float32_t>(),
-    declare_parameter("dataspeed_ford.acceleration_control.kd").get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.kp", pid_initial_value, p_descriptor)
+      .get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.ki", pid_initial_value, i_descriptor)
+      .get<float32_t>(),
+    declare_parameter("dataspeed_ford.acceleration_control.kd", pid_initial_value, d_descriptor)
+      .get<float32_t>(),
     declare_parameter("dataspeed_ford.acceleration_control.deadzone_min").get<float32_t>(),
-    declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>()));
+    declare_parameter("dataspeed_ford.acceleration_control.deadzone_max").get<float32_t>());
+  set_interface(std::move(interface));
 
   m_param_callback_handle = this->add_on_set_parameters_callback(
     std::bind(&DataspeedFordInterfaceNode::on_parameter_set, this, std::placeholders::_1));
