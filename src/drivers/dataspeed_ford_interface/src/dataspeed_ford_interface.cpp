@@ -543,6 +543,8 @@ void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr 
   odometry().front_wheel_angle_rad = f_wheel_angle_rad;
   odometry().rear_wheel_angle_rad = 0.0F;
 
+  odometry().velocity_mps = msg->speed;
+
   m_seen_steering_rpt = true;
   odometry().stamp = msg->header.stamp;
 }
