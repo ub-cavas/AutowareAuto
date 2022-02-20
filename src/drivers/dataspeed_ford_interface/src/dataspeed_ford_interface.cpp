@@ -304,7 +304,7 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   float32_t target_velocity = msg.velocity_mps;
   float32_t accel_mps2 = m_throttle_pid_controller.step(target_velocity - current_velocity, dt);
   float32_t throttle_percent, brake_percent = 0;
-  if (accel_mps2 > 0) { // throttle
+  if (accel_mps2 > 0) {  // throttle
     accel_mps2 = accel_mps2 > m_acceleration_limit ? m_acceleration_limit : accel_mps2;
     throttle_percent = accel_mps2 / m_acceleration_limit;
     if (throttle_percent < m_accel_control_deadzone_min) {
