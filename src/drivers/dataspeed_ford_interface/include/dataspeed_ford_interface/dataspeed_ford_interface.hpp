@@ -283,7 +283,6 @@ private:
 
   // for throttle/brake control
   rclcpp::Time m_prev_tick;
-  float32_t m_prev_speed;
   PIDController m_throttle_pid_controller;
   float32_t m_accel_control_deadzone_min;
   float32_t m_accel_control_deadzone_max;
