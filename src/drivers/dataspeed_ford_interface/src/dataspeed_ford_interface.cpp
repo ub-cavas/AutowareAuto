@@ -42,7 +42,6 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_pub_period{std::chrono::milliseconds(pub_period)},
   m_dbw_state_machine(new DbwStateMachine{3}),
   m_clock{RCL_SYSTEM_TIME},
-  m_prev_speed{0.0F},
   m_throttle_pid_controller{accel_control_kp, accel_control_ki, accel_control_kd, -1.0F, 1.0F},
   m_accel_control_deadzone_min{accel_control_deadzone_min},
   m_accel_control_deadzone_max{accel_control_deadzone_max}
