@@ -15,7 +15,7 @@
       deceleration_negative_jerk_limit: 1.0
       pub_period: 20 # recommended value 20-100ms
       acceleration_control:
-        kp: 0.1
+        kp: 0.2
         ki: 0.01
         kd: 0.0
         deadzone_min: 0.0
