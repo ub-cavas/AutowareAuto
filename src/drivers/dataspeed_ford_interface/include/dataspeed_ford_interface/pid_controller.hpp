@@ -29,7 +29,8 @@ public:
     m_ki(ki),
     m_kd(kd),
     m_min(std::min(min_val, max_val)),
-    m_max(std::max(min_val, max_val)){};
+    m_max(std::max(min_val, max_val)),
+    m_is_reset(true){};
 
   PIDController()
   : PIDController(
@@ -66,6 +67,16 @@ public:
     m_max = std::max(min_val, max_val);
   }
 
+  bool isReset() const { return m_is_reset; }
+
+  void reset()
+  {
+    if (m_is_reset) return;
+    m_integral = 0.0;
+    m_last_err = 0.0;
+    m_is_reset = true;
+  }
+
   void resetIntegrator() { m_integral = 0.0; }
 
   void revertIntegrator() { m_integral = m_prev_integral; }
@@ -86,6 +97,9 @@ public:
     }
 
     m_last_err = error;
+
+    if (m_is_reset) m_is_reset = false;
+
     return y;
   }
 
@@ -95,6 +109,8 @@ private:
   float64_t m_integral, m_prev_integral;
   float64_t m_kp, m_ki, m_kd;
   float64_t m_min, m_max;
+
+  bool m_is_reset;
 };
 }  // namespace dataspeed_ford_interface
 }  // namespace autoware

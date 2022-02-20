@@ -134,6 +134,7 @@ void DataspeedFordInterface::cmdCallback()
     odometry().velocity_mps < m_autobrake_velocity_threshold) {
     m_throttle_cmd.pedal_cmd = 0.F;
     m_brake_cmd.pedal_cmd = m_autobrake_brake_stress;
+    m_throttle_pid_controller.reset();
   }
 
   // Publish commands to Dataspeed Ford DBW
