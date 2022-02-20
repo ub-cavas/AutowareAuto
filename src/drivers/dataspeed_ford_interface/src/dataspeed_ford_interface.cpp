@@ -44,7 +44,6 @@ DataspeedFordInterface::DataspeedFordInterface(
   m_pub_period{std::chrono::milliseconds(pub_period)},
   m_dbw_state_machine(new DbwStateMachine{3}),
   m_clock{RCL_SYSTEM_TIME},
-  m_prev_speed{0.0F},
   m_throttle_pid_controller{accel_control_kp, accel_control_ki, accel_control_kd, -1.0F, 1.0F},
   m_accel_control_deadzone_min{accel_control_deadzone_min},
   m_accel_control_deadzone_max{accel_control_deadzone_max},
@@ -298,30 +297,26 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   m_target_speed = msg.velocity_mps;
   auto tick = m_clock.now();
   float32_t dt = (tick - m_prev_tick).seconds();
-  float32_t speed = odometry().velocity_mps;
-  float32_t current_accel = (speed - m_prev_speed) / dt;
+  float32_t current_velocity = odometry().velocity_mps;
   m_prev_tick = tick;
-  m_prev_speed = speed;
 
   // obtain & clamp target acceleration
-  float32_t target_accel = msg.long_accel_mps2;
-  if (target_accel > m_acceleration_limit) {
-    RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC, "Received acceleration greater than m_acceleration_limit");
-    target_accel = m_acceleration_limit;
-  } else if (std::fabs(target_accel) > m_deceleration_limit) {
-    RCLCPP_ERROR_THROTTLE(
-      m_logger, m_clock, CLOCK_1_SEC, "Received deceleration greater than m_deceleration_limit");
-    target_accel = -1 * m_deceleration_limit;
-  }
-
-  float32_t accel_percent = m_throttle_pid_controller.step(target_accel - current_accel, dt);
-
-  float32_t throttle_percent = 0, brake_percent = 0;
-  if (accel_percent < m_accel_control_deadzone_min) {
-    brake_percent = std::min(std::fabs(accel_percent), 1.0F);
-  } else if (accel_percent > m_accel_control_deadzone_max) {
-    throttle_percent = std::min(accel_percent, 1.0F);
+  float32_t target_velocity = msg.velocity_mps;
+  float32_t accel_mps2 = m_throttle_pid_controller.step(target_velocity - current_velocity, dt);
+  float32_t throttle_percent, brake_percent = 0;
+  if (accel_mps2 > 0) {  // throttle
+    throttle_percent = std::min(accel_mps2, 1.0F);
+    if (throttle_percent < m_accel_control_deadzone_min) {
+      throttle_percent = 0;
+    }
+    brake_percent = 0;
+  } else {  // brake
+    float decel_mps2 = std::fabs(accel_mps2);
+    brake_percent = std::min(decel_mps2, 1.0F);
+    if (brake_percent < m_accel_control_deadzone_min) {
+      brake_percent = 0;
+    }
+    throttle_percent = 0;
   }
 
   m_throttle_cmd.header.stamp = msg.stamp;
