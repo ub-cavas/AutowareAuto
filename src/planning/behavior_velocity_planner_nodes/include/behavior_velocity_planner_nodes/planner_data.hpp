@@ -74,7 +74,7 @@ struct PlannerData
   std::deque<geometry_msgs::msg::TwistStamped> velocity_buffer;
   lanelet::LaneletMapPtr lanelet_map;
 
-  // tf
+  // Current pose of the ego vehicle
   geometry_msgs::msg::PoseStamped current_pose;
 
   // other internal data
@@ -90,12 +90,16 @@ struct PlannerData
   boost::optional<autoware_auto_planning_msgs::msg::OrderMovement>
   external_intersection_status_input;
 
-
   // additional parameters
   double max_stop_acceleration_threshold;
   double max_stop_jerk_threshold;
   double delay_response_time;
 
+  /**
+   * @brief Decide if vehicle was stable for given duration
+   * @param stop_duration
+   * @return True if vehicle was stable for given duration
+   */
   bool isVehicleStopped(const double stop_duration = 0.0) const;
 
   //  std::shared_ptr<autoware_perception_msgs::msg::TrafficLightStateStamped> getTrafficLightState(
@@ -115,8 +119,13 @@ struct PlannerData
   //  }
 
 private:
+  // Ego vehicle previous acceleration value
   double prev_accel_;
+
+  // Ego vehicle previous velocity value
   geometry_msgs::msg::TwistStamped::ConstSharedPtr prev_velocity_;
+
+  // Lowpass filter gain to apply in acceleration calculation
   double accel_lowpass_gain_;
 
   void updateCurrentAcc();

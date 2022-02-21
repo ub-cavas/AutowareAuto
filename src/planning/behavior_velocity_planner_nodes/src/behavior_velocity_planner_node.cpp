@@ -446,7 +446,6 @@ float BehaviorVelocityPlannerNode::distance2d(
   return autoware::common::geometry::norm_2d(diff);
 }
 
-// calculate curvature by circle fitting to three points
 float BehaviorVelocityPlannerNode::calculate_curvature(
   const geometry_msgs::msg::Point & p1,
   const geometry_msgs::msg::Point & p2,

@@ -83,12 +83,20 @@ private:
 
   rclcpp::Client<autoware_auto_mapping_msgs::srv::HADMapService>::SharedPtr map_client_;
 
+  /**
+   * @brief Hold important information to do decision making
+   */
   PlannerData planner_data_;
+
+  /**
+   * @brief Handle scene interface
+   */
   BehaviorVelocityPlannerManager planner_manager_;
 
   double forward_path_length_;
   double backward_path_length_;
 
+  // Callback functions
   void callback_predicted_objects(
     const autoware_auto_perception_msgs::msg::PredictedObjects::ConstSharedPtr msg_in);
   void callback_cloud_no_ground(const sensor_msgs::msg::PointCloud2::ConstSharedPtr msg_in);
@@ -101,21 +109,74 @@ private:
   void callback_order_movement_intersection(
     const autoware_auto_planning_msgs::msg::OrderMovement::ConstSharedPtr msg_in);
 
+  /**
+   * @brief Process HADMapBin data and write it to planner_data_
+   * @param had_map_bin HAD map binary data
+   */
   void processs_had_map_bin_lanelet(const autoware_auto_mapping_msgs::msg::HADMapBin & had_map_bin);
 
+  /**
+   * @brief Check if all the subscriptions are successful
+   * @return Return true if all inputs are received
+   */
   bool is_data_ready();
+
+  /**
+   * @brief Convert path msg to trajectory msg
+   * @param path Path msg
+   * @return Trajectory msg
+   */
   autoware_auto_planning_msgs::msg::Trajectory path_to_trajectory(
     const autoware_auto_planning_msgs::msg::Path & path);
+
+  /**
+   * @brief Calculate and set steering angle for given trajectory points
+   * @param trajectory_points
+   */
   void set_steering_angle(
     std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & trajectory_points);
+
+  /**
+   * @brief Calculate distance between two points in 2 dimension
+   * @param p1 Point 1
+   * @param p2 Point 2
+   * @return Distance
+   */
   float distance2d(const geometry_msgs::msg::Point & p1, const geometry_msgs::msg::Point & p2);
+
+  /**
+   * @brief Calculates curvature by fitting circle to 3 given points
+   * @param p1 Point 1
+   * @param p2 Point 2
+   * @param p3 Point 3
+   * @return Radius of the fitted circle (curvature)
+   */
   float calculate_curvature(
     const geometry_msgs::msg::Point & p1,
     const geometry_msgs::msg::Point & p2,
     const geometry_msgs::msg::Point & p3);
+
+  /**
+   * @brief Calculates time it takes with given velocities from start point of the trajectory for
+   * each point
+   * @param trajectory_points
+   */
   static void set_time_from_start(
     std::vector<autoware_auto_planning_msgs::msg::TrajectoryPoint> & trajectory_points);
+
+  /**
+   * @brief Publish marker array with given path
+   * @param path
+   */
   void publish_debug_marker(const autoware_auto_planning_msgs::msg::Path & path);
+
+  /**
+   * @brief Transform a path from given frame to target frame
+   * @param path
+   * @param source_frame_id
+   * @param target_frame_id
+   * @return Transformed path
+   */
   autoware_auto_planning_msgs::msg::Path transform_path(
     const autoware_auto_planning_msgs::msg::Path & path,
     const std::string & source_frame_id,

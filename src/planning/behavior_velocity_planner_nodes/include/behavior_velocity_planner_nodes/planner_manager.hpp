@@ -32,13 +32,27 @@ namespace behavior_velocity_planner_nodes
 class BehaviorVelocityPlannerManager
 {
 public:
+  /**
+   * @brief Activate scene module managers
+   * @param scene_module_manager_ptr
+   */
   void launchSceneModule(
     const std::shared_ptr<SceneModuleManagerInterface> & scene_module_manager_ptr);
 
+  /**
+   * @brief Calculate and write velocities on the path considering related scene module
+   * @param planner_data Necessary information to do the planning
+   * @param input_path_msg Path without updated velocities
+   * @return Path with updated/planned velocities
+   */
   autoware_auto_planning_msgs::msg::PathWithLaneId planPathVelocity(
     const std::shared_ptr<const PlannerData> & planner_data,
     const autoware_auto_planning_msgs::msg::PathWithLaneId & input_path_msg);
 
+  /**
+   * @brief Get why and where the vehicle should stop as string in DiagnosticStatus msg
+   * @return Diagnostic status message
+   */
   diagnostic_msgs::msg::DiagnosticStatus getStopReasonDiag();
 
 private:
