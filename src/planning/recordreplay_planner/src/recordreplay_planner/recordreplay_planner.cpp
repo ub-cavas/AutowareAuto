@@ -184,6 +184,10 @@ float64_t RecordReplayPlanner::get_min_record_distance() const
   return m_min_record_distance;
 }
 
+void RecordReplayPlanner::set_skip_first_velocity(const bool8_t skip_first_velocity)
+{
+  m_skip_first_velocity = skip_first_velocity;
+}
 
 bool RecordReplayPlanner::record_state(const State & state_to_record)
 {
@@ -282,6 +286,10 @@ const Trajectory & RecordReplayPlanner::from_record(const State & current_state)
     trajectory.points[i].time_from_start.nanosec = static_cast<uint32_t>(t_ns);
   }
 
+  // Prevent a non-0 velocity at the first trajectory point to avoid some controllers getting stuck
+  if (trajectory.points.size() > 1 && trajectory.points[0].longitudinal_velocity_mps < 1.0e-3f) {
+    trajectory.points[0].longitudinal_velocity_mps = trajectory.points[1].longitudinal_velocity_mps;
+  }
   // Mark the last point along the trajectory as "stopping" by setting all rates,
   // accelerations and velocities to zero. TODO(s.me) this is by no means
   // guaranteed to be dynamically feasible. One could implement a proper velocity

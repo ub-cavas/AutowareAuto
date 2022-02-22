@@ -39,6 +39,7 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
   const auto trajectory_viz_topic = "planned_trajectory_viz";
   const auto heading_weight = declare_parameter("heading_weight").get<float64_t>();
   const auto min_record_distance = declare_parameter("min_record_distance").get<float64_t>();
+  const auto skip_first_velocity = declare_parameter("skip_first_velocity").get<bool8_t>();
   m_goal_distance_threshold_m = declare_parameter("goal_distance_threshold_m").get<float32_t>();
   m_goal_angle_threshold_rad = declare_parameter("goal_angle_threshold_rad").get<float32_t>();
 
@@ -103,6 +104,7 @@ RecordReplayPlannerNode::RecordReplayPlannerNode(const rclcpp::NodeOptions & nod
   m_planner = std::make_unique<recordreplay_planner::RecordReplayPlanner>();
   m_planner->set_heading_weight(heading_weight);
   m_planner->set_min_record_distance(min_record_distance);
+  m_planner->set_skip_first_velocity(skip_first_velocity);
 }
 
 Marker RecordReplayPlannerNode::to_marker(

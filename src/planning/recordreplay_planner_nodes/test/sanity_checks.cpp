@@ -69,6 +69,7 @@ TEST(MytestBase, Basic)
   node_options_rr.append_parameter_override(
     "goal_angle_threshold_rad",
     autoware::common::types::PI_2);
+  node_options_rr.append_parameter_override("skip_first_velocity", false);
   auto plannernode = std::make_shared<RecordReplayPlannerNode>(node_options_rr);
 
   using PubAllocT = rclcpp::PublisherOptionsWithAllocator<std::allocator<void>>;
