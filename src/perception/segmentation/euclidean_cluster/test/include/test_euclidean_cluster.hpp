@@ -35,7 +35,8 @@ TEST(EuclideanCluster, SimpleBar)
   /// setup
   Config cfg{"foo", 10U, 100U, 1.0F, 1.0F, 10.0F};
   HashConfig hcfg{-130.0F, 130.0F, -130.0F, 130.0F, 1.0F, 10000U};
-  EuclideanCluster cls{cfg, hcfg};
+  FilterConfig fcg{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F};
+  EuclideanCluster cls{cfg, hcfg, fcg};
   Clusters clusters;
   std::vector<std::pair<float, float>> output;
   // insert points
@@ -61,7 +62,8 @@ TEST(EuclideanCluster, NoisyL)
   builtin_interfaces::msg::Time t;
   Config cfg{"foo", 10U, 100U, 1.0F, 1.0F, 10.0F};
   HashConfig hcfg{-130.0F, 130.0F, -130.0F, 130.0F, 1.0F, 10000U};
-  EuclideanCluster cls{cfg, hcfg};
+  FilterConfig fcg{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F};
+  EuclideanCluster cls{cfg, hcfg, fcg};
   Clusters res1;
   std::vector<std::pair<float, float>> output;
   std::vector<std::pair<float, float>> empty;
@@ -91,7 +93,8 @@ TEST(EuclideanCluster, MultiObject)
   builtin_interfaces::msg::Time t;
   Config cfg{"bar", 10U, 100U, 1.0F, 1.0F, 10.0F};
   HashConfig hcfg{-130.0F, 130.0F, -130.0F, 130.0F, 1.0F, 10000U};
-  EuclideanCluster cls{cfg, hcfg};
+  FilterConfig fcg{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F};
+  EuclideanCluster cls{cfg, hcfg, fcg};
   Clusters res1;
   std::vector<std::pair<float, float>> output1;
   std::vector<std::pair<float, float>> output2;
@@ -142,7 +145,8 @@ TEST(EuclideanCluster, NoCluster)
   builtin_interfaces::msg::Time t;
   Config cfg{"bar", 10U, 100U, 1.0F, 1.0F, 10.0F};
   HashConfig hcfg{-130.0F, 130.0F, -130.0F, 130.0F, 1.0F, 10000U};
-  EuclideanCluster cls{cfg, hcfg};
+  FilterConfig fcg{1.0F, 1.0F, 1.0F, 1.0F, 1.0F, 1.0F};
+  EuclideanCluster cls{cfg, hcfg, fcg};
   Clusters res;
   std::vector<std::pair<float, float>> output;
   // insert points

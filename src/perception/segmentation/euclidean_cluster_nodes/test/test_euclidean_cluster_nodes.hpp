@@ -77,11 +77,15 @@ TEST_F(EuclideanClusterNodesTest, Instantiate)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
+  params.emplace_back("filter_output_by_size", false);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("cluster.frame_id", "base_link");
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
-  params.emplace_back("cluster.min_cluster_size", 10);
+  params.emplace_back("cluster.min_number_of_points_in_cluster", 10);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
@@ -118,6 +122,30 @@ TEST_F(EuclideanClusterNodesTest, Instantiate)
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
   params.emplace_back("hash.side_length", 1.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_x", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_y", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_z", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_x", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_y", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_z", 130.0);
   node_options.parameter_overrides(params);
 
   ASSERT_NO_THROW(EuclideanClusterNode{node_options});
@@ -161,11 +189,15 @@ TEST_F(EuclideanClusterNodesTest, InstantiateDownsample)
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
+  params.emplace_back("filter_output_by_size", true);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
   params.emplace_back("cluster.frame_id", "base_link");
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
-  params.emplace_back("cluster.min_cluster_size", 10);
+  params.emplace_back("cluster.min_number_of_points_in_cluster", 10);
   node_options.parameter_overrides(params);
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
@@ -238,6 +270,30 @@ TEST_F(EuclideanClusterNodesTest, InstantiateDownsample)
   ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
 
   params.emplace_back("voxel.voxel_size.z", 0.2);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_x", 0.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_y", 0.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.min_z", 0.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_x", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_y", 130.0);
+  node_options.parameter_overrides(params);
+  ASSERT_THROW(EuclideanClusterNode{node_options}, rclcpp::ParameterTypeException);
+
+  params.emplace_back("filter.max_z", 130.0);
   node_options.parameter_overrides(params);
 
   ASSERT_NO_THROW(EuclideanClusterNode{node_options});

@@ -77,6 +77,15 @@ more compact and simpler to interpret and handle. They are provided mainly for t
 - `downsample` - Parameter to control whether to downsample the input point cloud using a voxel grid. If this is set to true, a set of `voxel` parameters need to be defined.
 - `use_lfit` - When true, the `L-fit` method of fitting a bounding box to cluster will be used; otherwise,the  `EigenBoxes` method will be used.
 - `use_z` - When true, height of bounding boxes will be estimated; otherwise, height will be set to zero.
+- `filter_output_by_size` - When true, bounding boxes which do not fit the min/max size (setted to `FilterConfig`) will not be outputted.
+
+When setting `filter_output_by_size` to `true`, `FilterConfig` parameters should be set too. The components of this class are the followings, which will set the min/max limit of the outputting bounding boxes.
+- `min_filter_x` - Minimum size limit of bounding box x component.
+- `min_filter_y` - Minimum size limit of bounding box y component.
+- `min_filter_z` - Minimum size limit of bounding box z component.
+- `max_filter_x` - Maximum size limit of bounding box x component.
+- `max_filter_y` - Maximum size limit of bounding box y component.
+- `max_filter_z` - Maximum size limit of bounding box z component.
 
 @note At least one of `use_cluster`, `use_box`, and `use_detected_objects` has to be set to true.
 

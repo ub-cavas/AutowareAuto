@@ -71,7 +71,8 @@ m_marker_pub_ptr{get_parameter("use_box").as_bool() ?
 m_cluster_alg{
   euclidean_cluster::Config{
     declare_parameter("cluster.frame_id").get<std::string>().c_str(),
-    static_cast<std::size_t>(declare_parameter("cluster.min_cluster_size").get<std::size_t>()),
+    static_cast<std::size_t>(declare_parameter(
+      "cluster.min_number_of_points_in_cluster").get<std::size_t>()),
     static_cast<std::size_t>(declare_parameter("cluster.max_num_clusters").get<std::size_t>()),
     static_cast<float32_t>(declare_parameter("cluster.min_cluster_threshold_m").get<float32_t>()),
     static_cast<float32_t>(declare_parameter("cluster.max_cluster_threshold_m").get<float32_t>()),
@@ -85,12 +86,21 @@ m_cluster_alg{
     static_cast<float32_t>(declare_parameter("hash.max_y").get<float32_t>()),
     static_cast<float32_t>(declare_parameter("hash.side_length").get<float32_t>()),
     static_cast<std::size_t>(declare_parameter("max_cloud_size").get<std::size_t>())
+  },
+  euclidean_cluster::FilterConfig{
+    static_cast<float32_t>(declare_parameter("filter.min_x").get<float32_t>()),
+    static_cast<float32_t>(declare_parameter("filter.min_y").get<float32_t>()),
+    static_cast<float32_t>(declare_parameter("filter.min_z").get<float32_t>()),
+    static_cast<float32_t>(declare_parameter("filter.max_x").get<float32_t>()),
+    static_cast<float32_t>(declare_parameter("filter.max_y").get<float32_t>()),
+    static_cast<float32_t>(declare_parameter("filter.max_z").get<float32_t>())
   }
 },
 m_clusters{},
 m_voxel_ptr{nullptr},  // Because voxel config's Point types don't accept positional arguments
 m_use_lfit{declare_parameter("use_lfit").get<bool8_t>()},
-m_use_z{declare_parameter("use_z").get<bool8_t>()}
+m_use_z{declare_parameter("use_z").get<bool8_t>()},
+m_filter_output_by_size{declare_parameter("filter_output_by_size").get<bool8_t>()}
 {
   // Sanity check
   if ((!m_detected_objects_pub_ptr) && (!m_box_pub_ptr) && (!m_cluster_pub_ptr)) {
@@ -185,11 +195,16 @@ void EuclideanClusterNode::handle_clusters(
 
   BoundingBoxArray boxes;
   if (m_use_lfit) {
-    boxes = euclidean_cluster::details::compute_bounding_boxes(clusters, BboxMethod::LFit, m_use_z);
+    boxes = euclidean_cluster::details::compute_bounding_boxes(
+      clusters, BboxMethod::LFit, m_use_z,
+      m_filter_output_by_size,
+      m_cluster_alg.get_filter_config());
   } else {
     boxes = euclidean_cluster::details::compute_bounding_boxes(
       clusters, BboxMethod::Eigenbox,
-      m_use_z);
+      m_use_z,
+      m_filter_output_by_size,
+      m_cluster_alg.get_filter_config());
   }
   boxes.header.stamp = header.stamp;
   boxes.header.frame_id = header.frame_id;
