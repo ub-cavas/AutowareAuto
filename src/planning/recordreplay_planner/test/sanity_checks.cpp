@@ -187,20 +187,20 @@ TEST(RecordreplaySanityChecks, RecedingHorizonCornercases)
 
   // Check: State we have not recorded, but is closest to the (0,0) state
   {
-    auto trajectory = planner.plan(make_state(-1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+    auto trajectory = planner.plan(make_state(-1.0F, 0.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.x);
   }
 
   // Check: State we have not recorded, but is closest to the (0,0) state
   {
-    auto trajectory = planner.plan(make_state(0.1F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+    auto trajectory = planner.plan(make_state(0.1F, 0.1F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.x);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.y);
   }
 
   // Check: State we have not recorded, but is closest to the (N,0) state
   {
-    auto trajectory = planner.plan(make_state(1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0));
+    auto trajectory = planner.plan(make_state(1.0F * N + 5.0F, 1.0F, 0.0F, 0.0F, 0.0F, 0.0F, t0), false);
     EXPECT_EQ((N - 1) * 1.0F, trajectory.points[0].pose.position.x);
     EXPECT_EQ(0.0F, trajectory.points[0].pose.position.y);
   }
