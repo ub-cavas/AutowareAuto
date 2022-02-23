@@ -70,15 +70,15 @@ public:
   explicit CloudModifierWrapper(sensor_msgs::msg::PointCloud2 & pc)
   : modifier_(CloudModifierT(pc)) {}
 
-  void clear() override;
+  inline void clear() override;
 
-  void reserve(const std::size_t cloud_size) override;
+  inline void reserve(const std::size_t cloud_size) override;
 
-  void resize(const uint32_t cloud_size) override;
+  inline void resize(const uint32_t cloud_size) override;
 
-  std::size_t size() const override;
+  inline std::size_t size() const override;
 
-  void push_back(const autoware::common::types::PointXYZIF &) override;
+  inline void push_back(const autoware::common::types::PointXYZIF &) override;
 };
 
 /// Template class for the velodyne driver node that receives veldyne `packet`s via
