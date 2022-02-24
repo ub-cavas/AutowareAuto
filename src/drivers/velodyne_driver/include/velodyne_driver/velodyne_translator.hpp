@@ -133,7 +133,7 @@ private:
         PointXYZIF pt;
         polar_to_xyz(pt, r, th, phi);
         pt.intensity = m_intensity_table[channel.data[2U]];
-        pt.id = m_sensor_data.seq_id(m_block_counter, pt_id);
+        pt.id = pt_id % m_sensor_data.NUM_LASERS;
 
         output.push_back(pt);
       }
