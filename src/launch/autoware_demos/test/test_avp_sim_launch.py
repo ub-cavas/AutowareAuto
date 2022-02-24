@@ -39,9 +39,9 @@ class TestAutowareReady(unittest.TestCase):
     def test_init_done(self, proc_output):
         # Wait for initialization to be complete
         for process in [
-            'costmap_generator', 'lanelet2_map_provider', 'behavior_planner', 'freespace_planner'
+            'lanelet2_map_provider', 'behavior_path_planner'
         ]:
-            proc_output.assertWaitFor('Waiting for', process=process, timeout=5, stream='stderr')
+            proc_output.assertWaitFor('aiting for', process=process, timeout=5, stream='stderr')
 
 
 @launch_testing.post_shutdown_test()
@@ -50,7 +50,7 @@ class TestProcessOutput(unittest.TestCase):
         # Check that all processes in the launch file exit with code 0
         # Exception: costmap_generator_node exits with -6
         for process_name in proc_info.process_names():
-            if "costmap_generator_node" in process_name:
+            if "behavior_path_planner" in process_name:
                 launch_testing.asserts.assertExitCodes(proc_info, [-6], process=process_name)
             else:
                 launch_testing.asserts.assertExitCodes(proc_info, process=process_name)
