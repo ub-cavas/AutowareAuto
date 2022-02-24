@@ -6,5 +6,6 @@
     topic: "points_xyzif"
     frame_id: "lidar_front"
     timeout_ms: 10
-    rpm:        600
+    rpm: 600
+    model: "vlp16"
     ring_information: true
