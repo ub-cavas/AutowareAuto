@@ -82,6 +82,7 @@ void doTransform(
   const geometry_msgs::msg::TransformStamped & transform)
 {
   geometry_msgs::msg::Point32 tmp_in, tmp_out;
+  t_out.points.resize(t_in.points.size());
   for (size_t i = 0; i < t_in.points.size(); ++i) {
     tmp_in.x = t_in.points[i].x;
     tmp_in.y = t_in.points[i].y;
