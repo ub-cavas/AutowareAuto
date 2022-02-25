@@ -54,7 +54,7 @@ $ export ROS_VERSION=2
 $ rosdep install -y -i --from-paths src
 ```
 
-Checkout the [latest release](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/releases) by checking out the corresponding tag or release branch.
+@note If you wish to use the stable release, checkout the [latest release](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/releases) by checking out the corresponding tag or release branch.
 Alternatively, when not checking out any specific tag, the latest `master` branch will be used
 which may include features that are still being developed. For example:
 ```{bash}

@@ -33,6 +33,7 @@ using Pt = autoware_auto_perception_msgs::msg::PointXYZIF;
 using autoware::perception::segmentation::euclidean_cluster::details::compute_bounding_boxes;
 using autoware::perception::segmentation::euclidean_cluster::details::BboxMethod;
 using autoware::perception::segmentation::euclidean_cluster::details::convert_to_detected_objects;
+using autoware::perception::segmentation::euclidean_cluster::FilterConfig;
 
 class BoundingBoxComputationTest : public ::testing::Test
 {
@@ -126,6 +127,8 @@ protected:
     make_pt(3.F, 0.F), make_pt(4.F, 0.F)};
   std::vector<Pt> lfit_expected_corners{make_pt(4, -1), make_pt(-1, 4),
     make_pt(4, 4), make_pt(-1, -1)};
+  std::vector<Pt> lfit_expected_corners_xy_max_filter{make_pt(2, 1), make_pt(1, 2),
+    make_pt(2, 2), make_pt(1, 1)};
   std::vector<Pt> eigen_expected_corners{make_pt(4, 0), make_pt(0, 4),
     make_pt(-2, 2), make_pt(2, -2)};
 };
@@ -150,6 +153,18 @@ TEST_F(BoundingBoxComputationTest, BasicLfit2d)
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
   }
+}
+
+TEST_F(BoundingBoxComputationTest, BasicLfit2d_max_xy_filter)
+{
+  auto clusters = make_clusters(
+    {pt_vector, pt_vector});
+
+  FilterConfig fcg{0.2F, 0.2F, 0.2F, 1.0F, 1.0F, 1.0F};
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, false, true, fcg);
+  ASSERT_TRUE(boxes_msg.boxes.empty());
+  DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
+  ASSERT_TRUE(boxes_msg.boxes.empty());
 }
 
 TEST_F(BoundingBoxComputationTest, BasicEigen2d) {
@@ -188,6 +203,29 @@ TEST_F(BoundingBoxComputationTest, BasicLfit3d)
   for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
     test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
     EXPECT_EQ(objects_msg.objects[i].shape.height, 8.0F);
+  }
+}
+
+TEST_F(BoundingBoxComputationTest, BasicLfit3d_max_z_filter)
+{
+  auto pt_vector_3d = pt_vector;
+  pt_vector_3d[0U].z = -2.F;
+  pt_vector_3d[1U].z = 2.F;
+  auto clusters = make_clusters({pt_vector_3d, pt_vector_3d});
+
+  FilterConfig fcg{0.2F, 0.2F, 0.2F, 1.0F, 1.0F, 1.0F};
+  BoundingBoxArray boxes_msg = compute_bounding_boxes(clusters, BboxMethod::LFit, true, true, fcg);
+  DetectedObjects objects_msg = convert_to_detected_objects(boxes_msg);
+
+  auto expected_corners_3d = lfit_expected_corners;
+  for (auto & pt : expected_corners_3d) {
+    pt.z = -2.F;
+  }
+
+  ASSERT_EQ(objects_msg.objects.size(), 0U);
+  for (size_t i = 0U; i < objects_msg.objects.size(); ++i) {
+    test_object_msg(objects_msg.objects[i], boxes_msg.boxes[i], 0.25F);
+    EXPECT_EQ(objects_msg.objects[i].shape.height, 1.0F);
   }
 }
 

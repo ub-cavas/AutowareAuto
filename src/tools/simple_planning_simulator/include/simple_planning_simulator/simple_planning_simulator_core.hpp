@@ -35,6 +35,7 @@
 #include "geometry_msgs/msg/transform_stamped.hpp"
 
 #include "autoware_auto_control_msgs/msg/ackermann_control_command.hpp"
+#include "autoware_auto_vehicle_msgs/msg/gear_report.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp"
 #include "autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp"
@@ -53,6 +54,7 @@ using autoware::common::types::float64_t;
 using autoware::common::types::bool8_t;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
+using autoware_auto_vehicle_msgs::msg::GearReport;
 using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateReport;
@@ -104,6 +106,7 @@ private:
   /* ros system */
   rclcpp::Publisher<VehicleKinematicState>::SharedPtr pub_kinematic_state_;
   rclcpp::Publisher<VehicleStateReport>::SharedPtr pub_state_report_;
+  rclcpp::Publisher<GearReport>::SharedPtr pub_gear_report_;
   rclcpp::Publisher<tf2_msgs::msg::TFMessage>::SharedPtr pub_tf_;
   rclcpp::Publisher<PoseStamped>::SharedPtr pub_current_pose_;
 

@@ -10,9 +10,10 @@
     downsample: False
     use_lfit: True
     use_z: True
+    filter_output_by_size: False
     cluster:
       frame_id: "base_link"
-      min_cluster_size: 10
+      min_number_of_points_in_cluster: 10
       max_num_clusters: 256
       min_cluster_threshold_m: 0.5
       max_cluster_threshold_m: 1.5
@@ -23,6 +24,13 @@
       min_y: -130.0
       max_y:  130.0
       side_length: 1.0
+    filter:
+      min_x: 0.2
+      min_y: 0.2
+      min_z: 0.2
+      max_x: 7.0
+      max_y: 7.0
+      max_z: 20.0
     voxel:
       min_point:
         x: -130.0

@@ -58,8 +58,7 @@ $ cd ~/adehome
 $ git clone https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto.git
 ```
 
-Checkout the [latest release](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/releases) by checking out the corresponding tag or release branch.
-Alternatively, when not checking out any specific tag, the latest `master` branch will be used
+@note If you wish to use the stable release, checkout the [latest release](https://gitlab.com/autowarefoundation/autoware.auto/AutowareAuto/-/releases) by checking out the corresponding tag or release branch. When not checking out any specific tag, the latest `master` branch will be used
 which may include features that are still being developed. For example:
 ```
 $ cd AutowareAuto

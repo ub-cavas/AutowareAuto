@@ -90,6 +90,7 @@ private:
   std::unique_ptr<VoxelAlgorithm> m_voxel_ptr;
   const bool8_t m_use_lfit;
   const bool8_t m_use_z;
+  const bool8_t m_filter_output_by_size;
 };  // class EuclideanClusterNode
 }  // namespace euclidean_cluster_nodes
 }  // namespace segmentation

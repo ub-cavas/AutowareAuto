@@ -55,6 +55,7 @@ def generate_launch_description():
             ('input/vehicle_state_command', '/vehicle/state_command'),
             ('output/kinematic_state', '/vehicle/vehicle_kinematic_state'),
             ('output/vehicle_state_report', '/vehicle/state_report'),
+            ('output/gear_report', '/vehicle/gear_report'),
             ('/initialpose', '/localization/initialpose'),
         ]
     )

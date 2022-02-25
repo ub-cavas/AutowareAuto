@@ -18,16 +18,17 @@
 
 #ifndef EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
 #define EUCLIDEAN_CLUSTER__EUCLIDEAN_CLUSTER_HPP_
+#include <euclidean_cluster/visibility_control.hpp>
 
 #include <autoware_auto_perception_msgs/msg/bounding_box_array.hpp>
 #include <autoware_auto_perception_msgs/msg/detected_objects.hpp>
 #include <autoware_auto_perception_msgs/msg/point_clusters.hpp>
 #include <geometry/spatial_hash.hpp>
-#include <euclidean_cluster/visibility_control.hpp>
 #include <common/types.hpp>
+#include <limits>
 #include <string>
-#include <vector>
 #include <utility>
+#include <vector>
 
 namespace autoware
 {
@@ -87,6 +88,51 @@ using HashConfig = autoware::common::geometry::spatial_hash::Config2d;
 using Hash = autoware::common::geometry::spatial_hash::SpatialHash2d<PointXYZIR>;
 using Clusters = autoware_auto_perception_msgs::msg::PointClusters;
 
+class EUCLIDEAN_CLUSTER_PUBLIC FilterConfig
+{
+public:
+  /// \brief Constructor
+  /// \param[in] min_filter_x The minimum size of the x component of bounding box
+  /// \param[in] min_filter_y The minimum size of the y component of bounding box
+  /// \param[in] min_filter_z The minimum size of the z component of bounding box
+  /// \param[in] max_filter_x The maximum size of the x component of bounding box
+  /// \param[in] max_filter_y The maximum size of the y component of bounding box
+  /// \param[in] max_filter_z The maximum size of the z component of bounding box
+  FilterConfig(
+    const float32_t min_filter_x,
+    const float32_t min_filter_y,
+    const float32_t min_filter_z,
+    const float32_t max_filter_x,
+    const float32_t max_filter_y,
+    const float32_t max_filter_z);
+  /// \brief Gets minimum filter in direction of x
+  /// \return minimum filter of x direction
+  float32_t min_filter_x() const;
+  /// \brief Gets minimum filter in direction of y
+  /// \return minimum filter of y direction
+  float32_t min_filter_y() const;
+  /// \brief Gets minimum filter in direction of z
+  /// \return minimum filter of z direction
+  float32_t min_filter_z() const;
+  /// \brief Gets maximum filter in direction of x
+  /// \return maximum filter of x direction
+  float32_t max_filter_x() const;
+  /// \brief Gets maximum filter in direction of y
+  /// \return maximum filter of y direction
+  float32_t max_filter_y() const;
+  /// \brief Gets maximum filter in direction of z
+  /// \return maximum filter of z direction
+  float32_t max_filter_z() const;
+
+private:
+  const float32_t m_min_filter_x;
+  const float32_t m_min_filter_y;
+  const float32_t m_min_filter_z;
+  const float32_t m_max_filter_x;
+  const float32_t m_max_filter_y;
+  const float32_t m_max_filter_z;
+};  // class FilterConfig
+
 /// \brief Configuration class for euclidean cluster
 /// In the future this can become a base class with subclasses defining different
 /// threshold functions. This configuration's threshold function currently assumes isotropy, and
@@ -96,8 +142,8 @@ class EUCLIDEAN_CLUSTER_PUBLIC Config
 public:
   /// \brief Constructor
   /// \param[in] frame_id The frame id for which all clusters are initialized with
-  /// \param[in] min_cluster_size The number of points that must be in a cluster before it is not
-  ///                             considered noise
+  /// \param[in] min_number_of_points_in_cluster The number of points that must be in a cluster
+  ///                                            before it is not considered noise
   /// \param[in] max_num_clusters The maximum preallocated number of clusters in a scene
   /// \param[in] min_cluster_threshold_m The minimum connectivity threshold when r = 0
   /// \param[in] max_cluster_threshold_m The maximum connectivity threshold when
@@ -106,14 +152,14 @@ public:
   ///                                                    is clamped to the maximum value
   Config(
     const std::string & frame_id,
-    const std::size_t min_cluster_size,
+    const std::size_t min_number_of_points_in_cluster,
     const std::size_t max_num_clusters,
     const float32_t min_cluster_threshold_m,
     const float32_t max_cluster_threshold_m,
     const float32_t cluster_threshold_saturation_distance_m);
   /// \brief Gets minimum number of points needed for a cluster to not be considered noise
   /// \return Minimum cluster size
-  std::size_t min_cluster_size() const;
+  std::size_t min_number_of_points_in_cluster() const;
   /// \brief Gets maximum preallocated number of clusters
   /// \return Maximum number of clusters
   std::size_t max_num_clusters() const;
@@ -135,7 +181,7 @@ public:
 
 private:
   const std::string m_frame_id;
-  const std::size_t m_min_cluster_size;
+  const std::size_t m_min_number_of_points_in_cluster;
   const std::size_t m_max_num_clusters;
   const float32_t m_min_thresh_m;
   const float32_t m_max_distance_m;
@@ -159,7 +205,10 @@ public:
   /// \param[in] cfg The configuration of the clustering algorithm, contains threshold function
   /// \param[in] hash_cfg The configuration of the underlying spatial hash, controls the maximum
   ///                     number of points in a scene
-  EuclideanCluster(const Config & cfg, const HashConfig & hash_cfg);
+  /// \param[in] filter_cfg The configuration of the min/max size limit of the bounding boxes
+  EuclideanCluster(
+    const Config & cfg, const HashConfig & hash_cfg,
+    const FilterConfig & filter_cfg);
   /// \brief Insert an individual point
   /// \param[in] pt The point to insert
   /// \throw std::length_error If the underlying spatial hash is full
@@ -195,6 +244,10 @@ public:
   /// \return Internal configuration class
   const Config & get_config() const;
 
+  /// \brief Gets internal configuration class for filters
+  /// \return Internal FilterConfiguration class
+  const FilterConfig & get_filter_config() const;
+
   /// \brief Throw the stored error during clustering process
   /// \throw std::runtime_error If the maximum number of clusters may have been exceeded
   void throw_stored_error() const;
@@ -224,6 +277,7 @@ private:
 
   const Config m_config;
   Hash m_hash;
+  const FilterConfig m_filter_config;
   Error m_last_error;
   std::vector<bool8_t> m_seen;
 };  // class EuclideanCluster
@@ -245,10 +299,18 @@ enum class BboxMethod
 /// \param[in] compute_height Compute the height of the bounding box as well.
 /// \param[inout] clusters A set of clusters for which to compute the bounding boxes. Individual
 ///                        clusters may get their points shuffled.
+/// \param[in] size_filter true if you want to clamp the bounding boxes size by min/max parameters
+/// \param[in] filter_config The max/min limit of the xyz component of bounding box
 /// \returns Bounding boxes
 EUCLIDEAN_CLUSTER_PUBLIC
 BoundingBoxArray compute_bounding_boxes(
-  Clusters & clusters, const BboxMethod method, const bool compute_height);
+  Clusters & clusters, const BboxMethod method, const bool compute_height,
+  const bool size_filter = false,
+  const FilterConfig & filter_config = {0.0F, 0.0F, 0.0F,
+    std::numeric_limits<float>::max(),
+    std::numeric_limits<float>::max(),
+    std::numeric_limits<float>::max()});
+
 /// \brief Convert this bounding box to a DetectedObjects message
 /// \param[in] boxes A bounding box array
 /// \returns A DetectedObjects message with the bounding boxes inside

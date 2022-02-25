@@ -78,13 +78,13 @@ PointXYZIR::operator autoware_auto_perception_msgs::msg::PointXYZIF() const
 ////////////////////////////////////////////////////////////////////////////////
 Config::Config(
   const std::string & frame_id,
-  const std::size_t min_cluster_size,
+  const std::size_t min_number_of_points_in_cluster,
   const std::size_t max_num_clusters,
   const float32_t min_cluster_threshold_m,
   const float32_t max_cluster_threshold_m,
   const float32_t cluster_threshold_saturation_distance_m)
 : m_frame_id(frame_id),
-  m_min_cluster_size(min_cluster_size),
+  m_min_number_of_points_in_cluster(min_number_of_points_in_cluster),
   m_max_num_clusters(max_num_clusters),
   m_min_thresh_m(min_cluster_threshold_m),
   m_max_distance_m(cluster_threshold_saturation_distance_m),
@@ -94,9 +94,29 @@ Config::Config(
   // TODO(c.ho) sanity checking
 }
 ////////////////////////////////////////////////////////////////////////////////
-std::size_t Config::min_cluster_size() const
+FilterConfig::FilterConfig(
+  const float32_t min_x,
+  const float32_t min_y,
+  const float32_t min_z,
+  const float32_t max_x,
+  const float32_t max_y,
+  const float32_t max_z)
+: m_min_filter_x(min_x),
+  m_min_filter_y(min_y),
+  m_min_filter_z(min_z),
+  m_max_filter_x(max_x),
+  m_max_filter_y(max_y),
+  m_max_filter_z(max_z)
 {
-  return m_min_cluster_size;
+  if (min_x > min_y || max_x > max_y) {
+    throw std::runtime_error(
+            "width(x) must be smaller than the length(y) for min/max filter");
+  }
+}
+////////////////////////////////////////////////////////////////////////////////
+std::size_t Config::min_number_of_points_in_cluster() const
+{
+  return m_min_number_of_points_in_cluster;
 }
 ////////////////////////////////////////////////////////////////////////////////
 std::size_t Config::max_num_clusters() const
@@ -120,9 +140,12 @@ const std::string & Config::frame_id() const
 }
 ////////////////////////////////////////////////////////////////////////////////
 ////////////////////////////////////////////////////////////////////////////////
-EuclideanCluster::EuclideanCluster(const Config & cfg, const HashConfig & hash_cfg)
+EuclideanCluster::EuclideanCluster(
+  const Config & cfg, const HashConfig & hash_cfg,
+  const FilterConfig & filter_cfg)
 : m_config(cfg),
   m_hash(hash_cfg),
+  m_filter_config(filter_cfg),
   m_last_error(Error::NONE)
 {}
 ////////////////////////////////////////////////////////////////////////////////
@@ -132,10 +155,40 @@ bool Config::match_clusters_size(const Clusters & clusters) const
   if (clusters.cluster_boundary.capacity() < m_max_num_clusters) {
     ret = false;
   }
-  if (clusters.points.capacity() < (m_max_num_clusters * m_min_cluster_size)) {
+  if (clusters.points.capacity() < (m_max_num_clusters * m_min_number_of_points_in_cluster)) {
     ret = false;
   }
   return ret;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::min_filter_x() const
+{
+  return m_min_filter_x;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::min_filter_y() const
+{
+  return m_min_filter_y;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::min_filter_z() const
+{
+  return m_min_filter_z;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::max_filter_x() const
+{
+  return m_max_filter_x;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::max_filter_y() const
+{
+  return m_max_filter_y;
+}
+////////////////////////////////////////////////////////////////////////////////
+float32_t FilterConfig::max_filter_z() const
+{
+  return m_max_filter_z;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void EuclideanCluster::insert(const PointXYZIR & pt)
@@ -172,6 +225,11 @@ EuclideanCluster::Error EuclideanCluster::get_error() const
 const Config & EuclideanCluster::get_config() const
 {
   return m_config;
+}
+////////////////////////////////////////////////////////////////////////////////
+const FilterConfig & EuclideanCluster::get_filter_config() const
+{
+  return m_filter_config;
 }
 ////////////////////////////////////////////////////////////////////////////////
 void EuclideanCluster::cluster_impl(Clusters & clusters)
@@ -212,7 +270,7 @@ void EuclideanCluster::cluster(Clusters & clusters, const Hash::IT it)
       ++last_cls_pt_idx;
     }
     // check if cluster is large enough
-    if (last_cls_pt_idx < m_config.min_cluster_size()) {
+    if (last_cls_pt_idx < m_config.min_number_of_points_in_cluster()) {
       // reject the cluster if too small
       clusters.cluster_boundary.pop_back();
     }
@@ -284,7 +342,8 @@ namespace details
 {
 BoundingBoxArray compute_bounding_boxes(
   Clusters & clusters, const BboxMethod method,
-  const bool compute_height)
+  const bool compute_height, const bool size_filter,
+  const FilterConfig & filter_config)
 {
   BoundingBoxArray boxes;
   for (uint32_t cls_id = 0U; cls_id < clusters.cluster_boundary.size(); cls_id++) {
@@ -310,6 +369,20 @@ BoundingBoxArray compute_bounding_boxes(
       if (compute_height) {
         common::geometry::bounding_box::compute_height(
           iter_pair.first, iter_pair.second, boxes.boxes.back());
+      }
+
+      // remove the bounding box if it does not satisfy the specified size
+      if (size_filter) {
+        BoundingBox & box = boxes.boxes.back();
+        bool erase_box = false;
+        if (box.size.x > filter_config.max_filter_x() ||
+          box.size.y > filter_config.max_filter_y() ||
+          box.size.x < filter_config.min_filter_x() ||
+          box.size.y < filter_config.min_filter_y() ) {erase_box = true;}
+        if (compute_height &&
+          (box.size.z > filter_config.max_filter_z() ||
+          box.size.z < filter_config.min_filter_z()) ) {erase_box = true;}
+        if (erase_box) {boxes.boxes.pop_back();}
       }
     } catch (const std::exception & e) {
       std::cerr << e.what() << std::endl;

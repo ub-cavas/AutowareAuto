@@ -34,6 +34,7 @@ using autoware::perception::segmentation::euclidean_cluster::PointXYZIR;
 using autoware::perception::segmentation::euclidean_cluster::PointXYZI;
 using autoware::perception::segmentation::euclidean_cluster::HashConfig;
 using autoware::perception::segmentation::euclidean_cluster::Config;
+using autoware::perception::segmentation::euclidean_cluster::FilterConfig;
 using autoware::perception::segmentation::euclidean_cluster::EuclideanCluster;
 using autoware::perception::segmentation::euclidean_cluster::Clusters;
 using autoware::common::lidar_utils::get_cluster;
