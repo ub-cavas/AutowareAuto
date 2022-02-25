@@ -31,6 +31,9 @@ def generate_test_description():
     return LaunchDescription([
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource(os.path.join(autoware_demos_share_dir, launch_file)),
+            launch_arguments={
+                'rosbag_file_path': '/dev/null',
+            }.items(),
         ),
         launch_testing.actions.ReadyToTest(),
     ])
