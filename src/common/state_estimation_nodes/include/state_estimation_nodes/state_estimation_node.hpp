@@ -130,6 +130,8 @@ private:
 
   tf2::BufferCore m_tf_buffer;
   tf2_ros::TransformListener m_tf_listener;
+
+  double noise_add_to_variance;
 };
 
 }  // namespace state_estimation
