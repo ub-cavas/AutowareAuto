@@ -91,8 +91,8 @@ bool convert_to<PoseMeasurementXYZRPY64>::variance_check(
   MatrixT & covariance)
 {
   bool result = false;
-  for(int i = 0; i < 6; i++) {
-    if(covariance(i, i) == 0) {
+  for (int i = 0; i < 6; i++) {
+    if (covariance(i, i) == 0) {
       result = true;
       covariance(i, i) = noise_add_to_variance;
     }
