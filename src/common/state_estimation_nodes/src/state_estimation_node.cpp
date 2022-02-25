@@ -103,6 +103,7 @@ namespace common
 {
 namespace state_estimation
 {
+float64_t convert_to<PoseMeasurementXYZRPY64>::noise_add_to_variance = 1.0; 
 
 StateEstimationNode::StateEstimationNode(
   const rclcpp::NodeOptions & node_options)
@@ -113,6 +114,7 @@ StateEstimationNode::StateEstimationNode(
   m_child_frame_id = declare_parameter("child_frame_id").get<std::string>();
   m_publish_frequency = declare_parameter("output_frequency", kInvalidFrequency);
   m_publish_data_driven = declare_parameter("data_driven", false);
+  noise_add_to_variance = declare_parameter("noise_add_to_variance", 1.0);
   const auto time_between_publish_requests{
     validate_publish_frequency(m_publish_frequency, m_publish_data_driven)};
   if (!m_publish_data_driven) {
@@ -166,6 +168,7 @@ void StateEstimationNode::pose_callback(const PoseMsgT::SharedPtr msg)
   if (msg->header.frame_id != m_frame_id) {
     throw std::runtime_error("Pose message frames don't match the expected ones.");
   }
+  convert_to<PoseMeasurementXYZRPY64>::noise_add_to_variance = noise_add_to_variance;
   const auto measurement =
     convert_to<Stamped<PoseMeasurementXYZRPY64>>::from(*msg).cast<float32_t>();
   if (m_ekf->is_initialized()) {

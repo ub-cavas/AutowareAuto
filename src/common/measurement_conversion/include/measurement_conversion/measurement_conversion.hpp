@@ -31,6 +31,8 @@
 
 #include <Eigen/Geometry>
 
+#include <iostream>
+
 namespace autoware
 {
 namespace common
@@ -101,7 +103,10 @@ struct MEASUREMENT_CONVERSION_PUBLIC convert_to<Stamped<MeasurementT>>
 template<>
 struct MEASUREMENT_CONVERSION_PUBLIC convert_to<PoseMeasurementXYZRPY64>
 {
+  using MatrixT = PoseMeasurementXYZRPY64::State::Matrix;
   static PoseMeasurementXYZRPY64 from(const geometry_msgs::msg::PoseWithCovariance & msg);
+  static bool variance_check(MatrixT & covariance);
+  static double noise_add_to_variance;
 };
 
 /// A specialization for PoseMeasurementXYZ64.
