@@ -81,7 +81,7 @@ PoseMeasurementXYZRPY64 convert_to<PoseMeasurementXYZRPY64>::from(
   const auto rotation_start_idx{kAngleOffset};
   covariance.bottomRightCorner<3, 3>() =
     array_to_matrix<3, 3>(cov, rotation_start_idx, stride, DataStorageOrder::kRowMajor);
-  if(variance_check(covariance)) {
+  if (variance_check(covariance)) {
     std::cerr << "Measurement variance cannot be zero, noise added" << std::endl;
   }
   return PoseMeasurementXYZRPY64{mean, covariance};
@@ -91,7 +91,7 @@ bool convert_to<PoseMeasurementXYZRPY64>::variance_check(
   MatrixT & covariance)
 {
   bool result = false;
-  for(int i=0;i<6;i++) {
+  for(int i = 0; i < 6; i++) {
     if(covariance(i, i) == 0) {
       result = true;
       covariance(i, i) = noise_add_to_variance;

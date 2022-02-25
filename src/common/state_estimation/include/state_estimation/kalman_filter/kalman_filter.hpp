@@ -120,9 +120,10 @@ public:
     m_state += kalman_gain * innovation.vector();
     m_state.wrap_all_angles();
     m_covariance = (State::Matrix::Identity() - kalman_gain * mapping_matrix) * m_covariance;
-    // Todo: In case of long-term numeric stability, use the following equtaions. 
+    // Todo: In case of long-term numeric stability, use the following equtaions.
     // auto intermediate_matrix = State::Matrix::Identity() - kalman_gain * mapping_matrix;
-    // m_covariance = intermediate_matrix * m_covariance * intermediate_matrix.transpose() + kalman_gain * measurement.covariance() * kalman_gain.transpose();
+    // m_covariance = intermediate_matrix * m_covariance * intermediate_matrix.transpose() +
+    // kalman_gain * measurement.covariance() * kalman_gain.transpose();
     // m_covariance = (m_covariance + m_covariance.transpose()) / 2.0;
     return m_state;
   }

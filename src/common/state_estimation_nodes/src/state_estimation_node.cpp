@@ -103,7 +103,7 @@ namespace common
 {
 namespace state_estimation
 {
-float64_t convert_to<PoseMeasurementXYZRPY64>::noise_add_to_variance = 1.0; 
+float64_t convert_to<PoseMeasurementXYZRPY64>::noise_add_to_variance = 1.0;
 
 StateEstimationNode::StateEstimationNode(
   const rclcpp::NodeOptions & node_options)
