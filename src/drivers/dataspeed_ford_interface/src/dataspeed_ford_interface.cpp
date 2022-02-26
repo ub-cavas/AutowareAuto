@@ -199,31 +199,7 @@ bool8_t DataspeedFordInterface::send_state_command(const VehicleStateCommand & m
 
   // TODO everything else should go in their own callbacks
   // deprecated in this function
-  // only handle hear and handbrakes
-
-  switch (msg.blinker) {
-    case VehicleStateCommand::BLINKER_NO_COMMAND:
-      // Keep previous
-      break;
-    case VehicleStateCommand::BLINKER_OFF:
-      m_misc_cmd.cmd.value = TurnSignal::NONE;
-      break;
-    case VehicleStateCommand::BLINKER_LEFT:
-      m_misc_cmd.cmd.value = TurnSignal::LEFT;
-      break;
-    case VehicleStateCommand::BLINKER_RIGHT:
-      m_misc_cmd.cmd.value = TurnSignal::RIGHT;
-      break;
-    case VehicleStateCommand::BLINKER_HAZARD:
-      m_misc_cmd.cmd.value = TurnSignal::HAZARD;
-      break;
-    default:
-      m_misc_cmd.cmd.value = TurnSignal::NONE;
-      RCLCPP_ERROR_THROTTLE(
-        m_logger, m_clock, CLOCK_1_SEC,
-        "Received command for invalid turn signal state.");
-      ret = false;
-      break;
+  // only handle gear and handbrakes
   }
   m_misc_cmd.header.stamp = msg.stamp;
   m_seen_vehicle_state_cmd = true;
@@ -375,6 +351,53 @@ void DataspeedFordInterface::send_horn_command(const HornCommand & msg)
   RCLCPP_ERROR_THROTTLE(
     m_logger, m_clock, CLOCK_1_SEC,
     "Dataspeed Ford interface does not support sending horn command.");
+}
+
+void DataspeedFordInterface::send_turn_indicators_command(const TurnIndicatorsCommand & msg)
+{
+  switch (msg.command) {
+    case TurnIndicatorsCommand::NO_COMMAND:
+      // Keep previous
+      break;
+    case TurnIndicatorsCommand::DISABLE:
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
+      break;
+    case TurnIndicatorsCommand::ENABLE_LEFT:
+      m_misc_cmd.cmd.value = TurnSignal::LEFT;
+      break;
+    case TurnIndicatorsCommand::ENABLE_RIGHT
+      m_misc_cmd.cmd.value = TurnSignal::RIGHT;
+      break;
+    default:
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid turn indicators state.");
+      ret = false;
+      break;
+  }
+}
+
+void DataspeedFordInterface::send_hazard_lights_command(const HazardLightsCommand & msg)
+{
+  switch (msg.command) {
+    case HazardLightsCommand::NO_COMMAND:
+      // Keep previous
+      break;
+    case HazardLightsCommand::DISABLE:
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
+      break;
+    case HazardLightsCommand::ENABLE:
+      m_misc_cmd.cmd.value = TurnSignal::HAZARD;
+      break;
+    default:
+      m_misc_cmd.cmd.value = TurnSignal::NONE;
+      RCLCPP_ERROR_THROTTLE(
+        m_logger, m_clock, CLOCK_1_SEC,
+        "Received command for invalid hazard lights state.");
+      ret = false;
+      break;
+  }
 }
 
 void DataspeedFordInterface::send_wipers_command(const WipersCommand & msg)

@@ -42,14 +42,17 @@
 #include <dbw_ford_msgs/msg/wiper.hpp>
 
 #include <autoware_auto_control_msgs/msg/ackermann_control_command.hpp>
-#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/hazard_lights_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/headlights_command.hpp>
+#include <autoware_auto_control_msgs/msg/high_level_control_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/raw_control_command.hpp>
+#include <autoware_auto_vehicle_msgs/msg/turn_indicators_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_control_command.hpp>
-#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <autoware_auto_vehicle_msgs/msg/vehicle_state_command.hpp>
 #include <autoware_auto_vehicle_msgs/msg/wipers_command.hpp>
+
+#include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
+
 #include <autoware_auto_vehicle_msgs/srv/autonomy_mode_change.hpp>
 
 #include <std_msgs/msg/bool.hpp>
@@ -105,14 +108,14 @@ using dbw_ford_msgs::msg::WatchdogCounter;
 using dbw_ford_msgs::msg::Wiper;
 
 using autoware_auto_control_msgs::msg::AckermannControlCommand;
-using autoware_auto_control_msgs::msg::HighLevelControlCommand;
+using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 using autoware_auto_vehicle_msgs::msg::HeadlightsCommand;
+using autoware_auto_control_msgs::msg::HighLevelControlCommand;
 using autoware_auto_vehicle_msgs::msg::RawControlCommand;
+using autoware_auto_vehicle_msgs::msg::TurnIndicatorsCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleControlCommand;
 using autoware_auto_vehicle_msgs::msg::VehicleStateCommand;
 using autoware_auto_vehicle_msgs::msg::WipersCommand;
-
-using autoware_auto_vehicle_msgs::msg::HazardLightsCommand;
 
 using autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware_auto_vehicle_msgs::msg::VehicleOdometry;
@@ -232,6 +235,14 @@ public:
   /// \param[in] msg The horn command to send to the vehicle
   void send_horn_command(const HornCommand & msg) override;
 
+  /// \brief Send turn indicators command to the vehicle platform.
+  /// \param[in] msg The turn indicators command to send to the vehicle
+  void send_turn_indicators_command(const TurnIndicatorsCommand & msg);
+
+  /// \brief Send hazard lights command to the vehicle platform.
+  /// \param[in] msg The hazard lights command to send to the vehicle
+  void send_hazard_lights_command(const HazardLightsCommand & msg) override;
+
   /// \brief Send a wipers command to the vehicle platform.
   /// \param[in] msg The wipers command to send to the vehicle
   void send_wipers_command(const WipersCommand & msg) override;
@@ -345,7 +356,7 @@ private:
 
   /** \brief Receives the enable message from the vehicle platform.
   * Update state machine by calling dbw_feedback()
-  * 
+  *
   * \param[in] msg The enable message received from the vehicle
   */
   void on_dbw_enable(const std_msgs::msg::Bool::SharedPtr & msg);
