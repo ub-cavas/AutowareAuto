@@ -45,7 +45,7 @@ PointTypeAdapterNode::PointTypeAdapterNode(const rclcpp::NodeOptions & options)
   ,
   sub_ptr_cloud_input_(this->create_subscription<PointCloud2>(
       "points_raw",
-      rclcpp::QoS(rclcpp::KeepLast(::QOS_HISTORY_DEPTH)),
+      rclcpp::SensorDataQoS(rclcpp::KeepLast(::QOS_HISTORY_DEPTH)),
       std::bind(&PointTypeAdapterNode::callback_cloud_input,
       this,
       std::placeholders::_1)))
