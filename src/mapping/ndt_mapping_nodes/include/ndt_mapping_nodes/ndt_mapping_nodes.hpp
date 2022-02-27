@@ -243,7 +243,7 @@ private:
       m_map_ptr->update(increment);
       m_previous_transform = pose_to_transform(pose_out, msg_ptr->header.frame_id);
     } catch (const std::runtime_error & e) {
-      RCLCPP_ERROR(get_logger(), "Failed to register the measurement: ", e.what());
+      RCLCPP_ERROR(get_logger(), "Failed to register the measurement: %s", e.what());
     }
   }
 
