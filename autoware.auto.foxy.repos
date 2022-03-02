@@ -33,5 +33,5 @@ repositories:
     version: ros2
   src/external/bootcamp/bootcamp_launch:
     type: git
-    url: https://gitlab.com/shineyruan/bootcamp_launch_autoware_auto.git
+    url: https://github.com/shineyruan/bootcamp_launch.git
     version: main
