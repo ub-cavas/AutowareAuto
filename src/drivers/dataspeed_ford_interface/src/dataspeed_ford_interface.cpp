@@ -305,15 +305,17 @@ bool8_t DataspeedFordInterface::send_control_command(const VehicleControlCommand
   float32_t target_velocity = msg.velocity_mps;
   float32_t accel_mps2 = m_throttle_pid_controller.step(target_velocity - current_velocity, dt);
   float32_t throttle_percent, brake_percent = 0;
-  if (accel_mps2 > 0) {  // throttle
-    throttle_percent = std::min(accel_mps2, 1.0F);
+  if (accel_mps2 > 0) { // throttle
+    accel_mps2 = accel_mps2 > m_acceleration_limit ? m_acceleration_limit : accel_mps2;
+    throttle_percent = accel_mps2 / m_acceleration_limit;
     if (throttle_percent < m_accel_control_deadzone_min) {
       throttle_percent = 0;
     }
     brake_percent = 0;
   } else {  // brake
     float decel_mps2 = std::fabs(accel_mps2);
-    brake_percent = std::min(decel_mps2, 1.0F);
+    decel_mps2 = decel_mps2 > m_deceleration_limit ? m_deceleration_limit : decel_mps2;
+    brake_percent = decel_mps2 / m_deceleration_limit;
     if (brake_percent < m_accel_control_deadzone_min) {
       brake_percent = 0;
     }
@@ -540,6 +542,8 @@ void DataspeedFordInterface::on_steering_report(const SteeringReport::SharedPtr 
 
   odometry().front_wheel_angle_rad = f_wheel_angle_rad;
   odometry().rear_wheel_angle_rad = 0.0F;
+
+  odometry().velocity_mps = msg->speed;
 
   m_seen_steering_rpt = true;
   odometry().stamp = msg->header.stamp;

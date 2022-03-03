@@ -66,7 +66,7 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
   rcl_interfaces::msg::ParameterDescriptor p_descriptor;
   rcl_interfaces::msg::FloatingPointRange p_range;
   p_range.from_value = 0;
-  p_range.to_value = 10;
+  p_range.to_value = 1.0;
   p_range.step = 0.01;
   p_descriptor.floating_point_range.push_back(p_range);
 
@@ -74,7 +74,7 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
   rcl_interfaces::msg::ParameterDescriptor i_descriptor;
   rcl_interfaces::msg::FloatingPointRange i_range;
   i_range.from_value = 0;
-  i_range.to_value = 10;
+  i_range.to_value = 1.0;
   i_range.step = 0.01;
   i_descriptor.floating_point_range.push_back(i_range);
 
@@ -82,7 +82,7 @@ DataspeedFordInterfaceNode::DataspeedFordInterfaceNode(const rclcpp::NodeOptions
   rcl_interfaces::msg::ParameterDescriptor d_descriptor;
   rcl_interfaces::msg::FloatingPointRange d_range;
   d_range.from_value = 0;
-  d_range.to_value = 10;
+  d_range.to_value = 1.0;
   d_range.step = 0.01;
   d_descriptor.floating_point_range.push_back(d_range);
 

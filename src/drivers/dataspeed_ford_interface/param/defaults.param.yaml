@@ -15,14 +15,14 @@
       deceleration_negative_jerk_limit: 1.0
       pub_period: 20 # recommended value 20-100ms
       acceleration_control:
-        kp: 0.0
-        ki: 0.0
+        kp: 0.2
+        ki: 0.01
         kd: 0.0
-        deadzone_min: -0.05
-        deadzone_max: 0.05
+        deadzone_min: 0.0
+        deadzone_max: 0.0
       auto_brake:
-        velocity_mps: 0.1
-        pedal_stress: 0.35
+        velocity_mps: 0.025
+        pedal_stress: 0.20
     state_machine:
       gear_shift_velocity_threshold_mps: 0.5
       acceleration_limits:
