@@ -27,3 +27,8 @@ repositories:
     type: git
     url: https://bitbucket.org/DataspeedInc/lusb.git
     version: ros2
+  src/external/ub_mkz/ub_car_launch:
+    type: git
+    url: https://github.com/cavas-ub/ub_car_launch.git
+    version: main
+
