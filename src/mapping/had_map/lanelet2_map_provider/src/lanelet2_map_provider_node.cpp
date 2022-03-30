@@ -84,17 +84,41 @@ geometry_msgs::msg::TransformStamped Lanelet2MapProviderNode::get_map_origin()
 
   rclcpp::WallRate loop_rate(std::chrono::milliseconds(100));
 
+  bool warning_msg_printed = false;
+
   while (rclcpp::ok()) {
     try {
       geometry_msgs::msg::TransformStamped tfs =
         buffer->lookupTransform("earth", "map", tf2::TimePointZero);
       // No exception – we got the transform
+      RCLCPP_INFO(this->get_logger(), "/earth to /map transform received");
+      RCLCPP_INFO(this->get_logger(), "Transformation: ");
+      RCLCPP_INFO(
+        this->get_logger(),
+        "\tTranslation: [%f, %f, %f]",
+        tfs.transform.translation.x,
+        tfs.transform.translation.y,
+        tfs.transform.translation.z);
+      tf2::Quaternion q;
+      tf2::fromMsg(tfs.transform.rotation, q);
+      RCLCPP_INFO(this->get_logger(), "\tRotation angle: %f", q.getAngle());
+      RCLCPP_INFO(
+        this->get_logger(),
+        "Rotation axis: [%f, %f, %f]",
+        q.getAxis().x(),
+        q.getAxis().y(),
+        q.getAxis().z());
       return tfs;
     } catch (tf2::TransformException & ex) {
-      RCLCPP_INFO(
+      if (warning_msg_printed) {
+        continue;
+      }
+
+      RCLCPP_WARN(
         this->get_logger(),
         "Waiting for earth to map transform - please start ndt_map_publisher .... : %s",
         ex.what());
+      warning_msg_printed = true;
     }
     loop_rate.sleep();
   }

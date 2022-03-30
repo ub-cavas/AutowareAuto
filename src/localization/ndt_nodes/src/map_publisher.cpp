@@ -139,7 +139,10 @@ void NDTMapPublisherNode::init(
 
 void NDTMapPublisherNode::run()
 {
+  RCLCPP_INFO(this->get_logger(), "Loading PCD map: %s", m_yaml_file_name.c_str());
   ndt::geocentric_pose_t pose = ndt::load_map(m_yaml_file_name, m_pcl_file_name, m_source_pc);
+  RCLCPP_INFO(this->get_logger(), "PCD map successfully loaded");
+
   publish_earth_to_map_transform(pose);
   m_ndt_map_ptr->insert(m_source_pc);
   m_ndt_map_ptr->serialize_as<SerializedMap>(m_map_pc);

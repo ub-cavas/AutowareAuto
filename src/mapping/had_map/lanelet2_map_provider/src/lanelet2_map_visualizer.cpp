@@ -161,14 +161,20 @@ Lanelet2MapVisualizer::Lanelet2MapVisualizer(const rclcpp::NodeOptions & options
       request->geom_lower_bound.push_back(lower[i]);
     }
   }
+
+  bool warning_msg_printed = false;
   while (!m_client->wait_for_service(1s)) {
     if (!rclcpp::ok()) {
-      RCLCPP_INFO(this->get_logger(), "Interrupted while waiting for the service. Exiting");
+      RCLCPP_ERROR(this->get_logger(), "Interrupted while waiting for the service. Exiting");
       return;
     }
-    RCLCPP_INFO(this->get_logger(), "Service not available, waiting again...");
+    if (warning_msg_printed) continue;
+
+    RCLCPP_WARN(this->get_logger(), "Service not available, waiting again...");
+    warning_msg_printed = true;
   }
 
+  RCLCPP_INFO(this->get_logger(), "Service available! Sending request...");
   auto result = m_client->async_send_request(
     request,
     std::bind(&Lanelet2MapVisualizer::visualize_map_callback, this, std::placeholders::_1));
