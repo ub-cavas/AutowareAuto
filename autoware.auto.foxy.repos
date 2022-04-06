@@ -27,8 +27,11 @@ repositories:
     type: git
     url: https://bitbucket.org/DataspeedInc/lusb.git
     version: ros2
-  src/external/ub_mkz/ub_car_launch:
+  src/external/ouster/ros2_driver:
     type: git
-    url: https://github.com/cavas-ub/ub_car_launch.git
+    url: https://github.com/ros-drivers/ros2_ouster_drivers.git
+    version: ros2
+  src/external/bootcamp/bootcamp_launch:
+    type: git
+    url: https://github.com/shineyruan/bootcamp_launch.git
     version: main
-
