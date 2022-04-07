@@ -31,7 +31,11 @@ repositories:
     type: git
     url: https://github.com/ros-drivers/ros2_ouster_drivers.git
     version: ros2
-  src/external/bootcamp/bootcamp_launch:
+  src/external/pennovation-shuttlebus:
     type: git
-    url: https://github.com/shineyruan/bootcamp_launch.git
+    url: https://github.com/mlab-upenn/autoware-auto-shuttlebus.git
+    version: main
+  src/external/ub_car_launch:
+    type: git
+    url: https://github.com/cavas-ub/ub_car_launch.git
     version: main
