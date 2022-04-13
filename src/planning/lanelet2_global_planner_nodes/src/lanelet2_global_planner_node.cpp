@@ -79,6 +79,10 @@ Lanelet2GlobalPlannerNode::Lanelet2GlobalPlannerNode(
     "vehicle_kinematic_state", rclcpp::QoS(10),
     std::bind(&Lanelet2GlobalPlannerNode::current_pose_cb, this, _1));
 
+  // Subscribes localizer pose
+  ndt_pose_sub_ptr = this->create_subscription<geometry_msgs::msg::PoseWithCovarianceStamped>(
+    "ndt_pose", rclcpp::QoS(10), std::bind(&Lanelet2GlobalPlannerNode::ndt_pose_cb, this, _1));
+
   // Global path publisher
   global_path_pub_ptr =
     this->create_publisher<autoware_auto_planning_msgs::msg::HADMapRoute>(
@@ -160,6 +164,31 @@ void Lanelet2GlobalPlannerNode::goal_pose_cb(
     this->send_global_path(route, start, end, msg_header);
   } else {
     RCLCPP_ERROR(this->get_logger(), "Global route has not been found!");
+  }
+}
+
+void Lanelet2GlobalPlannerNode::ndt_pose_cb(
+  const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg)
+{
+  // convert msg to geometry_msgs::msg::Pose
+  start_pose.pose = msg->pose.pose;
+  start_pose.header = msg->header;
+
+  // transform to "map" frame if needed
+  if (start_pose.header.frame_id != "map") {
+    geometry_msgs::msg::PoseStamped start_pose_map = start_pose;
+
+    if (!transform_pose_to_map(start_pose, start_pose_map)) {
+      // transform failed
+      start_pose_init = false;
+    } else {
+      // transform ok: set start_pose to the pose in map
+      start_pose = start_pose_map;
+      start_pose_init = true;
+    }
+  } else {
+    // No transform required
+    start_pose_init = true;
   }
 }
 

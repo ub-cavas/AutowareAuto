@@ -38,6 +38,7 @@
 #include <autoware_auto_mapping_msgs/srv/had_map_service.hpp>
 #include <autoware_auto_planning_msgs/srv/modify_trajectory.hpp>
 #include <behavior_planner/behavior_planner.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 //  Other ROS packages
 #include <lanelet2_core/LaneletMap.h>
@@ -71,6 +72,7 @@ using GEAR_TYPE =
 using State = autoware_auto_vehicle_msgs::msg::VehicleKinematicState;
 using autoware::behavior_planner::PlannerType;
 using autoware::behavior_planner::RouteWithType;
+using PoseWithCovarianceStamped = geometry_msgs::msg::PoseWithCovarianceStamped;
 
 using autoware::common::types::bool8_t;
 using autoware::common::types::uchar8_t;
@@ -100,6 +102,7 @@ private:
   rclcpp::Subscription<Trajectory>::SharedPtr m_lane_trajectory_sub{};
   rclcpp::Subscription<Trajectory>::SharedPtr m_parking_trajectory_sub{};
   rclcpp::Subscription<GearReport>::SharedPtr m_gear_report_sub{};
+  rclcpp::Subscription<PoseWithCovarianceStamped>::SharedPtr m_ndt_pose_sub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_trajectory_pub{};
   rclcpp::Publisher<Trajectory>::SharedPtr m_debug_checkpoints_pub{};
@@ -130,6 +133,7 @@ private:
   void on_lane_trajectory(const Trajectory::SharedPtr & msg);
   void on_parking_trajectory(const Trajectory::SharedPtr & msg);
   void on_gear_report(const GearReport::SharedPtr & msg);
+  void on_ndt_pose(const PoseWithCovarianceStamped::SharedPtr & msg);
   void map_response(rclcpp::Client<HADMapService>::SharedFuture future);
   void modify_trajectory_response(rclcpp::Client<ModifyTrajectory>::SharedFuture future);
   void clear_trajectory_cache();
