@@ -432,18 +432,11 @@ void BehaviorPlannerNode::on_ndt_pose(const PoseWithCovarianceStamped::SharedPtr
         static_cast<int>(desired_gear));
     }
     // send trajectory with current state so that velocity will be zero in order to change gear
-    // Trajectory trajectory;
-    // trajectory.header.frame_id = "map";
-    // trajectory.header.stamp = state_msg.header.stamp;
-    // trajectory.points.push_back(state_msg.state);
-    // m_trajectory_pub->publish(trajectory);
-
-    auto trajectory = m_planner->get_trajectory(m_ego_state);
-    // trajectory.header = m_ego_state.header;
+    Trajectory trajectory;
     trajectory.header.frame_id = "map";
     trajectory.header.stamp = state_msg.header.stamp;
+    trajectory.points.push_back(state_msg.state);
     m_trajectory_pub->publish(trajectory);
-    RCLCPP_INFO(get_logger(), "published trajectory");
   } else {
     auto trajectory = m_planner->get_trajectory(m_ego_state);
     // trajectory.header = m_ego_state.header;
