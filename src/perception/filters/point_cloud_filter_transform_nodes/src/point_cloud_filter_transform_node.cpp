@@ -178,7 +178,9 @@ const PointCloud2 & PointCloud2FilterTransformNode::filter_and_transform(const P
     if (point_not_filtered(pt)) {
       auto transformed_point = transform_point(pt);
       transformed_point.intensity = pt.intensity;
-      modifier.push_back(transformed_point);
+      if (transformed_point.z >= 0) {
+        modifier.push_back(transformed_point);
+      }
     }
 
     ++x_it;
