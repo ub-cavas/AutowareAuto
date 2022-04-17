@@ -43,3 +43,7 @@ repositories:
     type: git
     url: https://github.com/rsasaki0109/lidarslam_ros2.git
     version: foxy
+  src/external/imu/bno055:
+    type: git
+    url: https://github.com/flynneva/bno055.git
+    version: main
