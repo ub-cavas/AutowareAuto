@@ -39,3 +39,7 @@ repositories:
     type: git
     url: https://github.com/cavas-ub/ub_car_launch.git
     version: main
+  src/external/lidarslam_ros2:
+    type: git
+    url: https://github.com/rsasaki0109/lidarslam_ros2.git
+    version: foxy
