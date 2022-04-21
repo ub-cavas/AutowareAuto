@@ -36,6 +36,7 @@
 #include <autoware_auto_vehicle_msgs/msg/vehicle_kinematic_state.hpp>
 #include <had_map_utils/had_map_conversion.hpp>
 #include <common/types.hpp>
+#include <geometry_msgs/msg/pose_with_covariance_stamped.hpp>
 
 // c++
 #include <chrono>
@@ -63,6 +64,7 @@ public:
   void request_osm_binary_map();
   void goal_pose_cb(const geometry_msgs::msg::PoseStamped::SharedPtr msg);
   void current_pose_cb(const autoware_auto_vehicle_msgs::msg::VehicleKinematicState::SharedPtr msg);
+  void ndt_pose_cb(const geometry_msgs::msg::PoseWithCovarianceStamped::SharedPtr msg);
   void send_global_path(
     const std::vector<lanelet::Id> & had_map_route,
     const autoware_auto_planning_msgs::msg::TrajectoryPoint & start_point,
@@ -77,6 +79,7 @@ private:
   rclcpp::Subscription<geometry_msgs::msg::PoseStamped>::SharedPtr goal_pose_sub_ptr;
   rclcpp::Subscription<autoware_auto_vehicle_msgs::msg::VehicleKinematicState>::SharedPtr
     current_pose_sub_ptr;
+  rclcpp::Subscription<geometry_msgs::msg::PoseWithCovarianceStamped>::SharedPtr ndt_pose_sub_ptr;
   rclcpp::Publisher<autoware_auto_planning_msgs::msg::HADMapRoute>::SharedPtr global_path_pub_ptr;
   geometry_msgs::msg::PoseStamped start_pose;
   geometry_msgs::msg::PoseStamped goal_pose;

@@ -72,6 +72,11 @@ void Lanelet2MapProvider::load_map(
 
   lanelet::projection::UtmProjector projector(origin);
   m_map = lanelet::load(map_filename, projector, &errors);
+
+  for (auto it = m_map->pointLayer.begin(); it != m_map->pointLayer.end(); ++it) {
+    // reset z to 0
+    it->z() = 0;
+  }
   autoware::common::had_map_utils::overwriteLaneletsCenterline(m_map, true);
 }
 

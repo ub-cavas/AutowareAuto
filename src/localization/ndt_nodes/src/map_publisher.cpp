@@ -127,6 +127,7 @@ void NDTMapPublisherNode::init(
       std::chrono::seconds(1),
       [this]() {
         if (m_downsampled_pc.width > 0U) {
+          m_downsampled_pc.header.frame_id = "map";
           m_viz_pub->publish(m_downsampled_pc);
         }
       });
@@ -139,7 +140,10 @@ void NDTMapPublisherNode::init(
 
 void NDTMapPublisherNode::run()
 {
+  RCLCPP_INFO(this->get_logger(), "Loading PCD map: %s", m_yaml_file_name.c_str());
   ndt::geocentric_pose_t pose = ndt::load_map(m_yaml_file_name, m_pcl_file_name, m_source_pc);
+  RCLCPP_INFO(this->get_logger(), "PCD map successfully loaded");
+
   publish_earth_to_map_transform(pose);
   m_ndt_map_ptr->insert(m_source_pc);
   m_ndt_map_ptr->serialize_as<SerializedMap>(m_map_pc);
@@ -197,6 +201,7 @@ void NDTMapPublisherNode::downsample_pc()
 void NDTMapPublisherNode::publish()
 {
   if (m_map_pc.width > 0U) {
+    m_map_pc.header.frame_id = "map";
     m_pub->publish(m_map_pc);
   }
 }

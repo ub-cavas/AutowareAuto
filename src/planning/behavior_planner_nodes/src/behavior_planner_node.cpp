@@ -143,10 +143,13 @@ void BehaviorPlannerNode::init()
   m_gear_report_sub = this->create_subscription<GearReport>(
     "gear_report", QoS{10},
     [this](const GearReport::SharedPtr msg) {on_gear_report(msg);});
+  m_ndt_pose_sub = this->create_subscription<PoseWithCovarianceStamped>(
+    "ndt_pose", QoS{10}, [this](const PoseWithCovarianceStamped::SharedPtr msg) {
+      on_ndt_pose(msg);
+    });
 
   // Setup publishers
-  m_trajectory_pub =
-    this->create_publisher<Trajectory>("trajectory", QoS{10});
+  m_trajectory_pub = this->create_publisher<Trajectory>("trajectory", QoS{10});
   m_debug_trajectory_pub =
     this->create_publisher<Trajectory>("debug/full_trajectory", QoS{10});
   m_debug_checkpoints_pub =
@@ -351,6 +354,108 @@ void BehaviorPlannerNode::on_ego_state(const State::SharedPtr & msg)
   }
 }
 
+void BehaviorPlannerNode::on_ndt_pose(const PoseWithCovarianceStamped::SharedPtr & msg)
+{
+  // Do nothing if localization result is not received yet.
+  if (!m_tf_buffer->canTransform("map", msg->header.frame_id, tf2::TimePointZero)) {
+    RCLCPP_INFO(get_logger(), "Waiting for localization result to become available");
+    return;
+  }
+
+  State state_msg;
+  state_msg.header = msg->header;
+  state_msg.state.pose = msg->pose.pose;
+  m_ego_state = state_msg;
+
+  // do nothing if we haven't got route yet
+  if (!m_planner->is_route_ready()) {
+    return;
+  }
+
+  // check if we need new trajectory
+  // make sure we are not requesting trajectory if we already have
+  if (!m_requesting_trajectory) {
+    if (m_planner->has_arrived_goal(m_ego_state)) {
+      if (m_log_goal_reached) {
+        RCLCPP_INFO(get_logger(), "Reached goal. Wait for another route");
+        m_log_goal_reached = false;
+      }
+    } else if (m_planner->has_arrived_subroute_goal(m_ego_state)) {
+      // send next subroute
+      m_planner->set_next_subroute();
+      request_trajectory(m_planner->get_current_subroute(m_ego_state));
+      m_requesting_trajectory = true;
+      m_log_goal_reached = true;
+    } else if (m_planner->needs_new_trajectory(m_ego_state)) {
+      // update trajectory for current subroute
+      request_trajectory(m_planner->get_current_subroute(m_ego_state));
+      m_requesting_trajectory = true;
+      m_log_goal_reached = true;
+    }
+  }
+
+  if (!m_planner->is_trajectory_ready()) {
+    return;
+  }
+
+  const auto desired_gear = m_planner->get_desired_gear(m_ego_state);
+  if (desired_gear != m_current_gear) {
+    auto & clock = *this->get_clock();
+    RCLCPP_INFO_THROTTLE(
+      get_logger(),
+      clock,
+      3000,
+      "Trying to change gear, current gear is %d, desired gear is %d.",
+      static_cast<int>(m_current_gear),
+      static_cast<int>(desired_gear));
+
+    auto const it = gear_report_to_vsc_gear.find(desired_gear);
+    if (it != gear_report_to_vsc_gear.end()) {
+      VehicleStateCommand gear_command;
+      RCLCPP_INFO_THROTTLE(
+        get_logger(),
+        clock,
+        3000,
+        "Send command to convert desired_gear %d to %d",
+        static_cast<int>(desired_gear),
+        static_cast<int>(it->second));
+      gear_command.gear = it->second;
+      gear_command.mode = VehicleStateCommand::MODE_AUTONOMOUS;
+      gear_command.stamp = state_msg.header.stamp;
+      m_vehicle_state_command_pub->publish(gear_command);
+    } else {
+      RCLCPP_INFO_THROTTLE(
+        get_logger(),
+        clock,
+        3000,
+        "Unable to match desired_gear %d",
+        static_cast<int>(desired_gear));
+    }
+    // send trajectory with current state so that velocity will be zero in order to change gear
+    Trajectory trajectory;
+    trajectory.header.frame_id = "map";
+    trajectory.header.stamp = state_msg.header.stamp;
+    trajectory.points.push_back(state_msg.state);
+    m_trajectory_pub->publish(trajectory);
+  } else {
+    auto trajectory = m_planner->get_trajectory(m_ego_state);
+    // trajectory.header = m_ego_state.header;
+    trajectory.header.frame_id = "map";
+    trajectory.header.stamp = state_msg.header.stamp;
+
+    // If object collision estimation is enabled, send trajectory through the collision estimator
+    if (m_modify_trajectory_client) {
+      auto request = std::make_shared<ModifyTrajectory::Request>();
+      request->original_trajectory = trajectory;
+      auto result = m_modify_trajectory_client->async_send_request(
+        request,
+        std::bind(&BehaviorPlannerNode::modify_trajectory_response, this, std::placeholders::_1));
+    } else {
+      m_trajectory_pub->publish(trajectory);
+    }
+  }
+}
+
 void BehaviorPlannerNode::on_gear_report(const GearReport::SharedPtr & msg)
 {
   m_current_gear = msg->report;
@@ -385,6 +490,8 @@ void BehaviorPlannerNode::on_route(const HADMapRoute::SharedPtr & msg)
     m_map_client->async_send_request(
     request,
     std::bind(&BehaviorPlannerNode::map_response, this, std::placeholders::_1));
+
+  RCLCPP_INFO(get_logger(), "Route is received");
 }
 
 void BehaviorPlannerNode::modify_trajectory_response(
